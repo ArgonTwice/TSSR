@@ -10,6 +10,7 @@ const store = {
 let state = {
   currentModule: null,
   currentTab: null,
+  currentScreen: 'home',  // 'home' | 'module' | 'terminals' | 'terminal-fs'
   qcm: { questions: [], idx: 0, answers: [], locked: false, done: false },
   fc: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
   cli: { type: null, history: [], histIdx: -1, cwd: '/', env: {} },
@@ -45,6 +46,16 @@ function globalProgress() {
 function renderNav() {
   const nav = document.getElementById('module-nav');
   nav.innerHTML = '<p class="nav-section-label">Modules</p>';
+  // Entrée Terminaux
+  const termBtn = document.createElement('button');
+  termBtn.className = 'nav-item nav-item-terminals' + (state.currentScreen === 'terminals' ? ' active' : '');
+  termBtn.setAttribute('aria-label', 'Terminaux');
+  termBtn.innerHTML = `
+    <span class="nav-item-icon" style="background:rgba(0,229,160,0.1);color:var(--accent)">💻</span>
+    <span>Terminaux</span>
+    <span class="nav-item-right"><span class="nav-badge" style="background:var(--accent-dim);color:var(--accent)">2</span></span>`;
+  termBtn.addEventListener('click', () => openTerminals());
+  nav.appendChild(termBtn);
   MODULES.forEach(m => {
     const prog = getProgress(m.id);
     const btn = document.createElement('button');
@@ -69,6 +80,7 @@ function renderGlobalProgress() {
 // ===== HOME =====
 function renderHome() {
   state.currentModule = null;
+  state.currentScreen = 'home';
   document.getElementById('mobile-module-name').textContent = '';
   renderNav();
   const stats = document.getElementById('home-stats');
@@ -130,11 +142,11 @@ function openModule(moduleId) {
     <span class="module-meta-badge" style="background:${m.color}22;color:${m.color}">${m.topics.slice(0,3).join(' · ')}</span>`;
 
   const tabs = [];
-  if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',        icon: '📖' });
-  if (m.flashcards.length)  tabs.push({ id: 'flashcards',  label: 'Flashcards',   icon: '🃏' });
-  if (m.qcm.length)         tabs.push({ id: 'qcm',         label: 'QCM',          icon: '✅' });
-  if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧' });
-  if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟' });
+  if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',        icon: '📖', cli: false });
+  if (m.flashcards.length)  tabs.push({ id: 'flashcards',  label: 'Flashcards',   icon: '🃏', cli: false });
+  if (m.qcm.length)         tabs.push({ id: 'qcm',         label: 'QCM',          icon: '✅', cli: false });
+  if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧', cli: true,  color: '#00e5a0' });
+  if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟', cli: true,  color: '#3b82f6' });
 
   const tabBar = document.getElementById('tab-bar');
   tabBar.innerHTML = '';
@@ -146,12 +158,15 @@ function openModule(moduleId) {
   }
   tabs.forEach(t => {
     const btn = document.createElement('button');
-    btn.className = 'tab-btn';
+    btn.className = 'tab-btn' + (t.cli ? ' tab-btn-cli' : '');
+    if (t.cli) btn.style.setProperty('--cli-color', t.color);
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-selected', 'false');
     btn.setAttribute('aria-controls', 'tab-content');
     btn.dataset.tab = t.id;
-    btn.innerHTML = `<span class="tab-btn-icon">${t.icon}</span>${t.label}`;
+    btn.innerHTML = t.cli
+      ? `<span class="tab-btn-cli-icon">${t.icon}</span><span>${t.label}</span><span class="tab-btn-cli-dot"></span>`
+      : `<span class="tab-btn-icon">${t.icon}</span>${t.label}`;
     btn.addEventListener('click', () => switchTab(t.id));
     tabBar.appendChild(btn);
   });
@@ -211,8 +226,29 @@ function renderCoursContent(sections) {
     if (s.type === 'ul')    return `<ul>${s.items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
     if (s.type === 'ol')    return `<ol>${s.items.map(i=>`<li>${i}</li>`).join('')}</ol>`;
     if (s.type === 'table') return renderTable(s);
+    if (s.type === 'h2')    return `<h2>${s.content}</h2>`;
     if (s.type === 'h3')    return `<h3 style="font-size:15px;font-weight:700;color:var(--text);margin:20px 0 10px">${s.content}</h3>`;
+    if (s.type === 'schema') return renderSchema(s.content);
+    if (s.type === 'steps')  return renderSteps(s.items);
     return '';
+  }).join('');
+}
+function renderSchema(txt) {
+  return `<pre class="schema-block">${escHtml(txt)}</pre>`;
+}
+function renderSteps(items) {
+  return items.map(step => {
+    const codeBlock = step.code ? `<pre class="code-block" style="margin-top:10px">${escHtml(step.code)}</pre>` : '';
+    const whyBlock = step.why ? `<div class="step-why-block">${step.why}</div>` : '';
+    return `<div class="cours-step">
+      <div class="cours-step-num">${escHtml(step.num)}</div>
+      <div class="cours-step-body">
+        <div class="cours-step-title">${step.title}</div>
+        ${step.content ? `<div class="cours-step-content">${step.content}</div>` : ''}
+        ${codeBlock}
+        ${whyBlock}
+      </div>
+    </div>`;
   }).join('');
 }
 function renderTable(s) {
@@ -1405,11 +1441,150 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
   }
 }
 
+// ============================================================
+// ===== PAGE TERMINAUX =======================================
+// ============================================================
+
+const CLI_CARDS = [
+  {
+    id: 'linux',
+    label: 'Terminal Linux',
+    sublabel: 'Bash — Debian GNU/Linux',
+    icon: '🐧',
+    color: '#00e5a0',
+    colorDim: 'rgba(0,229,160,0.08)',
+    colorBorder: 'rgba(0,229,160,0.25)',
+    prompt: 'tssr@debian-srv:~$',
+    promptColor: '#00e5a0',
+    desc: 'Shell Bash interactif. Filesystem virtuel, réseau, systemd, vim, pipe, redirection.',
+    cmds: ['ls -la /etc', 'systemctl status ssh', 'ip addr show', 'ping -c 4 8.8.8.8', 'vim config.sh', 'tp bases'],
+    tpCount: 4,
+  },
+  {
+    id: 'windows',
+    label: 'PowerShell',
+    sublabel: 'Windows Server 2022',
+    icon: '🪟',
+    color: '#3b82f6',
+    colorDim: 'rgba(59,130,246,0.08)',
+    colorBorder: 'rgba(59,130,246,0.25)',
+    prompt: 'PS C:\\Users\\Administrateur>',
+    promptColor: '#60a5fa',
+    desc: 'PowerShell interactif. Active Directory, services, réseau, filesystem Windows.',
+    cmds: ['Get-ChildItem C:\\', 'ipconfig /all', 'Get-Service DNS', 'Get-ADUser -Filter *', 'Test-Connection 8.8.8.8', 'tp bases'],
+    tpCount: 3,
+  },
+];
+
+function openTerminals() {
+  state.currentModule = null;
+  state.currentScreen = 'terminals';
+  document.getElementById('mobile-module-name').textContent = 'Terminaux';
+  renderNav();
+
+  const grid = document.getElementById('terminals-grid');
+  grid.innerHTML = '';
+
+  CLI_CARDS.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'term-card';
+    el.style.setProperty('--tc', card.color);
+    el.style.setProperty('--tc-dim', card.colorDim);
+    el.style.setProperty('--tc-border', card.colorBorder);
+    el.style.animationDelay = i * 100 + 'ms';
+
+    const cmdsHtml = card.cmds.map(c =>
+      `<div class="term-preview-line"><span class="term-preview-prompt" style="color:${card.promptColor}">${card.id === 'linux' ? '$' : '>'}</span><span class="term-preview-cmd">${escHtml(c)}</span></div>`
+    ).join('');
+
+    el.innerHTML = `
+      <div class="term-card-titlebar" style="background:${card.id === 'linux' ? '#0d1f0d' : '#012456'}">
+        <div class="term-card-dots">
+          <span class="tc-dot" style="background:#ff5f57"></span>
+          <span class="tc-dot" style="background:#ffbd2e"></span>
+          <span class="tc-dot" style="background:#28c840"></span>
+        </div>
+        <span class="term-card-wintitle">${card.sublabel}</span>
+        <span class="term-card-icon-sm">${card.icon}</span>
+      </div>
+      <div class="term-card-preview" style="border-color:${card.colorBorder}">
+        ${cmdsHtml}
+        <div class="term-preview-cursor" style="border-color:${card.color}"></div>
+      </div>
+      <div class="term-card-info">
+        <div class="term-card-name" style="color:${card.color}">${card.label}</div>
+        <div class="term-card-desc">${card.desc}</div>
+        <div class="term-card-badges">
+          <span class="tcb" style="background:${card.colorDim};color:${card.color};border-color:${card.colorBorder}">${card.tpCount} TP guidés</span>
+          <span class="tcb tcb-gray">vim / nano</span>
+          <span class="tcb tcb-gray">offline PWA</span>
+        </div>
+      </div>
+      <button class="term-card-btn" style="--btn-c:${card.color}" aria-label="Ouvrir ${card.label}">
+        <span>Ouvrir le terminal</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>`;
+
+    el.querySelector('.term-card-btn').addEventListener('click', () => openTerminalFS(card.id));
+    grid.appendChild(el);
+  });
+
+  showScreen('terminals-screen');
+  closeSidebar();
+}
+
+function openTerminalFS(type) {
+  const card = CLI_CARDS.find(c => c.id === type);
+  if (!card) return;
+  state.currentScreen = 'terminal-fs';
+  document.getElementById('mobile-module-name').textContent = card.label;
+
+  const header = document.getElementById('terminal-fs-header');
+  header.className = 'terminal-fs-header tfs-' + type;
+  header.innerHTML = `
+    <div class="tfs-inner">
+      <button class="back-btn" id="tfs-back" aria-label="Retour aux terminaux">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Terminaux
+      </button>
+      <div class="tfs-title-block">
+        <span class="tfs-os-icon">${card.icon}</span>
+        <div>
+          <div class="tfs-title" style="color:${card.color}">${card.label}</div>
+          <div class="tfs-sub">${card.sublabel}</div>
+        </div>
+      </div>
+      <div class="tfs-hints">
+        <span class="tfs-hint" style="border-color:${card.colorBorder};color:${card.color}">
+          ↑↓ historique
+        </span>
+        <span class="tfs-hint" style="border-color:${card.colorBorder};color:${card.color}">
+          Tab complétion
+        </span>
+        <span class="tfs-hint" style="border-color:${card.colorBorder};color:${card.color}">
+          <code>tp</code> pour les TP
+        </span>
+        <span class="tfs-hint" style="border-color:${card.colorBorder};color:${card.color}">
+          ${type === 'linux' ? '<code>vim fichier</code>' : '<code>help</code>'}
+        </span>
+      </div>
+    </div>`;
+
+  document.getElementById('tfs-back').addEventListener('click', openTerminals);
+
+  const fsContent = document.getElementById('terminal-fs-content');
+  renderCLI(type, null, fsContent);
+  showScreen('terminal-fullscreen');
+  closeSidebar();
+}
+
 // ===== SCREENS =====
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.getElementById('content').scrollTop = 0;
+  state.currentScreen = id.replace('-screen','');
+  renderNav();
 }
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');

@@ -929,6 +929,22 @@ const TP_SCENARIOS = {
         { instr: 'Gateway corrigée. Confirme la connectivité Internet.', hint: 'ping 8.8.8.8', check: c => /^ping\b.*8\.8\.8\.8/i.test(c.trim()) },
       ],
     },
+    {
+      id: 'conflit',
+      title: 'Conflit d\'adresse IP',
+      desc: 'Connectivité intermittente — une autre machine partage l\'IP 192.168.1.20. Identifie et résous le conflit.',
+      onStart: () => { cliState.networkFault = 'conflict'; },
+      onEnd:   () => { cliState.networkFault = null; },
+      steps: [
+        { instr: '⚠️ Signalement : connexions instables, coupures aléatoires. Commence par vérifier la configuration IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'La config semble normale mais Windows mentionne un conflit. Consulte les événements système récents.', hint: 'Get-EventLog -LogName System -Newest 10', check: c => /^get-eventlog\b/i.test(c.trim()) || /^get-winevent\b/i.test(c.trim()) },
+        { instr: 'Event ID 4199 confirmé : conflit d\'adresse IP. Vérifie la table ARP pour trouver l\'intrus.', hint: 'arp -a', check: c => /^arp\b/i.test(c.trim()) },
+        { instr: 'Deux entrées MAC pour 192.168.1.20 ! Une MAC étrangère écrase la nôtre. Confirme l\'instabilité avec un ping.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1\.1/i.test(c.trim()) },
+        { instr: '50% de perte → trafic capté aléatoirement par l\'autre machine. Solution : changer notre IP. Attribue 192.168.1.21.', hint: 'netsh interface ip set address "Ethernet" static 192.168.1.21 255.255.255.0 192.168.1.1', check: c => /^netsh\b/i.test(c.trim()) },
+        { instr: 'Configuration appliquée. Vérifie la nouvelle IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'IP changée en 192.168.1.21. Plus de conflit. Confirme la stabilité réseau.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1/i.test(c.trim()) },
+      ],
+    },
   ],
   linux: [],
 };
@@ -1883,6 +1899,17 @@ function cliExecWindows(cmd, args, raw) {
         explain('⚠️ La <strong>passerelle par défaut 192.168.99.1</strong> n\'appartient pas au réseau local (192.168.1.0/24). Tout le trafic sortant (Internet, autres sous-réseaux) est envoyé vers une gateway inexistante et sera perdu. Le réseau local /24 reste accessible car il ne passe pas par la gateway.');
         break;
       }
+      if (cliState.networkFault === 'conflict') {
+        if (all) out(`   Nom de l'hôte. . . . . . . . . . . : ${cliState.host}\n   Suffixe DNS principal  . . . . . . : tssr.local\n   Routage IP activé. . . . . . . . . : Non`);
+        out(`Carte Ethernet Ethernet :
+   Adresse IPv4. . . . . . . . . . . .: <span style="color:var(--blue)">192.168.1.20</span>
+   Masque de sous-réseau . . . . . . .: 255.255.255.0
+   Passerelle par défaut . . . . . . .: 192.168.1.1`);
+        if (all) out(`   Serveur DHCP . . . . . . . . . . . : 192.168.1.1\n   Serveurs DNS. . . . . . . . . . . .: 192.168.1.20`);
+        out(`\n<span style="color:var(--red)">Windows a détecté un conflit d\'adresse IP avec un autre ordinateur du réseau et a désactivé l\'adresse IPv4 192.168.1.20 sur l\'adaptateur Ethernet.</span>`);
+        explain('⚠️ <strong>Conflit d\'adresse IP</strong> : une autre machine du réseau utilise également 192.168.1.20. Windows a détecté un ARP Gratuit en provenance d\'une autre adresse MAC avec la même IP. La connectivité est intermittente car les trames Ethernet arrivent aléatoirement sur l\'une ou l\'autre machine.');
+        break;
+      }
       if (all) {
         out(`   Nom de l'hôte. . . . . . . . . . . : ${cliState.host}
    Suffixe DNS principal  . . . . . . : tssr.local
@@ -1895,7 +1922,7 @@ function cliExecWindows(cmd, args, raw) {
    Passerelle par défaut . . . . . . .: 192.168.1.1`);
       if (all) out(`   Serveur DHCP . . . . . . . . . . . : 192.168.1.1
    Serveurs DNS. . . . . . . . . . . .: 192.168.1.20
-   Bail obtenu . . . . . . . . . . . .: mercredi 4 juin 2025`);
+   Bail obtenu . . . . . . . . . . . .: ${new Date().toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}`);
       explain(`<strong>ipconfig</strong> affiche la configuration IP. <strong>/all</strong> ajoute la MAC, DHCP, DNS et la date du bail. 169.254.x.x = APIPA (pas de DHCP). Équivalent de <code>ip addr</code> sur Linux.`);
       break;
     }
@@ -1917,6 +1944,16 @@ function cliExecWindows(cmd, args, raw) {
         for (let i=0;i<4;i++) out(`Délai d\'attente de la demande dépassé.`);
         out(`\nStatistiques du Ping pour ${ip} :\n    Paquets : Envoyés = 4, Reçus = 0, Perdus = 4 (perte 100%)`);
         explain(`<strong>Timeout vers ${host}</strong> : cette adresse est hors du réseau local, elle doit passer par la gateway (192.168.99.1). Comme cette gateway n\'existe pas sur le réseau 192.168.1.0/24, les paquets sont perdus. Le réseau local (192.168.1.x) fonctionne car il ne passe pas par la gateway.`);
+        break;
+      }
+      if (cliState.networkFault === 'conflict' && !isLoopback) {
+        out(`\nPing de ${host} [${ip}] avec 32 octets de données :`);
+        out(`Réponse de ${ip} : octets=32 durée=1ms TTL=128`);
+        out(`Délai d\'attente de la demande dépassé.`);
+        out(`Réponse de ${ip} : octets=32 durée=47ms TTL=64`);
+        out(`Délai d\'attente de la demande dépassé.`);
+        out(`\nStatistiques du Ping pour ${ip} :\n    Paquets : Envoyés = 4, Reçus = 2, Perdus = 2 (perte 50%)`);
+        explain(`<strong>50% de perte et TTL incohérents</strong> (TTL=128 puis TTL=64) : signature classique d\'un <strong>conflit d\'adresse IP</strong>. Les paquets arrivent alternativement sur notre machine (TTL=128, Windows) et sur la machine en conflit (TTL=64, probablement Linux). Les réponses perdues correspondent aux paquets capturés par l\'autre machine.`);
         break;
       }
       out(`\nPing de ${host} [${ip}] avec 32 octets de données :`);
@@ -1965,7 +2002,17 @@ Itinéraire terminé.`);
   Adresse Internet      Adresse physique      Type
   192.168.1.1           c8-d3-a3-2f-7e-01     dynamique
   192.168.1.255         ff-ff-ff-ff-ff-ff     statique`);
-        explain(`<strong>arp -a</strong> affiche la table ARP. 192.168.99.1 (la gateway configurée) est <strong>absente</strong> de la table ARP : la machine n\'a jamais pu la résoudre en adresse MAC car elle n\'existe pas sur ce réseau. Preuve que la gateway est injoignable au niveau couche 2.`);
+        explain(`<strong>arp -a</strong> : 192.168.99.1 (la gateway configurée) est <strong>absente</strong> de la table ARP — la machine n\'a jamais pu la résoudre en MAC car elle n\'existe pas sur ce réseau. Preuve que la gateway est injoignable au niveau couche 2.`);
+        break;
+      }
+      if (cliState.networkFault === 'conflict') {
+        out(`\nInterface : 192.168.1.20 --- 0x2
+  Adresse Internet      Adresse physique      Type
+  192.168.1.1           c8-d3-a3-2f-7e-01     dynamique
+  <span style="color:var(--red)">192.168.1.20          b8-27-eb-99-88-77     dynamique   &lt;-- MAC inconnue !</span>
+  192.168.1.5           b8-27-eb-12-34-56     dynamique
+  192.168.1.255         ff-ff-ff-ff-ff-ff     statique`);
+        explain(`🔴 <strong>MAC étrangère sur 192.168.1.20</strong> : notre propre IP est associée à la MAC <em>b8-27-eb-99-88-77</em> (différente de notre carte 08-00-27-ab-cd-ef). Cela signifie qu\'une autre machine a répondu à un <strong>ARP Gratuit</strong> pour 192.168.1.20, écrasant notre entrée dans la table ARP des autres hôtes. C\'est la preuve irréfutable d\'un <strong>conflit d\'adresse IP</strong>.`);
         break;
       }
       out(`\nInterface : 192.168.1.20 --- 0x2
@@ -1973,7 +2020,7 @@ Itinéraire terminé.`);
   192.168.1.1           c8-d3-a3-2f-7e-01     dynamique
   192.168.1.5           b8-27-eb-12-34-56     dynamique
   192.168.1.255         ff-ff-ff-ff-ff-ff     statique`);
-      explain(`<strong>arp -a</strong> affiche la table ARP (Address Resolution Protocol) : correspondances IP ↔ MAC connues. Dynamique = appris par ARP. Si une IP est absente = elle n\'a jamais répondu à un ARP. La gateway doit être présente ; si absente → gateway injoignable ou mauvaise adresse.`);
+      explain(`<strong>arp -a</strong> affiche la table ARP : correspondances IP↔MAC connues. La gateway (192.168.1.1) doit toujours être présente. Une MAC inconnue sur une IP connue → conflit ou ARP spoofing.`);
       break;
     }
     case 'route': {
@@ -2015,8 +2062,8 @@ Network Destination        Netmask          Gateway       Interface  Metric
       const subB = (args[1]||'').toLowerCase();
       const subC = (args[2]||'').toLowerCase();
       if (subA === 'interface' && subB === 'ip' && subC === 'set') {
-        if (cliState.networkFault === 'gateway') { cliState.networkFault = null; }
-        const newGw = args.find(a => /^192\.\d+\.\d+\.\d+$/.test(a) && a !== '192.168.1.20' && a !== '255.255.255.0') || '192.168.1.1';
+        if (cliState.networkFault) { cliState.networkFault = null; }
+        const newGw = args.find(a => /^192\.\d+\.\d+\.\d+$/.test(a) && a !== '192.168.1.20' && a !== '192.168.1.21' && a !== '255.255.255.0') || '192.168.1.1';
         out(`\nOK.`);
         explain(`<strong>netsh interface ip set address</strong> configure une adresse IP statique sur une interface réseau. Paramètres : interface, adresse IP, masque, passerelle par défaut. La nouvelle gateway (${newGw}) appartient au réseau 192.168.1.0/24 → accessible par ARP → le routage peut reprendre normalement.`);
       } else if (subA === 'interface' && subB === 'ip' && subC === 'set' && args[3] === 'dns') {
@@ -2083,12 +2130,24 @@ UserPrincipalName : stagiaire1@tssr.local`);
 ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.round(Math.random()*3+1)}`);
       break;
     }
+    case 'get-winevent':
     case 'get-eventlog': {
-      out(`<span style="color:var(--amber)">Attention : Get-EventLog est obsolète. Utilisez Get-WinEvent.\n</span>
-   Index Time          EntryType   Source                    InstanceID Message
+      out(`<span style="color:var(--amber)">Attention : Get-EventLog est obsolète. Utilisez Get-WinEvent.\n</span>`);
+      if (cliState.networkFault === 'conflict') {
+        out(`   Index Time          EntryType   Source                    InstanceID Message
    ----- ----          ---------   ------                    ---------- -------
-    1024 Jun 04 10:00  Information Service Control Manager         7036 Le service sshd est entré...
-    1023 Jun 04 09:55  Information Security-Auditing               4624 Ouverture de session réussie.`);
+<span style="color:var(--red)">    1027 Jun 07 14:32  Error       Tcpip                          4199 Windows a détecté un conflit d\'adresse IP avec l\'ordinateur disposant de l\'adresse MAC b8-27-eb-99-88-77. Adresse IPv4 192.168.1.20 désactivée temporairement.</span>
+    1026 Jun 07 14:31  Warning     Tcpip                          4198 Windows a détecté que l\'adresse IP 192.168.1.20 est déjà utilisée sur le réseau.
+    1025 Jun 07 14:00  Information Service Control Manager         7036 Le service sshd est entré dans l\'état En cours d\'exécution.
+    1024 Jun 07 13:55  Information Security-Auditing               4624 Ouverture de session réussie.`);
+        explain(`<strong>Event ID 4199</strong> (Tcpip) : conflit d\'adresse IP confirmé par le journal système. Windows logue l\'adresse MAC de la machine conflictuelle (<em>b8-27-eb-99-88-77</em>). Ce log est déclenché quand Windows reçoit un <strong>ARP Gratuit</strong> d\'une MAC différente pour sa propre IP.`);
+      } else {
+        out(`   Index Time          EntryType   Source                    InstanceID Message
+   ----- ----          ---------   ------                    ---------- -------
+    1024 Jun 07 10:00  Information Service Control Manager         7036 Le service sshd est entré...
+    1023 Jun 07 09:55  Information Security-Auditing               4624 Ouverture de session réussie.`);
+        explain(`<strong>Get-WinEvent / Get-EventLog</strong> consulte les journaux d\'événements Windows. Les Event ID importants en réseau : <strong>4199</strong> = conflit IP, <strong>4198</strong> = avertissement conflit, <strong>7036</strong> = changement d\'état d\'un service. Utilise <code>-LogName System</code> pour filtrer les événements système.`);
+      }
       break;
     }
     // ── DISKPART ──
@@ -2325,7 +2384,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
              <span style="color:var(--blue)">Update-MpSignature</span>  Start-MpScan
 <span style="color:var(--text2)">Stockage :</span>     <span style="color:var(--blue)">diskpart</span> (mode interactif)
 <span style="color:var(--text2)">Système :</span>      whoami  hostname  Get-ComputerInfo  Get-EventLog  Get-ADUser
-<span style="color:var(--text2)">Divers :</span>       cls  help  <span style="color:var(--blue)">tp</span> [list | start diskpart|sam|ntfs|panne|route | quit]
+<span style="color:var(--text2)">Divers :</span>       cls  help  <span style="color:var(--blue)">tp</span> [list | start diskpart|sam|ntfs|panne|route|conflit | quit]
 <span style="color:var(--text3)">↑/↓ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
       break;
     default:
@@ -2350,7 +2409,7 @@ const CLI_CARDS = [
     promptColor: '#60a5fa',
     desc: 'PowerShell interactif. Diskpart, SAM, droits NTFS, réseau, pare-feu, BitLocker.',
     cmds: ['ipconfig /all', 'tracert 8.8.8.8', 'diskpart', 'net user TechAdmin P@ssw0rd! /add', 'icacls "C:\\Shares\\Direction"', 'tp route'],
-    tpCount: 5,
+    tpCount: 6,
   },
 ];
 

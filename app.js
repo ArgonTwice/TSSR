@@ -147,6 +147,7 @@ function openModule(moduleId) {
   if (m.qcm.length)         tabs.push({ id: 'qcm',         label: 'QCM',          icon: '✅', cli: false });
   if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧', cli: true,  color: '#00e5a0' });
   if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟', cli: true,  color: '#3b82f6' });
+  if (m.outils) tabs.push({ id: 'outils', label: 'Outils', icon: '🔧', cli: false });
   tabs.push({ id: 'notes', label: 'Notes', icon: '📝', cli: false });
 
   const tabBar = document.getElementById('tab-bar');
@@ -197,6 +198,7 @@ function renderTabContent(tabId) {
   else if (tabId === 'qcm')    renderQCM(m, el);
   else if (tabId === 'linux_cli')   renderCLI('linux', m, el);
   else if (tabId === 'windows_cli') renderCLI('windows', m, el);
+  else if (tabId === 'outils')      renderOutils(m, el);
   else if (tabId === 'notes')       renderNotes(m, el);
 }
 
@@ -258,6 +260,11 @@ function renderTable(s) {
   const thead = s.headers.map(h=>`<th>${h}</th>`).join('');
   const tbody = s.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
   return `<table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`;
+}
+
+// ===== OUTILS =====
+function renderOutils(m, el) {
+  el.innerHTML = `<div class="html-file-wrap"><iframe src="${m.outils}" class="cours-iframe" title="Outils" loading="lazy"></iframe></div>`;
 }
 
 // ===== NOTES =====

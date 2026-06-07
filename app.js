@@ -849,6 +849,172 @@ function cliListDir(path) {
   });
 }
 
+// ===== TP SCENARIO ENGINE =====
+let scenarioState = null;
+let scenarioCheck = null;
+
+const TP_SCENARIOS = {
+  windows: [
+    {
+      id: 'diskpart',
+      title: 'Initialisation d\'un disque secondaire',
+      desc: 'Configure le Disque 1 (500 GB, RAW) : initialiser, partitionner, formater et monter.',
+      steps: [
+        { instr: 'Lance l\'utilitaire diskpart pour entrer en mode interactif.',                    hint: 'diskpart',                              check: c => /^diskpart$/i.test(c.trim()) },
+        { instr: 'Liste les disques physiques disponibles.',                                        hint: 'list disk',                             check: c => /^list\s+disk$/i.test(c.trim()) },
+        { instr: 'Sélectionne le Disque 1 (500 GB, RAW).',                                        hint: 'select disk 1',                         check: c => /^select\s+disk\s+1$/i.test(c.trim()) },
+        { instr: 'Efface la table de partition du disque sélectionné.',                            hint: 'clean',                                 check: c => /^clean$/i.test(c.trim()) },
+        { instr: 'Convertis le disque au format GPT (requis UEFI / >2 To).',                      hint: 'convert gpt',                           check: c => /^convert\s+gpt$/i.test(c.trim()) },
+        { instr: 'Crée une partition primaire qui occupe tout l\'espace.',                         hint: 'create partition primary',              check: c => /^create\s+partition\s+primary/i.test(c.trim()) },
+        { instr: 'Formate la partition en NTFS avec le label "Data" (quick).',                     hint: 'format fs=ntfs quick label=Data',        check: c => /^format\b.*fs=ntfs/i.test(c.trim()) },
+        { instr: 'Attribue la lettre E: au volume.',                                              hint: 'assign letter=e',                       check: c => /^assign\s+letter=e$/i.test(c.trim()) },
+        { instr: 'Quitte diskpart et reviens en PowerShell.',                                     hint: 'exit',                                  check: c => /^exit$/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'sam',
+      title: 'Création d\'un compte technicien',
+      desc: 'Crée un utilisateur TechAdmin, un groupe G_Maintenance, et affecte l\'utilisateur au groupe.',
+      steps: [
+        { instr: 'Crée l\'utilisateur "TechAdmin" avec le mot de passe "P@ssw0rd!".',              hint: 'net user TechAdmin P@ssw0rd! /add',      check: c => /^net\s+user\s+\S+\s+\S+\s+\/add/i.test(c.trim()) },
+        { instr: 'Crée le groupe local "G_Maintenance".',                                         hint: 'net localgroup G_Maintenance /add',      check: c => /^net\s+localgroup\s+\S+\s+\/add/i.test(c.trim()) },
+        { instr: 'Ajoute TechAdmin dans le groupe G_Maintenance.',                               hint: 'net localgroup G_Maintenance TechAdmin /add', check: c => /^net\s+localgroup\s+\S+\s+\S+\s+\/add/i.test(c.trim()) },
+        { instr: 'Vérifie les membres du groupe G_Maintenance.',                                  hint: 'net localgroup G_Maintenance',           check: c => /^net\s+localgroup\s+\S+$/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'ntfs',
+      title: 'Sécurisation d\'un dossier partagé',
+      desc: 'Applique des droits NTFS stricts sur C:\\Shares\\Direction.',
+      steps: [
+        { instr: 'Affiche les ACL actuelles de C:\\Shares\\Direction.',                            hint: 'icacls "C:\\Shares\\Direction"',          check: c => /^icacls\b.*Direction/i.test(c.trim()) },
+        { instr: 'Romps l\'héritage (convertit les droits hérités en droits explicites).',         hint: 'icacls "C:\\Shares\\Direction" /inheritance:d', check: c => /icacls\b.*\/inheritance:d/i.test(c.trim()) },
+        { instr: 'Donne le contrôle total aux Administrateurs.',                                   hint: 'icacls "C:\\Shares\\Direction" /grant:r "Administrateurs":(OI)(CI)(F)', check: c => /icacls\b.*\/grant:r.*\(F\)/i.test(c.trim()) },
+        { instr: 'Donne le droit de modification au groupe G_Direction.',                          hint: 'icacls "C:\\Shares\\Direction" /grant:r "G_Direction":(OI)(CI)(M)', check: c => /icacls\b.*\/grant:r.*\(M\)/i.test(c.trim()) },
+        { instr: 'Vérifie les ACL finales du dossier.',                                           hint: 'icacls "C:\\Shares\\Direction"',          check: c => /^icacls\b.*Direction/i.test(c.trim()) },
+      ],
+    },
+  ],
+  linux: [
+    {
+      id: 'reseau',
+      title: 'Diagnostic réseau complet',
+      desc: 'Inspecte la configuration réseau, teste la connectivité et vérifie les services écoutant.',
+      steps: [
+        { instr: 'Affiche les interfaces réseau et leurs adresses IP.',                           hint: 'ip addr show',                          check: c => /^ip\s+(a|addr|address)(\s|$)/i.test(c.trim()) },
+        { instr: 'Affiche la table de routage.',                                                  hint: 'ip route show',                         check: c => /^ip\s+(r|route)(\s|$)/i.test(c.trim()) },
+        { instr: 'Envoie 4 pings vers la passerelle (192.168.1.1).',                             hint: 'ping -c 4 192.168.1.1',                 check: c => /^ping\b/i.test(c.trim()) },
+        { instr: 'Liste les ports en écoute (sockets TCP/UDP ouverts).',                          hint: 'ss -tulnp',                             check: c => /^(ss|netstat)\b/i.test(c.trim()) },
+        { instr: 'Résous l\'adresse de tssr.local via DNS.',                                      hint: 'nslookup tssr.local',                   check: c => /^(nslookup|dig)\b/i.test(c.trim()) },
+        { instr: 'Trace la route vers 8.8.8.8 (DNS Google).',                                    hint: 'traceroute 8.8.8.8',                    check: c => /^traceroute\b/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'droits',
+      title: 'Gestion des droits fichiers',
+      desc: 'Crée un dossier, assigne les droits et vérifie avec ls.',
+      steps: [
+        { instr: 'Crée le dossier /opt/projet.',                                                  hint: 'mkdir /opt/projet',                     check: c => /^mkdir\b.*\/opt\/projet/i.test(c.trim()) },
+        { instr: 'Donne les droits 755 au dossier /opt/projet.',                                  hint: 'chmod 755 /opt/projet',                 check: c => /^chmod\b.*755/i.test(c.trim()) },
+        { instr: 'Change le propriétaire en root:root.',                                          hint: 'chown root:root /opt/projet',           check: c => /^chown\b/i.test(c.trim()) },
+        { instr: 'Vérifie les droits avec ls -la.',                                              hint: 'ls -la /opt',                           check: c => /^ls\b.*-l/i.test(c.trim()) },
+      ],
+    },
+  ],
+};
+
+function handleTPCommand(args, type) {
+  const out = (s) => cliPrint(s);
+  const err = (s) => cliPrint(`<span class="cli-error">${escHtml(s)}</span>`);
+  const scenarios = TP_SCENARIOS[type] || [];
+  const sub = (args[0]||'').toLowerCase();
+
+  if (!sub || sub === 'list') {
+    out(`\n<span style="color:var(--${type==='windows'?'blue':'accent'})">TP disponibles :</span>`);
+    scenarios.forEach((sc, i) => out(`  <strong>${i+1}. ${sc.id}</strong> — ${sc.title}\n     ${sc.desc}`));
+    out(`\n<span style="color:var(--text3)">Démarre un TP : tp start &lt;id&gt;   ·   Quitte : tp quit</span>`);
+    return;
+  }
+  if (sub === 'start' || sub === 'run') {
+    const id = args[1];
+    if (!id) { err('tp start <id> — précise l\'id du TP (tape tp pour la liste)'); return; }
+    const sc = scenarios.find(s => s.id.toLowerCase() === id.toLowerCase());
+    if (!sc) { err(`TP "${id}" introuvable. Tape tp pour la liste.`); return; }
+    scenarioState = { scenario: sc, step: 0, done: false };
+    scenarioCheck = (cmd) => tpValidate(cmd);
+    renderScenarioPanel();
+    out(`\n<span style="color:var(--${type==='windows'?'blue':'accent'})">▶ TP lancé : ${sc.title}</span>\nObjectif : ${sc.desc}\n\n→ Lis le panneau TP à droite. Complète chaque étape dans l\'ordre.\n`);
+    return;
+  }
+  if (sub === 'quit' || sub === 'stop') {
+    scenarioState = null;
+    scenarioCheck = null;
+    document.getElementById('scenario-panel').style.display = 'none';
+    out('TP terminé.');
+    return;
+  }
+  err(`tp : argument invalide. Options : list | start <id> | quit`);
+}
+
+function tpValidate(cmd) {
+  if (!scenarioState || scenarioState.done) return;
+  const { scenario, step } = scenarioState;
+  const current = scenario.steps[step];
+  if (!current.check(cmd)) return;
+
+  // Étape validée
+  scenarioState.step++;
+  if (scenarioState.step >= scenario.steps.length) {
+    scenarioState.done = true;
+    scenarioCheck = null;
+    renderScenarioPanel();
+    cliPrint(`<div class="cli-explain">🏆 <strong>TP terminé !</strong> Tu as complété "${scenario.title}" en ${scenario.steps.length} étapes. Tape <strong>tp</strong> pour un nouveau TP.</div>`);
+  } else {
+    renderScenarioPanel();
+    const next = scenario.steps[scenarioState.step];
+    cliPrint(`<div class="cli-explain">✅ Étape ${step + 1}/${scenario.steps.length} validée ! → Étape ${scenarioState.step + 1} : ${escHtml(next.instr)}</div>`);
+  }
+}
+
+function renderScenarioPanel() {
+  const panel = document.getElementById('scenario-panel');
+  if (!panel) return;
+  if (!scenarioState) { panel.style.display = 'none'; return; }
+  const { scenario, step, done } = scenarioState;
+  const total = scenario.steps.length;
+  const pct = done ? 100 : Math.round(step / total * 100);
+
+  let stepsHtml = scenario.steps.map((s, i) => {
+    const cls = i < step ? 'sc-done' : i === step && !done ? 'sc-current' : 'sc-todo';
+    return `<div class="sc-step ${cls}">
+      <div class="sc-step-num">${i + 1}</div>
+      <div class="sc-step-text">${escHtml(s.instr)}</div>
+    </div>`;
+  }).join('');
+
+  let hintHtml = '';
+  if (!done && step < total) {
+    hintHtml = `<div class="sc-hint">
+      <span class="sc-hint-label">Indice</span>
+      <div class="sc-hint-content"><code>${escHtml(scenario.steps[step].hint)}</code></div>
+    </div>`;
+  }
+
+  let doneBanner = done ? `<div class="sc-done-banner">🏆 TP complété !</div>` : '';
+
+  panel.style.display = 'flex';
+  panel.innerHTML = `
+    <div class="sc-header">
+      <span class="sc-icon">📋</span>
+      <span class="sc-title">${escHtml(scenario.title)}</span>
+      <button class="sc-close" onclick="scenarioState=null;scenarioCheck=null;document.getElementById('scenario-panel').style.display='none'">✕</button>
+    </div>
+    <div class="sc-progress"><div class="sc-progress-bar" style="width:${pct}%"></div></div>
+    <div class="sc-steps">${stepsHtml}</div>
+    ${hintHtml}
+    ${doneBanner}`;
+}
+
 // ===== COMMAND DISPATCHER =====
 function cliExec(raw) {
   const isWin = cliState.type === 'windows';
@@ -1217,53 +1383,103 @@ function cliExecLinux(cmd, args, raw) {
  843  pts/0    00:00:00 ps`);
       break;
     }
-    case 'ifconfig': {
-      out(`eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
-        inet <span style="color:var(--accent)">192.168.1.10</span>  netmask 255.255.255.0  broadcast 192.168.1.255
-        ether 08:00:27:ab:cd:ef  txqueuelen 1000  (Ethernet)
-        RX packets 1234  bytes 987654 (964.5 KiB)
-        TX packets 567   bytes 123456 (120.5 KiB)
-
-lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536
-        inet <span style="color:var(--accent)">127.0.0.1</span>  netmask 255.0.0.0
-        loop  (Local Loopback)`);
-      break;
-    }
+    case 'ifconfig':
     case 'ip': {
-      if (args[0] === 'a' || args[0] === 'addr' || args[0] === 'address') {
+      const exL = (s) => cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> ${s}</div>`);
+      if (cmd === 'ifconfig' || args[0] === 'a' || args[0] === 'addr' || args[0] === 'address') {
         out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet <span style="color:var(--accent)">127.0.0.1/8</span> scope host lo
 2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP
     link/ether 08:00:27:ab:cd:ef brd ff:ff:ff:ff:ff:ff
-    inet <span style="color:var(--accent)">192.168.1.10/24</span> brd 192.168.1.255 scope global eth0`);
+    inet <span style="color:var(--accent)">192.168.1.10/24</span> brd 192.168.1.255 scope global dynamic eth0
+       valid_lft 86234sec preferred_lft 86234sec`);
+        exL('<strong>ip addr</strong> (ou <strong>ip a</strong>) liste toutes les interfaces réseau. <em>lo</em> = loopback 127.0.0.1 (trafic interne). <em>eth0</em> = carte Ethernet. Le /24 = masque 255.255.255.0 = réseau 192.168.1.0/24.');
       } else if (args[0] === 'r' || args[0] === 'route') {
-        out(`default via 192.168.1.1 dev eth0 proto dhcp metric 100
-192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10`);
+        out(`default via 192.168.1.1 dev eth0 proto dhcp src 192.168.1.10 metric 100
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10 metric 100`);
+        exL('<strong>ip route</strong> affiche la table de routage. <em>default via 192.168.1.1</em> = passerelle par défaut (trafic hors réseau local). <em>proto dhcp</em> = route obtenue automatiquement par DHCP.');
+      } else if (args[0] === 'link' || args[0] === 'l') {
+        out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 state UNKNOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 state UP
+    link/ether <span style="color:var(--accent)">08:00:27:ab:cd:ef</span> brd ff:ff:ff:ff:ff:ff`);
+        exL('<strong>ip link</strong> affiche les infos couche 2 (MAC, état). State UP = interface active. mtu 1500 = taille max d\'un paquet Ethernet. La MAC identifie physiquement la carte réseau.');
       } else {
-        out('ip : Utilisation : ip [a|r|link]');
+        out('ip : Utilisation : ip [a|addr] [r|route] [l|link]');
       }
       break;
     }
     case 'ping': {
       const host = args.find(a => !a.startsWith('-')) || 'localhost';
       const count = (() => { const i = args.indexOf('-c'); return i >= 0 ? parseInt(args[i+1])||4 : 4; })();
-      const ip = host === 'localhost' || host === '127.0.0.1' ? '127.0.0.1' : '192.168.1.1';
+      const isLocal = host === 'localhost' || host === '127.0.0.1';
+      const ip = isLocal ? '127.0.0.1' : host.match(/^\d/) ? host : '192.168.1.1';
+      const ttl = isLocal ? 64 : host === '8.8.8.8' ? 118 : 64;
       let lines = `PING ${host} (${ip}) 56(84) bytes of data.`;
-      for (let i = 0; i < Math.min(count,4); i++) {
-        lines += `\n64 bytes from ${ip}: icmp_seq=${i+1} ttl=64 time=${(Math.random()*2+0.3).toFixed(3)} ms`;
-      }
-      lines += `\n--- ${host} ping statistics ---\n${count} packets transmitted, ${count} received, 0% packet loss`;
+      for (let i = 0; i < Math.min(count, 4); i++)
+        lines += `\n64 bytes from ${ip}: icmp_seq=${i+1} ttl=${ttl} time=${(Math.random()*2+0.3).toFixed(3)} ms`;
+      lines += `\n\n--- ${host} ping statistics ---\n${Math.min(count,4)} packets transmitted, ${Math.min(count,4)} received, 0% packet loss`;
       out(escHtml(lines));
+      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>ping -c ${count}</strong> envoie des paquets ICMP Echo Request. Mesure la latence (RTT). TTL=${ttl} = sauts max avant rejet (décrémenté à chaque routeur). 0% packet loss = OK. Si perte → problème de liaison ou de routage.</div>`);
       break;
     }
     case 'netstat': {
       out(`Active Internet connections (only servers)
-Proto  Local Address          Foreign Address        State
-tcp    0.0.0.0:22             0.0.0.0:*              LISTEN
-tcp    0.0.0.0:80             0.0.0.0:*              LISTEN
-tcp    127.0.0.1:3306         0.0.0.0:*              LISTEN
-tcp6   :::22                  :::*                   LISTEN`);
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN
+tcp6       0      0 :::22                   :::*                    LISTEN
+udp        0      0 0.0.0.0:68              0.0.0.0:*`);
+      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>netstat</strong> liste les connexions et ports en écoute. LISTEN = service attendant des connexions. 127.0.0.1:3306 = MySQL accessible en local uniquement (sécurité). Remplacé par <code>ss</code> sur les systèmes modernes.</div>`);
+      break;
+    }
+    case 'ss': {
+      out(`Netid  State   Recv-Q Send-Q  Local Address:Port    Peer Address:Port  Process
+tcp    LISTEN  0      128     0.0.0.0:22           0.0.0.0:*      users:(("sshd",pid=712,fd=3))
+tcp    LISTEN  0      128     0.0.0.0:80           0.0.0.0:*      users:(("apache2",pid=1021,fd=4))
+tcp    LISTEN  0      70      127.0.0.1:3306       0.0.0.0:*      users:(("mysqld",pid=876,fd=22))
+tcp    ESTAB   0      0       192.168.1.10:22      192.168.1.5:51234`);
+      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>ss -tulnp</strong> — -t=TCP, -u=UDP, -l=LISTEN, -n=numérique, -p=processus. Identifie quel programme occupe chaque port. ESTAB = session active en cours. Plus rapide que netstat.</div>`);
+      break;
+    }
+    case 'nslookup': {
+      const domain = args[0] || 'localhost';
+      const ip = domain.includes('tssr') ? '192.168.1.10' : domain === 'localhost' ? '127.0.0.1' : '142.250.74.100';
+      out(`Server:         192.168.1.10\nAddress:        192.168.1.10#53\n\nName:   ${domain}\nAddress: ${ip}`);
+      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>nslookup</strong> interroge le serveur DNS (192.168.1.10, port 53) pour résoudre un nom en IP. Si la résolution échoue → vérifie /etc/resolv.conf et que le service DNS répond sur port 53/UDP.</div>`);
+      break;
+    }
+    case 'dig': {
+      const domain = args[0] || 'localhost';
+      const ip = domain.includes('tssr') ? '192.168.1.10' : '142.250.74.100';
+      out(`; &lt;&lt;&gt;&gt; DiG 9.18.1 &lt;&lt;&gt;&gt; ${domain}
+;; QUESTION SECTION:
+;${domain}.                    IN      A
+;; ANSWER SECTION:
+${domain}.              300     IN      A       ${ip}
+;; Query time: 2 msec
+;; SERVER: 192.168.1.10#53(192.168.1.10)`);
+      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>dig</strong> est l\'outil DNS avancé. Affiche le type d\'enregistrement (A=IPv4, AAAA=IPv6, MX=mail, CNAME=alias), le TTL cache et le serveur ayant répondu. Indispensable pour déboguer DNS.</div>`);
+      break;
+    }
+    case 'traceroute':
+    case 'tracepath': {
+      const dest = args[0] || '8.8.8.8';
+      out(`traceroute to ${dest} (${dest}), 30 hops max, 60 byte packets
+ 1  192.168.1.1 (192.168.1.1)  0.456 ms  0.412 ms  0.389 ms
+ 2  10.0.0.1 (10.0.0.1)  3.201 ms  3.145 ms  3.092 ms
+ 3  72.14.192.45 (72.14.192.45)  8.734 ms  8.691 ms  8.612 ms
+ 4  ${dest} (${dest})  10.234 ms  10.187 ms  10.104 ms`);
+      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>traceroute</strong> affiche chaque routeur traversé (hop) avec sa latence. <em>* * *</em> = paquet bloqué par un pare-feu. Utile pour localiser où une connexion échoue sur le chemin réseau.</div>`);
+      break;
+    }
+    case 'arp': {
+      out(`Address                  HWtype  HWaddress           Flags Mask  Iface
+192.168.1.1              ether   c8:d3:a3:2f:7e:01   C           eth0
+192.168.1.5              ether   b8:27:eb:12:34:56   C           eth0`);
+      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>arp -n</strong> affiche la table ARP : correspondances IP↔MAC sur le LAN. ARP (Couche 2/3) résout les adresses IP en adresses MAC pour la communication Ethernet. C = entrée dynamique apprise automatiquement.</div>`);
       break;
     }
     case 'chmod': {
@@ -1396,12 +1612,13 @@ networking.service      loaded active exited  Raise network interfaces`);
     case 'help':
       out(`<span style="color:var(--accent)">Commandes disponibles :</span>
 <span style="color:var(--text2)">Navigation :</span>  ls [-la]  cd  pwd
-<span style="color:var(--text2)">Fichiers :</span>    cat  mkdir  touch  rm [-r]  cp  mv
-<span style="color:var(--text2)">Texte :</span>       echo  grep [-i]
-<span style="color:var(--text2)">Processus :</span>   ps  systemctl [start|stop|status]
-<span style="color:var(--text2)">Réseau :</span>      ifconfig  ip [a|r]  ping [-c]  netstat
-<span style="color:var(--text2)">Système :</span>     whoami  hostname  uname [-a]  chmod  chown  sudo
-<span style="color:var(--text2)">Divers :</span>      history  man  clear  help
+<span style="color:var(--text2)">Fichiers :</span>    cat  mkdir  touch  rm [-r]  cp  mv  chmod  chown
+<span style="color:var(--text2)">Texte :</span>       echo  grep [-i]  vim  nano
+<span style="color:var(--text2)">Processus :</span>   ps  systemctl [start|stop|status|list-units]  sudo
+<span style="color:var(--text2)">Réseau :</span>      <span style="color:var(--accent)">ip [a|r|l]</span>  <span style="color:var(--accent)">ping -c N host</span>  <span style="color:var(--accent)">netstat</span>  <span style="color:var(--accent)">ss -tulnp</span>
+             <span style="color:var(--accent)">nslookup</span>  <span style="color:var(--accent)">dig</span>  <span style="color:var(--accent)">traceroute</span>  <span style="color:var(--accent)">arp -n</span>
+<span style="color:var(--text2)">Système :</span>     whoami  hostname  uname [-a]
+<span style="color:var(--text2)">Divers :</span>      history  clear  help  <span style="color:var(--accent)">tp</span> TP guidés
 <span style="color:var(--text3)">↑/↓ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
       break;
     default:
@@ -1608,14 +1825,29 @@ function cliExecWindows(cmd, args, raw) {
       if (all) out(`   Serveur DHCP . . . . . . . . . . . : 192.168.1.1
    Serveurs DNS. . . . . . . . . . . .: 192.168.1.20
    Bail obtenu . . . . . . . . . . . .: mercredi 4 juin 2025`);
+      explain(`<strong>ipconfig</strong> affiche la configuration IP des cartes réseau. <strong>/all</strong> ajoute la MAC, le serveur DHCP, le serveur DNS et la durée du bail DHCP. Équivalent de <code>ip addr</code> sur Linux.`);
       break;
     }
     case 'ping': {
       const host = args.find(a=>!a.startsWith('-')&&!a.startsWith('/')) || 'localhost';
-      const ip = host==='localhost'||host==='127.0.0.1' ? '127.0.0.1' : '192.168.1.1';
+      const ip = host==='localhost'||host==='127.0.0.1' ? '127.0.0.1' : host.match(/^\d/) ? host : '192.168.1.1';
+      const ttl = host === '8.8.8.8' ? 118 : 128;
       out(`\nPing de ${host} [${ip}] avec 32 octets de données :`);
-      for (let i=0;i<4;i++) out(`Réponse de ${ip} : octets=32 durée=${Math.round(Math.random()*3+1)}ms TTL=128`);
+      for (let i=0;i<4;i++) out(`Réponse de ${ip} : octets=32 durée=${Math.round(Math.random()*3+1)}ms TTL=${ttl}`);
       out(`\nStatistiques du Ping pour ${ip} :\n    Paquets : Envoyés = 4, Reçus = 4, Perdus = 0 (perte 0%)`);
+      explain(`<strong>ping</strong> teste la connectivité via ICMP. TTL=${ttl} : décrémenté à chaque routeur traversé (Windows démarre à 128, Linux à 64). 0% perte = liaison OK. Si délai d\'expiration : hôte inaccessible ou ICMP bloqué par le pare-feu.`);
+      break;
+    }
+    case 'tracert': {
+      const dest = args[0] || '8.8.8.8';
+      out(`\nDétermination de l\'itinéraire vers ${dest}\navec un maximum de 30 sauts :\n
+  1    &lt;1 ms    &lt;1 ms    &lt;1 ms  192.168.1.1
+  2    3 ms    3 ms    3 ms  10.0.0.1
+  3    8 ms    8 ms    8 ms  72.14.192.45
+  4   10 ms   10 ms   10 ms  ${dest}
+
+Itinéraire terminé.`);
+      explain(`<strong>tracert</strong> (Windows) = traceroute (Linux). Affiche chaque routeur (hop) avec sa latence. <em>* * *</em> = routeur ne répondant pas à l\'ICMP (pare-feu). Utile pour localiser où une connexion échoue sur le chemin réseau.`);
       break;
     }
     case 'netstat': {
@@ -1626,6 +1858,7 @@ function cliExecWindows(cmd, args, raw) {
   TCP    0.0.0.0:445            0.0.0.0:0              LISTENING
   TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING
   TCP    192.168.1.20:50234     192.168.1.1:443        ESTABLISHED`);
+      explain(`<strong>netstat -an</strong> liste les connexions TCP actives et les ports en écoute. LISTENING = service prêt à accepter des connexions. ESTABLISHED = session en cours. 3389 = RDP (Bureau à distance), 445 = SMB (partage fichiers).`);
       break;
     }
     case 'whoami':
@@ -1935,8 +2168,8 @@ const CLI_CARDS = [
     prompt: 'tssr@debian-srv:~$',
     promptColor: '#00e5a0',
     desc: 'Shell Bash interactif. Filesystem virtuel, réseau, systemd, vim, pipe, redirection.',
-    cmds: ['ls -la /etc', 'systemctl status ssh', 'ip addr show', 'ping -c 4 8.8.8.8', 'vim config.sh', 'tp bases'],
-    tpCount: 4,
+    cmds: ['ip addr show', 'ping -c 4 192.168.1.1', 'ss -tulnp', 'traceroute 8.8.8.8', 'nslookup tssr.local', 'tp reseau'],
+    tpCount: 2,
   },
   {
     id: 'windows',
@@ -1949,7 +2182,7 @@ const CLI_CARDS = [
     prompt: 'PS C:\\Users\\Administrateur>',
     promptColor: '#60a5fa',
     desc: 'PowerShell interactif. Active Directory, services, réseau, filesystem Windows.',
-    cmds: ['Get-ChildItem C:\\', 'ipconfig /all', 'Get-Service DNS', 'Get-ADUser -Filter *', 'Test-Connection 8.8.8.8', 'tp bases'],
+    cmds: ['ipconfig /all', 'diskpart', 'net user /add', 'icacls "C:\\Shares\\Direction"', 'manage-bde -status', 'tp diskpart'],
     tpCount: 3,
   },
 ];

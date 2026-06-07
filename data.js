@@ -22,6 +22,24 @@ const MODULES = [
     qcm: [],
   },
   {
+    id: 'reseaux',
+    label: 'Réseaux',
+    icon: '🌐',
+    color: '#3b82f6',
+    desc: 'Modèle OSI, TCP/IP, adressage IP, sous-réseaux, services réseau...',
+    topics: ['OSI', 'TCP/IP', 'Adressage IP', 'VLAN', 'DNS', 'DHCP', 'Routage'],
+    cours: [
+      {
+        id: 'cours_reseaux',
+        titre: 'Réseaux : OSI, TCP/IP, Adressage et Services',
+        sections: [{ type: 'html-file', src: 'modules/reseaux/cours_reseaux.html' }],
+      },
+    ],
+    flashcards: [],
+    qcm: [],
+    linux_cli: true,
+  },
+  {
     id: 'windows',
     label: 'Windows',
     icon: '🪟',

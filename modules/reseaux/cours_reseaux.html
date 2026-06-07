@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Réseaux — TSSR</title>
+<style>
+body { font-family:'Segoe UI',Arial,sans-serif; line-height:1.35; color:#1a1a1a; max-width:900px; margin:0 auto; padding:20px; background:#fff; }
+h1 { color:#1e3a8a; border-bottom:2px solid #1e3a8a; padding-bottom:8px; margin-top:36px; font-size:19pt; }
+h2 { color:#2c5282; margin-top:26px; font-size:13pt; border-left:4px solid #2c5282; padding-left:10px; }
+h3 { color:#4a5568; margin-top:18px; font-size:11pt; font-style:italic; }
+p,li { font-size:11pt; text-align:justify; }
+table { width:100%; border-collapse:collapse; margin:18px 0; font-size:10.5pt; }
+th,td { border:1px solid #cbd5e0; padding:9px; text-align:left; }
+th { background:#f7fafc; color:#2c5282; font-weight:bold; text-align:center; }
+tr:nth-child(even) { background:#fafbfe; }
+code { font-family:Consolas,"Courier New",monospace; background:#edf2f7; padding:2px 5px; border-radius:4px; font-size:10pt; font-weight:bold; color:#b7791f; }
+pre { background:#f7fafc; border:1px solid #e2e8f0; padding:14px; border-radius:6px; overflow-x:auto; margin:14px 0; }
+pre code { background:transparent; padding:0; color:#2d3748; font-weight:normal; }
+.box { background:#fffaf0; border-left:4px solid #dd6b20; padding:14px; margin:18px 0; border-radius:0 6px 6px 0; }
+.info { background:#ebf8ff; border-left:4px solid #3b82f6; padding:14px; margin:18px 0; border-radius:0 6px 6px 0; }
+</style>
+</head>
+<body>
+
+<div style="text-align:center;margin-bottom:36px">
+  <h1 style="border:none;font-size:22pt">Réseaux — Référentiel TSSR</h1>
+  <p style="font-size:12pt;color:#4a5568;font-weight:bold">Modèle OSI · TCP/IP · Adressage IP · Services réseau</p>
+</div>
+
+<h1>1. Modèle OSI — 7 Couches</h1>
+<p>Le modèle OSI (Open Systems Interconnection) est un cadre conceptuel en 7 couches permettant de standardiser les communications réseau. Chaque couche a un rôle précis et communique avec les couches adjacentes.</p>
+
+<table>
+  <thead><tr><th>#</th><th>Couche</th><th>Protocoles / Exemples</th><th>Rôle résumé</th></tr></thead>
+  <tbody>
+    <tr><td><strong>7</strong></td><td>Application</td><td>HTTP, HTTPS, FTP, DNS, SMTP, SSH</td><td>Interface avec l'utilisateur final</td></tr>
+    <tr><td><strong>6</strong></td><td>Présentation</td><td>TLS/SSL, JPEG, MPEG, ASCII</td><td>Chiffrement, encodage, compression</td></tr>
+    <tr><td><strong>5</strong></td><td>Session</td><td>NetBIOS, RPC, SMB</td><td>Ouverture/fermeture de sessions</td></tr>
+    <tr><td><strong>4</strong></td><td>Transport</td><td>TCP (fiable), UDP (rapide)</td><td>Segmentation, contrôle de flux, ports</td></tr>
+    <tr><td><strong>3</strong></td><td>Réseau</td><td>IP, ICMP, ARP, OSPF, BGP</td><td>Adressage IP et routage inter-réseaux</td></tr>
+    <tr><td><strong>2</strong></td><td>Liaison</td><td>Ethernet, Wi-Fi (802.11), VLAN</td><td>Adresses MAC, trames, accès au médium</td></tr>
+    <tr><td><strong>1</strong></td><td>Physique</td><td>RJ45, fibre, ondes radio</td><td>Bits sur le support physique</td></tr>
+  </tbody>
+</table>
+
+<div class="info">
+  <strong>Mnémotechnique :</strong> <em>A Presentation Session Transporte Réseau Les Paquets</em> (7→1) ou
+  <em>Please Do Not Throw Sausage Pizza Away</em> (1→7 en anglais)
+</div>
+
+<h2>1.1 TCP vs UDP</h2>
+<table>
+  <thead><tr><th>Critère</th><th>TCP</th><th>UDP</th></tr></thead>
+  <tbody>
+    <tr><td>Connexion</td><td>Orienté connexion (3-way handshake)</td><td>Sans connexion</td></tr>
+    <tr><td>Fiabilité</td><td>Accusé de réception, retransmission</td><td>Aucune garantie</td></tr>
+    <tr><td>Ordre</td><td>Garanti (numéros de séquence)</td><td>Non garanti</td></tr>
+    <tr><td>Vitesse</td><td>Plus lent (overhead)</td><td>Très rapide</td></tr>
+    <tr><td>Usage</td><td>HTTP, SSH, FTP, SMTP</td><td>DNS, DHCP, VoIP, streaming, gaming</td></tr>
+  </tbody>
+</table>
+
+<h2>1.2 Three-Way Handshake TCP</h2>
+<pre><code>Client          Serveur
+  |-- SYN -------->|   (Je veux me connecter, seq=100)
+  |<-- SYN-ACK ----|   (OK, seq=200, ack=101)
+  |-- ACK -------->|   (Reçu, ack=201)
+  |== DATA =======>|   (Échange de données)</code></pre>
+
+<h1>2. Adressage IPv4</h1>
+<p>Une adresse IPv4 est composée de <strong>32 bits</strong> représentés en 4 octets décimaux (ex: 192.168.1.10). Elle comprend une partie réseau et une partie hôte, délimitées par le masque.</p>
+
+<h2>2.1 Classes d'adresses (historique)</h2>
+<table>
+  <thead><tr><th>Classe</th><th>Plage</th><th>Masque par défaut</th><th>Nb hôtes</th></tr></thead>
+  <tbody>
+    <tr><td>A</td><td>1.0.0.0 — 126.255.255.255</td><td>255.0.0.0 /8</td><td>16 millions</td></tr>
+    <tr><td>B</td><td>128.0.0.0 — 191.255.255.255</td><td>255.255.0.0 /16</td><td>65 534</td></tr>
+    <tr><td>C</td><td>192.0.0.0 — 223.255.255.255</td><td>255.255.255.0 /24</td><td>254</td></tr>
+    <tr><td>Privées</td><td>10.x / 172.16-31.x / 192.168.x</td><td>—</td><td>Usage interne (RFC 1918)</td></tr>
+    <tr><td>Loopback</td><td>127.0.0.0/8</td><td>—</td><td>Test local (127.0.0.1)</td></tr>
+  </tbody>
+</table>
+
+<h2>2.2 Notation CIDR et masques courants</h2>
+<table>
+  <thead><tr><th>Notation CIDR</th><th>Masque</th><th>Hôtes utilisables</th><th>Exemple</th></tr></thead>
+  <tbody>
+    <tr><td>/24</td><td>255.255.255.0</td><td>254</td><td>192.168.1.0 — PME standard</td></tr>
+    <tr><td>/25</td><td>255.255.255.128</td><td>126</td><td>Subdivision /24 en 2</td></tr>
+    <tr><td>/26</td><td>255.255.255.192</td><td>62</td><td>Petit département</td></tr>
+    <tr><td>/30</td><td>255.255.255.252</td><td>2</td><td>Liaison point-à-point WAN</td></tr>
+    <tr><td>/16</td><td>255.255.0.0</td><td>65 534</td><td>Grande entreprise</td></tr>
+    <tr><td>/8</td><td>255.0.0.0</td><td>16 777 214</td><td>FAI / très grand réseau</td></tr>
+  </tbody>
+</table>
+
+<div class="box">
+  <strong>Calcul réseau :</strong> Pour 192.168.1.10/24 :<br>
+  Adresse réseau = 192.168.1.0 (host part = 0)<br>
+  Broadcast = 192.168.1.255 (host part = 255)<br>
+  Hôtes utilisables = 192.168.1.1 → 192.168.1.254 (254 hôtes)
+</div>
+
+<h1>3. Protocoles et Services Clés</h1>
+
+<h2>3.1 Protocoles courants et leurs ports</h2>
+<table>
+  <thead><tr><th>Service</th><th>Port</th><th>Proto</th><th>Usage</th></tr></thead>
+  <tbody>
+    <tr><td>HTTP</td><td>80</td><td>TCP</td><td>Web non chiffré</td></tr>
+    <tr><td>HTTPS</td><td>443</td><td>TCP</td><td>Web chiffré (TLS)</td></tr>
+    <tr><td>FTP</td><td>20/21</td><td>TCP</td><td>Transfert de fichiers</td></tr>
+    <tr><td>SSH</td><td>22</td><td>TCP</td><td>Accès distant sécurisé</td></tr>
+    <tr><td>Telnet</td><td>23</td><td>TCP</td><td>Accès distant non chiffré (déprécié)</td></tr>
+    <tr><td>SMTP</td><td>25 / 587</td><td>TCP</td><td>Envoi de mail</td></tr>
+    <tr><td>DNS</td><td>53</td><td>UDP/TCP</td><td>Résolution de noms</td></tr>
+    <tr><td>DHCP</td><td>67/68</td><td>UDP</td><td>Attribution automatique d'IP</td></tr>
+    <tr><td>RDP</td><td>3389</td><td>TCP</td><td>Bureau à distance Windows</td></tr>
+    <tr><td>SMB</td><td>445</td><td>TCP</td><td>Partage fichiers Windows</td></tr>
+    <tr><td>LDAP</td><td>389</td><td>TCP/UDP</td><td>Annuaire (Active Directory)</td></tr>
+    <tr><td>SNMP</td><td>161/162</td><td>UDP</td><td>Supervision réseau</td></tr>
+  </tbody>
+</table>
+
+<h2>3.2 DNS — Domain Name System</h2>
+<p>Le DNS traduit les noms de domaine en adresses IP. Il utilise une hiérarchie : racine → TLD (.fr, .com) → domaine → sous-domaine.</p>
+<table>
+  <thead><tr><th>Type</th><th>Rôle</th><th>Exemple</th></tr></thead>
+  <tbody>
+    <tr><td>A</td><td>Nom → IPv4</td><td>www.tssr.local → 192.168.1.10</td></tr>
+    <tr><td>AAAA</td><td>Nom → IPv6</td><td>www → 2001:db8::1</td></tr>
+    <tr><td>CNAME</td><td>Alias de nom</td><td>ftp → www.tssr.local</td></tr>
+    <tr><td>MX</td><td>Serveur mail</td><td>tssr.local → mail.tssr.local</td></tr>
+    <tr><td>PTR</td><td>IP → Nom (reverse)</td><td>192.168.1.10 → srv.tssr.local</td></tr>
+    <tr><td>NS</td><td>Serveur de noms</td><td>tssr.local → ns1.tssr.local</td></tr>
+  </tbody>
+</table>
+
+<h2>3.3 DHCP — Processus DORA</h2>
+<pre><code>Client                              Serveur DHCP
+  |-- DISCOVER (broadcast) -------->|   "Qui peut me donner une IP ?"
+  |<-- OFFER (unicast/broadcast) ---|   "Je propose 192.168.1.50"
+  |-- REQUEST (broadcast) --------->|   "J'accepte 192.168.1.50"
+  |<-- ACK (unicast) ---------------|   "C'est confirmé, durée 8h"</code></pre>
+
+<h1>4. Outils de Diagnostic Réseau</h1>
+
+<table>
+  <thead><tr><th>Outil</th><th>OS</th><th>Rôle</th><th>Exemple</th></tr></thead>
+  <tbody>
+    <tr><td><code>ping</code></td><td>Win/Linux</td><td>Test connectivité ICMP</td><td>ping -c 4 8.8.8.8</td></tr>
+    <tr><td><code>traceroute</code></td><td>Linux</td><td>Chemin réseau hop par hop</td><td>traceroute 8.8.8.8</td></tr>
+    <tr><td><code>tracert</code></td><td>Windows</td><td>Idem Windows</td><td>tracert 8.8.8.8</td></tr>
+    <tr><td><code>ip addr</code></td><td>Linux</td><td>Interfaces et adresses IP</td><td>ip a</td></tr>
+    <tr><td><code>ipconfig</code></td><td>Windows</td><td>Configuration réseau</td><td>ipconfig /all</td></tr>
+    <tr><td><code>ss -tulnp</code></td><td>Linux</td><td>Ports en écoute</td><td>ss -tulnp</td></tr>
+    <tr><td><code>netstat</code></td><td>Win/Linux</td><td>Connexions actives</td><td>netstat -an</td></tr>
+    <tr><td><code>nslookup</code></td><td>Win/Linux</td><td>Résolution DNS</td><td>nslookup tssr.local</td></tr>
+    <tr><td><code>dig</code></td><td>Linux</td><td>DNS avancé</td><td>dig MX tssr.local</td></tr>
+    <tr><td><code>arp -n</code></td><td>Linux</td><td>Table MAC/IP</td><td>arp -n</td></tr>
+    <tr><td><code>ip route</code></td><td>Linux</td><td>Table de routage</td><td>ip r</td></tr>
+  </tbody>
+</table>
+
+<div class="info">
+  <strong>Terminal disponible :</strong> Utilise l'onglet <strong>Terminal</strong> de ce module pour pratiquer ces commandes en simulation interactive. Tape <code>tp</code> pour démarrer un TP guidé de diagnostic réseau.
+</div>
+
+</body>
+</html>

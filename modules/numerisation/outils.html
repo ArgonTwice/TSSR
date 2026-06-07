@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outils Numération</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f1117;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px;font-size:14px;line-height:1.4}
+h2{color:#00ff88;font-size:13px;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #2d3748;text-transform:uppercase;letter-spacing:1px}
+.card{background:#161b22;border:1px solid #2d3748;border-radius:8px;padding:16px;margin-bottom:14px}
+
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid #2d3748}
+.tab{padding:8px 14px;border:none;background:transparent;color:#718096;cursor:pointer;font-size:13px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.active{color:#00ff88;border-bottom-color:#00ff88}
+.tab:hover:not(.active){color:#e2e8f0}
+.panel{display:none}
+.panel.active{display:block}
+
+/* INPUTS */
+input[type=number],input[type=text]{background:#0f1117;border:1.5px solid #2d3748;color:#e2e8f0;padding:7px 10px;border-radius:5px;font-size:14px;font-family:'Courier New',monospace;width:160px}
+input:focus{outline:none;border-color:#00ff88}
+.irow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.ilabel{font-size:12px;color:#718096}
+.btn{background:#00ff88;color:#0f1117;border:none;padding:7px 14px;border-radius:5px;font-weight:700;cursor:pointer;font-size:13px;transition:background .15s}
+.btn:hover{background:#00d974}
+.btn-g{background:transparent;color:#718096;border:1.5px solid #2d3748;padding:7px 14px;border-radius:5px;cursor:pointer;font-size:13px;transition:all .15s}
+.btn-g:hover{border-color:#718096;color:#e2e8f0}
+
+/* BIT GRID */
+.grid-scroll{overflow-x:auto;padding-bottom:6px}
+.grid{display:inline-flex;gap:8px;min-width:max-content}
+.oct-block{display:flex;flex-direction:column;align-items:center;gap:3px}
+.oct-lbl{font-size:10px;color:#4a5568;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.w-row,.b-row,.h-row{display:flex;gap:2px}
+.w-cell{width:32px;text-align:center;font-size:10px;color:#718096;font-family:monospace}
+.bit-btn{width:32px;height:32px;border:1.5px solid #2d3748;border-radius:5px;background:#0f1117;color:#718096;font-size:15px;font-weight:700;cursor:pointer;transition:background .1s,border-color .1s,color .1s;line-height:1}
+.bit-btn:hover{border-color:#00ff88}
+.bit-btn.on{background:#00ff88;color:#0f1117;border-color:#00ff88}
+.hex-nib{width:68px;text-align:center;font-size:13px;color:#3b82f6;font-family:'Courier New',monospace;font-weight:700;background:#0f1117;border-radius:3px;padding:2px 0}
+.oct-dec{font-size:11px;color:#a0aec0;font-family:monospace}
+.res-bar{display:flex;flex-wrap:wrap;gap:20px;margin-top:14px;padding-top:14px;border-top:1px solid #2d3748;align-items:flex-start}
+.res{display:flex;flex-direction:column;gap:2px}
+.res-lbl{font-size:10px;color:#4a5568;text-transform:uppercase;letter-spacing:.5px}
+.res-val{font-size:1.1rem;font-weight:700;font-family:'Courier New',monospace}
+.green{color:#00ff88}
+.blue{color:#3b82f6}
+.muted{font-size:12px}
+
+/* NETWORK */
+.ng{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.nf label{display:block;font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.nf input{width:100%}
+.nres{background:#0f1117;border:1px solid #2d3748;border-radius:6px;padding:12px;margin-top:12px}
+.nres .r{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a2030;font-size:13px}
+.nres .r:last-child{border-bottom:none}
+.nres .r span:first-child{color:#718096}
+.nres .r span:last-child{font-family:monospace;font-weight:700;color:#e2e8f0}
+.nres .r.ok span:last-child{color:#00ff88}
+.nres .r.warn span:last-child{color:#f59e0b}
+.nres .r.blue span:last-child{color:#3b82f6}
+.mask-grid-wrap{margin-bottom:12px}
+
+/* LOGIC GATES */
+.ab-row{display:flex;gap:16px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.ab-grp{display:flex;align-items:center;gap:8px;font-size:13px}
+.ab-grp span{color:#718096}
+.bt{width:40px;height:40px;border:1.5px solid #2d3748;border-radius:5px;background:#0f1117;color:#e2e8f0;font-size:18px;font-weight:700;cursor:pointer;transition:all .1s}
+.bt.on{background:#00ff88;color:#0f1117;border-color:#00ff88}
+.gates-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.gcard{background:#0f1117;border:1px solid #2d3748;border-radius:6px;padding:12px;min-width:130px;text-align:center}
+.gname{font-size:11px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.gq{font-size:2.2rem;font-weight:700;font-family:monospace;line-height:1}
+.gq.q1{color:#00ff88}
+.gq.q0{color:#3d4a5c}
+.ginput{font-size:11px;color:#718096;margin-top:4px}
+.tables-row{display:flex;gap:10px;flex-wrap:wrap}
+.tcard{background:#0f1117;border:1px solid #2d3748;border-radius:6px;padding:12px;min-width:130px}
+.tname{font-size:11px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.trow{display:flex;justify-content:space-between;padding:4px 6px;border-radius:3px;font-size:13px;font-family:monospace}
+.trow.cur{background:#1a2030}
+.trow .i{color:#a0aec0}
+.trow .q1{color:#00ff88;font-weight:700}
+.trow .q0{color:#3d4a5c}
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('conv',this)">Convertisseur</button>
+  <button class="tab" onclick="showTab('net',this)">Découpage Réseau</button>
+  <button class="tab" onclick="showTab('gates',this)">Portes Logiques</button>
+</div>
+
+<!-- ═══════════════ CONVERTISSEUR ═══════════════ -->
+<div id="panel-conv" class="panel active">
+  <div class="card">
+    <h2>Grille 32 bits — Binaire / Décimal / Hexadécimal</h2>
+    <div class="irow">
+      <span class="ilabel">Décimal :</span>
+      <input type="number" id="dec-in" min="0" max="4294967295" placeholder="ex: 2886729729" oninput="fromDec()">
+      <span class="ilabel">Hex :</span>
+      <input type="text" id="hex-in" maxlength="8" placeholder="ex: AC10C001" oninput="fromHex()">
+      <button class="btn-g" onclick="resetBits()">Reset</button>
+    </div>
+    <div class="grid-scroll"><div class="grid" id="bit-grid"></div></div>
+    <div class="res-bar">
+      <div class="res"><div class="res-lbl">Décimal (32 bits)</div><div class="res-val green" id="r-dec">0</div></div>
+      <div class="res"><div class="res-lbl">Hexadécimal</div><div class="res-val blue" id="r-hex">00000000</div></div>
+      <div class="res"><div class="res-lbl">Binaire</div><div class="res-val muted" id="r-bin">00000000 00000000 00000000 00000000</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DÉCOUPAGE RÉSEAU ═══════════════ -->
+<div id="panel-net" class="panel">
+  <div class="card">
+    <h2>Découpage Réseau IPv4</h2>
+    <div class="ng">
+      <div class="nf"><label>Adresse IP</label><input type="text" id="n-ip" placeholder="168.156.0.0" oninput="calcNet()"></div>
+      <div class="nf"><label>Nombre de postes requis</label><input type="number" id="n-hosts" min="1" placeholder="300" oninput="calcNet()"></div>
+    </div>
+    <div class="mask-grid-wrap" id="mask-grid-wrap"></div>
+    <div class="nres" id="nres"><div class="r"><span>Remplis IP et nombre de postes</span><span>—</span></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════ PORTES LOGIQUES ═══════════════ -->
+<div id="panel-gates" class="panel">
+  <div class="card">
+    <h2>Portes Logiques</h2>
+    <div class="ab-row">
+      <div class="ab-grp"><span>A =</span><button class="bt" id="bt-a" onclick="toggleAB('a')">0</button></div>
+      <div class="ab-grp"><span>B =</span><button class="bt" id="bt-b" onclick="toggleAB('b')">0</button></div>
+      <span style="font-size:11px;color:#4a5568">← cliquer pour changer</span>
+    </div>
+    <div class="gates-row" id="gates-live"></div>
+    <div style="font-size:11px;color:#4a5568;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Tables de vérité complètes</div>
+    <div class="tables-row" id="truth-tables"></div>
+  </div>
+</div>
+
+<script>
+// ══ TABS ══
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+// ══ BIT GRID ══
+const W = [128, 64, 32, 16, 8, 4, 2, 1];
+let bits = new Array(32).fill(0);
+
+function buildGrid() {
+  const g = document.getElementById('bit-grid');
+  g.innerHTML = '';
+  for (let o = 0; o < 4; o++) {
+    const b = document.createElement('div');
+    b.className = 'oct-block';
+    b.innerHTML = `<div class="oct-lbl">Octet ${o + 1}</div>`;
+
+    const wr = document.createElement('div'); wr.className = 'w-row';
+    W.forEach(w => { const d = document.createElement('div'); d.className = 'w-cell'; d.textContent = w; wr.appendChild(d); });
+    b.appendChild(wr);
+
+    const br = document.createElement('div'); br.className = 'b-row';
+    for (let i = 0; i < 8; i++) {
+      const idx = o * 8 + i;
+      const btn = document.createElement('button');
+      btn.className = 'bit-btn'; btn.id = 'b' + idx; btn.textContent = '0';
+      btn.onclick = () => { bits[idx] ^= 1; updateGrid(); };
+      br.appendChild(btn);
+    }
+    b.appendChild(br);
+
+    const hr = document.createElement('div'); hr.className = 'h-row';
+    for (let n = 0; n < 2; n++) {
+      const d = document.createElement('div'); d.className = 'hex-nib'; d.id = `hn${o}${n}`; d.textContent = '0';
+      hr.appendChild(d);
+    }
+    b.appendChild(hr);
+
+    const od = document.createElement('div'); od.className = 'oct-dec'; od.id = 'od' + o; od.textContent = '0';
+    b.appendChild(od);
+    g.appendChild(b);
+  }
+}
+
+function updateGrid() {
+  bits.forEach((v, i) => {
+    const b = document.getElementById('b' + i);
+    b.textContent = v; b.classList.toggle('on', v === 1);
+  });
+  for (let o = 0; o < 4; o++) {
+    let ov = 0;
+    for (let i = 0; i < 8; i++) ov = (ov << 1) | bits[o * 8 + i];
+    document.getElementById('od' + o).textContent = ov;
+    document.getElementById(`hn${o}0`).textContent = ((ov >> 4) & 0xF).toString(16).toUpperCase();
+    document.getElementById(`hn${o}1`).textContent = (ov & 0xF).toString(16).toUpperCase();
+  }
+  let val = 0;
+  for (let i = 0; i < 32; i++) val = ((val * 2) + bits[i]) >>> 0;
+  document.getElementById('r-dec').textContent = val;
+  document.getElementById('r-hex').textContent = val.toString(16).toUpperCase().padStart(8, '0');
+  const bs = bits.join('');
+  document.getElementById('r-bin').textContent = bs.slice(0,8)+' '+bs.slice(8,16)+' '+bs.slice(16,24)+' '+bs.slice(24);
+  document.getElementById('dec-in').value = val || '';
+  document.getElementById('hex-in').value = val ? val.toString(16).toUpperCase() : '';
+}
+
+function resetBits() {
+  bits.fill(0);
+  document.getElementById('dec-in').value = '';
+  document.getElementById('hex-in').value = '';
+  updateGrid();
+}
+
+function fromDec() {
+  const v = parseInt(document.getElementById('dec-in').value) >>> 0;
+  for (let i = 0; i < 32; i++) bits[31 - i] = (v >> i) & 1;
+  updateGrid();
+}
+
+function fromHex() {
+  const h = document.getElementById('hex-in').value.trim();
+  if (!h) return;
+  const v = parseInt(h, 16) >>> 0;
+  for (let i = 0; i < 32; i++) bits[31 - i] = (v >> i) & 1;
+  document.getElementById('dec-in').value = v || '';
+  updateGrid();
+}
+
+buildGrid(); updateGrid();
+
+// ══ NETWORK ══
+function calcNet() {
+  const ipStr = document.getElementById('n-ip').value.trim();
+  const hostsReq = parseInt(document.getElementById('n-hosts').value);
+  const res = document.getElementById('nres');
+  const mgw = document.getElementById('mask-grid-wrap');
+  if (!ipStr || !hostsReq || hostsReq < 1) {
+    res.innerHTML = '<div class="r"><span>Remplis IP et nombre de postes</span><span>—</span></div>';
+    mgw.innerHTML = ''; return;
+  }
+  const parts = ipStr.split('.').map(Number);
+  if (parts.length !== 4 || parts.some(x => isNaN(x) || x < 0 || x > 255)) {
+    res.innerHTML = '<div class="r warn"><span>IP invalide</span><span>Format : x.x.x.x</span></div>';
+    mgw.innerHTML = ''; return;
+  }
+  let hb = 1;
+  while ((Math.pow(2, hb) - 2) < hostsReq) hb++;
+  const nb = 32 - hb;
+  const cap = Math.pow(2, hb) - 2;
+  const maskN = nb === 0 ? 0 : (0xFFFFFFFF << (32 - nb)) >>> 0;
+  const mo = [(maskN>>>24)&255,(maskN>>>16)&255,(maskN>>>8)&255,maskN&255];
+  const ipN = ((parts[0]<<24)|(parts[1]<<16)|(parts[2]<<8)|parts[3])>>>0;
+  const netN = (ipN & maskN) >>> 0;
+  const bcN  = (netN | (~maskN >>> 0)) >>> 0;
+  const toIp = n => [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.');
+  let saut = 256, sautOct = 0;
+  for (let i = 0; i < 4; i++) {
+    if (mo[i] > 0 && mo[i] < 255) { saut = 256 - mo[i]; sautOct = i+1; break; }
+    if (mo[i] === 0) { saut = 256; sautOct = i+1; break; }
+  }
+  const capOk = cap >= hostsReq;
+  const mb = [];
+  for (let i = 0; i < 32; i++) mb.push((maskN >> (31-i)) & 1);
+  renderMaskGrid(mb, mgw);
+  res.innerHTML = `
+    <div class="r blue"><span>Masque de sous-réseau</span><span>${mo.join('.')}</span></div>
+    <div class="r blue"><span>Notation CIDR</span><span>/${nb}</span></div>
+    <div class="r"><span>Saut de plage (octet ${sautOct})</span><span>${saut}</span></div>
+    <div class="r"><span>Adresse réseau</span><span>${toIp(netN)}</span></div>
+    <div class="r"><span>1ère IP utilisateur</span><span>${toIp((netN+1)>>>0)}</span></div>
+    <div class="r"><span>Dernière IP utilisateur</span><span>${toIp((bcN-1)>>>0)}</span></div>
+    <div class="r"><span>Broadcast</span><span>${toIp(bcN)}</span></div>
+    <div class="r ${capOk?'ok':'warn'}"><span>Capacité (${hostsReq} requis)</span><span>${cap} postes dispo — ${capOk?'✓ Suffisant':'✗ Insuffisant'}</span></div>`;
+}
+
+function renderMaskGrid(mb, wrap) {
+  wrap.innerHTML = '';
+  const g = document.createElement('div');
+  g.style.cssText = 'display:inline-flex;gap:6px;overflow-x:auto;padding-bottom:4px';
+  for (let o = 0; o < 4; o++) {
+    const b = document.createElement('div');
+    b.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px';
+    b.innerHTML = `<div style="font-size:10px;color:#4a5568;text-transform:uppercase;letter-spacing:.5px">Octet ${o+1}</div>`;
+    const wr = document.createElement('div'); wr.style.cssText = 'display:flex;gap:2px';
+    W.forEach(w => { const d=document.createElement('div'); d.style.cssText='width:28px;text-align:center;font-size:10px;color:#718096;font-family:monospace'; d.textContent=w; wr.appendChild(d); });
+    b.appendChild(wr);
+    const br = document.createElement('div'); br.style.cssText='display:flex;gap:2px';
+    for (let i=0;i<8;i++){
+      const v=mb[o*8+i]; const d=document.createElement('div');
+      d.style.cssText=`width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:1.5px solid;`+(v?'background:#3b82f6;color:#fff;border-color:#3b82f6':'background:#0f1117;color:#4a5568;border-color:#2d3748');
+      d.textContent=v; br.appendChild(d);
+    }
+    b.appendChild(br);
+    let ov=0; for(let i=0;i<8;i++) ov=(ov<<1)|mb[o*8+i];
+    const od=document.createElement('div'); od.style.cssText='font-size:11px;color:#a0aec0;font-family:monospace'; od.textContent=ov; b.appendChild(od);
+    g.appendChild(b);
+  }
+  wrap.appendChild(g);
+}
+
+// ══ LOGIC GATES ══
+let gA=0, gB=0;
+const GATES=[
+  {name:'ET / AND', fn:(a,b)=>a&b, rows:[[0,0],[0,1],[1,0],[1,1]]},
+  {name:'OU / OR',  fn:(a,b)=>a|b, rows:[[0,0],[0,1],[1,0],[1,1]]},
+  {name:'XOR',      fn:(a,b)=>a^b, rows:[[0,0],[0,1],[1,0],[1,1]]},
+];
+
+function toggleAB(w) {
+  if(w==='a'){gA^=1;const b=document.getElementById('bt-a');b.textContent=gA;b.classList.toggle('on',gA===1);}
+  else       {gB^=1;const b=document.getElementById('bt-b');b.textContent=gB;b.classList.toggle('on',gB===1);}
+  renderGatesLive(); renderTruthTables();
+}
+
+function renderGatesLive() {
+  const wrap=document.getElementById('gates-live');
+  wrap.innerHTML='';
+  GATES.forEach(g=>{
+    const q=g.fn(gA,gB);
+    const c=document.createElement('div'); c.className='gcard';
+    c.innerHTML=`<div class="gname">${g.name}</div><div class="gq ${q?'q1':'q0'}">${q}</div><div class="ginput">A=${gA}, B=${gB}</div>`;
+    wrap.appendChild(c);
+  });
+}
+
+function renderTruthTables() {
+  const wrap=document.getElementById('truth-tables');
+  wrap.innerHTML='';
+  GATES.forEach(g=>{
+    const c=document.createElement('div'); c.className='tcard';
+    let html=`<div class="tname">${g.name}</div>`;
+    html+=`<div class="trow" style="font-size:10px;color:#4a5568;border-bottom:1px solid #2d3748;margin-bottom:4px;padding-bottom:4px"><span class="i">A  B</span><span>Q</span></div>`;
+    g.rows.forEach(([a,b])=>{
+      const q=g.fn(a,b), cur=(a===gA&&b===gB);
+      html+=`<div class="trow${cur?' cur':''}"><span class="i">${a}  ${b}</span><span class="${q?'q1':'q0'}">${q}</span></div>`;
+    });
+    c.innerHTML=html;
+    wrap.appendChild(c);
+  });
+}
+
+renderGatesLive(); renderTruthTables();
+</script>
+</body>
+</html>

@@ -10,6 +10,13 @@ const MODULES = [
     topics: [],
     cours: [
       {
+        id: 'outils-conversion',
+        titre: 'Outils interactifs — Convertisseur, Réseau, Portes Logiques',
+        sections: [
+          { type: 'html-file', src: 'modules/numerisation/outils.html' },
+        ],
+      },
+      {
         id: 'cours_optimise_claude',
         titre: 'Architecture des Données : Encodage, Systèmes de Numération et Logique Booléenne',
         sections: [

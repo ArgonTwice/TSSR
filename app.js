@@ -230,6 +230,7 @@ function renderCoursContent(sections) {
     if (s.type === 'h3')    return `<h3 style="font-size:15px;font-weight:700;color:var(--text);margin:20px 0 10px">${s.content}</h3>`;
     if (s.type === 'schema') return renderSchema(s.content);
     if (s.type === 'steps')  return renderSteps(s.items);
+    if (s.type === 'html-file') return `<div class="html-file-wrap"><iframe src="${s.src}" class="cours-iframe" title="Cours" loading="lazy"></iframe></div>`;
     return '';
   }).join('');
 }

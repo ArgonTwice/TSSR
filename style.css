@@ -1908,3 +1908,17 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .cours-section h2:first-child { margin-top: 0; }
+
+.html-file-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--border);
+  margin-top: 8px;
+}
+.cours-iframe {
+  display: block;
+  width: 100%;
+  height: 82vh;
+  border: none;
+  background: #fff;
+}

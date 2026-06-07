@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Architecture des Données : Encodage, Systèmes de Numération et Logique Booléenne</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.25;
+            color: #1a1a1a;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        h1 {
+            color: #1e3a8a;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-size: 22pt;
+        }
+        h2 {
+            color: #2c5282;
+            margin-top: 30px;
+            font-size: 15pt;
+            border-left: 4px solid #2c5282;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #4a5568;
+            margin-top: 20px;
+            font-size: 12pt;
+            font-style: italic;
+        }
+        p, li {
+            font-size: 11pt;
+            text-align: justify;
+        }
+        ul, ol {
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 11pt;
+        }
+        th, td {
+            border: 1px solid #cbd5e0;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #ebf8ff;
+            color: #2c5282;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        code {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #edf2f7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10pt;
+            font-weight: bold;
+            color: #b7791f;
+        }
+        pre {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #2d3748;
+            font-weight: normal;
+        }
+        .highlight-box {
+            background-color: #fffaf0;
+            border-left: 4px solid #dd6b20;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        .highlight-box p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="text-align: center; margin-bottom: 50px;">
+        <h1 style="border: none; margin-bottom: 5px; font-size: 26pt;">Guide de Référence Technique</h1>
+        <p style="font-size: 14pt; color: #4a5568; font-weight: bold;">Codage des Caractères, Mathématiques Binaires et Algèbre Booléenne</p>
+        <p style="font-size: 10pt; color: #718096;">Document d'ingénierie optimisé pour injection LLM (Claude context window)</p>
+    </div>
+
+    <h1>1. Objectifs Pédagogiques du Référentiel SRE / TSSR</h1>
+    <p>Ce document synthétise les fondamentaux mathématiques et structurels nécessaires aux administrateurs systèmes et réseaux. L'objectif est d'assurer une maîtrise opérationnelle des couches matérielles et protocolaires.</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Domaine de compétence</th>
+                <th>Aptitude macro-opérationnelle attendue</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Calculs &amp; Conversions</strong></td>
+                <td>Réaliser des conversions bidirectionnelles entre les bases binaire, décimale et hexadécimale (limite standard : 16 bits / 2 octets).</td>
+            </tr>
+            <tr>
+                <td><strong>Algèbre Booléenne</strong></td>
+                <td>Appliquer des masques et opérations logiques (<code>AND</code>, <code>OR</code>, <code>XOR</code>) sur des flux numériques binaires.</td>
+            </tr>
+            <tr>
+                <td><strong>Dimensionnement Logique</strong></td>
+                <td>Calculer la capacité mémoire requise et l'allocation de bits pour définir des plages d'adressage ou des structures de données.</td>
+            </tr>
+            <tr>
+                <td><strong>Analyse de Normes</strong></td>
+                <td>Diagnostiquer, identifier et corriger les ruptures de compatibilité d'encodage (ASCII, ISO-8859, UTF-8).</td>
+            </tr>
+            <tr>
+                <td><strong>Analyse de Flux Bruts</strong></td>
+                <td>Interpréter des dumps hexadécimaux et les transcrire manuellement en texte via les tables de correspondance de référence.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h1>2. Histoire et Rupture Systémique de l'Encodage des Caractères</h1>
+    
+    <h2>2.1 Le Standard ASCII : L'infrastructure Historique sur 7 Bits</h2>
+    <p>Créé en 1961, le standard <strong>ASCII</strong> (<em>American Standard Code for Information Interchange</em>) a été calibré pour standardiser les transmissions des terminaux mécaniques de type télétypes. Il repose sur un codage strict à <strong>7 bits</strong>, générant ainsi un espace adressable de $2^7 = 128$ caractères possibles (indexés de <code>0</code> à <code>127</code> en décimal).</p>
+    
+    <h3>Structure fonctionnelle de la table ASCII :</h3>
+    <ul>
+        <li><strong>Index 0 à 31 (Caractères de contrôle non imprimables) :</strong> Conçus originellement pour le pilotage mécanique des téléscripteurs. Exemples modernes incontournables en administration :
+            <ul>
+                <li><code>LF</code> (<em>Line Feed</em>, décimal 10, hex <code>0A</code>, représenté par <code>\n</code>) : Déplace le curseur à la ligne suivante.</li>
+                <li><code>CR</code> (<em>Carriage Return</em>, décimal 13, hex <code>0D</code>, représenté par <code>\r</code>) : Ramène le curseur au début de la ligne courante.</li>
+                <li><code>TAB</code> (décimal 9, hex <code>09</code>) : Tabulation horizontale.</li>
+            </ul>
+        </li>
+        <li><strong>Index 32 à 127 (Caractères imprimables) :</strong> Comprend l'alphabet latin en lettres capitales et minuscules, les chiffres de 0 à 9, ainsi que la ponctuation standard US.</li>
+    </ul>
+
+    <div class="highlight-box">
+        <p><strong>Exemple Concret d'interprétation brute :</strong><br>
+        La chaîne textuelle <code>"Sys"</code> se traduit en mémoire par les valeurs hexadécimales suivantes :<br>
+        <code>'S'</code> = Hex <code>53</code> (Décimal 83) | <code>'y'</code> = Hex <code>79</code> (Décimal 121) | <code>'s'</code> = Hex <code>73</code> (Décimal 115).</p>
+    </div>
+
+    <h2>2.2 La Fragmentation ISO-646 et la Problématique des Dialectes Régionaux</h2>
+    <p>Pour adapter le jeu de caractères américain aux spécificités locales sans changer la structure à 7 bits, la norme <strong>ISO-646</strong> a autorisé la modification de 12 points de code spécifiques (comme les accolades <code>{ }</code> ou les crochets <code>[ ]</code>) pour y placer des caractères nationaux (ex: <code>à</code>, <code>ç</code>, <code>é</code>).</p>
+    <p><strong>Conséquence :</strong> Rupture majeure de portabilité. Un script informatique écrit sur un clavier américain affichait des erreurs de syntaxe aberrantes sur un terminal français (par exemple, un crochet ouvrant se transformant visuellement en lettre accentuée), rendant le partage de code source international impossible.</p>
+
+    <h2>2.3 Le Passage à 8 Bits : ISO-8859 et l'Hégémonie des Pages de Codes Propriétaires</h2>
+    <p>L'évolution matérielle ayant banalisé l'utilisation de l'<strong>octet (8 bits)</strong> comme unité fondamentale de stockage, le 8ème bit (auparavant exploité pour le contrôle de parité réseau) a été libéré. L'espace adressable a instantanément doublé : $2^8 = 256$ caractères disponibles (de <code>0</code> à <code>255</code>).</p>
+    
+    <h3>Tentative d'unification : La norme ISO-8859</h3>
+    <p>La norme internationale a segmenté ce nouvel espace. Les 128 premiers caractères restent figés (ASCII standard), tandis que la plage haute (128 à 255) varie selon des déclinaisons régionales appelées "parties". La plus courante en Europe de l'Ouest fut la norme <strong>ISO-8859-1 (ISO-Latin-1)</strong>, complétée plus tard par l'<strong>ISO-8859-15</strong> pour intégrer le symbole Euro (<code>€</code>).</p>
+
+    <h3>La guerre des standards propriétaires</h3>
+    <p>Parallèlement, les éditeurs ont développé leurs propres implémentations incompatibles :
+        <ul>
+            <li><strong>CP437 (Code Page 437) :</strong> Utilisée par IBM sous MS-DOS. Elle exploitait la plage haute pour afficher des caractères semi-graphiques (double bordures, blocs de remplissage) afin de concevoir des interfaces graphiques en mode texte, au détriment des caractères accentués de certaines langues.</li>
+            <li><strong>Windows-1252 (CP1252) :</strong> Version propriétaire de Microsoft pour Windows, proche mais structurellement différente de l'ISO-8859-1.</li>
+        </ul>
+    </p>
+
+    <h2>2.4 Le Standard Moderne et Universel : Unicode et UTF-8</h2>
+    <p>Pour résoudre définitivement la "Tour de Babel" des encodages, le consortium <strong>Unicode</strong> a défini une table unique attribuant à chaque symbole existant (lettres, idéogrammes, alphabets anciens, émojis) un identifiant mathématique universel appelé <strong>Point de Code</strong>, noté sous la forme <code>U+XXXX</code>.</p>
+
+    <h3>Pourquoi l'encodage UTF-8 s'est imposé ?</h3>
+    <p>Stocker nativement chaque point de code sur 32 bits (4 octets) provoquerait un surpoids critique des fichiers textuels. <strong>UTF-8</strong> résout ce problème grâce à un mécanisme d'encodage à <strong>largeur variable</strong> (de 1 à 4 octets) :</p>
+    
+    <table style="width: 90%; margin: auto;">
+        <thead>
+            <tr>
+                <th>Plage de Points de Code</th>
+                <th>Représentation en mémoire (Binaire UTF-8)</th>
+                <th>Taille réelle</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>U+0000</code> à <code>U+007F</code> (ASCII)</td>
+                <td><code>0xxxxxxx</code></td>
+                <td>1 octet</td>
+            </tr>
+            <tr>
+                <td><code>U+0080</code> à <code>U+07FF</code> (Accents, Grec, Arabe)</td>
+                <td><code>110xxxxx 10xxxxxx</code></td>
+                <td>2 octets</td>
+            </tr>
+            <tr>
+                <td><code>U+0800</code> à <code>U+FFFF</code> (Idéogrammes Asie)</td>
+                <td><code>1110xxxx 10xxxxxx 10xxxxxx</code></td>
+                <td>3 octets</td>
+            </tr>
+            <tr>
+                <td><code>U+10000</code> à <code>U+10FFFF</code> (Émojis, symboles rares)</td>
+                <td><code>11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</code></td>
+                <td>4 octets</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="highlight-box">
+        <p><strong>Le piège classique de l'Administrateur (Le bug d'affichage Mojibake) :</strong><br>
+        Si vous enregistrez un fichier contenant la chaîne <code>"Café"</code> sous un éditeur moderne en <strong>UTF-8</strong>, la lettre <code>'é'</code> est codée sur deux octets : <code>C3 A9</code>.<br>
+        Si un script hérité (Legacy) ou un vieux terminal configuré en <strong>ISO-8859-1</strong> tente de lire ce fichier, il interprétera séparément ces deux octets comme deux caractères distincts de sa table haute, et affichera à l'écran l'anomalie structurelle suivante : <code>"CafÃ©"</code>.</p>
+    </div>
+
+    <h1>3. Fondations Mathématiques et Systèmes de Numération</h1>
+    <p>Les circuits électroniques numériques exploitent des transistors fonctionnant comme des commutateurs bistables (états saturé/bloqué), modélisés mathématiquement par la <strong>Base 2 (Binaire)</strong>. La base décimale (Base 10) n'étant pas une puissance exacte de 2, elle s'avère inadaptée pour cartographier directement l'agencement intime des registres matériels.</p>
+
+    <h2>3.1 La Base 2 (Binaire) et l'Anatomie de l'Octet</h2>
+    <p>Le binaire n'utilise que deux symboles : <code>0</code> et <code>1</code>. La position de chaque bit détermine son poids mathématique selon une puissance de 2, lue de droite (Bit de Poids Faible - LSB) vers la gauche (Bit de Poids Fort - MSB).</p>
+    
+    <p>Structure de pondération d'un registre de 8 bits (un octet) :</p>
+    <table>
+        <tr style="background-color: #edf2f7;">
+            <td>Position du bit</td>
+            <td>Bit 7</td><td>Bit 6</td><td>Bit 5</td><td>Bit 4</td><td>Bit 3</td><td>Bit 2</td><td>Bit 1</td><td>Bit 0</td>
+        </tr>
+        <tr style="font-weight: bold; color: #2b6cb0;">
+            <td>Poids exponentiel</td>
+            <td>$2^7$</td><td>$2^6$</td><td>$2^5$</td><td>$2^4$</td><td>$2^3$</td><td>$2^2$</td><td>$2^1$</td><td>$2^0$</td>
+        </tr>
+        <tr style="font-weight: bold; background-color: #f7fafc;">
+            <td>Valeur Décimale</td>
+            <td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td>
+        </tr>
+    </table>
+
+    <h2>3.2 Méthodologie Opérationnelle de Conversion Binaire &harr; Décimal</h2>
+    
+    <h3>Algorithme de conversion Binaire vers Décimal</h3>
+    <p><strong>Règle :</strong> Sommer la valeur des poids décimaux pour chaque bit positionné à l'état logique <code>1</code>.</p>
+    <p><strong>Exemple Pratique :</strong> Conversion du flux binaire <code>1010001</code> en base 10.</p>
+    <pre><code>Alignement sur la grille de calcul :
+Poids :   64   32   16    8    4    2    1
+Bits  :    1    0    1    0    0    0    1
+
+Calcul : 64 + 16 + 1 = 81
+Résultat : 1010001(2) = 81(10)</code></pre>
+
+    <h3>Algorithme de conversion Décimal vers Binaire (Méthode par soustraction des poids forts)</h3>
+    <p><strong>Règle :</strong> Identifier le plus grand poids binaire inférieur ou égal au nombre décimal, soustraire cette valeur, positionner le bit correspondant à 1, puis répéter l'opération sur le reste obtenu.</p>
+    <p><strong>Exemple Pratique :</strong> Conversion du nombre décimal <code>43</code> en binaire.</p>
+    <ul>
+        <li>Plus grand poids disponible $\le 43$ est <strong>32</strong> $ightarrow$ Reste : $43 - 32 = 11$ $ightarrow$ <small>Bit 32 = 1</small></li>
+        <li>Le poids suivant 16 est supérieur au reste ($16 > 11$) $ightarrow$ <small>Bit 16 = 0</small></li>
+        <li>Plus grand poids disponible $\le 11$ est <strong>8</strong> $ightarrow$ Reste : $11 - 8 = 3$ $ightarrow$ <small>Bit 8 = 1</small></li>
+        <li>Le poids suivant 4 est supérieur au reste ($4 > 3$) $ightarrow$ <small>Bit 4 = 0</small></li>
+        <li>Plus grand poids disponible $\le 3$ est <strong>2</strong> $ightarrow$ Reste : $3 - 2 = 1$ $ightarrow$ <small>Bit 2 = 1</small></li>
+        <li>Plus grand poids disponible $\le 1$ est <strong>1</strong> $ightarrow$ Reste : $1 - 1 = 0$ $ightarrow$ <small>Bit 1 = 1</small></li>
+    </ul>
+    <pre><code>Assemblage final (du bit 32 au bit 1) : 101011
+Résultat : 43(10) = 101011(2)</code></pre>
+
+    <h2>3.3 La Base 16 (Hexadécimal) : Densification des Flux de Données</h2>
+    <p>La base 16 utilise 16 symboles : <code>0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A (10), B (11), C (12), D (13), E (14), F (15)</code>.</p>
+    <p><strong>Propriété technique critique :</strong> Puisque $16 = 2^4$, un chiffre hexadécimal code exactement un groupe de <strong>4 bits (un quartet ou nybble)</strong>. Un octet (8 bits) est donc représenté par exactement deux caractères hexadécimaux, ce qui évite les chaînes de uns et de zéros illisibles.</p>
+
+    <h3>Grille d'équivalence universelle :</h3>
+    <table>
+        <thead>
+            <tr style="background-color: #edf2f7;">
+                <th>Hex</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Déc</strong></td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td>
+            </tr>
+            <tr style="font-family: monospace; font-size: 10pt; color: #2c5282;">
+                <td><strong>Bin</strong></td><td>0000</td><td>0001</td><td>0010</td><td>0011</td><td>0100</td><td>0101</td><td>0110</td><td>0111</td><td>1000</td><td>1001</td><td>1010</td><td>1011</td><td>1100</td><td>1101</td><td>1110</td><td>1111</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h1>4. Algorithmes Avancés de Conversion en Base 16</h1>
+    
+    <h2>4.1 Conversion Hexadécimal vers Décimal</h2>
+    <p><strong>Algorithme :</strong> Multiplier la valeur de chaque chiffre hexadécimal par la puissance de 16 correspondant à sa position positionnelle (indexée à partir de 0 en partant de la droite).</p>
+    <p><strong>Exemple Pratique :</strong> Conversion de la valeur hexadécimale <code>2A9</code> en décimal.</p>
+    <pre><code>Décomposition positionnelle :
+Rang 2 : '2' &rarr; 2 &times; 16² = 2 &times; 256 = 512
+Rang 1 : 'A' &rarr; 10 &times; 16¹ = 10 &times; 16 = 160
+Rang 0 : '9' &rarr; 9 &times; 16⁰ = 9 &times; 1   = 9
+
+Calcul global : 512 + 160 + 9 = 681
+Résultat : 2A9(16) = 681(10)</code></pre>
+
+    <h2>4.2 Conversion Décimal vers Hexadécimal</h2>
+    
+    <h3>Méthode Industrielle : Division par les Poids Supérieurs</h3>
+    <p><strong>Exemple Pratique :</strong> Conversion du nombre décimal <code>759</code> en hexadécimal.</p>
+    <ul>
+        <li>Plus grande puissance de 16 contenue dans 759 est $16^2 = 256$.<br>
+            <code>759 / 256 = 2</code> (Quotient) &rarr; Reste : $759 - (2 	imes 256) = 247$.</li>
+        <li>On passe à la puissance inférieure ($16^1 = 16$).<br>
+            <code>247 / 16 = 15</code> (Quotient) &rarr; Le quotient 15 se traduit par le symbole <strong><code>F</code></strong>. Reste : $247 - (15 	imes 16) = 7$.</li>
+        <li>On passe à la puissance inférieure ($16^0 = 1$).<br>
+            <code>7 / 1 = 7</code> (Quotient) &rarr; Reste : 0.</li>
+    </ul>
+    <pre><code>Extraction des symboles ordonnés : 2F7
+Résultat : 759(10) = 2F7(16)</code></pre>
+
+    <h3>Méthode "Réseau" (Passage par le Binaire)</h3>
+    <p>Fortement recommandée en situation de stress ou d'examen, cette méthode évite les divisions complexes par 16 :
+        <ol>
+            <li>Convertir le nombre décimal en binaire standard.</li>
+            <li>Regrouper les bits par paquets de 4 (quartets) en partant de la droite.</li>
+            <li>Traduire chaque quartet de manière indépendante en son symbole hexadécimal.</li>
+        </ol>
+    </p>
+    <pre><code>Décimal à convertir : 759
+Écriture binaire brute : 0010 1111 0111
+Découpage et traduction par quartet :
+0010 &rarr; 2
+1111 &rarr; F
+0111 &rarr; 7
+Résultat immédiat : 2F7(16)</code></pre>
+
+    <h1>5. Algèbre de Boole et Portes Logiques Fondamentales</h1>
+    <p>Les opérateurs logiques manipulent des variables booléennes (0 ou 1). Ils constituent le fondement des calculs d'infrastructures informatiques.</p>
+
+    <h2>5.1 Tables de Vérité des Opérateurs Majeurs</h2>
+    <table style="width: 80%; margin: auto;">
+        <thead>
+            <tr style="background-color: #edf2f7;">
+                <th>Entrée A</th>
+                <th>Entrée B</th>
+                <th>AND (A &amp; B)</th>
+                <th>OR (A | B)</th>
+                <th>XOR (A &oplus; B)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>0</td><td>0</td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+            <tr><td>0</td><td>1</td><td><strong>0</strong></td><td><strong>1</strong></td><td><strong>1</strong></td></tr>
+            <tr><td>1</td><td>0</td><td><strong>0</strong></td><td><strong>1</strong></td><td><strong>1</strong></td></tr>
+            <tr><td>1</td><td>1</td><td><strong>1</strong></td><td><strong>1</strong></td><td><strong>0</strong></td></tr>
+        </tbody>
+    </table>
+
+    <h2>5.2 Cas d'Usage concrets en Ingénierie Systèmes et Réseaux</h2>
+
+    <h3>1. L'Opérateur AND (&amp;) et le Masquage Réseau IPv4</h3>
+    <p>En réseau, l'opération logique <code>AND</code> est exécutée bit à bit par les routeurs entre une adresse IP et un masque de sous-réseau pour isoler l'adresse réseau d'une machine.</p>
+    <div class="highlight-box">
+        <p><strong>Exemple Réseau concret :</strong><br>
+        Soit une machine possédant l'IP <code>192.168.1.81</code> avec un masque <code>255.255.255.0</code>. Analysons l'opération sur le dernier octet de l'IP (81) avec le masque (0) :<br>
+        Dernier octet IP (81) : <code>01010001</code><br>
+        Dernier octet Masque (0) : <code>00000000</code><br>
+        Opération logique <code>AND</code> bit à bit :<br>
+        <code>01010001</code> &amp; <code>00000000</code> = <code>00000000</code> (Le réseau est bien isolé).</p>
+    </div>
+
+    <h3>2. L'Opérateur XOR (&oplus;) et la Redondance RAID 5</h3>
+    <p>L'opérateur <code>XOR</code> (OU exclusif) possède la propriété d'être réversible. Si $A \oplus B = C$, alors $C \oplus B = A$. Cette particularité mathématique est le cœur algorithmique du stockage <strong>RAID 5</strong>.</p>
+    <div class="highlight-box">
+        <p><strong>Exemple Stockage concret :</strong><br>
+        Soit un bloc de données sur le Disque 1 possédant le bit <code>1</code>, et un bloc sur le Disque 2 possédant le bit <code>0</code>.<br>
+        Le disque de parité va stocker la valeur du calcul : $1 \oplus 0 = \mathbf{1}$.<br>
+        Si le Disque 1 subit une panne matérielle critique et détruit sa donnée, le contrôleur RAID reconstruit instantanément le bit manquant en combinant le Disque 2 et le disque de parité : $0 \oplus 1 = \mathbf{1}$. La donnée est restaurée sans aucune perte.</p>
+    </div>
+
+    <h1>6. Cas d'Étude Pratique : Décodage de Paquet et Flux Hexadécimal</h1>
+    <p>En tant que technicien ou administrateur, vous ferez face à l'analyse de trames réseau (Wireshark) ou de fichiers corrompus via un éditeur hexadécimal (Hex Dump). Voici un exercice type de retranscription.</p>
+
+    <div class="highlight-box">
+        <p><strong>Énoncé de l'exercice :</strong> Un équipement réseau capture un flux brut contenant la suite de caractères hexadécimaux suivants : <code>4F 4B 0A</code>. Que contient ce message ?</p>
+    </div>
+
+    <h3>Résolution pas à pas via les tables de référence :</h3>
+    <ol>
+        <li><strong>Analyse de l'octet <code>4F</code> :</strong>
+            <ul>
+                <li>Conversion décimale : $(4 	imes 16) + 15 = 64 + 15 = 79$.</li>
+                <li>Correspondance Table ASCII : L'index décimal 79 correspond à la lettre majuscule <strong><code>O</code></strong>.</li>
+            </ul>
+        </li>
+        <li><strong>Analyse de l'octet <code>4B</code> :</strong>
+            <ul>
+                <li>Conversion décimale : $(4 	imes 16) + 11 = 64 + 11 = 75$.</li>
+                <li>Correspondance Table ASCII : L'index décimal 75 correspond à la lettre majuscule <strong><code>K</code></strong>.</li>
+            </ul>
+        </li>
+        <li><strong>Analyse de l'octet <code>0A</code> :</strong>
+            <ul>
+                <li>Conversion décimale : 10.</li>
+                <li>Correspondance Table ASCII : L'index décimal 10 correspond au caractère de contrôle <strong><code>LF</code></strong> (Saut de ligne).</li>
+            </ul>
+        </li>
+    </ol>
+
+    <p><strong>Diagnostic final :</strong> Le flux analysé représente la commande système textuelle <code>"OK"</code> suivie d'un retour à la ligne matériel.</p>
+
+</body>
+</html>

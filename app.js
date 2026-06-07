@@ -946,7 +946,48 @@ const TP_SCENARIOS = {
       ],
     },
   ],
-  linux: [],
+  linux: [
+    {
+      id: 'diagnostic',
+      title: 'Diagnostic réseau complet',
+      desc: 'Une machine Linux ne ping pas 8.8.8.8. Diagnostique méthodiquement : interface → gateway → DNS.',
+      steps: [
+        { instr: 'Commence par vérifier la configuration des interfaces réseau.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'eth0 est UP avec 192.168.1.10/24. Vérifie si une route par défaut est configurée.', hint: 'ip route', check: c => /^ip\s+(r|route)\b/i.test(c.trim()) },
+        { instr: 'Route OK (via 192.168.1.1). Teste la connectivité vers la passerelle.', hint: 'ping -c 4 192.168.1.1', check: c => /^ping\b/i.test(c.trim()) && /192\.168\.1\.1/.test(c) },
+        { instr: 'Passerelle répond. Teste internet via IP (sans DNS).', hint: 'ping -c 4 8.8.8.8', check: c => /^ping\b/i.test(c.trim()) && /8\.8\.8\.8/.test(c) },
+        { instr: 'Internet OK en IP. Le problème vient du DNS. Vérifie le fichier resolv.conf.', hint: 'cat /etc/resolv.conf', check: c => /^cat\b/i.test(c.trim()) && /resolv/.test(c) },
+        { instr: 'Teste la résolution DNS directement.', hint: 'nslookup google.com', check: c => /^(nslookup|dig)\b/i.test(c.trim()) },
+        { instr: 'DNS fonctionne. Affiche les ports en écoute pour vérifier les services actifs.', hint: 'ss -tulnp', check: c => /^(ss|netstat)\b/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'services',
+      title: 'Services réseau systemd',
+      desc: 'Audite et contrôle les services réseau SSH, Apache et leur état sur le serveur.',
+      steps: [
+        { instr: 'Liste tous les services systemd actifs.', hint: 'systemctl list-units', check: c => /^systemctl\s+list-units\b/i.test(c.trim()) },
+        { instr: 'Vérifie l\'état détaillé du service SSH.', hint: 'systemctl status ssh', check: c => /^systemctl\s+status\s+ssh/i.test(c.trim()) },
+        { instr: 'SSH actif. Vérifie sur quel port il écoute exactement.', hint: 'ss -tulnp', check: c => /^(ss|netstat)\b/i.test(c.trim()) },
+        { instr: 'Port 22 confirmé. Redémarre le service Apache.', hint: 'systemctl restart apache2', check: c => /^(sudo\s+)?systemctl\s+restart\s+apache2/i.test(c.trim()) },
+        { instr: 'Vérifie qu\'Apache écoute bien sur le port 80.', hint: 'ss -tulnp', check: c => /^(ss|netstat)\b/i.test(c.trim()) },
+        { instr: 'Affiche l\'adresse IP et la table de routage complète.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'analyse',
+      title: 'Analyse ARP et traceroute',
+      desc: 'Explore la table ARP, trace le chemin réseau et identifie les voisins sur le LAN.',
+      steps: [
+        { instr: 'Affiche la table ARP (correspondances IP/MAC sur le LAN).', hint: 'arp -n', check: c => /^arp\b/i.test(c.trim()) },
+        { instr: 'Identifie les adresses MAC voisines. Maintenant trace le chemin vers 8.8.8.8.', hint: 'traceroute 8.8.8.8', check: c => /^(traceroute|tracepath)\b/i.test(c.trim()) },
+        { instr: 'Hop 1 = passerelle 192.168.1.1. Résous le nom du serveur DNS de Google.', hint: 'nslookup 8.8.8.8', check: c => /^(nslookup|dig)\b/i.test(c.trim()) },
+        { instr: 'Interroge le type MX du domaine tssr.local.', hint: 'dig tssr.local', check: c => /^dig\b/i.test(c.trim()) },
+        { instr: 'Vérifie le fichier hosts local.', hint: 'cat /etc/hosts', check: c => /^cat\b/i.test(c.trim()) && /hosts/.test(c) },
+        { instr: 'Affiche les infos couche 2 (MAC, état) des interfaces.', hint: 'ip link', check: c => /^ip\s+(l|link)\b/i.test(c.trim()) },
+      ],
+    },
+  ],
 };
 
 function handleTPCommand(args, type) {

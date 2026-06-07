@@ -147,6 +147,7 @@ function openModule(moduleId) {
   if (m.qcm.length)         tabs.push({ id: 'qcm',         label: 'QCM',          icon: '✅', cli: false });
   if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧', cli: true,  color: '#00e5a0' });
   if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟', cli: true,  color: '#3b82f6' });
+  tabs.push({ id: 'notes', label: 'Notes', icon: '📝', cli: false });
 
   const tabBar = document.getElementById('tab-bar');
   tabBar.innerHTML = '';
@@ -196,6 +197,7 @@ function renderTabContent(tabId) {
   else if (tabId === 'qcm')    renderQCM(m, el);
   else if (tabId === 'linux_cli')   renderCLI('linux', m, el);
   else if (tabId === 'windows_cli') renderCLI('windows', m, el);
+  else if (tabId === 'notes')       renderNotes(m, el);
 }
 
 // ===== COURS =====
@@ -256,6 +258,63 @@ function renderTable(s) {
   const thead = s.headers.map(h=>`<th>${h}</th>`).join('');
   const tbody = s.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
   return `<table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`;
+}
+
+// ===== NOTES =====
+const MEMBRES = ['Esdine','Madjid','Fouad','Ilir','Jores','Ronel','Folly','Mick','Antho','Axel'];
+
+function renderNotes(m, el) {
+  const lastKey = 'notes_last_' + m.id;
+  let cur = store.get(lastKey) || MEMBRES[0];
+
+  function getNote(p)      { return store.get(`notes_${m.id}_${p}`) || ''; }
+  function saveNote(p, v)  { store.set(`notes_${m.id}_${p}`, v); }
+
+  function showPerson(person) {
+    cur = person;
+    store.set(lastKey, person);
+    el.querySelectorAll('.np-btn').forEach(b => b.classList.toggle('active', b.dataset.p === person));
+
+    const area = el.querySelector('.notes-area');
+    if (person === 'Résumé') {
+      const entries = MEMBRES.map(p => {
+        const txt = getNote(p).trim();
+        if (!txt) return '';
+        return `<div class="notes-entry"><div class="notes-entry-name">${p}</div><div class="notes-entry-text">${escHtml(txt)}</div></div>`;
+      }).filter(Boolean).join('');
+      area.innerHTML = entries ||
+        `<div class="empty-state" style="padding:60px 0">
+          <span class="empty-state-icon">📝</span>
+          <h3>Aucune note pour l'instant</h3>
+          <p>Les notes de chaque membre apparaîtront ici.</p>
+        </div>`;
+    } else {
+      area.innerHTML = `
+        <div class="notes-editor">
+          <div class="notes-editor-header">
+            <span class="notes-editor-who">${person}</span>
+            <span class="notes-save-status" id="ns-status">✓ Sauvegardé</span>
+          </div>
+          <textarea id="notes-ta" class="notes-textarea" placeholder="Notes de ${person} pour ce module…" spellcheck="true">${escHtml(getNote(person))}</textarea>
+        </div>`;
+      const ta = el.querySelector('#notes-ta');
+      let t;
+      ta.addEventListener('input', () => {
+        document.getElementById('ns-status').textContent = '…';
+        clearTimeout(t);
+        t = setTimeout(() => { saveNote(person, ta.value); document.getElementById('ns-status').textContent = '✓ Sauvegardé'; }, 600);
+      });
+      ta.focus();
+    }
+  }
+
+  const btns = MEMBRES.map(p =>
+    `<button class="np-btn${p===cur?' active':''}" data-p="${p}">${p}</button>`
+  ).join('') + `<button class="np-btn np-btn-resume${cur==='Résumé'?' active':''}" data-p="Résumé">📋 Résumé</button>`;
+
+  el.innerHTML = `<div class="notes-wrap"><div class="notes-people">${btns}</div><div class="notes-area"></div></div>`;
+  el.querySelectorAll('.np-btn').forEach(b => b.addEventListener('click', () => showPerson(b.dataset.p)));
+  showPerson(cur);
 }
 
 // ===== FLASHCARDS =====

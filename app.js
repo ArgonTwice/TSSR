@@ -912,6 +912,23 @@ const TP_SCENARIOS = {
         { instr: 'Connectivité restaurée. Confirme en pingant la passerelle 192.168.1.1.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1/i.test(c.trim()) },
       ],
     },
+    {
+      id: 'route',
+      title: 'Mauvaise passerelle par défaut',
+      desc: 'Le réseau local répond mais Internet est inaccessible. Identifie et corrige la gateway erronée.',
+      onStart: () => { cliState.networkFault = 'gateway'; },
+      onEnd:   () => { cliState.networkFault = null; },
+      steps: [
+        { instr: '⚠️ Signalement : le serveur peut joindre les postes du réseau local mais plus Internet ni les autres sites. Vérifie la config IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'Note la passerelle : 192.168.99.1 — elle n\'appartient pas au réseau 192.168.1.0/24. Confirme que le réseau local fonctionne.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1\.1/i.test(c.trim()) },
+        { instr: 'Réseau local OK. Teste maintenant une IP externe.', hint: 'ping 8.8.8.8', check: c => /^ping\b.*8\.8\.8\.8/i.test(c.trim()) },
+        { instr: 'Timeout confirmé. Trace la route pour localiser où ça bloque.', hint: 'tracert 8.8.8.8', check: c => /^tracert\b/i.test(c.trim()) },
+        { instr: 'Le premier hop (192.168.99.1) ne répond pas : la gateway est injoignable. Vérifie la table de routage.', hint: 'route print', check: c => /^route\s+print/i.test(c.trim()) || /^get-netroute/i.test(c.trim()) },
+        { instr: 'La route par défaut pointe vers 192.168.99.1 qui n\'existe pas. Corrige l\'adresse IP avec la bonne gateway (192.168.1.1).', hint: 'netsh interface ip set address "Ethernet" static 192.168.1.20 255.255.255.0 192.168.1.1', check: c => /^netsh\b/i.test(c.trim()) },
+        { instr: 'Configuration appliquée. Vérifie la nouvelle config IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'Gateway corrigée. Confirme la connectivité Internet.', hint: 'ping 8.8.8.8', check: c => /^ping\b.*8\.8\.8\.8/i.test(c.trim()) },
+      ],
+    },
   ],
   linux: [],
 };
@@ -1856,6 +1873,16 @@ function cliExecWindows(cmd, args, raw) {
         explain('⚠️ Adresse <strong>APIPA</strong> (169.254.x.x) détectée. Windows s\'est auto-attribué cette adresse car il n\'a pas pu joindre le serveur DHCP. Cela signifie que le service <strong>DHCP Client</strong> est peut-être arrêté, ou que le serveur DHCP est inaccessible.');
         break;
       }
+      if (cliState.networkFault === 'gateway') {
+        if (all) out(`   Nom de l'hôte. . . . . . . . . . . : ${cliState.host}\n   Suffixe DNS principal  . . . . . . : tssr.local\n   Routage IP activé. . . . . . . . . : Non`);
+        out(`Carte Ethernet Ethernet :
+   Adresse IPv4. . . . . . . . . . . .: <span style="color:var(--blue)">192.168.1.20</span>
+   Masque de sous-réseau . . . . . . .: 255.255.255.0
+   Passerelle par défaut . . . . . . .: <span style="color:var(--red)">192.168.99.1</span>`);
+        if (all) out(`   Serveur DHCP . . . . . . . . . . . : (statique)\n   Serveurs DNS. . . . . . . . . . . .: 192.168.1.20`);
+        explain('⚠️ La <strong>passerelle par défaut 192.168.99.1</strong> n\'appartient pas au réseau local (192.168.1.0/24). Tout le trafic sortant (Internet, autres sous-réseaux) est envoyé vers une gateway inexistante et sera perdu. Le réseau local /24 reste accessible car il ne passe pas par la gateway.');
+        break;
+      }
       if (all) {
         out(`   Nom de l'hôte. . . . . . . . . . . : ${cliState.host}
    Suffixe DNS principal  . . . . . . : tssr.local
@@ -1877,11 +1904,19 @@ function cliExecWindows(cmd, args, raw) {
       const isLoopback = host === 'localhost' || host === '127.0.0.1';
       const ip = isLoopback ? '127.0.0.1' : host.match(/^\d/) ? host : '192.168.1.1';
       const ttl = host === '8.8.8.8' ? 118 : 128;
-      if (cliState.networkFault && !isLoopback) {
+      const isLocal = ip.startsWith('192.168.1.');
+      if (cliState.networkFault === 'dhcp' && !isLoopback) {
         out(`\nPing de ${host} [${ip}] avec 32 octets de données :`);
         for (let i=0;i<4;i++) out(`Délai d\'attente de la demande dépassé.`);
         out(`\nStatistiques du Ping pour ${ip} :\n    Paquets : Envoyés = 4, Reçus = 0, Perdus = 4 (perte 100%)`);
-        explain(`<strong>Délai d\'attente dépassé</strong> : aucune réponse ICMP reçue. Causes possibles : hôte éteint, pare-feu bloquant ICMP, mauvaise route, ou (dans ce cas) problème de configuration réseau côté client. Le loopback (127.0.0.1) fonctionne → la carte réseau est opérationnelle, le problème est en amont.`);
+        explain(`<strong>Délai d\'attente dépassé</strong> : pas d\'IP valide (APIPA), le trafic ne peut pas être routé. Résous d\'abord le problème DHCP.`);
+        break;
+      }
+      if (cliState.networkFault === 'gateway' && !isLoopback && !isLocal) {
+        out(`\nPing de ${host} [${ip}] avec 32 octets de données :`);
+        for (let i=0;i<4;i++) out(`Délai d\'attente de la demande dépassé.`);
+        out(`\nStatistiques du Ping pour ${ip} :\n    Paquets : Envoyés = 4, Reçus = 0, Perdus = 4 (perte 100%)`);
+        explain(`<strong>Timeout vers ${host}</strong> : cette adresse est hors du réseau local, elle doit passer par la gateway (192.168.99.1). Comme cette gateway n\'existe pas sur le réseau 192.168.1.0/24, les paquets sont perdus. Le réseau local (192.168.1.x) fonctionne car il ne passe pas par la gateway.`);
         break;
       }
       out(`\nPing de ${host} [${ip}] avec 32 octets de données :`);
@@ -1904,6 +1939,16 @@ function cliExecWindows(cmd, args, raw) {
     }
     case 'tracert': {
       const dest = args[0] || '8.8.8.8';
+      if (cliState.networkFault === 'gateway') {
+        out(`\nDétermination de l\'itinéraire vers ${dest}\navec un maximum de 30 sauts :\n
+  1     *        *        *     Délai d\'attente de la demande dépassé.
+  2     *        *        *     Délai d\'attente de la demande dépassé.
+  3     *        *        *     Délai d\'attente de la demande dépassé.
+
+Itinéraire terminé.`);
+        explain(`<strong>tracert bloqué dès le hop 1</strong> : le premier routeur devrait être la gateway (192.168.99.1) mais elle n\'existe pas sur ce réseau. Tous les paquets vers l\'extérieur sont envoyés vers une adresse ARP non résolue → perdus immédiatement. C\'est la signature d\'une <strong>mauvaise gateway</strong>.`);
+        break;
+      }
       out(`\nDétermination de l\'itinéraire vers ${dest}\navec un maximum de 30 sauts :\n
   1    &lt;1 ms    &lt;1 ms    &lt;1 ms  192.168.1.1
   2    3 ms    3 ms    3 ms  10.0.0.1
@@ -1911,7 +1956,78 @@ function cliExecWindows(cmd, args, raw) {
   4   10 ms   10 ms   10 ms  ${dest}
 
 Itinéraire terminé.`);
-      explain(`<strong>tracert</strong> (Windows) = traceroute (Linux). Affiche chaque routeur (hop) avec sa latence. <em>* * *</em> = routeur ne répondant pas à l\'ICMP (pare-feu). Utile pour localiser où une connexion échoue sur le chemin réseau.`);
+      explain(`<strong>tracert</strong> affiche chaque routeur (hop) jusqu\'à la destination. <em>* * *</em> = routeur bloquant ICMP (pare-feu). Le hop 1 = ta gateway locale. Si le hop 1 est déjà en timeout → problème de gateway ou de couche réseau local.`);
+      break;
+    }
+    case 'arp': {
+      if (cliState.networkFault === 'gateway') {
+        out(`\nInterface : 192.168.1.20 --- 0x2
+  Adresse Internet      Adresse physique      Type
+  192.168.1.1           c8-d3-a3-2f-7e-01     dynamique
+  192.168.1.255         ff-ff-ff-ff-ff-ff     statique`);
+        explain(`<strong>arp -a</strong> affiche la table ARP. 192.168.99.1 (la gateway configurée) est <strong>absente</strong> de la table ARP : la machine n\'a jamais pu la résoudre en adresse MAC car elle n\'existe pas sur ce réseau. Preuve que la gateway est injoignable au niveau couche 2.`);
+        break;
+      }
+      out(`\nInterface : 192.168.1.20 --- 0x2
+  Adresse Internet      Adresse physique      Type
+  192.168.1.1           c8-d3-a3-2f-7e-01     dynamique
+  192.168.1.5           b8-27-eb-12-34-56     dynamique
+  192.168.1.255         ff-ff-ff-ff-ff-ff     statique`);
+      explain(`<strong>arp -a</strong> affiche la table ARP (Address Resolution Protocol) : correspondances IP ↔ MAC connues. Dynamique = appris par ARP. Si une IP est absente = elle n\'a jamais répondu à un ARP. La gateway doit être présente ; si absente → gateway injoignable ou mauvaise adresse.`);
+      break;
+    }
+    case 'route': {
+      const sub = (args[0]||'').toLowerCase();
+      if (sub === 'print' || sub === '') {
+        const gw = cliState.networkFault === 'gateway' ? '192.168.99.1' : '192.168.1.1';
+        out(`\n===========================================================================
+Interface List
+ 2...08 00 27 ab cd ef ......Ethernet
+ 1...........................Software Loopback Interface 1
+===========================================================================
+
+IPv4 Route Table
+===========================================================================
+Active Routes:
+Network Destination        Netmask          Gateway       Interface  Metric
+          0.0.0.0          0.0.0.0    <span style="color:${cliState.networkFault==='gateway'?'var(--red)':'inherit'}">${gw}</span>   192.168.1.20     25
+        127.0.0.0        255.0.0.0        On-link         127.0.0.1    331
+        127.0.0.1  255.255.255.255        On-link         127.0.0.1    331
+      192.168.1.0    255.255.255.0        On-link    192.168.1.20     281
+     192.168.1.20  255.255.255.255        On-link    192.168.1.20     281
+===========================================================================`);
+        explain(`<strong>route print</strong> affiche la table de routage complète. La ligne <em>0.0.0.0</em> = route par défaut (trafic vers tout ce qui ne correspond pas à une route spécifique). La <strong>gateway</strong> de cette route est le premier routeur que le système contacte pour sortir du réseau local.`);
+      } else { err(`route ${escHtml(args[0]||'')} : sous-commande inconnue. Utilise : route print`); }
+      break;
+    }
+    case 'get-netroute': {
+      const gw = cliState.networkFault === 'gateway' ? '192.168.99.1' : '192.168.1.1';
+      out(`\nifIndex DestinationPrefix          NextHop       RouteMetric ifMetric PolicyStore
+------- -----------------          -------       ----------- -------- -----------
+2       0.0.0.0/0                  ${gw}      0           25       ActiveStore
+1       127.0.0.0/8                0.0.0.0       256         75       ActiveStore
+2       192.168.1.0/24             0.0.0.0       0           25       ActiveStore`);
+      explain(`<strong>Get-NetRoute</strong> (PowerShell) est l\'équivalent de <code>route print</code>. La route <em>0.0.0.0/0</em> = route par défaut. NextHop = gateway. Si la gateway est dans un sous-réseau différent du réseau local, les paquets ne pourront pas y être acheminés.`);
+      break;
+    }
+    case 'netsh': {
+      const subA = (args[0]||'').toLowerCase();
+      const subB = (args[1]||'').toLowerCase();
+      const subC = (args[2]||'').toLowerCase();
+      if (subA === 'interface' && subB === 'ip' && subC === 'set') {
+        if (cliState.networkFault === 'gateway') { cliState.networkFault = null; }
+        const newGw = args.find(a => /^192\.\d+\.\d+\.\d+$/.test(a) && a !== '192.168.1.20' && a !== '255.255.255.0') || '192.168.1.1';
+        out(`\nOK.`);
+        explain(`<strong>netsh interface ip set address</strong> configure une adresse IP statique sur une interface réseau. Paramètres : interface, adresse IP, masque, passerelle par défaut. La nouvelle gateway (${newGw}) appartient au réseau 192.168.1.0/24 → accessible par ARP → le routage peut reprendre normalement.`);
+      } else if (subA === 'interface' && subB === 'ip' && subC === 'set' && args[3] === 'dns') {
+        out(`\nOK.`);
+        explain(`<strong>netsh interface ip set dns</strong> configure le serveur DNS d\'une interface. Utile quand la résolution de noms échoue malgré une connectivité réseau normale.`);
+      } else if (subA === 'wlan') {
+        out(`Pas d\'adaptateur Wi-Fi détecté sur ce serveur.`);
+      } else {
+        out(`\nOK.`);
+        explain(`<strong>netsh</strong> (Network Shell) est l\'outil CLI de configuration réseau Windows. Il permet de gérer les interfaces, routes, règles de pare-feu, et bien plus. Remplacé progressivement par les cmdlets PowerShell <code>Set-NetIPAddress</code>, <code>New-NetRoute</code>...`);
+      }
       break;
     }
     case 'netstat': {
@@ -2209,7 +2325,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
              <span style="color:var(--blue)">Update-MpSignature</span>  Start-MpScan
 <span style="color:var(--text2)">Stockage :</span>     <span style="color:var(--blue)">diskpart</span> (mode interactif)
 <span style="color:var(--text2)">Système :</span>      whoami  hostname  Get-ComputerInfo  Get-EventLog  Get-ADUser
-<span style="color:var(--text2)">Divers :</span>       cls  help  <span style="color:var(--blue)">tp</span> [list | start diskpart|sam|ntfs|panne | quit]
+<span style="color:var(--text2)">Divers :</span>       cls  help  <span style="color:var(--blue)">tp</span> [list | start diskpart|sam|ntfs|panne|route | quit]
 <span style="color:var(--text3)">↑/↓ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
       break;
     default:
@@ -2233,8 +2349,8 @@ const CLI_CARDS = [
     prompt: 'PS C:\\Users\\Administrateur>',
     promptColor: '#60a5fa',
     desc: 'PowerShell interactif. Diskpart, SAM, droits NTFS, réseau, pare-feu, BitLocker.',
-    cmds: ['ipconfig /all', 'ping 192.168.1.1', 'diskpart', 'net user TechAdmin P@ssw0rd! /add', 'icacls "C:\\Shares\\Direction"', 'tp panne'],
-    tpCount: 4,
+    cmds: ['ipconfig /all', 'tracert 8.8.8.8', 'diskpart', 'net user TechAdmin P@ssw0rd! /add', 'icacls "C:\\Shares\\Direction"', 'tp route'],
+    tpCount: 5,
   },
 ];
 

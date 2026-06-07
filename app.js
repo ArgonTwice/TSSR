@@ -610,6 +610,7 @@ function makeCLIState(type) {
         'C:\\Shares\\Direction':     'Héritage actif — Administrateurs : (F), Utilisateurs : (RX)',
       },
       bitlocker: {},
+      networkFault: null,
       fwRules: [
         { name: 'Allow_RDP', display: 'Bureau à distance (TCP-In)', dir: 'Inbound',  proto: 'TCP', port: '3389', action: 'Allow', profile: 'Domain' },
         { name: 'Allow_SMB', display: 'Partage de fichiers (SMB)',  dir: 'Inbound',  proto: 'TCP', port: '445',  action: 'Allow', profile: 'Domain' },
@@ -860,26 +861,26 @@ const TP_SCENARIOS = {
       title: 'Initialisation d\'un disque secondaire',
       desc: 'Configure le Disque 1 (500 GB, RAW) : initialiser, partitionner, formater et monter.',
       steps: [
-        { instr: 'Lance l\'utilitaire diskpart pour entrer en mode interactif.',                    hint: 'diskpart',                              check: c => /^diskpart$/i.test(c.trim()) },
-        { instr: 'Liste les disques physiques disponibles.',                                        hint: 'list disk',                             check: c => /^list\s+disk$/i.test(c.trim()) },
-        { instr: 'Sélectionne le Disque 1 (500 GB, RAW).',                                        hint: 'select disk 1',                         check: c => /^select\s+disk\s+1$/i.test(c.trim()) },
-        { instr: 'Efface la table de partition du disque sélectionné.',                            hint: 'clean',                                 check: c => /^clean$/i.test(c.trim()) },
-        { instr: 'Convertis le disque au format GPT (requis UEFI / >2 To).',                      hint: 'convert gpt',                           check: c => /^convert\s+gpt$/i.test(c.trim()) },
-        { instr: 'Crée une partition primaire qui occupe tout l\'espace.',                         hint: 'create partition primary',              check: c => /^create\s+partition\s+primary/i.test(c.trim()) },
-        { instr: 'Formate la partition en NTFS avec le label "Data" (quick).',                     hint: 'format fs=ntfs quick label=Data',        check: c => /^format\b.*fs=ntfs/i.test(c.trim()) },
-        { instr: 'Attribue la lettre E: au volume.',                                              hint: 'assign letter=e',                       check: c => /^assign\s+letter=e$/i.test(c.trim()) },
-        { instr: 'Quitte diskpart et reviens en PowerShell.',                                     hint: 'exit',                                  check: c => /^exit$/i.test(c.trim()) },
+        { instr: 'Lance l\'utilitaire diskpart pour entrer en mode interactif.',     hint: 'diskpart',                                    check: c => /^diskpart$/i.test(c.trim()) },
+        { instr: 'Liste les disques physiques disponibles.',                         hint: 'list disk',                                   check: c => /^list\s+disk$/i.test(c.trim()) },
+        { instr: 'Sélectionne le Disque 1 (500 GB, RAW).',                          hint: 'select disk 1',                               check: c => /^select\s+disk\s+1$/i.test(c.trim()) },
+        { instr: 'Efface la table de partition du disque.',                          hint: 'clean',                                       check: c => /^clean$/i.test(c.trim()) },
+        { instr: 'Convertis le disque au format GPT (UEFI / >2 To).',               hint: 'convert gpt',                                 check: c => /^convert\s+gpt$/i.test(c.trim()) },
+        { instr: 'Crée une partition primaire sur tout l\'espace disponible.',       hint: 'create partition primary',                    check: c => /^create\s+partition\s+primary/i.test(c.trim()) },
+        { instr: 'Formate la partition en NTFS avec le label "Data" (quick).',       hint: 'format fs=ntfs quick label=Data',              check: c => /^format\b.*fs=ntfs/i.test(c.trim()) },
+        { instr: 'Attribue la lettre E: au volume.',                                hint: 'assign letter=e',                             check: c => /^assign\s+letter=e$/i.test(c.trim()) },
+        { instr: 'Quitte diskpart et reviens en PowerShell.',                        hint: 'exit',                                        check: c => /^exit$/i.test(c.trim()) },
       ],
     },
     {
       id: 'sam',
       title: 'Création d\'un compte technicien',
-      desc: 'Crée un utilisateur TechAdmin, un groupe G_Maintenance, et affecte l\'utilisateur au groupe.',
+      desc: 'Crée un utilisateur TechAdmin, un groupe G_Maintenance et affecte l\'utilisateur.',
       steps: [
-        { instr: 'Crée l\'utilisateur "TechAdmin" avec le mot de passe "P@ssw0rd!".',              hint: 'net user TechAdmin P@ssw0rd! /add',      check: c => /^net\s+user\s+\S+\s+\S+\s+\/add/i.test(c.trim()) },
-        { instr: 'Crée le groupe local "G_Maintenance".',                                         hint: 'net localgroup G_Maintenance /add',      check: c => /^net\s+localgroup\s+\S+\s+\/add/i.test(c.trim()) },
-        { instr: 'Ajoute TechAdmin dans le groupe G_Maintenance.',                               hint: 'net localgroup G_Maintenance TechAdmin /add', check: c => /^net\s+localgroup\s+\S+\s+\S+\s+\/add/i.test(c.trim()) },
-        { instr: 'Vérifie les membres du groupe G_Maintenance.',                                  hint: 'net localgroup G_Maintenance',           check: c => /^net\s+localgroup\s+\S+$/i.test(c.trim()) },
+        { instr: 'Crée l\'utilisateur "TechAdmin" avec le mot de passe "P@ssw0rd!".', hint: 'net user TechAdmin P@ssw0rd! /add',           check: c => /^net\s+user\s+\S+\s+\S+\s+\/add/i.test(c.trim()) },
+        { instr: 'Crée le groupe local "G_Maintenance".',                             hint: 'net localgroup G_Maintenance /add',           check: c => /^net\s+localgroup\s+\S+\s+\/add/i.test(c.trim()) },
+        { instr: 'Ajoute TechAdmin dans le groupe G_Maintenance.',                   hint: 'net localgroup G_Maintenance TechAdmin /add', check: c => /^net\s+localgroup\s+\S+\s+\S+\s+\/add/i.test(c.trim()) },
+        { instr: 'Vérifie les membres du groupe G_Maintenance.',                     hint: 'net localgroup G_Maintenance',                check: c => /^net\s+localgroup\s+\S+$/i.test(c.trim()) },
       ],
     },
     {
@@ -887,40 +888,32 @@ const TP_SCENARIOS = {
       title: 'Sécurisation d\'un dossier partagé',
       desc: 'Applique des droits NTFS stricts sur C:\\Shares\\Direction.',
       steps: [
-        { instr: 'Affiche les ACL actuelles de C:\\Shares\\Direction.',                            hint: 'icacls "C:\\Shares\\Direction"',          check: c => /^icacls\b.*Direction/i.test(c.trim()) },
-        { instr: 'Romps l\'héritage (convertit les droits hérités en droits explicites).',         hint: 'icacls "C:\\Shares\\Direction" /inheritance:d', check: c => /icacls\b.*\/inheritance:d/i.test(c.trim()) },
-        { instr: 'Donne le contrôle total aux Administrateurs.',                                   hint: 'icacls "C:\\Shares\\Direction" /grant:r "Administrateurs":(OI)(CI)(F)', check: c => /icacls\b.*\/grant:r.*\(F\)/i.test(c.trim()) },
-        { instr: 'Donne le droit de modification au groupe G_Direction.',                          hint: 'icacls "C:\\Shares\\Direction" /grant:r "G_Direction":(OI)(CI)(M)', check: c => /icacls\b.*\/grant:r.*\(M\)/i.test(c.trim()) },
-        { instr: 'Vérifie les ACL finales du dossier.',                                           hint: 'icacls "C:\\Shares\\Direction"',          check: c => /^icacls\b.*Direction/i.test(c.trim()) },
-      ],
-    },
-  ],
-  linux: [
-    {
-      id: 'reseau',
-      title: 'Diagnostic réseau complet',
-      desc: 'Inspecte la configuration réseau, teste la connectivité et vérifie les services écoutant.',
-      steps: [
-        { instr: 'Affiche les interfaces réseau et leurs adresses IP.',                           hint: 'ip addr show',                          check: c => /^ip\s+(a|addr|address)(\s|$)/i.test(c.trim()) },
-        { instr: 'Affiche la table de routage.',                                                  hint: 'ip route show',                         check: c => /^ip\s+(r|route)(\s|$)/i.test(c.trim()) },
-        { instr: 'Envoie 4 pings vers la passerelle (192.168.1.1).',                             hint: 'ping -c 4 192.168.1.1',                 check: c => /^ping\b/i.test(c.trim()) },
-        { instr: 'Liste les ports en écoute (sockets TCP/UDP ouverts).',                          hint: 'ss -tulnp',                             check: c => /^(ss|netstat)\b/i.test(c.trim()) },
-        { instr: 'Résous l\'adresse de tssr.local via DNS.',                                      hint: 'nslookup tssr.local',                   check: c => /^(nslookup|dig)\b/i.test(c.trim()) },
-        { instr: 'Trace la route vers 8.8.8.8 (DNS Google).',                                    hint: 'traceroute 8.8.8.8',                    check: c => /^traceroute\b/i.test(c.trim()) },
+        { instr: 'Affiche les ACL actuelles de C:\\Shares\\Direction.',              hint: 'icacls "C:\\Shares\\Direction"',               check: c => /^icacls\b.*Direction/i.test(c.trim()) },
+        { instr: 'Romps l\'héritage (convertit les droits hérités en explicites).',  hint: 'icacls "C:\\Shares\\Direction" /inheritance:d', check: c => /icacls\b.*\/inheritance:d/i.test(c.trim()) },
+        { instr: 'Donne le contrôle total (F) aux Administrateurs.',                 hint: 'icacls "C:\\Shares\\Direction" /grant:r "Administrateurs":(OI)(CI)(F)', check: c => /icacls\b.*\/grant:r.*\(F\)/i.test(c.trim()) },
+        { instr: 'Donne le droit de modification (M) au groupe G_Direction.',        hint: 'icacls "C:\\Shares\\Direction" /grant:r "G_Direction":(OI)(CI)(M)',     check: c => /icacls\b.*\/grant:r.*\(M\)/i.test(c.trim()) },
+        { instr: 'Vérifie les ACL finales du dossier.',                              hint: 'icacls "C:\\Shares\\Direction"',               check: c => /^icacls\b.*Direction/i.test(c.trim()) },
       ],
     },
     {
-      id: 'droits',
-      title: 'Gestion des droits fichiers',
-      desc: 'Crée un dossier, assigne les droits et vérifie avec ls.',
+      id: 'panne',
+      title: 'Diagnostic panne réseau',
+      desc: 'Le serveur SRV-TSSR a perdu la connectivité réseau. Diagnostique et répare.',
+      onStart: () => { cliState.networkFault = 'dhcp'; },
+      onEnd:   () => { cliState.networkFault = null; },
       steps: [
-        { instr: 'Crée le dossier /opt/projet.',                                                  hint: 'mkdir /opt/projet',                     check: c => /^mkdir\b.*\/opt\/projet/i.test(c.trim()) },
-        { instr: 'Donne les droits 755 au dossier /opt/projet.',                                  hint: 'chmod 755 /opt/projet',                 check: c => /^chmod\b.*755/i.test(c.trim()) },
-        { instr: 'Change le propriétaire en root:root.',                                          hint: 'chown root:root /opt/projet',           check: c => /^chown\b/i.test(c.trim()) },
-        { instr: 'Vérifie les droits avec ls -la.',                                              hint: 'ls -la /opt',                           check: c => /^ls\b.*-l/i.test(c.trim()) },
+        { instr: '⚠️ Signalement : les utilisateurs ne peuvent plus joindre le réseau. Commence par vérifier la configuration IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'L\'IP est une adresse APIPA (169.254.x.x). Le service DHCP Client est peut-être arrêté. Vérifie-le.', hint: 'Get-Service dhcp', check: c => /^get-service\b.*dhcp/i.test(c.trim()) || /^gsv\b.*dhcp/i.test(c.trim()) },
+        { instr: 'Le service est bien arrêté. Avant de le redémarrer, vérifie que la carte réseau elle-même fonctionne : teste le loopback.', hint: 'ping 127.0.0.1', check: c => /^ping\b.*127\.0\.0\.1/i.test(c.trim()) },
+        { instr: 'Loopback OK → carte réseau fonctionnelle. Teste maintenant la passerelle 192.168.1.1.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1\.1/i.test(c.trim()) },
+        { instr: 'Timeout confirmé — la passerelle est inaccessible. Cause identifiée : DHCP Client stoppé. Redémarre-le.', hint: 'Start-Service dhcp', check: c => /^start-service\b.*dhcp/i.test(c.trim()) || /^sasv\b.*dhcp/i.test(c.trim()) },
+        { instr: 'Service redémarré. Renouvelle maintenant le bail DHCP pour obtenir une nouvelle adresse IP.', hint: 'ipconfig /renew', check: c => /^ipconfig\s+\/renew/i.test(c.trim()) },
+        { instr: 'Bail obtenu ! Vérifie la nouvelle configuration IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'Connectivité restaurée. Confirme en pingant la passerelle 192.168.1.1.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1/i.test(c.trim()) },
       ],
     },
   ],
+  linux: [],
 };
 
 function handleTPCommand(args, type) {
@@ -942,11 +935,13 @@ function handleTPCommand(args, type) {
     if (!sc) { err(`TP "${id}" introuvable. Tape tp pour la liste.`); return; }
     scenarioState = { scenario: sc, step: 0, done: false };
     scenarioCheck = (cmd) => tpValidate(cmd);
+    if (sc.onStart) sc.onStart();
     renderScenarioPanel();
     out(`\n<span style="color:var(--${type==='windows'?'blue':'accent'})">▶ TP lancé : ${sc.title}</span>\nObjectif : ${sc.desc}\n\n→ Lis le panneau TP à droite. Complète chaque étape dans l\'ordre.\n`);
     return;
   }
   if (sub === 'quit' || sub === 'stop') {
+    if (scenarioState?.scenario?.onEnd) scenarioState.scenario.onEnd();
     scenarioState = null;
     scenarioCheck = null;
     document.getElementById('scenario-panel').style.display = 'none';
@@ -967,6 +962,7 @@ function tpValidate(cmd) {
   if (scenarioState.step >= scenario.steps.length) {
     scenarioState.done = true;
     scenarioCheck = null;
+    if (scenario.onEnd) scenario.onEnd();
     renderScenarioPanel();
     cliPrint(`<div class="cli-explain">🏆 <strong>TP terminé !</strong> Tu as complété "${scenario.title}" en ${scenario.steps.length} étapes. Tape <strong>tp</strong> pour un nouveau TP.</div>`);
   } else {
@@ -1778,27 +1774,37 @@ function cliExecWindows(cmd, args, raw) {
       break;
     }
     case 'get-service': case 'gsv': {
+      const dhcpStatus = cliState.networkFault === 'dhcp' ? 'Stopped' : 'Running';
       const services = [
-        { status:'Running', name:'sshd',        display:'OpenSSH Server' },
-        { status:'Running', name:'W32Time',      display:'Windows Time' },
-        { status:'Stopped', name:'WinRM',        display:'Windows Remote Management' },
-        { status:'Running', name:'Spooler',      display:'Print Spooler' },
-        { status:'Running', name:'ADWS',         display:'Active Directory Web Services' },
-        { status:'Running', name:'DNS',          display:'DNS Server' },
-        { status:'Running', name:'NTDS',         display:'Active Directory Domain Services' },
-        { status:'Stopped', name:'W3SVC',        display:'World Wide Web Publishing' },
+        { status:'Running',     name:'sshd',   display:'OpenSSH Server' },
+        { status:'Running',     name:'W32Time', display:'Windows Time' },
+        { status:'Stopped',     name:'WinRM',   display:'Windows Remote Management' },
+        { status:'Running',     name:'Spooler', display:'Print Spooler' },
+        { status:'Running',     name:'ADWS',    display:'Active Directory Web Services' },
+        { status:'Running',     name:'DNS',     display:'DNS Server' },
+        { status:'Running',     name:'NTDS',    display:'Active Directory Domain Services' },
+        { status:dhcpStatus,    name:'dhcp',    display:'DHCP Client' },
+        { status:'Stopped',     name:'W3SVC',   display:'World Wide Web Publishing' },
       ];
       const filter = args.find(a=>!a.startsWith('-'));
       const filtered = filter ? services.filter(s=>s.name.toLowerCase().includes(filter.toLowerCase())||s.display.toLowerCase().includes(filter.toLowerCase())) : services;
       out(`\nStatus   Name               DisplayName`);
       out(`------   ----               -----------`);
       filtered.forEach(s => out(`<span style="color:${s.status==='Running'?'var(--accent)':'var(--red)'}">${s.status.padEnd(8)}</span> ${s.name.padEnd(18)} ${escHtml(s.display)}`));
+      explain(`<strong>Get-Service</strong> liste l'état des services Windows. <em>Running</em> = actif, <em>Stopped</em> = arrêté. Le service <strong>dhcp</strong> (DHCP Client) gère l'obtention automatique d'adresse IP — s'il est arrêté, Windows bascule en APIPA (169.254.x.x).`);
       break;
     }
     case 'start-service': case 'sasv': {
       const name = args.find(a=>!a.startsWith('-'));
       if (!name) { err('Start-Service : Paramètre -Name requis.'); break; }
+      if (name.toLowerCase() === 'dhcp' && cliState.networkFault === 'dhcp') {
+        cliState.networkFault = 'renew_needed';
+        out(`Service 'dhcp' démarré.`);
+        explain('<strong>Start-Service dhcp</strong> redémarre le service DHCP Client. Le service est maintenant actif mais n\'a pas encore demandé d\'adresse IP. Il faut exécuter <strong>ipconfig /renew</strong> pour déclencher une nouvelle demande DHCP (DORA).');
+        break;
+      }
       out(`Service '${escHtml(name)}' démarré.`);
+      explain(`<strong>Start-Service</strong> démarre un service Windows arrêté. Le Service Control Manager (SCM) envoie un signal START au service concerné.`);
       break;
     }
     case 'stop-service': case 'spsv': {
@@ -1808,34 +1814,92 @@ function cliExecWindows(cmd, args, raw) {
       break;
     }
     case 'ipconfig': {
-      const all = args.includes('/all') || args.includes('-all');
+      const subOpt = (args[0]||'').toLowerCase();
+      if (subOpt === '/renew') {
+        if (cliState.networkFault === 'dhcp') {
+          errEx('Impossible de contacter le serveur DHCP.', 'Le service DHCP Client est arrêté. Redémarre-le d\'abord avec Start-Service dhcp.');
+          break;
+        }
+        if (cliState.networkFault === 'renew_needed') {
+          cliState.networkFault = null;
+          out(`\nCarte Ethernet Ethernet :
+   Adresse IPv4. . . . . . . . . . . .: <span style="color:var(--blue)">192.168.1.20</span>
+   Masque de sous-réseau . . . . . . .: 255.255.255.0
+   Passerelle par défaut . . . . . . .: 192.168.1.1
+   Serveur DHCP . . . . . . . . . . . : 192.168.1.1
+   Bail obtenu le. . . . . . . . . . .: ${new Date().toLocaleString('fr-FR')}`);
+          explain('<strong>ipconfig /renew</strong> demande un nouveau bail DHCP. Le client envoie un DHCPRENEW (ou DISCOVER si pas de bail) au serveur DHCP qui répond avec une adresse IP, masque, passerelle et serveurs DNS pour la durée du bail configurée.');
+          break;
+        }
+        out(`\nCarte Ethernet Ethernet — bail renouvelé.`);
+        explain('<strong>ipconfig /renew</strong> renouvelle le bail DHCP auprès du serveur DHCP.');
+        break;
+      }
+      if (subOpt === '/release') {
+        out(`\nCarte Ethernet Ethernet — adresse IP libérée.`);
+        explain('<strong>ipconfig /release</strong> libère le bail DHCP actuel. L\'interface perd son IP immédiatement. Utilise /renew après pour en obtenir une nouvelle.');
+        break;
+      }
+      if (subOpt === '/flushdns') {
+        out('Cache de résolution DNS vidé avec succès.');
+        explain('<strong>ipconfig /flushdns</strong> vide le cache DNS local. Utile quand un enregistrement DNS a changé mais que Windows renvoie encore l\'ancienne IP depuis son cache. Le TTL du cache peut aller jusqu\'à 24h par défaut.');
+        break;
+      }
+      const all = subOpt === '/all';
       out(`\nConfiguration IP de Windows\n`);
+      if (cliState.networkFault === 'dhcp') {
+        if (all) out(`   Nom de l'hôte. . . . . . . . . . . : ${cliState.host}\n   Suffixe DNS principal  . . . . . . :\n   Routage IP activé. . . . . . . . . : Non`);
+        out(`Carte Ethernet Ethernet :
+   Adresse de configuration automatique IPv4 . : <span style="color:var(--red)">169.254.47.18</span>
+   Masque de sous-réseau . . . . . . .: 255.255.0.0
+   Passerelle par défaut . . . . . . .:`);
+        explain('⚠️ Adresse <strong>APIPA</strong> (169.254.x.x) détectée. Windows s\'est auto-attribué cette adresse car il n\'a pas pu joindre le serveur DHCP. Cela signifie que le service <strong>DHCP Client</strong> est peut-être arrêté, ou que le serveur DHCP est inaccessible.');
+        break;
+      }
       if (all) {
         out(`   Nom de l'hôte. . . . . . . . . . . : ${cliState.host}
    Suffixe DNS principal  . . . . . . : tssr.local
    Type de nœud . . . . . . . . . . . : Hybride
-   Routage IP activé. . . . . . . . . : Non
-   Proxy WINS activé. . . . . . . . . : Non`);
+   Routage IP activé. . . . . . . . . : Non`);
       }
       out(`Carte Ethernet Ethernet :
-   Suffixe DNS propre à la connexion  :
    Adresse IPv4. . . . . . . . . . . .: <span style="color:var(--blue)">192.168.1.20</span>
    Masque de sous-réseau . . . . . . .: 255.255.255.0
    Passerelle par défaut . . . . . . .: 192.168.1.1`);
       if (all) out(`   Serveur DHCP . . . . . . . . . . . : 192.168.1.1
    Serveurs DNS. . . . . . . . . . . .: 192.168.1.20
    Bail obtenu . . . . . . . . . . . .: mercredi 4 juin 2025`);
-      explain(`<strong>ipconfig</strong> affiche la configuration IP des cartes réseau. <strong>/all</strong> ajoute la MAC, le serveur DHCP, le serveur DNS et la durée du bail DHCP. Équivalent de <code>ip addr</code> sur Linux.`);
+      explain(`<strong>ipconfig</strong> affiche la configuration IP. <strong>/all</strong> ajoute la MAC, DHCP, DNS et la date du bail. 169.254.x.x = APIPA (pas de DHCP). Équivalent de <code>ip addr</code> sur Linux.`);
       break;
     }
     case 'ping': {
       const host = args.find(a=>!a.startsWith('-')&&!a.startsWith('/')) || 'localhost';
-      const ip = host==='localhost'||host==='127.0.0.1' ? '127.0.0.1' : host.match(/^\d/) ? host : '192.168.1.1';
+      const isLoopback = host === 'localhost' || host === '127.0.0.1';
+      const ip = isLoopback ? '127.0.0.1' : host.match(/^\d/) ? host : '192.168.1.1';
       const ttl = host === '8.8.8.8' ? 118 : 128;
+      if (cliState.networkFault && !isLoopback) {
+        out(`\nPing de ${host} [${ip}] avec 32 octets de données :`);
+        for (let i=0;i<4;i++) out(`Délai d\'attente de la demande dépassé.`);
+        out(`\nStatistiques du Ping pour ${ip} :\n    Paquets : Envoyés = 4, Reçus = 0, Perdus = 4 (perte 100%)`);
+        explain(`<strong>Délai d\'attente dépassé</strong> : aucune réponse ICMP reçue. Causes possibles : hôte éteint, pare-feu bloquant ICMP, mauvaise route, ou (dans ce cas) problème de configuration réseau côté client. Le loopback (127.0.0.1) fonctionne → la carte réseau est opérationnelle, le problème est en amont.`);
+        break;
+      }
       out(`\nPing de ${host} [${ip}] avec 32 octets de données :`);
       for (let i=0;i<4;i++) out(`Réponse de ${ip} : octets=32 durée=${Math.round(Math.random()*3+1)}ms TTL=${ttl}`);
       out(`\nStatistiques du Ping pour ${ip} :\n    Paquets : Envoyés = 4, Reçus = 4, Perdus = 0 (perte 0%)`);
-      explain(`<strong>ping</strong> teste la connectivité via ICMP. TTL=${ttl} : décrémenté à chaque routeur traversé (Windows démarre à 128, Linux à 64). 0% perte = liaison OK. Si délai d\'expiration : hôte inaccessible ou ICMP bloqué par le pare-feu.`);
+      explain(`<strong>ping</strong> teste la connectivité ICMP. TTL=${ttl} décrémenté à chaque routeur (Windows part de 128, Linux de 64). 0% perte = liaison OK. Timeout = hôte inaccessible ou ICMP filtré par pare-feu.`);
+      break;
+    }
+    case 'nslookup': {
+      const domain = args[0] || 'tssr.local';
+      const ip = domain.includes('tssr') || domain.includes('local') ? '192.168.1.20' : domain === '8.8.8.8' ? '8.8.8.8' : '142.250.74.100';
+      if (cliState.networkFault) {
+        out(`Serveur :  Inconnu\nAddress:  192.168.1.20\n\n*** SRV-TSSR ne peut pas trouver ${domain} : Server failed`);
+        explain('Échec DNS : la carte réseau n\'a pas d\'IP valide (APIPA), les requêtes DNS ne peuvent pas atteindre le serveur. Résous d\'abord le problème réseau (DHCP).');
+        break;
+      }
+      out(`Serveur :   ${cliState.host}\nAddress:    192.168.1.20\n\nNom :   ${domain}\nAddress: ${ip}`);
+      explain(`<strong>nslookup</strong> interroge le serveur DNS (192.168.1.20) pour résoudre un nom en IP. Si le DNS échoue → vérifie /flushdns, le service DNS Server et l'enregistrement A dans le serveur DNS.`);
       break;
     }
     case 'tracert': {
@@ -2138,13 +2202,14 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
 <span style="color:var(--text2)">Fichiers :</span>     Get-Content (cat)  New-Item  Remove-Item  Copy-Item  Move-Item
 <span style="color:var(--text2)">Processus :</span>    Get-Process  Stop-Process
 <span style="color:var(--text2)">Services :</span>     Get-Service  Start-Service  Stop-Service
-<span style="color:var(--text2)">Réseau :</span>       ipconfig [/all]  ping  netstat  Test-Connection
+<span style="color:var(--text2)">Réseau :</span>       <span style="color:var(--blue)">ipconfig [/all|/renew|/release|/flushdns]</span>  ping  tracert  netstat
+             <span style="color:var(--blue)">nslookup</span>  Test-Connection
 <span style="color:var(--text2)">Sécurité :</span>     <span style="color:var(--blue)">net user</span>  <span style="color:var(--blue)">net localgroup</span>  <span style="color:var(--blue)">icacls</span>  <span style="color:var(--blue)">manage-bde</span>
              <span style="color:var(--blue)">New-NetFirewallRule</span>  Get-NetFirewallRule  Remove-NetFirewallRule
              <span style="color:var(--blue)">Update-MpSignature</span>  Start-MpScan
 <span style="color:var(--text2)">Stockage :</span>     <span style="color:var(--blue)">diskpart</span> (mode interactif)
 <span style="color:var(--text2)">Système :</span>      whoami  hostname  Get-ComputerInfo  Get-EventLog  Get-ADUser
-<span style="color:var(--text2)">Divers :</span>       cls  help  <span style="color:var(--blue)">tp</span> TP guidés
+<span style="color:var(--text2)">Divers :</span>       cls  help  <span style="color:var(--blue)">tp</span> [list | start diskpart|sam|ntfs|panne | quit]
 <span style="color:var(--text3)">↑/↓ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
       break;
     default:
@@ -2158,20 +2223,6 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
 
 const CLI_CARDS = [
   {
-    id: 'linux',
-    label: 'Terminal Linux',
-    sublabel: 'Bash — Debian GNU/Linux',
-    icon: '🐧',
-    color: '#00e5a0',
-    colorDim: 'rgba(0,229,160,0.08)',
-    colorBorder: 'rgba(0,229,160,0.25)',
-    prompt: 'tssr@debian-srv:~$',
-    promptColor: '#00e5a0',
-    desc: 'Shell Bash interactif. Filesystem virtuel, réseau, systemd, vim, pipe, redirection.',
-    cmds: ['ip addr show', 'ping -c 4 192.168.1.1', 'ss -tulnp', 'traceroute 8.8.8.8', 'nslookup tssr.local', 'tp reseau'],
-    tpCount: 2,
-  },
-  {
     id: 'windows',
     label: 'PowerShell',
     sublabel: 'Windows Server 2022',
@@ -2181,9 +2232,9 @@ const CLI_CARDS = [
     colorBorder: 'rgba(59,130,246,0.25)',
     prompt: 'PS C:\\Users\\Administrateur>',
     promptColor: '#60a5fa',
-    desc: 'PowerShell interactif. Active Directory, services, réseau, filesystem Windows.',
-    cmds: ['ipconfig /all', 'diskpart', 'net user /add', 'icacls "C:\\Shares\\Direction"', 'manage-bde -status', 'tp diskpart'],
-    tpCount: 3,
+    desc: 'PowerShell interactif. Diskpart, SAM, droits NTFS, réseau, pare-feu, BitLocker.',
+    cmds: ['ipconfig /all', 'ping 192.168.1.1', 'diskpart', 'net user TechAdmin P@ssw0rd! /add', 'icacls "C:\\Shares\\Direction"', 'tp panne'],
+    tpCount: 4,
   },
 ];
 

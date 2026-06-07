@@ -37,7 +37,7 @@ const MODULES = [
     ],
     flashcards: [],
     qcm: [],
-    linux_cli: true,
+    windows_cli: true,
   },
   {
     id: 'windows',

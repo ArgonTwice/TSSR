@@ -551,6 +551,7 @@ function makeCLIState(type) {
         '/root': 'root',
       },
       sudoEnabled: false,
+      networkFault: null,
     };
   } else {
     return {
@@ -985,6 +986,56 @@ const TP_SCENARIOS = {
         { instr: 'Interroge le type MX du domaine tssr.local.', hint: 'dig tssr.local', check: c => /^dig\b/i.test(c.trim()) },
         { instr: 'Vérifie le fichier hosts local.', hint: 'cat /etc/hosts', check: c => /^cat\b/i.test(c.trim()) && /hosts/.test(c) },
         { instr: 'Affiche les infos couche 2 (MAC, état) des interfaces.', hint: 'ip link', check: c => /^ip\s+(l|link)\b/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'panne_dhcp',
+      title: 'Panne DHCP Linux',
+      desc: 'La machine a une IP APIPA 169.254.x.x — le serveur DHCP ne répond plus. Diagnostique et restaure la connectivité.',
+      onStart: () => { cliState.networkFault = 'dhcp'; },
+      onEnd:   () => { cliState.networkFault = null; },
+      steps: [
+        { instr: '⚠️ Signalement : impossible d\'accéder au réseau. Commence par vérifier la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'APIPA 169.254.47.18 détectée — le DHCP n\'a pas répondu. Vérifie la table de routage.', hint: 'ip route', check: c => /^ip\s+(r|route)\b/i.test(c.trim()) },
+        { instr: 'Pas de route par défaut. Consulte les logs pour confirmer le problème DHCP.', hint: 'journalctl', check: c => /^journalctl\b/i.test(c.trim()) },
+        { instr: 'Logs confirmés : timeouts DHCP répétés. Teste la connectivité réseau de base.', hint: 'ping -c 4 192.168.1.1', check: c => /^ping\b/i.test(c.trim()) },
+        { instr: 'Réseau inaccessible. Redémarre le service networking pour relancer le client DHCP.', hint: 'systemctl restart networking', check: c => /^(sudo\s+)?systemctl\s+restart\s+networking/i.test(c.trim()) },
+        { instr: 'Service redémarré. Lance maintenant dhclient pour obtenir une adresse IP.', hint: 'dhclient eth0', check: c => /^dhclient\b/i.test(c.trim()) },
+        { instr: 'DHCP négocié avec succès. Vérifie la nouvelle IP assignée.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'IP 192.168.1.10 restaurée. Confirme la connectivité internet.', hint: 'ping -c 4 8.8.8.8', check: c => /^ping\b/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'panne_gateway',
+      title: 'Mauvaise passerelle Linux',
+      desc: 'Le réseau local fonctionne mais internet est inaccessible. La route par défaut pointe vers une IP fantôme.',
+      onStart: () => { cliState.networkFault = 'gateway'; },
+      onEnd:   () => { cliState.networkFault = null; },
+      steps: [
+        { instr: '⚠️ Signalement : accès LAN OK mais internet impossible. Vérifie la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'IP normale. Teste internet en IP directe (sans DNS).', hint: 'ping -c 4 8.8.8.8', check: c => /^ping\b/i.test(c.trim()) && /8\.8\.8\.8/.test(c) },
+        { instr: '100% perte. Vérifie la table de routage pour trouver la cause.', hint: 'ip route', check: c => /^ip\s+(r|route)\b/i.test(c.trim()) },
+        { instr: 'Passerelle 192.168.99.1 hors réseau ! Vérifie que la gateway est joignable via ARP.', hint: 'arp -n', check: c => /^arp\b/i.test(c.trim()) },
+        { instr: 'Aucune entrée MAC pour 192.168.99.1. Confirme via traceroute.', hint: 'traceroute 8.8.8.8', check: c => /^(traceroute|tracepath)\b/i.test(c.trim()) },
+        { instr: 'Bloqué au hop 1. Supprime la route par défaut incorrecte.', hint: 'ip route del default', check: c => /^(sudo\s+)?ip\s+route\s+del\s+default/i.test(c.trim()) },
+        { instr: 'Route supprimée. Ajoute la bonne passerelle 192.168.1.1.', hint: 'ip route add default via 192.168.1.1 dev eth0', check: c => /^(sudo\s+)?ip\s+route\s+add\s+default\s+via\s+192\.168\.1\.1/i.test(c.trim()) },
+        { instr: 'Route corrigée. Confirme la connectivité internet.', hint: 'ping -c 4 8.8.8.8', check: c => /^ping\b/i.test(c.trim()) && /8\.8\.8\.8/.test(c) },
+      ],
+    },
+    {
+      id: 'panne_conflit',
+      title: 'Conflit d\'adresse IP Linux',
+      desc: 'Connexions instables et coupures aléatoires — une autre machine partage 192.168.1.10. Identifie et résous.',
+      onStart: () => { cliState.networkFault = 'conflict'; },
+      onEnd:   () => { cliState.networkFault = null; },
+      steps: [
+        { instr: '⚠️ Signalement : connexions instables, coupures aléatoires. Vérifie la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'IP visible mais message de conflit. Consulte les logs kernel.', hint: 'journalctl', check: c => /^journalctl\b/i.test(c.trim()) },
+        { instr: 'Conflit ARP confirmé dans les logs. Identifie l\'intrus dans la table ARP.', hint: 'arp -n', check: c => /^arp\b/i.test(c.trim()) },
+        { instr: 'Double MAC pour 192.168.1.10 ! Confirme l\'instabilité avec un ping.', hint: 'ping -c 4 192.168.1.1', check: c => /^ping\b/i.test(c.trim()) },
+        { instr: '50% perte — trafic volé aléatoirement. Attribue une nouvelle IP pour éviter le conflit.', hint: 'ip addr add 192.168.1.21/24 dev eth0', check: c => /^(sudo\s+)?ip\s+addr\s+add\s+192\.168\.1\.\d+/i.test(c.trim()) },
+        { instr: 'Nouvelle IP appliquée. Vérifie la configuration finale.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'Conflit résolu. Confirme la stabilité réseau.', hint: 'ping -c 4 192.168.1.1', check: c => /^ping\b/i.test(c.trim()) },
       ],
     },
   ],
@@ -1456,25 +1507,78 @@ function cliExecLinux(cmd, args, raw) {
     case 'ifconfig':
     case 'ip': {
       const exL = (s) => cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> ${s}</div>`);
+      const fault = cliState.networkFault;
+      // ip addr add → résout conflit IP
+      if (cmd === 'ip' && args[0] === 'addr' && args[1] === 'add') {
+        if (fault === 'conflict') {
+          cliState.networkFault = null;
+          out(`<span style="color:var(--accent)">Nouvelle adresse IP appliquée. Conflit résolu.</span>`);
+        } else {
+          out('');
+        }
+        break;
+      }
+      // ip route add default → résout mauvaise gateway
+      if (cmd === 'ip' && args[0] === 'route' && args[1] === 'add' && args[2] === 'default') {
+        if (fault === 'gateway') {
+          cliState.networkFault = null;
+          out(`<span style="color:var(--accent)">Route par défaut mise à jour. Passerelle correcte.</span>`);
+        } else {
+          out('');
+        }
+        break;
+      }
       if (cmd === 'ifconfig' || args[0] === 'a' || args[0] === 'addr' || args[0] === 'address') {
-        out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
+        if (fault === 'dhcp' || fault === 'renew_needed') {
+          out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet <span style="color:var(--accent)">127.0.0.1/8</span> scope host lo
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP
+    link/ether 08:00:27:ab:cd:ef brd ff:ff:ff:ff:ff:ff
+    inet <span style="color:var(--red)">169.254.47.18/16</span> brd 169.254.255.255 scope link dynamic eth0
+       valid_lft 2591sec preferred_lft 2591sec`);
+          cliPrint(`<div class="cli-explain-err">⚠️ <strong>169.254.x.x</strong> = adresse APIPA (Auto-IP RFC 3927). Le client DHCP n'a reçu aucune réponse. Causes : serveur DHCP éteint, câble débranché, mauvais VLAN. Corriger : <code>systemctl restart networking</code> puis <code>dhclient eth0</code>.</div>`);
+        } else if (fault === 'conflict') {
+          out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet <span style="color:var(--accent)">127.0.0.1/8</span> scope host lo
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP
+    link/ether 08:00:27:ab:cd:ef brd ff:ff:ff:ff:ff:ff
+    inet <span style="color:var(--accent)">192.168.1.10/24</span> brd 192.168.1.255 scope global dynamic eth0
+       valid_lft 86234sec preferred_lft 86234sec
+    <span style="color:var(--red)">RTNETLINK answers: Duplicate address detected (192.168.1.10)</span>`);
+          cliPrint(`<div class="cli-explain-err">⚠️ <strong>Duplicate address detected</strong> — Deux machines réclament 192.168.1.10. Vérifie <code>arp -n</code> pour identifier l'intrus. Solution : changer d'IP avec <code>ip addr add 192.168.1.21/24 dev eth0</code>.</div>`);
+        } else {
+          out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet <span style="color:var(--accent)">127.0.0.1/8</span> scope host lo
 2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP
     link/ether 08:00:27:ab:cd:ef brd ff:ff:ff:ff:ff:ff
     inet <span style="color:var(--accent)">192.168.1.10/24</span> brd 192.168.1.255 scope global dynamic eth0
        valid_lft 86234sec preferred_lft 86234sec`);
-        exL('<strong>ip addr</strong> (ou <strong>ip a</strong>) liste toutes les interfaces réseau. <em>lo</em> = loopback 127.0.0.1 (trafic interne). <em>eth0</em> = carte Ethernet. Le /24 = masque 255.255.255.0 = réseau 192.168.1.0/24.');
+          exL('<strong>ip addr</strong> (ou <strong>ip a</strong>) liste toutes les interfaces réseau. <em>lo</em> = loopback 127.0.0.1 (trafic interne). <em>eth0</em> = carte Ethernet. Le /24 = masque 255.255.255.0 = réseau 192.168.1.0/24.');
+        }
       } else if (args[0] === 'r' || args[0] === 'route') {
-        out(`default via 192.168.1.1 dev eth0 proto dhcp src 192.168.1.10 metric 100
+        if (fault === 'dhcp' || fault === 'renew_needed') {
+          out(`192.168.1.0/24 dev eth0 proto kernel scope link src 169.254.47.18`);
+          cliPrint(`<div class="cli-explain-err">⚠️ Pas de route <em>default</em> — sans passerelle par défaut, aucun trafic hors du LAN n'est possible. Le DHCP n'a pas fourni de route. Corriger : redémarrer le service réseau.</div>`);
+        } else if (fault === 'gateway') {
+          out(`<span style="color:var(--red)">default via 192.168.99.1</span> dev eth0 proto dhcp src 192.168.1.10 metric 100
 192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10 metric 100`);
-        exL('<strong>ip route</strong> affiche la table de routage. <em>default via 192.168.1.1</em> = passerelle par défaut (trafic hors réseau local). <em>proto dhcp</em> = route obtenue automatiquement par DHCP.');
+          cliPrint(`<div class="cli-explain-err">⚠️ <strong>Passerelle incorrecte : 192.168.99.1</strong> n'existe pas sur ce réseau (LAN = 192.168.1.0/24). Tout le trafic externe est blackholé. Corriger : <code>ip route del default && ip route add default via 192.168.1.1 dev eth0</code>.</div>`);
+        } else {
+          out(`default via 192.168.1.1 dev eth0 proto dhcp src 192.168.1.10 metric 100
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10 metric 100`);
+          exL('<strong>ip route</strong> affiche la table de routage. <em>default via 192.168.1.1</em> = passerelle par défaut (trafic hors réseau local). <em>proto dhcp</em> = route obtenue automatiquement par DHCP.');
+        }
       } else if (args[0] === 'link' || args[0] === 'l') {
         out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 state UNKNOWN
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 state UP
     link/ether <span style="color:var(--accent)">08:00:27:ab:cd:ef</span> brd ff:ff:ff:ff:ff:ff`);
         exL('<strong>ip link</strong> affiche les infos couche 2 (MAC, état). State UP = interface active. mtu 1500 = taille max d\'un paquet Ethernet. La MAC identifie physiquement la carte réseau.');
+      } else if (args[0] === 'route' && args[1] === 'del') {
+        out('');
       } else {
         out('ip : Utilisation : ip [a|addr] [r|route] [l|link]');
       }
@@ -1484,7 +1588,36 @@ function cliExecLinux(cmd, args, raw) {
       const host = args.find(a => !a.startsWith('-')) || 'localhost';
       const count = (() => { const i = args.indexOf('-c'); return i >= 0 ? parseInt(args[i+1])||4 : 4; })();
       const isLocal = host === 'localhost' || host === '127.0.0.1';
+      const isLAN = /^192\.168\.1\./.test(host);
       const ip = isLocal ? '127.0.0.1' : host.match(/^\d/) ? host : '192.168.1.1';
+      const fault = cliState.networkFault;
+      if (!isLocal && (fault === 'dhcp' || fault === 'renew_needed')) {
+        out(`ping: connect: Network is unreachable`);
+        cliPrint(`<div class="cli-explain-err">⚠️ <strong>Network is unreachable</strong> — Pas d'adresse IP valide (APIPA active). Impossible d'envoyer des paquets. Corriger d'abord l'adresse IP via DHCP.</div>`);
+        break;
+      }
+      if (!isLocal && fault === 'gateway' && !isLAN) {
+        let lines = `PING ${host} (${ip}) 56(84) bytes of data.\n`;
+        for (let i = 0; i < Math.min(count, 4); i++)
+          lines += `From 192.168.1.10 icmp_seq=${i+1} Destination Net Unreachable\n`;
+        lines += `\n--- ${host} ping statistics ---\n${Math.min(count,4)} packets transmitted, 0 received, +${Math.min(count,4)} errors, 100% packet loss`;
+        out(escHtml(lines));
+        cliPrint(`<div class="cli-explain-err">⚠️ <strong>100% packet loss</strong> — La passerelle 192.168.99.1 est injoignable (hors du réseau 192.168.1.0/24). Tout trafic externe échoue. Vérifie <code>ip route</code>.</div>`);
+        break;
+      }
+      if (!isLocal && fault === 'conflict') {
+        const n = Math.min(count, 4);
+        let lines = `PING ${host} (${ip}) 56(84) bytes of data.`;
+        let rx = 0;
+        for (let i = 0; i < n; i++) {
+          if (i % 2 === 0) { lines += `\n64 bytes from ${ip}: icmp_seq=${i+1} ttl=64 time=${(Math.random()*2+0.3).toFixed(3)} ms`; rx++; }
+          else lines += `\nFrom ${ip} icmp_seq=${i+1} Destination Host Unreachable`;
+        }
+        lines += `\n\n--- ${host} ping statistics ---\n${n} packets transmitted, ${rx} received, ${Math.round((n-rx)/n*100)}% packet loss`;
+        out(escHtml(lines));
+        cliPrint(`<div class="cli-explain-err">⚠️ <strong>${Math.round((n-Math.ceil(n/2))/n*100)}% packet loss</strong> — Conflit d'adresse IP : trafic capté alternativement par deux machines. Vérifie <code>arp -n</code> pour identifier l'intrus.</div>`);
+        break;
+      }
       const ttl = isLocal ? 64 : host === '8.8.8.8' ? 118 : 64;
       let lines = `PING ${host} (${ip}) 56(84) bytes of data.`;
       for (let i = 0; i < Math.min(count, 4); i++)
@@ -1537,6 +1670,21 @@ ${domain}.              300     IN      A       ${ip}
     case 'traceroute':
     case 'tracepath': {
       const dest = args[0] || '8.8.8.8';
+      const faultTr = cliState.networkFault;
+      if (faultTr === 'dhcp' || faultTr === 'renew_needed') {
+        out(`traceroute: connect: Network is unreachable`);
+        cliPrint(`<div class="cli-explain-err">⚠️ Pas d'adresse IP valide — traceroute ne peut pas envoyer de paquets. Corriger le DHCP d'abord.</div>`);
+        break;
+      }
+      if (faultTr === 'gateway') {
+        out(`traceroute to ${dest} (${dest}), 30 hops max, 60 byte packets
+ 1  <span style="color:var(--red)">192.168.99.1</span> (192.168.99.1)  * * *
+ 2  * * *
+ 3  * * *
+ 4  * * *`);
+        cliPrint(`<div class="cli-explain-err">⚠️ Bloqué au <strong>hop 1</strong> sur 192.168.99.1 — la passerelle configurée n'est pas joignable. Tous les paquets sont blackholés dès la sortie du LAN. Corriger la route par défaut.</div>`);
+        break;
+      }
       out(`traceroute to ${dest} (${dest}), 30 hops max, 60 byte packets
  1  192.168.1.1 (192.168.1.1)  0.456 ms  0.412 ms  0.389 ms
  2  10.0.0.1 (10.0.0.1)  3.201 ms  3.145 ms  3.092 ms
@@ -1546,10 +1694,77 @@ ${domain}.              300     IN      A       ${ip}
       break;
     }
     case 'arp': {
-      out(`Address                  HWtype  HWaddress           Flags Mask  Iface
+      if (cliState.networkFault === 'conflict') {
+        out(`Address                  HWtype  HWaddress           Flags Mask  Iface
+192.168.1.1              ether   c8:d3:a3:2f:7e:01   C           eth0
+192.168.1.5              ether   b8:27:eb:12:34:56   C           eth0
+192.168.1.10             ether   08:00:27:ab:cd:ef   C           eth0
+<span style="color:var(--red)">192.168.1.10             ether   b8:27:eb:99:88:77   C           eth0  ← MAC étrangère !</span>`);
+        cliPrint(`<div class="cli-explain-err">⚠️ <strong>Double entrée MAC pour 192.168.1.10</strong> — une autre machine (b8:27:eb:99:88:77) revendique la même IP. Le trafic est capté alternativement par les deux hôtes. Solution : changer d'IP avec <code>ip addr add 192.168.1.21/24 dev eth0</code>.</div>`);
+      } else if (cliState.networkFault === 'gateway') {
+        out(`Address                  HWtype  HWaddress           Flags Mask  Iface
+192.168.1.5              ether   b8:27:eb:12:34:56   C           eth0`);
+        cliPrint(`<div class="cli-explain-err">⚠️ Pas d'entrée pour <strong>192.168.99.1</strong> — la passerelle configurée n'est pas sur ce LAN (192.168.1.0/24). ARP ne trouve aucune MAC correspondante → trafic impossible vers l'extérieur.</div>`);
+      } else {
+        out(`Address                  HWtype  HWaddress           Flags Mask  Iface
 192.168.1.1              ether   c8:d3:a3:2f:7e:01   C           eth0
 192.168.1.5              ether   b8:27:eb:12:34:56   C           eth0`);
-      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>arp -n</strong> affiche la table ARP : correspondances IP↔MAC sur le LAN. ARP (Couche 2/3) résout les adresses IP en adresses MAC pour la communication Ethernet. C = entrée dynamique apprise automatiquement.</div>`);
+        cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>arp -n</strong> affiche la table ARP : correspondances IP↔MAC sur le LAN. ARP (Couche 2/3) résout les adresses IP en adresses MAC pour la communication Ethernet. C = entrée dynamique apprise automatiquement.</div>`);
+      }
+      break;
+    }
+    case 'dhclient': {
+      const iface = args.find(a => !a.startsWith('-')) || 'eth0';
+      if (cliState.networkFault === 'renew_needed') {
+        out(`DHCPDISCOVER on ${iface} to 255.255.255.255 port 67
+DHCPOFFER from 192.168.1.1
+DHCPREQUEST for 192.168.1.10 on ${iface} to 255.255.255.255 port 67
+<span style="color:var(--accent)">DHCPACK from 192.168.1.1 — bound to 192.168.1.10 — renewal in 43200 seconds.</span>`);
+        cliState.networkFault = null;
+        cliPrint(`<div class="cli-explain">💡 <strong>dhclient</strong> force un échange DORA (Discover→Offer→Request→Ack) pour obtenir/renouveler un bail DHCP. L'IP 192.168.1.10 a été réattribuée avec succès.</div>`);
+      } else if (cliState.networkFault === 'dhcp') {
+        out(`DHCPDISCOVER on ${iface} to 255.255.255.255 port 67
+<span style="color:var(--red)">DHCPDISCOVER on ${iface} to 255.255.255.255 port 67 interval 4
+DHCPDISCOVER on ${iface} to 255.255.255.255 port 67 interval 8
+No DHCPOFFERS received — timeout.</span>`);
+        cliPrint(`<div class="cli-explain-err">⚠️ Le serveur DHCP ne répond pas. Redémarre d'abord le service réseau : <code>systemctl restart networking</code>.</div>`);
+      } else {
+        out(`DHCPREQUEST for 192.168.1.10 on ${iface}
+<span style="color:var(--accent)">DHCPACK from 192.168.1.1 — bail renouvelé (43200 sec).</span>`);
+        cliPrint(`<div class="cli-explain">💡 <strong>dhclient</strong> a renouvelé le bail DHCP. Aucune modification d'IP nécessaire.</div>`);
+      }
+      break;
+    }
+    case 'journalctl': {
+      const fault = cliState.networkFault;
+      if (fault === 'dhcp' || fault === 'renew_needed') {
+        out(`<span style="color:var(--red)">Jun 07 09:12:01 debian-srv dhclient[312]: DHCPDISCOVER on eth0 to 255.255.255.255 port 67
+Jun 07 09:12:05 debian-srv dhclient[312]: No DHCPOFFERS received — timeout
+Jun 07 09:12:09 debian-srv dhclient[312]: DHCPDISCOVER on eth0 to 255.255.255.255 port 67
+Jun 07 09:12:13 debian-srv dhclient[312]: No DHCPOFFERS received — timeout
+Jun 07 09:12:17 debian-srv dhclient[312]: No working leases in persistent database — sleeping</span>
+Jun 07 09:12:17 debian-srv kernel: eth0: link-local IPv4 address 169.254.47.18 assigned`);
+        cliPrint(`<div class="cli-explain-err">⚠️ Les logs confirment : <strong>aucun serveur DHCP ne répond</strong> (timeouts répétés). Adresse APIPA 169.254.47.18 assignée en dernier recours.</div>`);
+      } else if (fault === 'conflict') {
+        out(`<span style="color:var(--red)">Jun 07 09:45:32 debian-srv kernel: eth0: IPv4 duplicate address 192.168.1.10 detected!
+Jun 07 09:45:32 debian-srv kernel: eth0: ARP reply from b8:27:eb:99:88:77 for 192.168.1.10
+Jun 07 09:45:34 debian-srv kernel: eth0: duplicate address 192.168.1.10 conflicts with local</span>
+Jun 07 09:45:35 debian-srv dhclient[312]: DHCPACK from 192.168.1.1 for 192.168.1.10
+Jun 07 09:45:35 debian-srv kernel: eth0: ARP probe: conflict detected with b8:27:eb:99:88:77`);
+        cliPrint(`<div class="cli-explain-err">⚠️ Le kernel a détecté un <strong>conflit ARP</strong> : la MAC b8:27:eb:99:88:77 répond aussi pour 192.168.1.10. Changer d'adresse IP est la solution immédiate.</div>`);
+      } else if (fault === 'gateway') {
+        out(`Jun 07 09:30:01 debian-srv dhclient[312]: DHCPACK from 192.168.1.1
+Jun 07 09:30:01 debian-srv dhclient[312]: bound to 192.168.1.10
+<span style="color:var(--red)">Jun 07 09:30:05 debian-srv kernel: eth0: default route via 192.168.99.1 — host unreachable
+Jun 07 09:30:22 debian-srv dhclient[312]: route add default gw 192.168.99.1 failed: Network unreachable</span>`);
+        cliPrint(`<div class="cli-explain-err">⚠️ Route par défaut vers <strong>192.168.99.1</strong> en échec — pas de réponse ARP pour cette adresse. Corriger manuellement avec <code>ip route add default via 192.168.1.1</code>.</div>`);
+      } else {
+        out(`Jun 07 10:00:01 debian-srv systemd[1]: Starting network service...
+Jun 07 10:00:01 debian-srv dhclient[312]: DHCPACK from 192.168.1.1
+Jun 07 10:00:01 debian-srv dhclient[312]: bound to 192.168.1.10 — renewal in 43200 seconds
+Jun 07 10:00:02 debian-srv sshd[420]: Server listening on 0.0.0.0 port 22`);
+        cliPrint(`<div class="cli-explain">💡 <strong>journalctl</strong> affiche les logs systemd. Flags utiles : <code>-u networking</code> (service spécifique), <code>-f</code> (suivi temps réel), <code>--since "1 hour ago"</code> (filtrage temporel).</div>`);
+      }
       break;
     }
     case 'chmod': {
@@ -1591,16 +1806,31 @@ ${domain}.              300     IN      A       ${ip}
       if (['start','stop','restart','reload','enable','disable'].includes(action)) {
         if (!service) { err(`systemctl ${action}: nom de service manquant`); break; }
         if (!validServices.includes(service)) { err(`Échec de l'unité ${service}.service : non trouvée.`); break; }
+        if (service === 'networking' && (action === 'start' || action === 'restart') && cliState.networkFault === 'dhcp') {
+          cliState.networkFault = 'renew_needed';
+          out(`● networking.service — redémarré
+<span style="color:var(--accent)">Service réseau relancé. Lance maintenant : dhclient eth0</span>`);
+          break;
+        }
         out(`● ${service}.service — ${action === 'start' ? 'démarré' : action === 'stop' ? 'arrêté' : action}`);
       } else if (action === 'status') {
         const svc = service || 'ssh';
-        out(`● ${svc}.service - OpenBSD Secure Shell server
+        if (svc === 'networking' && (cliState.networkFault === 'dhcp' || cliState.networkFault === 'renew_needed')) {
+          out(`● networking.service - Raise network interfaces
+   Loaded: loaded (/lib/systemd/system/networking.service; enabled)
+   Active: <span style="color:var(--red)">failed (Result: exit-code)</span> since Jun 07 09:12:17 CEST
+  Process: ExecStart=/sbin/ifup -a (code=exited, status=1/FAILURE)
+<span style="color:var(--red)">Jun 07 09:12:17 debian-srv ifup[312]: dhclient: No DHCPOFFERS received</span>`);
+          cliPrint(`<div class="cli-explain-err">⚠️ Le service networking est en <strong>failed</strong> — le client DHCP n'a reçu aucune offre. Relancer : <code>systemctl restart networking</code>.</div>`);
+        } else {
+          out(`● ${svc}.service - OpenBSD Secure Shell server
    Loaded: loaded (/lib/systemd/system/${svc}.service; enabled)
    Active: <span style="color:var(--accent)">active (running)</span> since Thu 2025-06-04 10:00:00 CEST
   Process: 420 ExecStart=/usr/sbin/sshd -D
  Main PID: 420 (sshd)
     Tasks: 1 (limit: 4915)
    Memory: 5.2M`);
+        }
       } else if (action === 'list-units') {
         out(`UNIT                    LOAD   ACTIVE SUB     DESCRIPTION
 ssh.service             loaded active running OpenBSD Secure Shell
@@ -1686,7 +1916,7 @@ networking.service      loaded active exited  Raise network interfaces`);
 <span style="color:var(--text2)">Texte :</span>       echo  grep [-i]  vim  nano
 <span style="color:var(--text2)">Processus :</span>   ps  systemctl [start|stop|status|list-units]  sudo
 <span style="color:var(--text2)">Réseau :</span>      <span style="color:var(--accent)">ip [a|r|l]</span>  <span style="color:var(--accent)">ping -c N host</span>  <span style="color:var(--accent)">netstat</span>  <span style="color:var(--accent)">ss -tulnp</span>
-             <span style="color:var(--accent)">nslookup</span>  <span style="color:var(--accent)">dig</span>  <span style="color:var(--accent)">traceroute</span>  <span style="color:var(--accent)">arp -n</span>
+             <span style="color:var(--accent)">nslookup</span>  <span style="color:var(--accent)">dig</span>  <span style="color:var(--accent)">traceroute</span>  <span style="color:var(--accent)">arp -n</span>  <span style="color:var(--accent)">dhclient</span>  <span style="color:var(--accent)">journalctl</span>
 <span style="color:var(--text2)">Système :</span>     whoami  hostname  uname [-a]
 <span style="color:var(--text2)">Divers :</span>      history  clear  help  <span style="color:var(--accent)">tp</span> TP guidés
 <span style="color:var(--text3)">↑/↓ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);

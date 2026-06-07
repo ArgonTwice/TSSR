@@ -21,4 +21,24 @@ const MODULES = [
     flashcards: [],
     qcm: [],
   },
+  {
+    id: 'windows',
+    label: 'Windows',
+    icon: '🪟',
+    color: '#0ea5e9',
+    desc: 'Gestion des disques, SAM, droits NTFS, pare-feu, BitLocker...',
+    topics: ['Diskpart', 'SAM', 'NTFS', 'icacls', 'BitLocker', 'Pare-feu'],
+    cours: [
+      {
+        id: 'cours_windows_objectifs',
+        titre: 'Administration Windows : Disques, SAM, NTFS et Sécurisation',
+        sections: [
+          { type: 'html-file', src: 'modules/windows/cours_windows_objectifs.html' },
+        ],
+      },
+    ],
+    flashcards: [],
+    qcm: [],
+    windows_cli: true,
+  },
 ];

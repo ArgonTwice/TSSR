@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Administration Système Windows : Guide de Référence TSSR</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.25;
+            color: #1a1a1a;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        h1 {
+            color: #1e3a8a;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-size: 20pt;
+        }
+        h2 {
+            color: #2c5282;
+            margin-top: 30px;
+            font-size: 14pt;
+            border-left: 4px solid #2c5282;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #4a5568;
+            margin-top: 20px;
+            font-size: 11pt;
+            font-style: italic;
+        }
+        p, li {
+            font-size: 11pt;
+            text-align: justify;
+        }
+        ul, ol {
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 10.5pt;
+        }
+        th, td {
+            border: 1px solid #cbd5e0;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f7fafc;
+            color: #2c5282;
+            font-weight: bold;
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #fafbfe;
+        }
+        code {
+            font-family: "Consolas", "Courier New", monospace;
+            background-color: #edf2f7;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 10pt;
+            font-weight: bold;
+            color: #b7791f;
+        }
+        pre {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #2d3748;
+            font-weight: normal;
+        }
+        .example-box {
+            background-color: #fffaf0;
+            border-left: 4px solid #dd6b20;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 style="border: none; margin-bottom: 5px; font-size: 24pt;">Référentiel de Cours Windows</h1>
+        <p style="font-size: 13pt; color: #4a5568; font-weight: bold;">Gestion des Disques, Sécurité SAM, Droits NTFS et Sécurisation Système</p>
+        <p style="font-size: 9.5pt; color: #718096;">Document d'ingénierie optimisé pour injection LLM (Claude context window)</p>
+    </div>
+
+    <h1>1. Gestion du Stockage et des Volumes (GUI et Diskpart)</h1>
+    <p>La gestion de l'espace de stockage sous Windows s'effectue via l'interface graphique (<code>diskmgmt.msc</code>) ou via l'utilitaire en ligne de commande <code>diskpart</code>, indispensable pour l'administration automatisée.</p>
+    
+    <h2>1.1 Gestion via l'Interface Graphique (GUI)</h2>
+    <p>La console <strong>Gestion des disques</strong> permet de visualiser graphiquement l'état physique des disques, de modifier le type de table de partitionnement (MBR/GPT), d'initialiser de nouveaux volumes et de manipuler les partitions à chaud.</p>
+    <ul>
+        <li><strong>Étendre un volume :</strong> Permet d'agrandir une partition en y injectant de l'espace non alloué. Cet espace doit impérativement être contigu et situé immédiatement à la droite de la partition cible.</li>
+        <li><strong>Réduire un volume :</strong> Permet de libérer de l'espace non utilisé à la fin d'une partition pour créer un nouveau volume (la réduction est limitée par l'emplacement des fichiers système non déplaçables).</li>
+    </ul>
+
+    <h2>1.2 Administration via l'Utilitaire CLI <code>diskpart</code></h2>
+    <p><code>diskpart</code> s'exécute dans une invite de commande avec privilèges élevés. Il utilise un système d'arborescence d'objets : il faut cibler et <em>sélectionner</em> un élément avant de pouvoir lui appliquer une action d'administration.</p>
+
+    <div class="example-box">
+        <p><strong>Exemple Concret : Initialisation, partitionnement, formatage et extension d'un disque dur secondaire (Disque 1)</strong></p>
+        <pre><code># Lancement de l'utilitaire interactif
+diskpart
+
+# Lister les disques physiques détectés par le système
+list disk
+
+# Sélectionner le disque cible
+select disk 1
+
+# Effacer la table de partition raisonnable (remise à zéro brute)
+clean
+
+# Convertir le disque au format GPT (obligatoire pour l'UEFI et les disques > 2 To)
+convert gpt
+
+# Créer une partition principale
+create partition primary size=50000
+
+# Formater rapidement la partition en NTFS avec un nom de volume
+format fs=ntfs quick label="Data_Lab"
+
+# Assigner une lettre de lecteur disponible
+assign letter=E
+
+# ---- ETENDRE LA PARTITION AVEC L'ESPACE RESTANT ----
+select partition 1
+extend
+exit</code></pre>
+    </div>
+
+    <h1>2. Gestion Locale de la Base SAM (Utilisateurs, Groupes et Privilèges)</h1>
+    <p>Sur un serveur autonome ou un poste client, la sécurité des accès locaux repose sur la base de données locale <strong>SAM</strong> (<em>Security Accounts Manager</em>). On l'administre graphiquement via <code>lusrmgr.msc</code> ou par scripts.</p>
+
+    <h2>2.1 Sécurité des Comptes Locaux</h2>
+    <ul>
+        <li><strong>Utilisateur Local :</strong> Entité de sécurité identifiée par un identifiant de sécurité unique (<strong>SID</strong>). Les mots de passe sont hachés et stockés localement.</li>
+        <li><strong>Groupe Local :</strong> Conteneur logique permettant de regrouper des utilisateurs afin de simplifier l'attribution des droits.</li>
+    </ul>
+
+    <h2>2.2 Commandes d'Administration Directe (CMD &amp; PowerShell)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Objectif</th>
+                <th>Syntaxe Invite de commande (CMD)</th>
+                <th>Syntaxe PowerShell Modernisée</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Créer un utilisateur</strong></td>
+                <td><code>net user &lt;nom&gt; &lt;mdp&gt; /add</code></td>
+                <td><code>New-LocalUser -Name "&lt;nom&gt;" -Password &lt;secure-string&gt;</code></td>
+            </tr>
+            <tr>
+                <td><strong>Supprimer un utilisateur</strong></td>
+                <td><code>net user &lt;nom&gt; /delete</code></td>
+                <td><code>Remove-LocalUser -Name "&lt;nom&gt;"</code></td>
+            </tr>
+            <tr>
+                <td><strong>Créer un groupe local</strong></td>
+                <td><code>net localgroup &lt;groupe&gt; /add</code></td>
+                <td><code>New-LocalGroup -Name "&lt;groupe&gt;"</code></td>
+            </tr>
+            <tr>
+                <td><strong>Ajouter un membre au groupe</strong></td>
+                <td><code>net localgroup &lt;groupe&gt; &lt;nom&gt; /add</code></td>
+                <td><code>Add-LocalGroupMember -Group "&lt;groupe&gt;" -Member "&lt;nom&gt;"</code></td>
+            </tr>
+            <tr>
+                <td><strong>Retirer un membre du groupe</strong></td>
+                <td><code>net localgroup &lt;groupe&gt; &lt;nom&gt; /delete</code></td>
+                <td><code>Remove-LocalGroupMember -Group "&lt;groupe&gt;" -Member "&lt;nom&gt;"</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="example-box">
+        <p><strong>Exemple Pratique : Déploiement automatisé d'un technicien de maintenance</strong></p>
+        <pre><code># Création de l'utilisateur avec paramètres de persistance
+net user TechAdmin P@ssw0rdTech2026! /add /expires:never /passwordchg:no
+
+# Création du groupe de service
+net localgroup G_Maintenance /add
+
+# Affectation de l'utilisateur au groupe créé
+net localgroup G_Maintenance TechAdmin /add
+
+# Ajout du technicien au groupe des Administrateurs locaux de la machine
+net localgroup Administrateurs TechAdmin /add</code></pre>
+    </div>
+
+    <h1>3. Droits NTFS Avancés et Rupture d'Héritage</h1>
+    <p>Le système de fichiers <strong>NTFS</strong> apporte la sécurité locale sous Windows via l'utilisation des <strong>ACL</strong> (<em>Access Control Lists</em>).</p>
+
+    <h2>3.1 Mécanisme d'Héritage NTFS</h2>
+    <p>Par défaut, tout nouveau sous-dossier ou fichier créé hérite automatiquement de l'ACL de son dossier parent. Pour appliquer des règles de sécurité strictes (cloisonnement de dossiers), l'administrateur doit **rompre l'héritage**.</p>
+    <ul>
+        <li><strong>Rompre avec conversion :</strong> Copie les permissions héritées en permissions explicites propres au dossier, permettant de les modifier librement.</li>
+        <li><strong>Rompre avec suppression :</strong> Supprime toutes les permissions pour repartir d'une liste vide (sécurité maximale).</li>
+    </ul>
+
+    <h2>3.2 Modification des ACL via l'utilitaire <code>icacls</code></h2>
+    <div class="example-box">
+        <p><strong>Exemple Concret : Sécurisation d'un dossier confidentiel "Direction"</strong></p>
+        <p>Objectif : Bloquer l'héritage, donner le contrôle total aux Administrateurs et un accès de modification uniquement au groupe "G_Direction".</p>
+        <pre><code># 1. Blocage de l'héritage et conversion des droits existants en droits explicites
+icacls "C:\Shares\Direction" /inheritance:d
+
+# 2. Attribution du contrôle total explicite au groupe des Administrateurs locaux
+icacls "C:\Shares\Direction" /grant:r "Administrateurs":(OI)(CI)(F)
+
+# 3. Attribution du droit de modification (Lecture, Écriture, Modification) au groupe cible
+icacls "C:\Shares\Direction" /grant:r "G_Direction":(OI)(CI)(M)
+
+# Signification des commutateurs de propagation :
+# (OI) : Object Inherit - Les fichiers enfants hériteront de la règle.
+# (CI) : Container Inherit - Les sous-dossiers enfants hériteront de la règle.
+# (F)  : Full Control (Contrôle total)
+# (M)  : Modify (Droit de modification)</code></pre>
+    </div>
+
+    <h1>4. Sécurisation Périmétrique et Logique du Système Windows</h1>
+    <p>Le contrôle de l'intégrité de la machine implique la maîtrise des mécanismes de filtrage réseau (Pare-feu), du chiffrement des données (BitLocker) et du contrôle d'exécution des applications.</p>
+
+    <h2>4.1 Le Pare-feu Windows Defender (Filtrage Stateful)</h2>
+    <p>Le pare-feu applique des règles de trafic entrant (Inbound) ou sortant (Outbound) selon trois profils : <em>Domaine</em>, <em>Privé</em> et <em>Public</em>.</p>
+    <div class="example-box">
+        <p><strong>Exemple PowerShell : Déploiement d'une règle autorisant le protocole SSH (Port TCP 22)</strong></p>
+        <pre><code>New-NetFirewallRule -Name "Allow_SSH" -DisplayName "Autoriser SSH Inbound" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -Profile Private, Domain</code></pre>
+    </div>
+
+    <h2>4.2 Chiffrement de Partitions (BitLocker)</h2>
+    <p><strong>BitLocker</strong> assure la confidentialité des données au repos en cas de vol physique du matériel en chiffrant l'intégralité du volume via l'algorithme AES.</p>
+    <pre><code># Commande d'activation du chiffrement sur le lecteur E: avec génération de clé de récupération
+manage-bde -on E: -RecoveryPassword</code></pre>
+
+    <h2>4.3 Restriction d'Applications (AppLocker) et Antivirus</h2>
+    <ul>
+        <li><strong>Interdire le lancement d'applications :</strong> Via les stratégies d'AppLocker, l'administrateur crée des règles basées sur le hachage d'un exécutable ou sur le chemin pour empêcher l'exécution de rançongiciels ou de logiciels non autorisés.</li>
+        <li><strong>Windows Defender Antivirus :</strong> Gestion de la protection en temps réel et planification des analyses via PowerShell.</li>
+    </ul>
+    <pre><code># Forcer la mise à jour des définitions de virus (Signatures)
+Update-MpSignature
+
+# Lancer une analyse rapide du système
+Start-MpScan -ScanType QuickScan</code></pre>
+
+</body>
+</html>

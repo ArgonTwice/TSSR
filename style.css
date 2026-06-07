@@ -1172,6 +1172,28 @@ body {
 
 .cli-err { color: #ff6b6b; }
 .cli-dir { color: #5bc4f7; font-weight: 600; }
+
+.cli-explain {
+  background: rgba(0,255,136,.07);
+  border-left: 3px solid #00ff88;
+  padding: 6px 10px;
+  margin: 4px 0;
+  font-size: 12px;
+  color: #a0e8c0;
+  border-radius: 0 4px 4px 0;
+  white-space: pre-wrap;
+}
+.cli-explain-err {
+  background: rgba(255,107,107,.08);
+  border-left: 3px solid #ff6b6b;
+  padding: 6px 10px;
+  margin: 4px 0;
+  font-size: 12px;
+  color: #ffaaaa;
+  border-radius: 0 4px 4px 0;
+  white-space: pre-wrap;
+}
+.cli-explain strong, .cli-explain-err strong { font-weight: 700; }
 .cli-file { color: #c8d0bc; }
 .cli-output-text { color: #9dbd8a; }
 

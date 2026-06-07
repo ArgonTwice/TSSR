@@ -577,9 +577,43 @@ function makeCLIState(type) {
         'C:\\inetpub\\wwwroot': { type: 'dir' },
         'C:\\inetpub\\wwwroot\\index.html': { type: 'file', content: '<!DOCTYPE html>\r\n<html><body>IIS Default Page</body></html>\r\n' },
         'C:\\Temp': { type: 'dir' },
+        'C:\\Shares': { type: 'dir' },
+        'C:\\Shares\\Direction': { type: 'dir' },
         'C:\\Program Files': { type: 'dir' },
         'C:\\Program Files\\WindowsPowerShell': { type: 'dir' },
       },
+      diskpartMode: false,
+      dpSel: { disk: null, partition: null },
+      disks: [
+        { id: 0, size: '120 GB', type: 'GPT', status: 'En ligne',
+          partitions: [
+            { id: 1, type: 'Récup.', size: '499 MB', letter: null },
+            { id: 2, type: 'Système', size: '100 MB', letter: null },
+            { id: 3, type: 'Primaire', size: '119 GB', letter: 'C' },
+          ]
+        },
+        { id: 1, size: '500 GB', type: 'RAW', status: 'En ligne', partitions: [] },
+      ],
+      localUsers: [
+        { name: 'Administrateur', active: true,  groups: ['Administrateurs'] },
+        { name: 'Invité',         active: false, groups: ['Invités'] },
+      ],
+      localGroups: [
+        { name: 'Administrateurs',          members: ['Administrateur'] },
+        { name: 'Utilisateurs',             members: [] },
+        { name: 'Invités',                  members: ['Invité'] },
+        { name: 'Opérateurs de sauvegarde', members: [] },
+      ],
+      acls: {
+        'C:\\Users\\Administrateur': 'Administrateurs : (F)\r\nUtilisateurs : (RX)',
+        'C:\\Windows\\System32':     'SYSTEM : (F)\r\nAdministrateurs : (F)\r\nUtilisateurs : (RX)',
+        'C:\\Shares\\Direction':     'Héritage actif — Administrateurs : (F), Utilisateurs : (RX)',
+      },
+      bitlocker: {},
+      fwRules: [
+        { name: 'Allow_RDP', display: 'Bureau à distance (TCP-In)', dir: 'Inbound',  proto: 'TCP', port: '3389', action: 'Allow', profile: 'Domain' },
+        { name: 'Allow_SMB', display: 'Partage de fichiers (SMB)',  dir: 'Inbound',  proto: 'TCP', port: '445',  action: 'Allow', profile: 'Domain' },
+      ],
     };
   }
 }
@@ -659,6 +693,8 @@ function cliPrompt() {
   if (cliState.type === 'linux') {
     const shortCwd = cliState.cwd.replace('/home/tssr', '~');
     return `<span class="cli-ps-user">${cliState.user}@${cliState.host}</span><span class="cli-ps-sep">:</span><span class="cli-ps-path">${shortCwd}</span><span class="cli-ps-dollar">$</span>`;
+  } else if (cliState.diskpartMode) {
+    return `<span class="cli-ps-path-win">DISKPART</span><span class="cli-ps-dollar-win">&gt;</span>`;
   } else {
     return `<span class="cli-ps-path-win">PS ${cliState.cwd}</span><span class="cli-ps-dollar-win">&gt;</span>`;
   }
@@ -826,6 +862,8 @@ function cliExec(raw) {
     scenarioCheck(trimmed, cliState.fs, cliState.cwd);
   }
 
+  if (cliState.diskpartMode) { cliExecDiskpart(trimmed); return; }
+
   if (isWin) cliExecWindows(cmd.toLowerCase(), args, trimmed);
   else cliExecLinux(cmd, args, trimmed);
 }
@@ -842,6 +880,162 @@ function cliParseArgs(raw) {
   }
   if (cur) parts.push(cur);
   return parts;
+}
+
+// ============================================================
+// ===== DISKPART =============================================
+// ============================================================
+function cliExecDiskpart(raw) {
+  const out   = (s) => cliPrint(s);
+  const err   = (s) => cliPrint(`<span class="cli-error">${escHtml(s)}</span>`);
+  const explain = (s) => cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> ${s}</div>`);
+  const errEx = (msg, why) => { err(msg); cliPrint(`<div class="cli-explain-err">⚠️ <strong>Pourquoi :</strong> ${escHtml(why)}</div>`); };
+
+  const tokens = raw.trim().toLowerCase().replace(/\s+/g,' ').split(' ');
+  const cmd    = tokens[0];
+  const rest   = tokens.slice(1);
+
+  const disks = cliState.disks;
+  const sel   = cliState.dpSel;
+
+  switch (cmd) {
+
+    case 'list': {
+      if (rest[0] === 'disk') {
+        out(`\n  Disque ###  Statut         Taille  Disponible  Dyn  GPT`);
+        out(`  ---------  -------------  ------  ----------  ---  ---`);
+        disks.forEach(d => {
+          const star = sel.disk === d.id ? '*' : ' ';
+          out(`  ${star}Disque ${d.id}    ${d.status.padEnd(15)}${d.size.padEnd(8)}0 MB        ${d.type==='GPT'?'     *':''}`);
+        });
+        explain('list disk affiche les disques physiques détectés. L\'étoile (*) indique le disque actuellement sélectionné. Type RAW = pas encore initialisé/formaté.');
+      } else if (rest[0] === 'partition') {
+        if (sel.disk === null) { errEx('Aucun disque sélectionné.', 'Tu dois d\'abord cibler un disque avec : select disk N'); break; }
+        const d = disks.find(x=>x.id===sel.disk);
+        if (!d.partitions.length) { out('Aucune partition sur ce disque.'); break; }
+        out(`\n  Partition ###  Type              Taille  Décalage`);
+        out(`  -------------  ----------------  ------  --------`);
+        d.partitions.forEach(p => {
+          const star = sel.partition === p.id ? '*' : ' ';
+          out(`  ${star}Partition ${p.id}    ${p.type.padEnd(18)}${p.size.padEnd(8)}1024 KB`);
+        });
+        explain('list partition liste les partitions du disque sélectionné. L\'étoile = partition active. Utilise select partition N pour en cibler une.');
+      } else { err('list: argument invalide. Options : disk | partition'); }
+      break;
+    }
+
+    case 'select': {
+      if (rest[0] === 'disk') {
+        const id = parseInt(rest[1]);
+        const d  = disks.find(x=>x.id===id);
+        if (!d) { errEx(`Le disque ${id} n'existe pas.`, 'Vérifie les indices avec list disk. Les numéros commencent à 0.'); break; }
+        sel.disk = id; sel.partition = null;
+        out(`Le disque ${id} est maintenant le disque sélectionné.`);
+        explain(`select disk ${id} cible ce disque. Toutes les commandes suivantes (clean, convert, create partition…) s'appliqueront à ce disque jusqu'à un autre select.`);
+      } else if (rest[0] === 'partition') {
+        if (sel.disk === null) { errEx('Aucun disque sélectionné.', 'Utilise select disk N avant select partition N.'); break; }
+        const id = parseInt(rest[1]);
+        const d  = disks.find(x=>x.id===sel.disk);
+        const p  = d.partitions.find(x=>x.id===id);
+        if (!p) { errEx(`Partition ${id} introuvable.`, 'Vérifie avec list partition. Les partitions démarrent à 1.'); break; }
+        sel.partition = id;
+        out(`La partition ${id} est maintenant la partition sélectionnée.`);
+        explain(`select partition ${id} cible la partition. Tu peux maintenant lui appliquer format, assign, extend...`);
+      } else { err('select: argument invalide. Options : disk N | partition N'); }
+      break;
+    }
+
+    case 'clean': {
+      if (sel.disk === null) { errEx('Aucun disque sélectionné.', 'Cible d\'abord un disque avec select disk N.'); break; }
+      const d = disks.find(x=>x.id===sel.disk);
+      d.partitions = []; d.type = 'RAW';
+      out('DiskPart a réussi à nettoyer le disque.');
+      explain('<strong>clean</strong> efface la table de partition (MBR ou GPT) du disque sélectionné. Toutes les données deviennent inaccessibles. Étape obligatoire avant de réinitialiser un disque en GPT.');
+      break;
+    }
+
+    case 'convert': {
+      if (sel.disk === null) { errEx('Aucun disque sélectionné.', 'Sélectionne un disque avec select disk N.'); break; }
+      const d = disks.find(x=>x.id===sel.disk);
+      if (rest[0] === 'gpt') {
+        if (d.partitions.length) { errEx('Le disque contient des partitions.', 'Exécute clean avant de convertir. Toutes les partitions doivent être supprimées pour changer le schéma.'); break; }
+        d.type = 'GPT';
+        out('DiskPart a converti le disque sélectionné au format GPT.');
+        explain('<strong>convert gpt</strong> : GPT (GUID Partition Table) est requis pour les disques > 2 To et les systèmes UEFI. Il supporte jusqu\'à 128 partitions primaires vs 4 pour MBR.');
+      } else if (rest[0] === 'mbr') {
+        if (d.partitions.length) { errEx('Partitions présentes.', 'Supprime toutes les partitions avec clean avant de convertir.'); break; }
+        d.type = 'MBR';
+        out('DiskPart a converti le disque sélectionné au format MBR.');
+        explain('<strong>convert mbr</strong> : MBR (Master Boot Record) est l\'ancien schéma. Limité à 2 To et 4 partitions primaires. Nécessaire pour les anciens BIOS/Legacy.');
+      } else { err('convert: argument invalide. Options : gpt | mbr'); }
+      break;
+    }
+
+    case 'create': {
+      if (rest[0] !== 'partition' || rest[1] !== 'primary') { err('Syntaxe : create partition primary [size=N]'); break; }
+      if (sel.disk === null) { errEx('Aucun disque sélectionné.', 'Sélectionne un disque avec select disk N.'); break; }
+      const d    = disks.find(x=>x.id===sel.disk);
+      if (d.type === 'RAW') { errEx('Disque non initialisé.', 'Initialise d\'abord le disque avec convert gpt ou convert mbr.'); break; }
+      const sizeArg = rest.find(t=>t.startsWith('size='));
+      const size    = sizeArg ? sizeArg.split('=')[1]+' MB' : d.size;
+      const newId   = (d.partitions.length ? Math.max(...d.partitions.map(p=>p.id)) : 0) + 1;
+      d.partitions.push({ id: newId, type: 'Primaire', size, letter: null, fs: null, label: null });
+      sel.partition = newId;
+      out(`DiskPart a créé la partition avec succès.`);
+      explain(`<strong>create partition primary</strong> crée une partition de données. Sans <em>size=N</em> elle utilise tout l'espace disponible. Elle doit encore être formatée (format fs=ntfs) avant utilisation.`);
+      break;
+    }
+
+    case 'format': {
+      if (sel.disk === null || sel.partition === null) { errEx('Aucune partition sélectionnée.', 'Utilise select disk N puis select partition N, ou crée une partition avec create partition primary.'); break; }
+      const d   = disks.find(x=>x.id===sel.disk);
+      const p   = d.partitions.find(x=>x.id===sel.partition);
+      const fsArg    = rest.find(t=>t.startsWith('fs='));
+      const lblArg   = rest.find(t=>t.startsWith('label='));
+      p.fs    = fsArg  ? fsArg.split('=')[1].toUpperCase()              : 'NTFS';
+      p.label = lblArg ? lblArg.split('=')[1].replace(/"/g,'') : 'Nouveau volume';
+      out(`  0 pour cent effectué\n100 pour cent effectué\nDiskPart a formaté le volume avec succès.`);
+      explain(`<strong>format fs=${p.fs} quick</strong> : NTFS est le seul FS Windows supportant ACL, compression, chiffrement et fichiers > 4 Go. <strong>quick</strong> écrit uniquement les métadonnées (format complet recommandé pour un disque réutilisé afin d'écraser les données).`);
+      break;
+    }
+
+    case 'assign': {
+      if (sel.disk === null || sel.partition === null) { errEx('Aucune partition sélectionnée.', 'Sélectionne une partition avec select partition N.'); break; }
+      const d   = disks.find(x=>x.id===sel.disk);
+      const p   = d.partitions.find(x=>x.id===sel.partition);
+      if (!p.fs) { errEx('Partition non formatée.', 'Formate d\'abord la partition avec format fs=ntfs quick.'); break; }
+      const letArg = rest.find(t=>t.startsWith('letter='));
+      const letter = letArg ? letArg.split('=')[1].toUpperCase() : 'E';
+      p.letter = letter;
+      out(`DiskPart a attribué la lettre de lecteur ou le nom de point de montage.`);
+      explain(`<strong>assign letter=${letter}</strong> monte la partition sous ${letter}: dans l'explorateur Windows. Sans lettre, le volume est inaccessible aux utilisateurs. Les lettres A: et B: sont réservées aux disquettes.`);
+      break;
+    }
+
+    case 'extend': {
+      if (sel.disk === null || sel.partition === null) { errEx('Aucune partition sélectionnée.', 'Sélectionne la partition à étendre avec select partition N.'); break; }
+      const d = disks.find(x=>x.id===sel.disk);
+      const p = d.partitions.find(x=>x.id===sel.partition);
+      if (!p.fs) { errEx('Partition non formatée.', 'extend ne peut étendre qu\'une partition NTFS formatée.'); break; }
+      p.size = d.size;
+      out('DiskPart a étendu le volume avec succès.');
+      explain('<strong>extend</strong> agrandit la partition avec l\'espace libre contigu immédiatement à sa droite. Fonctionne uniquement sur NTFS et si l\'espace libre est adjacent.');
+      break;
+    }
+
+    case 'exit': {
+      cliState.diskpartMode = false;
+      cliState.dpSel = { disk: null, partition: null };
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
+      out('\nDiskPart quitte...');
+      explain('Tu as quitté diskpart et repris le contexte PowerShell normal. Les modifications de partition sont persistées dans l\'état de la simulation.');
+      break;
+    }
+
+    default:
+      if (!cmd) break;
+      errEx(`${escHtml(cmd)} : commande inconnue.`, 'Commandes disponibles : list disk/partition · select disk/partition · clean · convert gpt/mbr · create partition primary [size=N] · format fs=ntfs quick [label=X] · assign letter=X · extend · exit');
+  }
 }
 
 // ============================================================
@@ -1232,8 +1426,10 @@ function _cliExecLinuxCapture(cmd, args, raw, captured) {
 // ============================================================
 function cliExecWindows(cmd, args, raw) {
   const fs = cliState.fs;
-  const out = (s) => cliPrint(s);
-  const err = (s) => cliPrint(`<span class="cli-err">${escHtml(s)}</span>`);
+  const out  = (s) => cliPrint(s);
+  const err  = (s) => cliPrint(`<span class="cli-err">${escHtml(s)}</span>`);
+  const explain  = (s) => cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> ${s}</div>`);
+  const errEx = (msg, why) => { err(msg); cliPrint(`<div class="cli-explain-err">⚠️ <strong>Pourquoi :</strong> ${escHtml(why)}</div>`); };
   const sep = '\\';
 
   // Alias courants
@@ -1482,6 +1678,220 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
     1023 Jun 04 09:55  Information Security-Auditing               4624 Ouverture de session réussie.`);
       break;
     }
+    // ── DISKPART ──
+    case 'diskpart': {
+      cliState.diskpartMode = true;
+      cliState.dpSel = { disk: null, partition: null };
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
+      out(`\nMicrosoft DiskPart version 10.0.20348\n\nCopyright (C) Microsoft Corporation.\nSur l'ordinateur : ${cliState.host}\n`);
+      explain('diskpart est l\'utilitaire CLI de gestion des disques. Il fonctionne en mode interactif : tu sélectionnes un objet (disk/partition) puis tu lui appliques des actions. Tape <strong>list disk</strong> pour commencer.');
+      break;
+    }
+
+    // ── NET USER / LOCALGROUP ──
+    case 'net': {
+      const sub = (args[0]||'').toLowerCase();
+      if (sub === 'user') {
+        const users = cliState.localUsers;
+        if (!args[1]) {
+          out(`\nComptes d'utilisateurs de \\\\${cliState.host}\n\n` + users.map(u => u.name).join('  ') + `\n\nLa commande s'est terminée correctement.`);
+          explain('net user sans argument liste tous les comptes locaux stockés dans la base SAM (Security Accounts Manager).');
+          break;
+        }
+        const username = args[1];
+        const delFlag  = args.includes('/delete');
+        const addFlag  = args.includes('/add');
+        const password = args[2] && !args[2].startsWith('/') ? args[2] : null;
+        if (addFlag) {
+          if (!password) { errEx('Erreur système 87 — Le paramètre est incorrect.', 'Un mot de passe est obligatoire lors de la création d\'un compte. Syntaxe : net user <nom> <mdp> /add'); break; }
+          if (users.find(u => u.name.toLowerCase() === username.toLowerCase())) { errEx(`Erreur système 2224 — Le compte d'utilisateur existe déjà.`, `Le nom "${username}" est déjà utilisé dans la base SAM. Choisis un nom différent.`); break; }
+          users.push({ name: username, active: true, groups: ['Utilisateurs'] });
+          const expire  = args.includes('/expires:never')    ? 'Jamais'  : 'Non défini';
+          const pwdchg  = args.includes('/passwordchg:no')   ? 'Non'     : 'Oui';
+          out(`La commande s'est terminée correctement.`);
+          explain(`<strong>net user ${escHtml(username)} ${escHtml(password)} /add</strong> crée un compte local dans la base SAM avec le mot de passe fourni. L'utilisateur peut ensuite se connecter localement. Expiration : ${expire} · Changement mdp : ${pwdchg}`);
+        } else if (delFlag) {
+          const idx = users.findIndex(u => u.name.toLowerCase() === username.toLowerCase());
+          if (idx < 0) { errEx(`Erreur système 2221 — Le nom de compte d'utilisateur est introuvable.`, `L'utilisateur "${username}" n'existe pas dans la base SAM. Vérifie l'orthographe avec net user.`); break; }
+          users.splice(idx, 1);
+          out(`La commande s'est terminée correctement.`);
+          explain(`<strong>net user ${escHtml(username)} /delete</strong> supprime définitivement le compte de la SAM. Ses données de profil restent sur disque dans C:\\Users\\${escHtml(username)} jusqu'à suppression manuelle.`);
+        } else {
+          const u = users.find(x => x.name.toLowerCase() === username.toLowerCase());
+          if (!u) { errEx(`Erreur système 2221 — Compte introuvable.`, `"${username}" n'existe pas. Tape net user pour lister les comptes existants.`); break; }
+          out(`Nom d'utilisateur             ${u.name}\nActif                         ${u.active?'Oui':'Non'}\nGroupes locaux membres         ${u.groups.join(', ')||'Aucun'}\n\nLa commande s'est terminée correctement.`);
+        }
+      } else if (sub === 'localgroup') {
+        const groups = cliState.localGroups;
+        const users  = cliState.localUsers;
+        if (!args[1]) {
+          out(`\nAliases pour \\\\${cliState.host}\n\n` + groups.map(g=>g.name).join('\n') + `\n\nLa commande s'est terminée correctement.`);
+          explain('net localgroup liste les groupes locaux. Les groupes servent à attribuer des droits à plusieurs utilisateurs d\'un coup sans les gérer individuellement.');
+          break;
+        }
+        const grpName = args[1];
+        const addFlag  = args.includes('/add');
+        const delFlag  = args.includes('/delete');
+        const member   = args[2] && !args[2].startsWith('/') ? args[2] : null;
+        if (member && addFlag) {
+          const grp = groups.find(g=>g.name.toLowerCase()===grpName.toLowerCase());
+          if (!grp) { errEx(`Erreur système 2220 — Le groupe local est introuvable.`, `"${grpName}" n'existe pas. Crée-le d'abord avec net localgroup ${grpName} /add`); break; }
+          const usr = users.find(u=>u.name.toLowerCase()===member.toLowerCase());
+          if (!usr) { errEx(`Erreur système 2221 — Compte introuvable.`, `L'utilisateur "${member}" n'existe pas. Crée-le avec net user ${member} <mdp> /add`); break; }
+          if (!grp.members.includes(member)) { grp.members.push(member); usr.groups.push(grpName); }
+          out(`La commande s'est terminée correctement.`);
+          explain(`<strong>net localgroup ${escHtml(grpName)} ${escHtml(member)} /add</strong> place l'utilisateur dans le groupe. Il hérite immédiatement de tous les droits associés au groupe, sans redémarrage de session requis pour les droits locaux.`);
+        } else if (member && delFlag) {
+          const grp = groups.find(g=>g.name.toLowerCase()===grpName.toLowerCase());
+          if (!grp) { errEx(`Groupe introuvable.`, `"${grpName}" n'existe pas dans la SAM.`); break; }
+          grp.members = grp.members.filter(m=>m.toLowerCase()!==member.toLowerCase());
+          out(`La commande s'est terminée correctement.`);
+          explain(`<strong>net localgroup ${escHtml(grpName)} ${escHtml(member)} /delete</strong> retire l'utilisateur du groupe. Il perd immédiatement les droits accordés par ce groupe.`);
+        } else if (addFlag) {
+          if (groups.find(g=>g.name.toLowerCase()===grpName.toLowerCase())) { errEx(`Erreur système 2223 — Le groupe existe déjà.`, `Un groupe "${grpName}" est déjà présent. Utilise un autre nom.`); break; }
+          groups.push({ name: grpName, members: [] });
+          out(`La commande s'est terminée correctement.`);
+          explain(`<strong>net localgroup ${escHtml(grpName)} /add</strong> crée un nouveau groupe local vide dans la SAM. Un groupe vide n'a aucun effet tant qu'on n'y affecte pas d'utilisateurs et de droits.`);
+        } else {
+          const grp = groups.find(g=>g.name.toLowerCase()===grpName.toLowerCase());
+          if (!grp) { errEx(`Groupe introuvable.`, `"${grpName}" n'existe pas.`); break; }
+          out(`Alias     ${grp.name}\nMembres\n\n${grp.members.join('\n')||'(aucun)'}\n\nLa commande s'est terminée correctement.`);
+        }
+      } else {
+        errEx(`net ${escHtml(args[0]||'')} : sous-commande non reconnue.`, 'Les sous-commandes net disponibles ici sont : user, localgroup.');
+      }
+      break;
+    }
+
+    // ── ICACLS ──
+    case 'icacls': {
+      const path = args[0];
+      if (!path) { errEx('icacls : argument manquant.', 'icacls attend un chemin en premier argument. Ex : icacls "C:\\Shares\\Direction"'); break; }
+      const resolved = cliResolvePath(path);
+      const inhIdx   = args.indexOf('/inheritance');
+      const grantIdx = args.indexOf('/grant:r');
+      const rmIdx    = args.indexOf('/remove');
+      if (inhIdx >= 0) {
+        const mode = args[inhIdx + 1];
+        if (mode === 'd') {
+          cliState.acls[resolved] = cliState.acls[resolved]?.replace('Héritage actif — ', '') || 'Héritage rompu — aucune ACE explicite';
+          out(`1 fichier(s) traité(s) avec succès ; 0 fichier(s) non traité(s)`);
+          explain(`<strong>icacls "${escHtml(path)}" /inheritance:d</strong> rompt l'héritage des ACL du dossier parent. Les ACE héritées sont converties en ACE explicites. Sans cette étape, toute modification de dossier parent écrase tes droits.`);
+        } else if (mode === 'e') {
+          out(`1 fichier(s) traité(s) avec succès ; 0 fichier(s) non traité(s)`);
+          explain(`<strong>/inheritance:e</strong> réactive l'héritage — le dossier reçoit à nouveau automatiquement les droits du parent.`);
+        } else {
+          errEx(`icacls : option /inheritance invalide.`, 'Les valeurs valides sont :d (disable/rompre) et :e (enable/réactiver).');
+        }
+      } else if (grantIdx >= 0) {
+        const rule = args[grantIdx + 1];
+        if (!rule) { errEx('icacls : argument manquant après /grant:r.', 'Syntaxe : /grant:r "Groupe":(OI)(CI)(F|M|RX|R|W)'); break; }
+        if (!cliExists(resolved)) { errEx(`icacls : chemin "${path}" introuvable.`, 'Vérifie que le dossier existe. Crée-le avec New-Item -ItemType Directory si nécessaire.'); break; }
+        const prev = cliState.acls[resolved] || '';
+        cliState.acls[resolved] = prev + (prev ? '\r\n' : '') + rule;
+        const permMatch = rule.match(/\(([^)]+)\)(?:\([^)]+\))*$/);
+        const permCode  = permMatch ? permMatch[1] : '?';
+        const permNames = { F:'Contrôle total', M:'Modification', RX:'Lecture+Exécution', R:'Lecture seule', W:'Écriture' };
+        out(`1 fichier(s) traité(s) avec succès ; 0 fichier(s) non traité(s)`);
+        explain(`<strong>icacls /grant:r</strong> attribue une ACE (Access Control Entry) explicite. <strong>/grant:r</strong> remplace une ACE existante pour ce principal (contrairement à /grant qui cumule). Droit accordé : <strong>${permNames[permCode]||permCode}</strong>. (OI) = héritage aux fichiers enfants, (CI) = héritage aux sous-dossiers.`);
+      } else if (rmIdx >= 0) {
+        const user = args[rmIdx + 1];
+        if (!user) { errEx('icacls : argument manquant après /remove.', 'Syntaxe : icacls <chemin> /remove <Utilisateur>'); break; }
+        if (cliState.acls[resolved]) {
+          cliState.acls[resolved] = cliState.acls[resolved].split('\r\n').filter(l=>!l.startsWith(user)).join('\r\n');
+        }
+        out(`1 fichier(s) traité(s) avec succès ; 0 fichier(s) non traité(s)`);
+        explain(`<strong>/remove</strong> supprime toutes les ACE (accordées et refusées) pour l'utilisateur ou groupe spécifié. L'accès devient celui défini par les autres ACE ou par l'héritage.`);
+      } else {
+        const acl = cliState.acls[resolved];
+        if (!cliExists(resolved)) { errEx(`icacls : "${path}" introuvable.`, 'Le chemin n\'existe pas dans le filesystem virtuel.'); break; }
+        out(`${escHtml(resolved)}\n${acl ? escHtml(acl) : '(aucune ACE explicite — héritage actif)'}\n\n1 fichier(s) traité(s) avec succès ; 0 fichier(s) non traité(s)`);
+        explain(`<strong>icacls sans option</strong> affiche les ACL (listes de contrôle d\'accès) actuelles du chemin. Chaque ligne est une ACE : Principal : (flags)(Droit). F=Full, M=Modify, RX=Read+Execute.`);
+      }
+      break;
+    }
+
+    // ── MANAGE-BDE (BitLocker) ──
+    case 'manage-bde': {
+      const bdeCmd = (args[0]||'').toLowerCase();
+      const drive  = args[1] || 'C:';
+      if (bdeCmd === '-on') {
+        cliState.bitlocker[drive] = 'Chiffrement en cours';
+        const hasRecovery = args.includes('-RecoveryPassword') || args.includes('-recoverypassword');
+        if (hasRecovery) out(`\n${drive}: ACTIVÉ — Clé de récupération numérique :\n48DIGITS: 123456-789012-345678-901234-567890-123456-789012-345678`);
+        else out(`\n${drive}: ACTIVÉ`);
+        cliState.bitlocker[drive] = 'Protection activée (AES 128)';
+        explain(`<strong>manage-bde -on ${escHtml(drive)}</strong> active BitLocker sur le volume. BitLocker chiffre intégralement le disque via AES. Si le disque est volé, les données sont illisibles sans la clé. <strong>-RecoveryPassword</strong> génère une clé de récupération de 48 chiffres à conserver en lieu sûr ou dans AD.`);
+      } else if (bdeCmd === '-status') {
+        const st = cliState.bitlocker[drive] || 'Protection désactivée';
+        out(`\nVolume ${drive} [${cliState.host}]\nStatut BitLocker\n----------------\nTaille du volume :       119 Go\nVersion BitLocker :      2.0\nStatut chiffrement :     ${st}\nPourcentage chiffré :    ${st.includes('activée')?'100%':'0%'}\nMéthode chiffrement :    AES 128\n`);
+        explain(`<strong>manage-bde -status</strong> interroge l\'état BitLocker du volume. Utile pour vérifier si le chiffrement est complet avant de déconnecter un disque ou de l\'envoyer en réparation.`);
+      } else if (bdeCmd === '-off') {
+        cliState.bitlocker[drive] = 'Protection désactivée';
+        out(`\nDéchiffrement de ${drive} en cours...`);
+        explain(`<strong>manage-bde -off</strong> désactive BitLocker et déchiffre le volume. L'opération est irréversible sans réactivation manuelle. Les données redeviennent lisibles sans authentification.`);
+      } else {
+        errEx(`manage-bde : option "${bdeCmd}" inconnue.`, 'Options disponibles : -on <lecteur> [-RecoveryPassword], -off <lecteur>, -status [lecteur]');
+      }
+      break;
+    }
+
+    // ── FIREWALL ──
+    case 'new-netfirewallrule': {
+      const nameIdx    = args.findIndex(a=>a.toLowerCase()==='-name');
+      const displayIdx = args.findIndex(a=>a.toLowerCase()==='-displayname');
+      const portIdx    = args.findIndex(a=>a.toLowerCase()==='-localport');
+      const protoIdx   = args.findIndex(a=>a.toLowerCase()==='-protocol');
+      const dirIdx     = args.findIndex(a=>a.toLowerCase()==='-direction');
+      const actionIdx  = args.findIndex(a=>a.toLowerCase()==='-action');
+      if (nameIdx < 0) { errEx('New-NetFirewallRule : -Name est requis.', 'Sans nom unique, la règle ne peut pas être identifiée ni supprimée plus tard. Ex : -Name "Allow_SSH"'); break; }
+      const rule = {
+        name:    args[nameIdx+1]    || 'Nouvelle_Regle',
+        display: args[displayIdx+1] || args[nameIdx+1] || 'Nouvelle règle',
+        dir:     args[dirIdx+1]     || 'Inbound',
+        proto:   args[protoIdx+1]   || 'TCP',
+        port:    args[portIdx+1]    || '*',
+        action:  args[actionIdx+1]  || 'Allow',
+        profile: 'Any',
+      };
+      cliState.fwRules.push(rule);
+      out(`\nName                  : ${rule.name}\nDisplayName           : ${rule.display}\nDescription           :\nDirection             : ${rule.dir}\nAction                : ${rule.action}\nEnabled               : True\nProfile               : ${rule.profile}\nProtocol              : ${rule.proto}\nLocalPort             : ${rule.port}\n`);
+      explain(`<strong>New-NetFirewallRule</strong> crée une règle dans le pare-feu Windows Defender. <strong>Inbound</strong> = trafic entrant (connexions reçues), <strong>Outbound</strong> = sortant. Le profil restreint la règle : <em>Domain</em> (réseau d'entreprise), <em>Private</em> (réseau domestique), <em>Public</em>. Sans profil correct, la règle peut ne pas s'appliquer selon l'emplacement réseau.`);
+      break;
+    }
+    case 'get-netfirewallrule': {
+      out(`\nName          Direction  Action  Proto  Port   DisplayName`);
+      out(`----          ---------  ------  -----  ----   -----------`);
+      cliState.fwRules.forEach(r => out(`${r.name.padEnd(14)}${r.dir.padEnd(11)}${r.action.padEnd(8)}${r.proto.padEnd(7)}${r.port.padEnd(7)}${r.display}`));
+      explain(`<strong>Get-NetFirewallRule</strong> liste les règles de pare-feu actives. Permet d'auditer les ports ouverts et de vérifier qu'une règle a bien été créée.`);
+      break;
+    }
+    case 'remove-netfirewallrule': {
+      const nIdx = args.findIndex(a=>a.toLowerCase()==='-name');
+      const rName = nIdx >= 0 ? args[nIdx+1] : args[0];
+      if (!rName) { errEx('Remove-NetFirewallRule : -Name requis.','Spécifie le nom exact de la règle à supprimer (celui donné à -Name lors de la création).'); break; }
+      const before = cliState.fwRules.length;
+      cliState.fwRules = cliState.fwRules.filter(r=>r.name !== rName);
+      if (cliState.fwRules.length === before) { errEx(`Règle "${rName}" introuvable.`, 'Le nom doit correspondre exactement à celui utilisé lors de la création. Vérifie avec Get-NetFirewallRule.'); break; }
+      out(`Règle "${escHtml(rName)}" supprimée.`);
+      explain(`<strong>Remove-NetFirewallRule</strong> supprime définitivement la règle. Le port redevient filtré selon la politique par défaut (généralement Bloquer pour Inbound).`);
+      break;
+    }
+
+    // ── ANTIVIRUS ──
+    case 'update-mpsignature': {
+      out(`Mise à jour des signatures Windows Defender en cours...\nDernière version : 1.411.3.0 — Mise à jour réussie.`);
+      explain(`<strong>Update-MpSignature</strong> force la mise à jour immédiate des définitions de virus de Windows Defender, sans attendre la planification automatique. Indispensable après un déploiement ou en cas de suspicion d'infection.`);
+      break;
+    }
+    case 'start-mpscan': {
+      const typeIdx = args.findIndex(a=>a.toLowerCase()==='-scantype');
+      const type    = typeIdx >= 0 ? args[typeIdx+1] : 'QuickScan';
+      out(`Analyse Windows Defender — ${type}\nFichiers analysés : 42 381\nMenaces détectées : 0\nAnalyse terminée.`);
+      explain(`<strong>Start-MpScan -ScanType ${escHtml(type)}</strong> : QuickScan cible les zones sensibles (mémoire, démarrage, registre) en ~2 min. FullScan analyse tous les fichiers (peut prendre des heures). CustomScan permet de cibler un dossier précis.`);
+      break;
+    }
+
     case 'tp': {
       handleTPCommand(args, 'windows');
       break;
@@ -1492,15 +1902,16 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
     case 'help':
       out(`<span style="color:var(--blue)">Commandes PowerShell disponibles :</span>
 <span style="color:var(--text2)">Navigation :</span>   Get-ChildItem (ls/dir)  Set-Location (cd)  Get-Location (pwd)
-<span style="color:var(--text2)">Fichiers :</span>     Get-Content (cat)  New-Item (mkdir/touch)  Remove-Item (rm)
-              Copy-Item (cp)  Move-Item (mv)
-<span style="color:var(--text2)">Texte :</span>        Write-Output (echo)  Select-String
-<span style="color:var(--text2)">Processus :</span>    Get-Process (ps)  Stop-Process
+<span style="color:var(--text2)">Fichiers :</span>     Get-Content (cat)  New-Item  Remove-Item  Copy-Item  Move-Item
+<span style="color:var(--text2)">Processus :</span>    Get-Process  Stop-Process
 <span style="color:var(--text2)">Services :</span>     Get-Service  Start-Service  Stop-Service
 <span style="color:var(--text2)">Réseau :</span>       ipconfig [/all]  ping  netstat  Test-Connection
-<span style="color:var(--text2)">Système :</span>      whoami  hostname  Get-ComputerInfo  Get-EventLog
-<span style="color:var(--text2)">AD :</span>           Get-ADUser  Get-ADComputer  Get-ADGroup
-<span style="color:var(--text2)">Divers :</span>       cls (clear)  help
+<span style="color:var(--text2)">Sécurité :</span>     <span style="color:var(--blue)">net user</span>  <span style="color:var(--blue)">net localgroup</span>  <span style="color:var(--blue)">icacls</span>  <span style="color:var(--blue)">manage-bde</span>
+             <span style="color:var(--blue)">New-NetFirewallRule</span>  Get-NetFirewallRule  Remove-NetFirewallRule
+             <span style="color:var(--blue)">Update-MpSignature</span>  Start-MpScan
+<span style="color:var(--text2)">Stockage :</span>     <span style="color:var(--blue)">diskpart</span> (mode interactif)
+<span style="color:var(--text2)">Système :</span>      whoami  hostname  Get-ComputerInfo  Get-EventLog  Get-ADUser
+<span style="color:var(--text2)">Divers :</span>       cls  help  <span style="color:var(--blue)">tp</span> TP guidés
 <span style="color:var(--text3)">↑/↓ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
       break;
     default:

@@ -1,5 +1,5 @@
 // sw.js — Service Worker TSSR offline-first
-const CACHE = 'tssr-v1';
+const CACHE = 'tssr-v2';
 const ASSETS = [
   './',
   './index.html',

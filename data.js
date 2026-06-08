@@ -30,6 +30,18 @@ const MODULES = [
     topics: ['OSI', 'TCP/IP', 'Adressage IP', 'VLAN', 'DNS', 'DHCP', 'Routage'],
     cours: [
       {
+        id: 'modele-osi',
+        titre: 'Modèle OSI — 7 Couches',
+        sections: [
+          {
+            type: 'info',
+            content: `<strong>Mnémotechniques OSI :</strong><br>
+              <strong>1→7</strong> (Physique → Application) : <em>Philippe Laisse Rentrer Tous Ses Petits Amis</em><br>
+              <strong>7→1</strong> (Application → Physique) : <em>Alex Pète Sa Tête Rarement Le Premier</em>`,
+          },
+        ],
+      },
+      {
         id: 'cours_reseaux',
         titre: 'Réseaux : OSI, TCP/IP, Adressage et Services',
         sections: [{ type: 'html-file', src: 'modules/reseaux/cours_reseaux.html' }],

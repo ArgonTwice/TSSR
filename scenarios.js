@@ -228,7 +228,7 @@ const SCENARIOS = {
   // ===== WINDOWS =====
   windows_bases: {
     id: 'windows_bases',
-    title: 'PowerShell Bases',
+    title: 'Bases PowerShell',
     icon: '🪟',
     desc: 'Navigation et fichiers PowerShell',
     type: 'windows',

@@ -97,7 +97,6 @@
     <div style="text-align: center; margin-bottom: 40px;">
         <h1 style="border: none; margin-bottom: 5px; font-size: 24pt;">Référentiel de Cours Windows</h1>
         <p style="font-size: 13pt; color: #4a5568; font-weight: bold;">Gestion des Disques, Sécurité SAM, Droits NTFS et Sécurisation Système</p>
-        <p style="font-size: 9.5pt; color: #718096;">Document d'ingénierie optimisé pour injection LLM (Claude context window)</p>
     </div>
 
     <h1>1. Gestion du Stockage et des Volumes (GUI et Diskpart)</h1>
@@ -211,7 +210,7 @@ net localgroup Administrateurs TechAdmin /add</code></pre>
     <p>Le système de fichiers <strong>NTFS</strong> apporte la sécurité locale sous Windows via l'utilisation des <strong>ACL</strong> (<em>Access Control Lists</em>).</p>
 
     <h2>3.1 Mécanisme d'Héritage NTFS</h2>
-    <p>Par défaut, tout nouveau sous-dossier ou fichier créé hérite automatiquement de l'ACL de son dossier parent. Pour appliquer des règles de sécurité strictes (cloisonnement de dossiers), l'administrateur doit **rompre l'héritage**.</p>
+    <p>Par défaut, tout nouveau sous-dossier ou fichier créé hérite automatiquement de l'ACL de son dossier parent. Pour appliquer des règles de sécurité strictes (cloisonnement de dossiers), l'administrateur doit <strong>rompre l'héritage</strong>.</p>
     <ul>
         <li><strong>Rompre avec conversion :</strong> Copie les permissions héritées en permissions explicites propres au dossier, permettant de les modifier librement.</li>
         <li><strong>Rompre avec suppression :</strong> Supprime toutes les permissions pour repartir d'une liste vide (sécurité maximale).</li>
@@ -231,8 +230,8 @@ icacls "C:\Shares\Direction" /grant:r "Administrateurs":(OI)(CI)(F)
 icacls "C:\Shares\Direction" /grant:r "G_Direction":(OI)(CI)(M)
 
 # Signification des commutateurs de propagation :
-# (OI) : Object Inherit - Les fichiers enfants hériteront de la règle.
-# (CI) : Container Inherit - Les sous-dossiers enfants hériteront de la règle.
+# (OI) : Héritage objet — Les fichiers enfants hériteront de la règle.
+# (CI) : Héritage conteneur — Les sous-dossiers enfants hériteront de la règle.
 # (F)  : Full Control (Contrôle total)
 # (M)  : Modify (Droit de modification)</code></pre>
     </div>
@@ -241,10 +240,10 @@ icacls "C:\Shares\Direction" /grant:r "G_Direction":(OI)(CI)(M)
     <p>Le contrôle de l'intégrité de la machine implique la maîtrise des mécanismes de filtrage réseau (Pare-feu), du chiffrement des données (BitLocker) et du contrôle d'exécution des applications.</p>
 
     <h2>4.1 Le Pare-feu Windows Defender (Filtrage Stateful)</h2>
-    <p>Le pare-feu applique des règles de trafic entrant (Inbound) ou sortant (Outbound) selon trois profils : <em>Domaine</em>, <em>Privé</em> et <em>Public</em>.</p>
+    <p>Le pare-feu applique des règles de trafic entrant ou sortant selon trois profils : <em>Domaine</em>, <em>Privé</em> et <em>Public</em>.</p>
     <div class="example-box">
         <p><strong>Exemple PowerShell : Déploiement d'une règle autorisant le protocole SSH (Port TCP 22)</strong></p>
-        <pre><code>New-NetFirewallRule -Name "Allow_SSH" -DisplayName "Autoriser SSH Inbound" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -Profile Private, Domain</code></pre>
+        <pre><code>New-NetFirewallRule -Name "Allow_SSH" -DisplayName "Autoriser SSH Entrant" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -Profile Private, Domain</code></pre>
     </div>
 
     <h2>4.2 Chiffrement de Partitions (BitLocker)</h2>

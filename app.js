@@ -88,7 +88,7 @@ function renderHome() {
   const totalQCM = MODULES.reduce((a, m) => a + m.qcm.length, 0);
   stats.innerHTML = `
     <div class="stat-card"><span class="stat-num">${MODULES.length}</span><span class="stat-lbl">Modules</span></div>
-    <div class="stat-card"><span class="stat-num">${totalFC}</span><span class="stat-lbl">Flashcards</span></div>
+    <div class="stat-card"><span class="stat-num">${totalFC}</span><span class="stat-lbl">Cartes</span></div>
     <div class="stat-card"><span class="stat-num">${totalQCM}</span><span class="stat-lbl">Questions</span></div>
     <div class="stat-card"><span class="stat-num">${globalProgress()}%</span><span class="stat-lbl">Progression</span></div>`;
   const grid = document.getElementById('module-grid');
@@ -143,7 +143,7 @@ function openModule(moduleId) {
 
   const tabs = [];
   if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',        icon: '📖', cli: false });
-  if (m.flashcards.length)  tabs.push({ id: 'flashcards',  label: 'Flashcards',   icon: '🃏', cli: false });
+  if (m.flashcards.length)  tabs.push({ id: 'flashcards',  label: 'Cartes',       icon: '🃏', cli: false });
   if (m.qcm.length)         tabs.push({ id: 'qcm',         label: 'QCM',          icon: '✅', cli: false });
   if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧', cli: true,  color: '#00e5a0' });
   if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟', cli: true,  color: '#3b82f6' });
@@ -327,7 +327,7 @@ function renderNotes(m, el) {
 // ===== FLASHCARDS =====
 function renderFlashcards(m, el) {
   if (!m.flashcards.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">🃏</span><h3>Flashcards à venir</h3><p>Les flashcards seront ajoutées prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">🃏</span><h3>Cartes à venir</h3><p>Les cartes seront ajoutées prochainement.</p></div>`;
     return;
   }
   state.fc = { cards: shuffle(m.flashcards), idx: 0, flipped: false, session: { easy:0, medium:0, hard:0 } };

@@ -45,7 +45,7 @@ pre code { background:transparent; padding:0; color:#2d3748; font-weight:normal;
 
 <div class="info">
   <strong>Mnémotechnique :</strong> <em>A Presentation Session Transporte Réseau Les Paquets</em> (7→1) ou
-  <em>Please Do Not Throw Sausage Pizza Away</em> (1→7 en anglais)
+  <em>Prenez Du Temps Sur Réseau Les Appli</em> (1→7)
 </div>
 
 <h2>1.1 TCP vs UDP</h2>
@@ -55,12 +55,12 @@ pre code { background:transparent; padding:0; color:#2d3748; font-weight:normal;
     <tr><td>Connexion</td><td>Orienté connexion (3-way handshake)</td><td>Sans connexion</td></tr>
     <tr><td>Fiabilité</td><td>Accusé de réception, retransmission</td><td>Aucune garantie</td></tr>
     <tr><td>Ordre</td><td>Garanti (numéros de séquence)</td><td>Non garanti</td></tr>
-    <tr><td>Vitesse</td><td>Plus lent (overhead)</td><td>Très rapide</td></tr>
+    <tr><td>Vitesse</td><td>Plus lent (surcharge)</td><td>Très rapide</td></tr>
     <tr><td>Usage</td><td>HTTP, SSH, FTP, SMTP</td><td>DNS, DHCP, VoIP, streaming, gaming</td></tr>
   </tbody>
 </table>
 
-<h2>1.2 Three-Way Handshake TCP</h2>
+<h2>1.2 Établissement de connexion TCP (3-way handshake)</h2>
 <pre><code>Client          Serveur
   |-- SYN -------->|   (Je veux me connecter, seq=100)
   |<-- SYN-ACK ----|   (OK, seq=200, ack=101)
@@ -132,7 +132,7 @@ pre code { background:transparent; padding:0; color:#2d3748; font-weight:normal;
     <tr><td>AAAA</td><td>Nom → IPv6</td><td>www → 2001:db8::1</td></tr>
     <tr><td>CNAME</td><td>Alias de nom</td><td>ftp → www.tssr.local</td></tr>
     <tr><td>MX</td><td>Serveur mail</td><td>tssr.local → mail.tssr.local</td></tr>
-    <tr><td>PTR</td><td>IP → Nom (reverse)</td><td>192.168.1.10 → srv.tssr.local</td></tr>
+    <tr><td>PTR</td><td>IP → Nom (inverse)</td><td>192.168.1.10 → srv.tssr.local</td></tr>
     <tr><td>NS</td><td>Serveur de noms</td><td>tssr.local → ns1.tssr.local</td></tr>
   </tbody>
 </table>

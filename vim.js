@@ -9,9 +9,9 @@ const VIM = (() => {
 
   const COLORS = {
     normal:  { bar: '#1a2a1a', label: 'NORMAL',  accent: '#00e5a0' },
-    insert:  { bar: '#1a1a2e', label: 'INSERT',  accent: '#3b82f6' },
-    visual:  { bar: '#2a1a2a', label: 'VISUAL',  accent: '#a78bfa' },
-    command: { bar: '#2a2a0a', label: 'COMMAND', accent: '#f59e0b' },
+    insert:  { bar: '#1a1a2e', label: 'INSERTION', accent: '#3b82f6' },
+    visual:  { bar: '#2a1a2a', label: 'VISUEL',   accent: '#a78bfa' },
+    command: { bar: '#2a2a0a', label: 'COMMANDE',  accent: '#f59e0b' },
   };
 
   function init(filename, content, onSave, onQuit) {

@@ -1043,8 +1043,21 @@ const TP_SCENARIOS = {
       title: 'GameShell — Missions Linux',
       icon: '🎮',
       desc: 'Missions progressives inspirées du vrai GameShell — 30 étapes pour maîtriser le terminal Linux.',
+      autosave: true,
+      levels: [
+        { at: 5,  label: 'Niveau 1 — Découverte',          emoji: '🌱' },
+        { at: 10, label: 'Niveau 2 — Fichiers',             emoji: '📁' },
+        { at: 15, label: 'Niveau 3 — Exploration',          emoji: '🔍' },
+        { at: 20, label: 'Niveau 4 — Permissions',          emoji: '🔐' },
+        { at: 25, label: 'Niveau 5 — Processus & Services', emoji: '⚙️' },
+      ],
       onStart: () => {
-        cliPrint(`<div style="color:var(--accent);font-family:monospace;white-space:pre;line-height:1.5">
+        const saved = store.get('gameshell_progress');
+        if (saved && saved.step > 0 && saved.step < 30) {
+          scenarioState.step = saved.step;
+          cliPrint(`<span style="color:var(--accent)">▶ Reprise depuis la mission ${saved.step + 1}/30 — progression restaurée.</span>\n<span style="color:var(--text2)">Tape <strong>tp quit</strong> pour abandonner · <strong>tp gameshell</strong> + suppr local pour tout recommencer.</span>`);
+        } else {
+          cliPrint(`<div style="color:var(--accent);font-family:monospace;white-space:pre;line-height:1.5">
 ╔══════════════════════════════════════════════════════╗
 ║  🎮  G A M E S H E L L   T S S R                    ║
 ║      30 missions pour maîtriser Linux                ║
@@ -1059,7 +1072,9 @@ const TP_SCENARIOS = {
 <span style="color:var(--text2)">Bienvenue, technicien. Ton terminal est ton arme.
 Suis les missions dans le panneau à droite.
 Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
+        }
       },
+      onEnd: () => { store.set('gameshell_progress', null); },
       steps: [
         // ── NIVEAU 1 — Découverte ──────────────────────────────────────
         {
@@ -1305,6 +1320,19 @@ function tpValidate(cmd) {
 
   // Étape validée
   scenarioState.step++;
+
+  // Autosave
+  if (scenario.autosave) {
+    store.set(scenario.id + '_progress', { step: scenarioState.step });
+  }
+  // Badge de niveau
+  if (scenario.levels) {
+    const badge = scenario.levels.find(l => l.at === scenarioState.step);
+    if (badge) {
+      cliPrint(`<div style="border:1px solid var(--accent);padding:6px 16px;margin:8px 0;border-radius:4px;display:inline-block;color:var(--accent)">${badge.emoji} <strong>${badge.label}</strong> — NIVEAU COMPLÉTÉ !</div>`);
+    }
+  }
+
   if (scenarioState.step >= scenario.steps.length) {
     scenarioState.done = true;
     scenarioCheck = null;

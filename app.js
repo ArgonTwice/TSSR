@@ -147,6 +147,7 @@ function openModule(moduleId) {
   if (m.qcm.length)         tabs.push({ id: 'qcm',         label: 'QCM',          icon: '✅', cli: false });
   if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧', cli: true,  color: '#00e5a0' });
   if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟', cli: true,  color: '#3b82f6' });
+  if (m.id === 'windows' && m.netrunner) tabs.push({ id: 'netrunner', label: 'Jeu PowerShell', icon: '🎮', cli: true, color: '#0ea5e9' });
   if (m.outils) tabs.push({ id: 'outils', label: 'Outils', icon: '🔧', cli: false });
   tabs.push({ id: 'notes', label: 'Notes', icon: '📝', cli: false });
 
@@ -198,8 +199,17 @@ function renderTabContent(tabId) {
   else if (tabId === 'qcm')    renderQCM(m, el);
   else if (tabId === 'linux_cli')   renderCLI('linux', m, el);
   else if (tabId === 'windows_cli') renderCLI('windows', m, el);
+  else if (tabId === 'netrunner')    renderNetrunner(el);
   else if (tabId === 'outils')      renderOutils(m, el);
   else if (tabId === 'notes')       renderNotes(m, el);
+}
+
+// ===== NETRUNNER =====
+function renderNetrunner(el) {
+  el.innerHTML = `
+  <div style="width:100%;height:calc(100vh - 280px);min-height:500px;">
+    <iframe src="netrunner.html" style="width:100%;height:100%;border:none;border-radius:8px;" title="NetRunner — Jeu PowerShell"></iframe>
+  </div>`;
 }
 
 // ===== COURS =====

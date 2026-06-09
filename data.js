@@ -272,5 +272,6 @@ const MODULES = [
     flashcards: [],
     qcm: [],
     windows_cli: true,
+    netrunner: true,
   },
 ];

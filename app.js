@@ -147,7 +147,7 @@ function openModule(moduleId) {
   if (m.qcm.length)         tabs.push({ id: 'qcm',         label: 'QCM',          icon: '✅', cli: false });
   if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧', cli: true,  color: '#00e5a0' });
   if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟', cli: true,  color: '#3b82f6' });
-  if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'GameShell',     icon: '🎮', cli: true, color: '#00e5a0' });
+  if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'Pratique',      icon: '🎮', cli: true, color: '#00e5a0' });
   if (m.id === 'windows' && m.netrunner) tabs.push({ id: 'netrunner',  label: 'Jeu PowerShell', icon: '🎮', cli: true, color: '#0ea5e9' });
   if (m.outils) tabs.push({ id: 'outils', label: 'Outils', icon: '🔧', cli: false });
   tabs.push({ id: 'notes', label: 'Notes', icon: '📝', cli: false });

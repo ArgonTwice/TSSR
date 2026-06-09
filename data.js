@@ -174,19 +174,6 @@ const MODULES = [
           { type: 'code', content: 'apt search nginx                 # rechercher un paquet\napt show nginx                   # informations sur un paquet\ndpkg -l | grep nginx             # vérifier si installé\ndpkg -L nginx                    # lister les fichiers du paquet\napt list --installed             # tous les paquets installés\napt-cache policy nginx           # version installée vs disponible' },
           { type: 'info', content: '<strong>Rappel :</strong> toujours faire <code>sudo apt update</code> avant <code>apt install</code>, sinon APT peut proposer une version obsolète.' },
 
-          // 🎮 GameShell
-          { type: 'h2', content: '🎮 Pratique — GameShell TSSR' },
-          { type: 'p', content: 'Applique chaque section de ce cours via les 30 missions GameShell dans le Terminal Linux. Ta progression est sauvegardée automatiquement.' },
-          { type: 'table', headers: ['Niveau', 'Missions', 'Commandes clés'], rows: [
-            ['🌱 1 — Découverte',          '1 – 5',  '<code>pwd</code> · <code>ls</code> · <code>cd</code> · <code>ls -a</code>'],
-            ['📁 2 — Fichiers',            '6 – 10', '<code>mkdir</code> · <code>touch</code> · <code>echo &gt;</code> · <code>cat</code>'],
-            ['🔍 3 — Exploration',         '11 – 15','<code>grep</code> · <code>wc -l</code> · <code>head</code> · <code>cp</code>'],
-            ['🔐 4 — Permissions',         '16 – 20','<code>ls -l</code> · <code>chmod</code> · <code>ln -s</code>'],
-            ['⚙️ 5 — Processus',          '21 – 25','<code>ps aux</code> · <code>pipe |</code> · <code>systemctl</code> · <code>ip a</code>'],
-            ['🏆 6 — Maître du terminal', '26 – 30','<code>2&gt;/dev/null</code> · <code>find</code> · <code>sort | uniq</code> · pipe multi'],
-          ]},
-          { type: 'info', content: 'Dans le Terminal Linux, tape <code>tp gameshell</code> pour démarrer.' },
-
         ],
       },
     ],

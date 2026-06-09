@@ -682,7 +682,7 @@ function renderCLI(type, m, el) {
 
   cliPrint(isWin
     ? `<span style="color:var(--blue)">Windows PowerShell</span>\nCopyright (C) Microsoft Corporation.\n\nTape <span style="color:var(--blue)">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n`
-    : `<span style="color:var(--accent)">Bienvenue sur ${cliState.host}</span> — Debian GNU/Linux\nConnecté : <span style="color:var(--accent)">${cliState.user}</span>\nTape <span style="color:var(--accent)">help</span> · <span style="color:var(--accent)">tp</span> pour les TP guidés\n`
+    : `<span style="color:var(--accent)">Bienvenue sur ${cliState.host}</span> — Debian GNU/Linux\nConnecté : <span style="color:var(--accent)">${cliState.user}</span>\nTape <span style="color:var(--accent)">help</span> · <span style="color:var(--accent)">tp</span> pour les TP guidés\n🎮 <span style="color:var(--accent)">GameShell TSSR</span> — 30 missions pour maîtriser Linux. Tape <strong>tp gameshell</strong> pour commencer.\n`
   );
 
   const input = document.getElementById('cli-input');
@@ -1038,6 +1038,217 @@ const TP_SCENARIOS = {
         { instr: 'Conflit résolu. Confirme la stabilité réseau.', hint: 'ping -c 4 192.168.1.1', check: c => /^ping\b/i.test(c.trim()) },
       ],
     },
+    {
+      id: 'gameshell',
+      title: 'GameShell — Missions Linux',
+      icon: '🎮',
+      desc: 'Missions progressives inspirées du vrai GameShell — 30 étapes pour maîtriser le terminal Linux.',
+      onStart: () => {
+        cliPrint(`<div style="color:var(--accent);font-family:monospace;white-space:pre;line-height:1.5">
+╔══════════════════════════════════════════════════════╗
+║  🎮  G A M E S H E L L   T S S R                    ║
+║      30 missions pour maîtriser Linux                ║
+╠══════════════════════════════════════════════════════╣
+║  Niv.1 Découverte    · missions  1-5                 ║
+║  Niv.2 Fichiers      · missions  6-10                ║
+║  Niv.3 Exploration   · missions 11-15                ║
+║  Niv.4 Permissions   · missions 16-20                ║
+║  Niv.5 Processus     · missions 21-25                ║
+║  Niv.6 Maître        · missions 26-30                ║
+╚══════════════════════════════════════════════════════╝</div>
+<span style="color:var(--text2)">Bienvenue, technicien. Ton terminal est ton arme.
+Suis les missions dans le panneau à droite.
+Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
+      },
+      steps: [
+        // ── NIVEAU 1 — Découverte ──────────────────────────────────────
+        {
+          instr: '⭐ Niv.1 Mission 1/30 — Affiche ton répertoire courant.',
+          hint: 'pwd',
+          check: c => /^pwd$/i.test(c.trim()),
+          successMsg: 'pwd = Print Working Directory. Affiche le chemin absolu où tu te trouves.',
+        },
+        {
+          instr: 'Mission 2/30 — Liste le contenu du répertoire courant.',
+          hint: 'ls',
+          check: c => /^ls(\s|$)/i.test(c.trim()),
+          successMsg: 'ls liste les fichiers et dossiers. -l = détails, -a = fichiers cachés, -h = tailles lisibles.',
+        },
+        {
+          instr: 'Mission 3/30 — Déplace-toi dans /etc.',
+          hint: 'cd /etc',
+          check: c => /^cd\s+\/etc(\/|$|\s|)$/.test(c.trim()),
+          successMsg: '/etc contient les fichiers de configuration système. Le répertoire le plus important pour un admin.',
+        },
+        {
+          instr: 'Mission 4/30 — Reviens dans ton home avec le raccourci ~.',
+          hint: 'cd ~',
+          check: c => /^cd\s*(~|\/home\/)/.test(c.trim()),
+          successMsg: '~ est un alias vers /home/tssr. cd sans argument fait la même chose.',
+        },
+        {
+          instr: 'Mission 5/30 — Liste TOUS les fichiers, y compris les cachés (commençant par .).',
+          hint: 'ls -a',
+          check: c => /^ls\b.*-[a-zA-Z]*a/.test(c.trim()),
+          successMsg: 'Les fichiers cachés commencent par un point : .bashrc, .profile, .ssh — invisibles avec ls normal.',
+        },
+        // ── NIVEAU 2 — Fichiers ───────────────────────────────────────
+        {
+          instr: '⭐ Niv.2 Mission 6/30 — Crée un dossier nommé "mission".',
+          hint: 'mkdir mission',
+          check: c => /^mkdir\s+mission$/.test(c.trim()),
+          successMsg: 'mkdir = Make Directory. mkdir -p a/b/c crée toute l\'arborescence d\'un coup.',
+        },
+        {
+          instr: 'Mission 7/30 — Entre dans le dossier "mission".',
+          hint: 'cd mission',
+          check: c => /^cd\s+mission$/.test(c.trim()),
+          successMsg: 'Tu es dans /home/tssr/mission. Tape pwd pour confirmer ta position.',
+        },
+        {
+          instr: 'Mission 8/30 — Crée un fichier vide nommé "objectif.txt".',
+          hint: 'touch objectif.txt',
+          check: c => /^touch\s+objectif\.txt$/.test(c.trim()),
+          successMsg: 'touch crée un fichier vide ou met à jour la date d\'un fichier existant.',
+        },
+        {
+          instr: 'Mission 9/30 — Écris "GameShell" dans objectif.txt avec echo et la redirection >.',
+          hint: 'echo "GameShell" > objectif.txt',
+          check: c => /^echo\b/.test(c.trim()) && c.includes('>') && /objectif\.txt/.test(c),
+          successMsg: '> redirige stdout vers un fichier (écrase le contenu). >> ajoute sans écraser.',
+        },
+        {
+          instr: 'Mission 10/30 — Affiche le contenu de objectif.txt avec cat.',
+          hint: 'cat objectif.txt',
+          check: c => /^cat\s+objectif\.txt/.test(c.trim()),
+          successMsg: 'cat = concatenate. Pour les gros fichiers, préfère less (pagination avec q pour quitter).',
+        },
+        // ── NIVEAU 3 — Exploration ────────────────────────────────────
+        {
+          instr: '⭐ Niv.3 Mission 11/30 — Affiche le nom de cette machine via /etc/hostname.',
+          hint: 'cat /etc/hostname',
+          check: c => /^cat\b/.test(c.trim()) && /hostname/.test(c),
+          successMsg: '/etc/hostname contient le nom court de la machine. Modifiable avec hostnamectl.',
+        },
+        {
+          instr: 'Mission 12/30 — Cherche "tssr" dans /etc/passwd avec grep.',
+          hint: 'grep "tssr" /etc/passwd',
+          check: c => /^grep\b/.test(c.trim()) && /\/etc\/passwd/.test(c),
+          successMsg: '/etc/passwd : login:x:UID:GID:gecos:home:shell. Pas de mot de passe en clair — ils sont dans /etc/shadow.',
+        },
+        {
+          instr: 'Mission 13/30 — Compte les lignes de /etc/passwd avec wc -l.',
+          hint: 'wc -l /etc/passwd',
+          check: c => /^wc\b/.test(c.trim()) && c.includes('/etc/passwd'),
+          successMsg: 'wc = word count. -l lignes, -w mots, -c octets. Chaque ligne = un compte utilisateur.',
+        },
+        {
+          instr: 'Mission 14/30 — Affiche les 3 premières lignes de /etc/passwd avec head.',
+          hint: 'head -3 /etc/passwd',
+          check: c => /^head\b/.test(c.trim()) && c.includes('/etc/passwd'),
+          successMsg: 'head affiche le début d\'un fichier. tail fait l\'inverse. tail -f suit un fichier en temps réel.',
+        },
+        {
+          instr: 'Mission 15/30 — Copie objectif.txt en sauvegarde.txt avec cp.',
+          hint: 'cp objectif.txt sauvegarde.txt',
+          check: c => /^cp\s+objectif\.txt\s+sauvegarde\.txt/.test(c.trim()),
+          successMsg: 'cp copie un fichier. cp -r pour les répertoires. L\'original est conservé.',
+        },
+        // ── NIVEAU 4 — Permissions ────────────────────────────────────
+        {
+          instr: '⭐ Niv.4 Mission 16/30 — Affiche les permissions des fichiers avec ls -l.',
+          hint: 'ls -l',
+          check: c => /^ls\b.*-[a-zA-Z]*l/.test(c.trim()),
+          successMsg: 'Format : -rw-r--r-- 1 user group size date nom. Les 3 triplets rwx = propriétaire, groupe, autres.',
+        },
+        {
+          instr: 'Mission 17/30 — Rends objectif.txt exécutable avec chmod +x.',
+          hint: 'chmod +x objectif.txt',
+          check: c => /^chmod\b/.test(c.trim()) && /\+x/.test(c) && /objectif\.txt/.test(c),
+          successMsg: '+x ajoute l\'exécution pour tous. u+x = propriétaire seulement. r=4, w=2, x=1.',
+        },
+        {
+          instr: 'Mission 18/30 — Mets les permissions 644 (rw-r--r--) sur sauvegarde.txt.',
+          hint: 'chmod 644 sauvegarde.txt',
+          check: c => /^chmod\s+644\s+sauvegarde\.txt/.test(c.trim()),
+          successMsg: '644 = rw-r--r-- : propriétaire lit+écrit, groupe et autres lisent. Standard pour un fichier de config.',
+        },
+        {
+          instr: 'Mission 19/30 — Affiche permissions ET fichiers cachés avec ls -la.',
+          hint: 'ls -la',
+          check: c => /^ls\b/.test(c.trim()) && /-[a-zA-Z]*l/.test(c) && /-[a-zA-Z]*a/.test(c) || /^ls\s+-(la|al)$/.test(c.trim()),
+          successMsg: '-l + -a ensemble : tout voir. Les fichiers . (répertoire courant) et .. (parent) sont toujours là.',
+        },
+        {
+          instr: 'Mission 20/30 — Crée un lien symbolique "lien.txt" vers objectif.txt avec ln -s.',
+          hint: 'ln -s objectif.txt lien.txt',
+          check: c => /^ln\s+-s\b/.test(c.trim()) && /objectif\.txt/.test(c),
+          successMsg: 'Un lien symbolique est un raccourci. ls -l affiche -> objectif.txt. Supprimer le lien ne touche pas la cible.',
+        },
+        // ── NIVEAU 5 — Processus & Services ──────────────────────────
+        {
+          instr: '⭐ Niv.5 Mission 21/30 — Affiche tous les processus en cours avec ps aux.',
+          hint: 'ps aux',
+          check: c => /^ps\b/.test(c.trim()) && /aux/.test(c),
+          successMsg: 'a = tous utilisateurs, u = format lisible, x = inclure sans terminal. PID = identifiant unique du processus.',
+        },
+        {
+          instr: 'Mission 22/30 — Filtre les processus bash avec un pipe : ps aux | grep bash.',
+          hint: 'ps aux | grep bash',
+          check: c => /^ps\b/.test(c.trim()) && /\|\s*grep\b/.test(c) && /bash/.test(c),
+          successMsg: 'Le pipe | enchaîne les commandes : stdout de gauche → stdin de droite. Fondement du shell Unix.',
+        },
+        {
+          instr: 'Mission 23/30 — Vérifie l\'état du service SSH avec systemctl status.',
+          hint: 'systemctl status ssh',
+          check: c => /^(sudo\s+)?systemctl\s+status\s+(ssh|sshd)/i.test(c.trim()),
+          successMsg: 'systemd gère les services. "Active: running" = opérationnel. "enabled" = démarrage auto au boot.',
+        },
+        {
+          instr: 'Mission 24/30 — Affiche les ports ouverts avec netstat ou ss.',
+          hint: 'netstat -tlnp',
+          check: c => /^netstat\b/.test(c.trim()) || /^ss\b/.test(c.trim()),
+          successMsg: '-t TCP, -l listening, -n numérique, -p processus. Port 22 = SSH, 80 = HTTP, 443 = HTTPS.',
+        },
+        {
+          instr: 'Mission 25/30 — Affiche la configuration réseau avec ip a.',
+          hint: 'ip a',
+          check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()),
+          successMsg: 'ip addr remplace l\'ancien ifconfig. lo = loopback 127.0.0.1, eth0 = carte réseau principale.',
+        },
+        // ── NIVEAU 6 — Maître du terminal ────────────────────────────
+        {
+          instr: '⭐ Niv.6 Mission 26/30 — Lance "ls /root 2>/dev/null" pour supprimer silencieusement les erreurs.',
+          hint: 'ls /root 2>/dev/null',
+          check: c => /2>\s*\/dev\/null/.test(c),
+          successMsg: '2>/dev/null envoie stderr dans le néant. Utile dans les scripts pour ignorer les erreurs non critiques.',
+        },
+        {
+          instr: 'Mission 27/30 — Trouve tous les fichiers .txt avec find, en supprimant les erreurs de permission.',
+          hint: 'find / -name "*.txt" 2>/dev/null',
+          check: c => /^find\b/.test(c.trim()) && /-name\b/.test(c) && /\.txt/.test(c),
+          successMsg: 'find parcourt l\'arborescence récursivement. -type f fichiers, -mtime +7 modifiés >7 jours, -size +1M >1 Mo.',
+        },
+        {
+          instr: 'Mission 28/30 — Trie le contenu de /etc/passwd alphabétiquement avec sort.',
+          hint: 'sort /etc/passwd',
+          check: c => /^sort\b/.test(c.trim()),
+          successMsg: 'sort trie les lignes. -r = ordre inverse, -n = numérique, -t: -k3 = tri sur le 3ème champ séparé par :.',
+        },
+        {
+          instr: 'Mission 29/30 — Combine sort et uniq pour trier et supprimer les doublons.',
+          hint: 'sort /etc/passwd | uniq',
+          check: c => /^sort\b/.test(c.trim()) && /\|\s*uniq\b/.test(c),
+          successMsg: 'uniq supprime les lignes consécutives identiques — toujours précédé de sort. uniq -c compte les occurrences.',
+        },
+        {
+          instr: 'Mission 30/30 🏆 — Pipe ultime : extrait les users bash → cat /etc/passwd | grep bash | cut -d: -f1 | sort',
+          hint: 'cat /etc/passwd | grep bash | cut -d: -f1 | sort',
+          check: c => /grep\b/.test(c) && /cut\b/.test(c) && /sort\b/.test(c) && (c.match(/\|/g)||[]).length >= 2,
+          successMsg: '🎮 MISSION ACCOMPLIE ! grep filtre, cut extrait une colonne, sort trie. Ce pipe est utilisé quotidiennement par les admins sys.',
+        },
+      ],
+    },
   ],
 };
 
@@ -1073,6 +1284,16 @@ function handleTPCommand(args, type) {
     out('TP terminé.');
     return;
   }
+  // raccourci : tp <id> = tp start <id>
+  const directSc = scenarios.find(s => s.id.toLowerCase() === sub);
+  if (directSc) {
+    scenarioState = { scenario: directSc, step: 0, done: false };
+    scenarioCheck = (cmd) => tpValidate(cmd);
+    if (directSc.onStart) directSc.onStart();
+    renderScenarioPanel();
+    out(`\n<span style="color:var(--${type==='windows'?'blue':'accent'})">▶ TP lancé : ${directSc.title}</span>\nObjectif : ${directSc.desc}\n\n→ Lis le panneau TP à droite. Complète chaque étape dans l'ordre.\n`);
+    return;
+  }
   err(`tp : argument invalide. Options : list | start <id> | quit`);
 }
 
@@ -1093,7 +1314,10 @@ function tpValidate(cmd) {
   } else {
     renderScenarioPanel();
     const next = scenario.steps[scenarioState.step];
-    cliPrint(`<div class="cli-explain">✅ Étape ${step + 1}/${scenario.steps.length} validée ! → Étape ${scenarioState.step + 1} : ${escHtml(next.instr)}</div>`);
+    const explainHtml = current.successMsg
+      ? `<div style="color:var(--text2);margin:4px 0 6px;font-size:13px">💡 ${current.successMsg}</div>`
+      : '';
+    cliPrint(`<div class="cli-explain">✅ Étape ${step + 1}/${scenario.steps.length} validée !${explainHtml ? '\n' + explainHtml : ''}\n→ Étape ${scenarioState.step + 1} : ${escHtml(next.instr)}</div>`);
   }
 }
 

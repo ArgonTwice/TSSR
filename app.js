@@ -217,7 +217,15 @@ function renderGameshell(el) {
 // ===== NETRUNNER =====
 function renderNetrunner(el) {
   el.innerHTML = `
-  <div style="width:100%;height:calc(100vh - 280px);min-height:500px;">
+  <div style="padding:0 0 16px">
+    <div class="info-box" style="margin-bottom:16px">Jeu d'entraînement PowerShell/CMD — 3 missions progressives. Tape <strong>help</strong> dans le terminal pour les indices.</div>
+    <table><thead><tr><th>Mission</th><th>Objectif</th><th>Commandes clés</th></tr></thead><tbody>
+      <tr><td>1 — Infiltration Initiale</td><td>Tuer un processus et récupérer un flag</td><td><code>taskkill</code> · <code>dir</code> · <code>type</code></td></tr>
+      <tr><td>2 — Extraction de Données</td><td>Localiser des credentials cachés</td><td><code>tasklist</code> · <code>taskkill</code> · <code>dir</code> · <code>type</code></td></tr>
+      <tr><td>3 — Nettoyage des Traces</td><td>Effacer les logs avant détection IDS</td><td><code>wevtutil el</code> · <code>wevtutil cl</code> · <code>wevtutil qe</code></td></tr>
+    </tbody></table>
+  </div>
+  <div style="width:100%;height:calc(100vh - 420px);min-height:460px;">
     <iframe src="netrunner.html" style="width:100%;height:100%;border:none;border-radius:8px;" title="NetRunner — Jeu PowerShell"></iframe>
   </div>`;
 }

@@ -243,19 +243,6 @@ const MODULES = [
           ]},
         ],
       },
-      {
-        id: 'netrunner',
-        titre: 'NetRunner — Missions Windows',
-        sections: [
-          { type: 'info', content: 'Jeu d\'entraînement PowerShell/CMD. Ouvre <a href="netrunner.html" target="_blank" style="color:inherit;font-weight:bold">NetRunner</a> pour jouer.' },
-          { type: 'table', headers: ['Mission', 'Objectif', 'Commandes clés'], rows: [
-            ['1 — Infiltration Initiale', 'Tuer un processus et récupérer un flag',    '<code>taskkill</code> · <code>dir</code> · <code>type</code>'],
-            ['2 — Extraction de Données', 'Localiser des credentials cachés',          '<code>tasklist</code> · <code>taskkill</code> · <code>dir</code> · <code>type</code>'],
-            ['3 — Nettoyage des Traces',  'Effacer les logs avant détection IDS',      '<code>wevtutil el</code> · <code>wevtutil cl</code> · <code>wevtutil qe</code>'],
-          ]},
-          { type: 'p', content: 'Tape <code>help</code> dans le terminal du jeu pour obtenir des indices sur la commande à utiliser.' },
-        ],
-      },
     ],
     flashcards: [],
     qcm: [],

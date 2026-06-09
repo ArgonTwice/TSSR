@@ -193,6 +193,7 @@ const MODULES = [
     flashcards: [],
     qcm: [],
     linux_cli: true,
+    gameshell: true,
   },
   {
     id: 'windows',

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameShell — TSSR</title>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--g:#00ff88;--gd:#00994d;--gdk:#001a0d;--r:#ff4466;--b:#3b82f6;--y:#ffaa00}
+    html,body{height:100%;background:#0a0f0a;overflow:hidden}
+    body::after{
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+      background:repeating-linear-gradient(0deg,transparent 0,transparent 1px,rgba(0,0,0,.04) 1px,rgba(0,0,0,.04) 2px);
+    }
+    #app{height:100vh;display:flex;flex-direction:column;color:var(--g);font-family:'Courier New',Courier,monospace;font-size:14px}
+    /* Header */
+    #hdr{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:5px 16px;border-bottom:1px solid var(--gdk);
+      background:rgba(0,255,136,.03);flex-shrink:0;gap:8px;min-height:38px;
+    }
+    #hdr-l{font-size:12px;color:var(--gd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #hdr-l strong{color:var(--g)}
+    #hdr-m{font-size:11px;color:var(--gd);flex:1;text-align:center;letter-spacing:1px}
+    #hdr-r{font-size:12px;color:var(--gd);white-space:nowrap}
+    /* Layout */
+    #main{flex:1;display:flex;overflow:hidden}
+    /* Terminal */
+    #term-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+    #term{flex:1;overflow-y:auto;padding:10px 16px 6px;scroll-behavior:smooth}
+    #term::-webkit-scrollbar{width:3px}
+    #term::-webkit-scrollbar-track{background:#0a0f0a}
+    #term::-webkit-scrollbar-thumb{background:var(--gdk);border-radius:2px}
+    .ln{line-height:1.6;white-space:pre-wrap;word-break:break-word;min-height:1em}
+    .ln-i  {color:var(--g)}
+    .ln-ok {color:var(--g)}
+    .ln-err{color:#ff5555}
+    .ln-sys{color:var(--b)}
+    .ln-tip{color:var(--y)}
+    .ln-ctx{color:#777;font-style:italic}
+    .ln-sep{color:var(--gdk)}
+    /* Input */
+    #inp-row{
+      display:flex;align-items:center;padding:7px 16px;
+      border-top:1px solid var(--gdk);background:#0a0f0a;flex-shrink:0;
+    }
+    #prompt{color:var(--g);margin-right:4px;user-select:none;white-space:nowrap}
+    #cmd{flex:1;background:transparent;border:none;outline:none;color:var(--g);font:inherit;caret-color:var(--g)}
+    #cmd::placeholder{color:var(--gdk)}
+    /* Side panel */
+    #panel{
+      width:260px;border-left:1px solid var(--gdk);overflow-y:auto;flex-shrink:0;
+      background:rgba(0,255,136,.02);display:flex;flex-direction:column;
+    }
+    #panel::-webkit-scrollbar{width:3px}
+    #panel::-webkit-scrollbar-thumb{background:var(--gdk)}
+    .pnl-hdr{
+      padding:10px 14px;border-bottom:1px solid var(--gdk);
+      font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gd);flex-shrink:0;
+    }
+    .pnl-progress{height:3px;background:var(--gdk);flex-shrink:0}
+    .pnl-progress-fill{height:100%;background:var(--g);transition:width .4s}
+    .pnl-missions{padding:8px 0;flex:1}
+    .pm{
+      display:flex;align-items:flex-start;gap:8px;
+      padding:5px 14px;font-size:11px;line-height:1.4;
+      border-left:2px solid transparent;
+    }
+    .pm.done {color:var(--gd);border-left-color:var(--gd)}
+    .pm.current{color:var(--g);border-left-color:var(--g);background:rgba(0,255,136,.06)}
+    .pm.todo {color:#333}
+    .pm-num{min-width:22px;font-weight:700}
+    .pm-txt{flex:1}
+    .pm-check{min-width:14px;text-align:center}
+    .pnl-level{
+      padding:4px 14px;font-size:10px;font-weight:700;letter-spacing:1px;
+      color:var(--y);border-top:1px solid var(--gdk);margin-top:4px;
+    }
+    /* Overlays */
+    .ov{
+      position:fixed;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      z-index:500;padding:32px;text-align:center;
+    }
+    .h{display:none!important}
+    #ov-win{background:rgba(0,0,0,.93);color:var(--g)}
+    .ov-ttl{font-size:clamp(18px,4vw,30px);letter-spacing:6px;font-weight:bold;margin-bottom:10px;text-shadow:0 0 20px currentColor}
+    .ov-sub{font-size:12px;color:#555;letter-spacing:1px;margin-bottom:14px}
+    .ov-flags{font-size:13px;line-height:2.2;letter-spacing:2px;text-shadow:0 0 8px var(--g);margin:10px 0}
+    .ob{
+      display:inline-block;margin:14px 6px 0;padding:9px 26px;
+      background:transparent;border:1px solid currentColor;color:inherit;
+      font:inherit;font-size:13px;cursor:pointer;letter-spacing:3px;
+      transition:background .15s,box-shadow .15s;
+    }
+    .ob:hover{background:rgba(255,255,255,.08);box-shadow:0 0 10px currentColor}
+    /* Boot */
+    #boot{
+      position:fixed;inset:0;background:#0a0f0a;color:var(--g);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      z-index:1000;font-family:'Courier New',monospace;
+    }
+    #boot-art{font-size:clamp(4px,.9vw,10px);line-height:1.2;text-shadow:0 0 8px var(--g);margin-bottom:22px;white-space:pre}
+    #boot-msg{font-size:13px;letter-spacing:2px;color:var(--gd);min-height:20px}
+    /* Badge */
+    .badge{
+      display:inline-block;border:1px solid var(--g);padding:4px 16px;
+      margin:8px 0;border-radius:4px;color:var(--g);letter-spacing:1px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Boot -->
+<div id="boot">
+  <div id="boot-art">
+  ██████╗  █████╗ ███╗   ███╗███████╗███████╗██╗  ██╗███████╗██╗     ██╗
+ ██╔════╝ ██╔══██╗████╗ ████║██╔════╝██╔════╝██║  ██║██╔════╝██║     ██║
+ ██║  ███╗███████║██╔████╔██║█████╗  ███████╗███████║█████╗  ██║     ██║
+ ██║   ██║██╔══██║██║╚██╔╝██║██╔══╝  ╚════██║██╔══██║██╔══╝  ██║     ██║
+ ╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗███████║██║  ██║███████╗███████╗███████╗
+  ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝</div>
+  <div id="boot-msg">&nbsp;</div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div id="hdr">
+    <div id="hdr-l"><strong id="hm">MISSION 1/30</strong> — <span id="hn">…</span></div>
+    <div id="hdr-m">🐧 GameShell TSSR — Terminal Linux</div>
+    <div id="hdr-r" id="hp">0 / 30</div>
+  </div>
+  <div id="main">
+    <div id="term-wrap">
+      <div id="term"><div id="out"></div></div>
+      <div id="inp-row">
+        <span id="prompt">tssr@debian-srv:~$&nbsp;</span>
+        <input id="cmd" type="text" autocomplete="off" autocorrect="off"
+               autocapitalize="off" spellcheck="false" placeholder="entrez une commande...">
+      </div>
+    </div>
+    <div id="panel">
+      <div class="pnl-hdr">MISSIONS</div>
+      <div class="pnl-progress"><div class="pnl-progress-fill" id="pbar" style="width:0%"></div></div>
+      <div class="pnl-missions" id="pmlist"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Victory -->
+<div id="ov-win" class="ov h">
+  <div class="ov-ttl">🏆 MAÎTRE DU TERMINAL</div>
+  <div class="ov-sub">30 missions accomplies — Tu maîtrises Linux.</div>
+  <div class="ov-flags">
+    <div>🌱 Niveau 1 — Découverte</div>
+    <div>📁 Niveau 2 — Fichiers</div>
+    <div>🔍 Niveau 3 — Exploration</div>
+    <div>🔐 Niveau 4 — Permissions</div>
+    <div>⚙️ Niveau 5 — Processus</div>
+    <div>🏆 Niveau 6 — Maître du terminal</div>
+  </div>
+  <button class="ob" onclick="restart()">[ RECOMMENCER ]</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// MISSIONS
+// ═══════════════════════════════════════════════
+const LEVELS = [
+  { at: 5,  emoji: '🌱', label: 'Niv.1 — Découverte' },
+  { at: 10, emoji: '📁', label: 'Niv.2 — Fichiers' },
+  { at: 15, emoji: '🔍', label: 'Niv.3 — Exploration' },
+  { at: 20, emoji: '🔐', label: 'Niv.4 — Permissions' },
+  { at: 25, emoji: '⚙️', label: 'Niv.5 — Processus' },
+  { at: 30, emoji: '🏆', label: 'Niv.6 — Maître' },
+];
+
+const MISSIONS = [
+  // Niveau 1
+  { instr:'⭐ Mission 1/30 — Affiche ton répertoire courant.',                         hint:'pwd',                                         check:c=>/^pwd$/i.test(c.trim()),                                                                    tip:'pwd = Print Working Directory. Affiche le chemin absolu où tu te trouves.' },
+  { instr:'Mission 2/30 — Liste le contenu du répertoire courant.',                    hint:'ls',                                          check:c=>/^ls(\s|$)/i.test(c.trim()),                                                               tip:'ls liste les fichiers et dossiers. -l = détails, -a = fichiers cachés.' },
+  { instr:'Mission 3/30 — Déplace-toi dans /etc.',                                    hint:'cd /etc',                                     check:c=>/^cd\s+\/etc(\/|$|\s|)$/.test(c.trim()),                                                   tip:'/etc contient les fichiers de configuration système.' },
+  { instr:'Mission 4/30 — Reviens dans ton home avec le raccourci ~.',                 hint:'cd ~',                                        check:c=>/^cd\s*(~|\/home\/)/.test(c.trim()),                                                       tip:'~ est un alias vers /home/tssr. cd sans argument fait la même chose.' },
+  { instr:'Mission 5/30 — Liste TOUS les fichiers, y compris les cachés (.).',         hint:'ls -a',                                       check:c=>/^ls\b.*-[a-zA-Z]*a/.test(c.trim()),                                                       tip:'Les fichiers cachés commencent par un point : .bashrc, .profile…' },
+  // Niveau 2
+  { instr:'⭐ Mission 6/30 — Crée un dossier nommé "mission".',                        hint:'mkdir mission',                               check:c=>/^mkdir\s+mission$/.test(c.trim()),                                                         tip:'mkdir = Make Directory. mkdir -p a/b/c crée toute l\'arborescence.' },
+  { instr:'Mission 7/30 — Entre dans le dossier "mission".',                           hint:'cd mission',                                  check:c=>/^cd\s+mission$/.test(c.trim()),                                                            tip:'Tu es maintenant dans /home/tssr/mission.' },
+  { instr:'Mission 8/30 — Crée un fichier vide nommé "objectif.txt".',                 hint:'touch objectif.txt',                          check:c=>/^touch\s+objectif\.txt$/.test(c.trim()),                                                   tip:'touch crée un fichier vide ou met à jour sa date de modification.' },
+  { instr:'Mission 9/30 — Écris "GameShell" dans objectif.txt avec echo et >.',        hint:'echo "GameShell" > objectif.txt',             check:c=>/^echo\b/.test(c.trim())&&c.includes('>')&&/objectif\.txt/.test(c),                        tip:'> redirige stdout vers un fichier (écrase). >> ajoute sans écraser.' },
+  { instr:'Mission 10/30 — Affiche le contenu de objectif.txt avec cat.',              hint:'cat objectif.txt',                            check:c=>/^cat\s+objectif\.txt/.test(c.trim()),                                                      tip:'cat = concatenate. Pour les gros fichiers, préfère less.' },
+  // Niveau 3
+  { instr:'⭐ Mission 11/30 — Affiche le nom de cette machine via /etc/hostname.',     hint:'cat /etc/hostname',                           check:c=>/^cat\b/.test(c.trim())&&/hostname/.test(c),                                               tip:'/etc/hostname contient le nom court de la machine.' },
+  { instr:'Mission 12/30 — Cherche "tssr" dans /etc/passwd avec grep.',               hint:'grep "tssr" /etc/passwd',                     check:c=>/^grep\b/.test(c.trim())&&/\/etc\/passwd/.test(c),                                         tip:'/etc/passwd : login:x:UID:GID:gecos:home:shell.' },
+  { instr:'Mission 13/30 — Compte les lignes de /etc/passwd avec wc -l.',             hint:'wc -l /etc/passwd',                           check:c=>/^wc\b/.test(c.trim())&&c.includes('/etc/passwd'),                                         tip:'wc = word count. -l lignes, -w mots, -c octets.' },
+  { instr:'Mission 14/30 — Affiche les 3 premières lignes de /etc/passwd avec head.', hint:'head -3 /etc/passwd',                         check:c=>/^head\b/.test(c.trim())&&c.includes('/etc/passwd'),                                       tip:'head affiche le début. tail fait l\'inverse. tail -f suit en temps réel.' },
+  { instr:'Mission 15/30 — Copie objectif.txt en sauvegarde.txt avec cp.',            hint:'cp objectif.txt sauvegarde.txt',              check:c=>/^cp\s+objectif\.txt\s+sauvegarde\.txt/.test(c.trim()),                                     tip:'cp copie un fichier. cp -r pour les répertoires.' },
+  // Niveau 4
+  { instr:'⭐ Mission 16/30 — Affiche les permissions des fichiers avec ls -l.',      hint:'ls -l',                                       check:c=>/^ls\b.*-[a-zA-Z]*l/.test(c.trim()),                                                       tip:'Format : -rw-r--r-- 1 user group size date nom.' },
+  { instr:'Mission 17/30 — Rends objectif.txt exécutable avec chmod +x.',             hint:'chmod +x objectif.txt',                       check:c=>/^chmod\b/.test(c.trim())&&/\+x/.test(c)&&/objectif\.txt/.test(c),                         tip:'+x ajoute l\'exécution pour tous. r=4, w=2, x=1.' },
+  { instr:'Mission 18/30 — Mets les permissions 644 sur sauvegarde.txt.',             hint:'chmod 644 sauvegarde.txt',                    check:c=>/^chmod\s+644\s+sauvegarde\.txt/.test(c.trim()),                                            tip:'644 = rw-r--r-- : propriétaire lit+écrit, groupe et autres lisent.' },
+  { instr:'Mission 19/30 — Affiche permissions ET fichiers cachés avec ls -la.',       hint:'ls -la',                                      check:c=>/^ls\b/.test(c.trim())&&(/-[a-zA-Z]*l/.test(c)&&/-[a-zA-Z]*a/.test(c)||/^ls\s+-(la|al)$/.test(c.trim())), tip:'-l + -a : tout voir, y compris . et ..' },
+  { instr:'Mission 20/30 — Crée un lien symbolique "lien.txt" vers objectif.txt.',    hint:'ln -s objectif.txt lien.txt',                 check:c=>/^ln\s+-s\b/.test(c.trim())&&/objectif\.txt/.test(c),                                      tip:'Un lien symbolique est un raccourci. Supprimer le lien ne touche pas la cible.' },
+  // Niveau 5
+  { instr:'⭐ Mission 21/30 — Affiche tous les processus avec ps aux.',               hint:'ps aux',                                      check:c=>/^ps\b/.test(c.trim())&&/aux/.test(c),                                                     tip:'a = tous users, u = format lisible, x = sans terminal. PID = identifiant.' },
+  { instr:'Mission 22/30 — Filtre les processus bash : ps aux | grep bash.',          hint:'ps aux | grep bash',                          check:c=>/^ps\b/.test(c.trim())&&/\|\s*grep\b/.test(c)&&/bash/.test(c),                             tip:'Le pipe | enchaîne : stdout de gauche → stdin de droite.' },
+  { instr:'Mission 23/30 — Vérifie l\'état du service SSH avec systemctl status.',    hint:'systemctl status ssh',                        check:c=>/^(sudo\s+)?systemctl\s+status\s+(ssh|sshd)/i.test(c.trim()),                              tip:'systemd gère les services. "Active: running" = opérationnel.' },
+  { instr:'Mission 24/30 — Affiche les ports ouverts avec netstat ou ss.',            hint:'netstat -tlnp',                               check:c=>/^netstat\b/.test(c.trim())||/^ss\b/.test(c.trim()),                                       tip:'-t TCP, -l listening, -n numérique. Port 22 = SSH, 80 = HTTP, 443 = HTTPS.' },
+  { instr:'Mission 25/30 — Affiche la configuration réseau avec ip a.',               hint:'ip a',                                        check:c=>/^ip\s+(a|addr)\b/i.test(c.trim())||/^ifconfig\b/i.test(c.trim()),                          tip:'ip addr remplace ifconfig. lo = loopback, eth0 = carte réseau.' },
+  // Niveau 6
+  { instr:'⭐ Mission 26/30 — Lance "ls /root 2>/dev/null" pour ignorer les erreurs.',hint:'ls /root 2>/dev/null',                        check:c=>/2>\s*\/dev\/null/.test(c),                                                                tip:'2>/dev/null envoie stderr dans le néant. Utile dans les scripts.' },
+  { instr:'Mission 27/30 — Trouve tous les fichiers .txt avec find.',                 hint:'find / -name "*.txt" 2>/dev/null',            check:c=>/^find\b/.test(c.trim())&&/-name\b/.test(c)&&/\.txt/.test(c),                              tip:'find parcourt récursivement. -type f fichiers, -mtime +7 modifiés >7j.' },
+  { instr:'Mission 28/30 — Trie /etc/passwd alphabétiquement avec sort.',             hint:'sort /etc/passwd',                            check:c=>/^sort\b/.test(c.trim()),                                                                   tip:'sort trie les lignes. -r = inverse, -n = numérique, -t: -k3 = tri sur champ 3.' },
+  { instr:'Mission 29/30 — Combine sort et uniq pour supprimer les doublons.',        hint:'sort /etc/passwd | uniq',                     check:c=>/^sort\b/.test(c.trim())&&/\|\s*uniq\b/.test(c),                                           tip:'uniq supprime les lignes consécutives identiques — toujours après sort.' },
+  { instr:'Mission 30/30 🏆 — Pipe ultime : cat /etc/passwd | grep bash | cut -d: -f1 | sort', hint:'cat /etc/passwd | grep bash | cut -d: -f1 | sort', check:c=>/grep\b/.test(c)&&/cut\b/.test(c)&&/sort\b/.test(c)&&(c.match(/\|/g)||[]).length>=2, tip:'🎮 Parfait ! grep filtre, cut extrait, sort trie. Pipe fondamental des admins sys.' },
+];
+
+const SAVE_KEY = 'tssr_gameshell_progress';
+
+// ═══════════════════════════════════════════════
+// DOM
+// ═══════════════════════════════════════════════
+const outEl   = document.getElementById('out');
+const cmdEl   = document.getElementById('cmd');
+const hmEl    = document.getElementById('hm');
+const hnEl    = document.getElementById('hn');
+const hpEl    = document.getElementById('hdr-r');
+const pbarEl  = document.getElementById('pbar');
+const pmlistEl= document.getElementById('pmlist');
+const ovWin   = document.getElementById('ov-win');
+const bootEl  = document.getElementById('boot');
+const bootMsg = document.getElementById('boot-msg');
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let step = 0;
+const history = [];
+let histIdx = -1;
+
+function save() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ step })); } catch {}
+}
+function load() {
+  try { const d = JSON.parse(localStorage.getItem(SAVE_KEY)); return d?.step ?? 0; } catch { return 0; }
+}
+
+// ═══════════════════════════════════════════════
+// OUTPUT
+// ═══════════════════════════════════════════════
+function mkLn(cls) {
+  const el = document.createElement('div');
+  el.className = 'ln' + (cls ? ' ln-' + cls : '');
+  outEl.appendChild(el);
+  sc();
+  return el;
+}
+function sc() { document.getElementById('term').scrollTop = 999999; }
+function pr(t, c)  { const el = mkLn(c); el.innerHTML = t; }
+function blank()   { mkLn(''); }
+function sep()     { pr('─'.repeat(54), 'sep'); }
+
+// ═══════════════════════════════════════════════
+// PANEL
+// ═══════════════════════════════════════════════
+function renderPanel() {
+  const pct = Math.round(step / MISSIONS.length * 100);
+  pbarEl.style.width = pct + '%';
+  hpEl.textContent = step + ' / ' + MISSIONS.length;
+  hmEl.textContent = 'MISSION ' + Math.min(step + 1, MISSIONS.length) + '/' + MISSIONS.length;
+  hnEl.textContent = step < MISSIONS.length ? shortInstr(MISSIONS[step].instr) : 'Terminé !';
+
+  let html = '';
+  let prevLevel = 0;
+  MISSIONS.forEach((m, i) => {
+    const lvl = LEVELS.find(l => i < l.at && (i === 0 || LEVELS[LEVELS.indexOf(l) - 1]?.at <= i));
+    if (lvl && lvl.at !== prevLevel) {
+      html += `<div class="pnl-level">${lvl.emoji} ${lvl.label}</div>`;
+      prevLevel = lvl.at;
+    }
+    const cls = i < step ? 'done' : i === step ? 'current' : 'todo';
+    const check = i < step ? '✓' : i === step ? '▶' : '';
+    html += `<div class="pm ${cls}"><span class="pm-num">${i + 1}</span><span class="pm-txt">${shortInstr(m.instr)}</span><span class="pm-check">${check}</span></div>`;
+  });
+  pmlistEl.innerHTML = html;
+
+  // Scroll panel to current mission
+  const cur = pmlistEl.querySelector('.current');
+  if (cur) cur.scrollIntoView({ block: 'nearest' });
+}
+
+function shortInstr(s) {
+  return s.replace(/^⭐\s+/, '').replace(/^Mission \d+\/30\s*—\s*/,'').slice(0, 38);
+}
+
+// ═══════════════════════════════════════════════
+// PROMPT
+// ═══════════════════════════════════════════════
+function promptStr() {
+  return '<span style="color:var(--g)">tssr@debian-srv</span><span style="color:#555">:</span><span style="color:var(--b)">~</span><span style="color:#aaa">$</span>&nbsp;';
+}
+
+// ═══════════════════════════════════════════════
+// SHOW OBJECTIVE
+// ═══════════════════════════════════════════════
+function showObjective() {
+  if (step >= MISSIONS.length) return;
+  const m = MISSIONS[step];
+  blank();
+  pr(`<span style="color:var(--y)">[OBJECTIF]</span> ${escHtml(m.instr)}`, '');
+  pr(`<span style="color:#444">Indice : <code style="color:var(--g)">${escHtml(m.hint)}</code> · <span style="color:#444">tape <strong>hint</strong> pour afficher l\'indice · <strong>help</strong> pour les commandes</span>`, '');
+  blank();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════
+cmdEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const raw = cmdEl.value;
+    cmdEl.value = '';
+    histIdx = -1;
+    if (raw.trim()) { history.unshift(raw); if (history.length > 100) history.pop(); }
+    handle(raw);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (histIdx < history.length - 1) { histIdx++; cmdEl.value = history[histIdx] || ''; }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (histIdx > 0) { histIdx--; cmdEl.value = history[histIdx] || ''; }
+    else { histIdx = -1; cmdEl.value = ''; }
+  } else if (e.key === 'l' && e.ctrlKey) {
+    e.preventDefault();
+    outEl.innerHTML = ''; showObjective();
+  } else if (e.key === 'c' && e.ctrlKey) {
+    e.preventDefault();
+    pr(`${promptStr()}<span style="color:var(--g)">${escHtml(cmdEl.value)}^C</span>`);
+    cmdEl.value = '';
+  }
+});
+
+const KNOWN = new Set([
+  'ls','cd','pwd','cat','mkdir','touch','rm','cp','mv','echo','grep','wc',
+  'head','tail','chmod','chown','ln','find','sort','uniq','cut','sed','awk',
+  'ps','kill','pkill','top','htop','systemctl','journalctl','ip','ifconfig',
+  'ping','netstat','ss','traceroute','arp','nslookup','dig','ssh','scp',
+  'sudo','su','whoami','id','man','history','clear','vim','nano','less',
+  'more','df','du','mount','umount','tar','gzip','apt','dpkg','env','export',
+]);
+
+function handle(raw) {
+  const trimmed = raw.trim();
+  pr(`${promptStr()}<span style="color:var(--g)">${escHtml(trimmed)}</span>`);
+  if (!trimmed) return;
+  const norm = trimmed.toLowerCase();
+
+  if (norm === 'clear' || norm === 'cls') { outEl.innerHTML = ''; showObjective(); return; }
+  if (norm === 'help') { showHelp(); return; }
+  if (norm === 'hint') { showHint(); return; }
+  if (norm === 'progress') { showProgress(); return; }
+  if (norm === 'reset') { doReset(); return; }
+
+  if (step >= MISSIONS.length) {
+    pr('Toutes les missions sont complétées ! Tape <strong>reset</strong> pour recommencer.', 'sys');
+    return;
+  }
+
+  const m = MISSIONS[step];
+  if (m.check(trimmed)) {
+    // success
+    blank();
+    if (m.tip) pr(`<span style="color:var(--y)">💡 ${escHtml(m.tip)}</span>`);
+    step++;
+    save();
+
+    // Level badge
+    const badge = LEVELS.find(l => l.at === step);
+    if (badge) {
+      blank();
+      pr(`<div class="badge">${badge.emoji} <strong>${badge.label}</strong> — NIVEAU COMPLÉTÉ !</div>`);
+    }
+
+    renderPanel();
+
+    if (step >= MISSIONS.length) {
+      blank(); sep();
+      pr(`<span style="color:var(--g);font-weight:bold">🏆 MISSION ACCOMPLIE — 30/30</span>\nTu maîtrises le terminal Linux, technicien.`, 'ok');
+      sep(); blank();
+      setTimeout(() => ovWin.classList.remove('h'), 1200);
+      return;
+    }
+
+    blank(); sep();
+    pr(`<span style="color:var(--g)">✅ Étape ${step}/30 validée !</span>`, '');
+    showObjective();
+  } else {
+    blank();
+    const first = norm.split(/\s/)[0];
+    if (KNOWN.has(first)) {
+      pr(`<span style="color:#ff5555">✗ Commande reconnue mais pas ce qu\'on cherche. Tape <strong>hint</strong> pour l\'indice.</span>`);
+    } else {
+      pr(`<span style="color:#ff5555">bash: ${escHtml(first)}: commande introuvable</span>`);
+    }
+    blank();
+  }
+}
+
+function showHelp() {
+  blank();
+  pr(`<span style="color:var(--b)">Commandes disponibles :</span>
+  <span style="color:var(--g)">hint</span>     — affiche l'indice de la mission courante
+  <span style="color:var(--g)">progress</span> — affiche ta progression
+  <span style="color:var(--g)">reset</span>    — remet à zéro et recommence
+  <span style="color:var(--g)">Ctrl+L</span>   — efface le terminal
+  <span style="color:var(--g)">↑ / ↓</span>   — historique des commandes`);
+  blank();
+}
+
+function showHint() {
+  if (step >= MISSIONS.length) return;
+  blank();
+  pr(`<span style="color:var(--y)">[INDICE] → <code style="color:var(--g)">${escHtml(MISSIONS[step].hint)}</code></span>`);
+  blank();
+}
+
+function showProgress() {
+  blank();
+  pr(`<span style="color:var(--b)">Progression : ${step}/30 (${Math.round(step/30*100)}%)</span>`);
+  blank();
+}
+
+function doReset() {
+  step = 0;
+  try { localStorage.removeItem(SAVE_KEY); } catch {}
+  outEl.innerHTML = '';
+  renderPanel();
+  start();
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function start() {
+  sep();
+  pr(`  <span style="color:var(--g)">GAMESHELL TSSR</span> · Terminal Linux`, 'sys');
+  pr(`  30 missions pour maîtriser la ligne de commande`, 'sys');
+  sep(); blank();
+
+  const saved = load();
+  if (saved > 0 && saved < MISSIONS.length) {
+    step = saved;
+    pr(`<span style="color:var(--g)">▶ Reprise depuis la mission ${step + 1}/30 — progression restaurée.</span>\n<span style="color:#555">Tape <strong>reset</strong> pour recommencer depuis le début.</span>`);
+  } else {
+    step = 0;
+    pr(`Bienvenue, technicien. Ton terminal est ton arme.\nRéponds à chaque mission avec la bonne commande.\nTape <strong>hint</strong> pour un indice · <strong>help</strong> pour les commandes disponibles.`, 'ctx');
+  }
+
+  renderPanel();
+  showObjective();
+  cmdEl.focus();
+}
+
+function restart() {
+  ovWin.classList.add('h');
+  doReset();
+}
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+const BOOT_MSGS = [
+  'INITIALISATION GAMESHELL v1.0...',
+  'CHARGEMENT DES MISSIONS...',
+  'CONNEXION AU SERVEUR DEBIAN...',
+  'VÉRIFICATION PROGRESSION...',
+  'TERMINAL PRÊT',
+  '',
+  '▶ BIENVENUE, TECHNICIEN',
+];
+
+let bi = 0;
+function bootStep() {
+  if (bi >= BOOT_MSGS.length) {
+    setTimeout(() => { bootEl.classList.add('h'); start(); }, 300);
+    return;
+  }
+  bootMsg.textContent = BOOT_MSGS[bi++] || ' ';
+  setTimeout(bootStep, bi === BOOT_MSGS.length ? 500 : 220);
+}
+setTimeout(bootStep, 150);
+</script>
+</body>
+</html>

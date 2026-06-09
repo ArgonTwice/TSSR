@@ -212,7 +212,10 @@ function renderCours(m, el) {
   wrap.className = 'cours-container';
   m.cours.forEach(cours => {
     const sec = document.createElement('article');
-    sec.innerHTML = `<div class="cours-section"><h2>${cours.titre}</h2>${renderCoursContent(cours.sections)}</div>`;
+    const badgeHtml = cours.badge === 'test'
+      ? '<span style="background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:10px;vertical-align:middle;letter-spacing:.5px">TEST</span>'
+      : '';
+    sec.innerHTML = `<div class="cours-section"><h2>${cours.titre}${badgeHtml}</h2>${renderCoursContent(cours.sections)}</div>`;
     wrap.appendChild(sec);
   });
   el.innerHTML = '';

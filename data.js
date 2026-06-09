@@ -210,6 +210,52 @@ const MODULES = [
         ],
       },
       {
+        id: 'admin-windows-test',
+        titre: 'Administration Windows — CMD & PowerShell',
+        badge: 'test',
+        sections: [
+          { type: 'h2', content: '1. Gestion des Utilisateurs et Groupes (CMD - Net)' },
+          { type: 'warn', content: 'L\'invite de commande doit être lancée en mode Administrateur.' },
+          { type: 'ul', items: [
+            '<code>net user Anthony P@ssword123 /add</code> : Crée un compte utilisateur.',
+            '<code>net localgroup Support /add</code> : Crée un groupe local nommé "Support".',
+            '<code>net localgroup Support Anthony /add</code> : Ajoute l\'utilisateur au groupe.',
+            '<code>net user Anthony</code> : Affiche les informations complètes du compte.',
+          ]},
+          { type: 'h2', content: '2. Gestion des Disques (Diskpart)' },
+          { type: 'warn', content: '<strong>ATTENTION :</strong> La commande <code>clean</code> supprime toutes les données du disque sélectionné.' },
+          { type: 'code', content: 'diskpart               # Lance l\'outil\nlist disk              # Liste les disques physiques\nselect disk 0          # Sélectionne le disque 0\nclean                  # Efface toute la structure\ncreate partition primary size=50000  # Partition de 50Go\nformat fs=ntfs quick   # Formatage rapide\nassign letter=E        # Monte le disque en E:' },
+          { type: 'h2', content: '3. Administration Domaine (Active Directory)' },
+          { type: 'ul', items: [
+            '<code>wmic computersystem get domain</code> : Vérifie à quel domaine appartient la machine.',
+            '<code>Add-Computer -DomainName "carrefour.local" -Credential (Get-Credential)</code> : Joint la machine au domaine (PowerShell).',
+          ]},
+          { type: 'h2', content: '4. PowerShell — Cmdlets essentielles' },
+          { type: 'info', content: 'Syntaxe basée sur <strong>Verbe-Nom</strong>. Les résultats sont des objets manipulables.' },
+          { type: 'ul', items: [
+            '<code>Get-Process</code> : Liste les processus.',
+            '<code>Stop-Process -Name "chrome" -Force</code> : Tue un processus par son nom.',
+            '<code>Get-Service</code> : Liste les services Windows.',
+            '<code>Restart-Service -Name "wuauserv"</code> : Redémarre Windows Update.',
+            '<strong>Pipe :</strong> <code>Get-Process | Where-Object {$_.CPU -gt 100}</code> : Filtre les processus gourmands en CPU.',
+          ]},
+          { type: 'h2', content: '5. Diagnostic Réseau' },
+          { type: 'table', headers: ['Problème', 'Commande'], rows: [
+            ['Info IP/DNS/DHCP', '<code>ipconfig /all</code>'],
+            ['Vérifier connectivité', '<code>ping 8.8.8.8</code>'],
+            ['Vérifier résolution DNS', '<code>nslookup google.com</code>'],
+            ['Vider cache DNS', '<code>ipconfig /flushdns</code>'],
+            ['Chemin réseau', '<code>route print</code>'],
+          ]},
+          { type: 'h2', content: '6. Quiz rapide' },
+          { type: 'ul', items: [
+            'Redémarrer le service DNS ? → <code>Restart-Service Dnscache</code>',
+            'Lister les disques via diskpart ? → <code>list disk</code>',
+            'Tuer un processus par son nom ? → <code>taskkill /F /IM nom.exe</code>',
+          ]},
+        ],
+      },
+      {
         id: 'netrunner',
         titre: 'NetRunner — Missions Windows',
         sections: [

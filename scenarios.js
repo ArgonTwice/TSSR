@@ -676,6 +676,110 @@ const SCENARIOS = {
       },
     ],
   },
+
+  linux_firewall: {
+    id: 'linux_firewall',
+    title: 'Pare-feu Linux (iptables/UFW)',
+    icon: '🔐',
+    desc: 'Règles iptables, UFW, filtrage réseau',
+    type: 'linux',
+    steps: [
+      {
+        id: 'iptables-list',
+        instruction: 'Affiche les règles iptables actives avec les compteurs.',
+        hint: '<code>iptables -L -v -n</code>',
+        validate: (cmd) => /^iptables\s+/.test(cmd) && cmd.includes('-L'),
+        successMsg: '✓ -L liste les règles, -v ajoute les compteurs paquets/octets, -n évite la résolution DNS.',
+      },
+      {
+        id: 'ufw-status',
+        instruction: 'Vérifie le statut de UFW.',
+        hint: '<code>ufw status verbose</code>',
+        validate: (cmd) => /^ufw\s+status/.test(cmd.trim()),
+        successMsg: '✓ ufw status verbose montre les règles actives. "inactive" = UFW désactivé.',
+      },
+      {
+        id: 'ufw-allow-ssh',
+        instruction: 'Autorise SSH dans UFW.',
+        hint: '<code>ufw allow ssh</code> ou <code>ufw allow 22/tcp</code>',
+        validate: (cmd) => /^ufw\s+allow\s+(ssh|22)/.test(cmd.trim()),
+        successMsg: '✓ Toujours autoriser SSH AVANT d\'activer UFW pour ne pas se couper du serveur distant.',
+      },
+      {
+        id: 'ufw-allow-http',
+        instruction: 'Autorise HTTP (port 80) dans UFW.',
+        hint: '<code>ufw allow 80/tcp</code>',
+        validate: (cmd) => /^ufw\s+allow\s+(80|http)/.test(cmd.trim()),
+        successMsg: '✓ ufw allow 443/tcp pour HTTPS. ufw allow from 192.168.1.0/24 pour limiter à un réseau.',
+      },
+      {
+        id: 'ufw-enable',
+        instruction: 'Active le pare-feu UFW.',
+        hint: '<code>ufw enable</code>',
+        validate: (cmd) => cmd.trim() === 'ufw enable',
+        successMsg: '✓ UFW est maintenant actif. Le trafic non autorisé sera bloqué.',
+      },
+      {
+        id: 'iptables-block',
+        instruction: 'Bloque une IP suspecte : <code>192.168.1.200</code>.',
+        hint: '<code>iptables -A INPUT -s 192.168.1.200 -j DROP</code>',
+        validate: (cmd) => /^iptables\s+/.test(cmd) && cmd.includes('192.168.1.200') && cmd.includes('DROP'),
+        successMsg: '✓ DROP rejette silencieusement. REJECT envoie un message d\'erreur (plus verbeux, moins furtif).',
+      },
+    ],
+  },
+
+  windows_firewall: {
+    id: 'windows_firewall',
+    title: 'Pare-feu Windows (PowerShell)',
+    icon: '🔐',
+    desc: 'Règles Windows Firewall via PowerShell',
+    type: 'windows',
+    steps: [
+      {
+        id: 'get-profile',
+        instruction: 'Affiche les profils du pare-feu Windows (Domain, Private, Public).',
+        hint: '<code>Get-NetFirewallProfile</code>',
+        validate: (cmd) => /^get-netfirewallprofile(\s|$)/i.test(cmd.trim()),
+        successMsg: '✓ 3 profils : Domain (domaine AD), Private (réseau maison/bureau), Public (Wi-Fi public).',
+      },
+      {
+        id: 'list-rules',
+        instruction: 'Liste les règles de pare-feu actives.',
+        hint: '<code>Get-NetFirewallRule | Where-Object {$_.Enabled -eq "True"}</code>',
+        validate: (cmd) => /^get-netfirewallrule(\s|$)/i.test(cmd.trim()),
+        successMsg: '✓ Get-NetFirewallRule liste toutes les règles. Direction Inbound/Outbound, Action Allow/Block.',
+      },
+      {
+        id: 'new-rule',
+        instruction: 'Crée une règle autorisant le port <code>8080</code> en entrée.',
+        hint: '<code>New-NetFirewallRule -DisplayName "HTTP Alt" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow</code>',
+        validate: (cmd) => /^new-netfirewallrule\s+/i.test(cmd) && /8080/.test(cmd),
+        successMsg: '✓ New-NetFirewallRule crée une règle persistante. -Profile pour cibler un profil spécifique.',
+      },
+      {
+        id: 'disable-rule',
+        instruction: 'Désactive la règle "HTTP Alt" créée précédemment.',
+        hint: '<code>Disable-NetFirewallRule -DisplayName "HTTP Alt"</code>',
+        validate: (cmd) => /^disable-netfirewallrule\s+/i.test(cmd),
+        successMsg: '✓ Disable conserve la règle sans l\'appliquer. Enable-NetFirewallRule pour la réactiver.',
+      },
+      {
+        id: 'check-ports',
+        instruction: 'Affiche les ports TCP en écoute et les processus associés.',
+        hint: '<code>netstat -ano</code>',
+        validate: (cmd) => /^netstat(\s|$)/i.test(cmd.trim()),
+        successMsg: '✓ -a toutes connexions, -n numérique, -o PID. Croiser avec Get-Process -Id <PID> pour identifier.',
+      },
+      {
+        id: 'test-port',
+        instruction: 'Teste si le port 80 est ouvert sur <code>192.168.1.10</code>.',
+        hint: '<code>Test-NetConnection -ComputerName 192.168.1.10 -Port 80</code>',
+        validate: (cmd) => /^test-netconnection\s+/i.test(cmd.trim()),
+        successMsg: '✓ Test-NetConnection teste TCP (TcpTestSucceeded) et ICMP. Équivalent de telnet en PowerShell.',
+      },
+    ],
+  },
 };
 
 // ===== MOTEUR SCENARIO =====

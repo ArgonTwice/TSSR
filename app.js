@@ -53,42 +53,48 @@ const MODULE_GROUPS = [
 function renderNav() {
   const nav = document.getElementById('module-nav');
   nav.innerHTML = '';
+
+  const GROUPES = [
+    { label: 'Réseaux',             modules: ['reseaux', 'cisco'] },
+    { label: 'Systèmes Windows',    modules: ['windows', 'windows-server', 'ad-avance', 'messagerie'] },
+    { label: 'Systèmes Linux',      modules: ['linux', 'linux-server'] },
+    { label: 'Infrastructure',      modules: ['stockage', 'virtualisation', 'supervision', 'cloud'] },
+    { label: 'Développement & BDD', modules: ['scripting-avance'] },
+    { label: 'Fondamentaux',        modules: ['numerisation', 'securite'] },
+    { label: 'Projet',              modules: ['documentation'] },
+  ];
+
   const termBtn = document.createElement('button');
   termBtn.className = 'nav-item nav-item-terminals' + (state.currentScreen === 'terminals' ? ' active' : '');
   termBtn.setAttribute('aria-label', 'Terminaux');
   termBtn.innerHTML = `
     <span class="nav-item-icon" style="background:rgba(0,229,160,0.1);color:var(--accent)">💻</span>
-    <span class="nav-item-label">Terminaux</span>
+    <span>Terminaux</span>
     <span class="nav-item-right"><span class="nav-badge" style="background:var(--accent-dim);color:var(--accent)">2</span></span>`;
   termBtn.addEventListener('click', () => openTerminals());
   nav.appendChild(termBtn);
 
-  const grouped = new Set(MODULE_GROUPS.flatMap(g => g.ids));
-  const others = MODULES.filter(m => !grouped.has(m.id));
-  const groups = others.length
-    ? [...MODULE_GROUPS, { label: 'Autres', ids: others.map(m => m.id) }]
-    : MODULE_GROUPS;
+  GROUPES.forEach(groupe => {
+    const modulesGroupe = groupe.modules
+      .map(id => MODULES.find(m => m.id === id))
+      .filter(Boolean);
+    if (!modulesGroupe.length) return;
 
-  groups.forEach(group => {
-    const mods = group.ids.map(id => MODULES.find(m => m.id === id)).filter(Boolean);
-    if (!mods.length) return;
-    const sep = document.createElement('div');
-    sep.className = 'nav-group-sep';
-    sep.textContent = group.label;
-    nav.appendChild(sep);
-    mods.forEach(m => {
+    const label = document.createElement('p');
+    label.className = 'nav-section-label';
+    label.textContent = groupe.label;
+    nav.appendChild(label);
+
+    modulesGroupe.forEach(m => {
       const prog = getProgress(m.id);
-      const pct = prog.pct || 0;
-      const total = (m.cours?.length || 0) + (m.flashcards?.length || 0) + (m.qcm?.length || 0);
       const btn = document.createElement('button');
       btn.className = 'nav-item' + (state.currentModule?.id === m.id ? ' active' : '');
       btn.setAttribute('aria-label', m.label);
       btn.innerHTML = `
         <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
-        <span class="nav-item-label">${m.label}</span>
+        <span>${m.label}</span>
         <span class="nav-item-right">
-          ${pct > 0 ? `<span class="nav-pct" style="color:${m.color}">${pct}%</span>` : (total > 0 ? `<span class="nav-count">${total}</span>` : '')}
-          <span class="nav-progress-mini"><span class="nav-progress-mini-fill" style="width:${pct}%;background:${m.color}"></span></span>
+          <span class="nav-progress-mini"><span class="nav-progress-mini-fill" style="width:${prog.pct||0}%"></span></span>
         </span>`;
       btn.addEventListener('click', () => openModule(m.id));
       nav.appendChild(btn);
@@ -108,11 +114,13 @@ function renderHome() {
   document.getElementById('mobile-module-name').textContent = '';
   renderNav();
   const stats = document.getElementById('home-stats');
+  const totalCours = MODULES.reduce((a, m) => a + m.cours.length, 0);
   const totalFC = MODULES.reduce((a, m) => a + m.flashcards.length, 0);
   const totalQCM = MODULES.reduce((a, m) => a + m.qcm.length, 0);
   stats.innerHTML = `
     <div class="stat-card"><span class="stat-num">${MODULES.length}</span><span class="stat-lbl">Modules</span></div>
-    <div class="stat-card"><span class="stat-num">${totalFC}</span><span class="stat-lbl">Cartes</span></div>
+    <div class="stat-card"><span class="stat-num">${totalCours}</span><span class="stat-lbl">Cours</span></div>
+    <div class="stat-card"><span class="stat-num">${totalFC}</span><span class="stat-lbl">Flashcards</span></div>
     <div class="stat-card"><span class="stat-num">${totalQCM}</span><span class="stat-lbl">Questions</span></div>
     <div class="stat-card"><span class="stat-num">${globalProgress()}%</span><span class="stat-lbl">Progression</span></div>`;
   const grid = document.getElementById('module-grid');

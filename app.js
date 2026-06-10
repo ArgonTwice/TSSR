@@ -43,32 +43,56 @@ function globalProgress() {
 }
 
 // ===== RENDER NAV =====
+const MODULE_GROUPS = [
+  { label: 'Fondamentaux',  ids: ['numerisation', 'reseaux', 'securite'] },
+  { label: 'Linux',          ids: ['linux', 'linux-server'] },
+  { label: 'Windows',        ids: ['windows', 'windows-server'] },
+  { label: 'Infrastructure', ids: ['virtualisation', 'cisco'] },
+];
+
 function renderNav() {
   const nav = document.getElementById('module-nav');
-  nav.innerHTML = '<p class="nav-section-label">Modules</p>';
-  // Entrée Terminaux
+  nav.innerHTML = '';
   const termBtn = document.createElement('button');
   termBtn.className = 'nav-item nav-item-terminals' + (state.currentScreen === 'terminals' ? ' active' : '');
   termBtn.setAttribute('aria-label', 'Terminaux');
   termBtn.innerHTML = `
     <span class="nav-item-icon" style="background:rgba(0,229,160,0.1);color:var(--accent)">💻</span>
-    <span>Terminaux</span>
+    <span class="nav-item-label">Terminaux</span>
     <span class="nav-item-right"><span class="nav-badge" style="background:var(--accent-dim);color:var(--accent)">2</span></span>`;
   termBtn.addEventListener('click', () => openTerminals());
   nav.appendChild(termBtn);
-  MODULES.forEach(m => {
-    const prog = getProgress(m.id);
-    const btn = document.createElement('button');
-    btn.className = 'nav-item' + (state.currentModule?.id === m.id ? ' active' : '');
-    btn.setAttribute('aria-label', m.label);
-    btn.innerHTML = `
-      <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
-      <span>${m.label}</span>
-      <span class="nav-item-right">
-        <span class="nav-progress-mini"><span class="nav-progress-mini-fill" style="width:${prog.pct||0}%"></span></span>
-      </span>`;
-    btn.addEventListener('click', () => openModule(m.id));
-    nav.appendChild(btn);
+
+  const grouped = new Set(MODULE_GROUPS.flatMap(g => g.ids));
+  const others = MODULES.filter(m => !grouped.has(m.id));
+  const groups = others.length
+    ? [...MODULE_GROUPS, { label: 'Autres', ids: others.map(m => m.id) }]
+    : MODULE_GROUPS;
+
+  groups.forEach(group => {
+    const mods = group.ids.map(id => MODULES.find(m => m.id === id)).filter(Boolean);
+    if (!mods.length) return;
+    const sep = document.createElement('div');
+    sep.className = 'nav-group-sep';
+    sep.textContent = group.label;
+    nav.appendChild(sep);
+    mods.forEach(m => {
+      const prog = getProgress(m.id);
+      const pct = prog.pct || 0;
+      const total = (m.cours?.length || 0) + (m.flashcards?.length || 0) + (m.qcm?.length || 0);
+      const btn = document.createElement('button');
+      btn.className = 'nav-item' + (state.currentModule?.id === m.id ? ' active' : '');
+      btn.setAttribute('aria-label', m.label);
+      btn.innerHTML = `
+        <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
+        <span class="nav-item-label">${m.label}</span>
+        <span class="nav-item-right">
+          ${pct > 0 ? `<span class="nav-pct" style="color:${m.color}">${pct}%</span>` : (total > 0 ? `<span class="nav-count">${total}</span>` : '')}
+          <span class="nav-progress-mini"><span class="nav-progress-mini-fill" style="width:${pct}%;background:${m.color}"></span></span>
+        </span>`;
+      btn.addEventListener('click', () => openModule(m.id));
+      nav.appendChild(btn);
+    });
   });
 }
 function renderGlobalProgress() {

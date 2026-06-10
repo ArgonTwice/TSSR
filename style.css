@@ -2217,7 +2217,7 @@ body {
   overflow: hidden;
 }
 .cours-html-block th {
-  background: var(--bg3);
+  background: var(--bg3) !important;
   color: var(--text2);
   padding: 10px 14px;
   text-align: left;
@@ -2242,7 +2242,7 @@ body {
   color: var(--accent);
 }
 .cours-html-block pre {
-  background: #07090f;
+  background: #07090f !important;
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
@@ -2290,6 +2290,14 @@ body {
   border-radius: 0 !important;
   margin: 0 !important;
 }
+.cours-html-block * {
+  color: inherit;
+  background: transparent !important;
+  font-family: inherit;
+  border-color: var(--border) !important;
+}
+.cours-html-block h1 { display: none; }
+.cours-html-block > div[style] { background: transparent !important; }
 
 .tag.cli-tag     { background: rgba(0,229,160,0.1) !important; color: #00b87a !important; }
 .tag.cli-tag-win { background: rgba(59,130,246,0.1) !important; color: #60a5fa !important; }

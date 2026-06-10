@@ -302,7 +302,18 @@ function renderCoursContent(sections) {
   return sections.map(s => {
     if (typeof s === 'string') return `<p>${s}</p>`;
     if (s.type === 'p')     return `<p>${s.content}</p>`;
-    if (s.type === 'html')  return `<div class="cours-html-block">${s.content}</div>`;
+    if (s.type === 'html') {
+      let content = s.content;
+      content = content.replace(/<head[\s\S]*?<\/head>/gi, '');
+      content = content.replace(/<style[\s\S]*?<\/style>/gi, '');
+      content = content.replace(/<script[\s\S]*?<\/script>/gi, '');
+      content = content.replace(/<\/?html[^>]*>/gi, '');
+      content = content.replace(/<\/?body[^>]*>/gi, '');
+      content = content.replace(/<\/?head[^>]*>/gi, '');
+      content = content.replace(/\s*style="[^"]*"/gi, '');
+      content = content.replace(/\s*class="[^"]*"/gi, '');
+      return `<div class="cours-html-block">${content}</div>`;
+    }
     if (s.type === 'code')  return `<pre class="code-block">${escHtml(s.content)}</pre>`;
     if (s.type === 'info')  return `<div class="info-box">${s.content}</div>`;
     if (s.type === 'warn')  return `<div class="warn-box">${s.content}</div>`;
@@ -313,7 +324,27 @@ function renderCoursContent(sections) {
     if (s.type === 'h3')    return `<h3>${s.content}</h3>`;
     if (s.type === 'schema') return renderSchema(s.content);
     if (s.type === 'steps')  return renderSteps(s.items);
-    if (s.type === 'html-file') return `<div class="html-file-wrap"><iframe src="${s.src}" class="cours-iframe" title="Cours" loading="lazy"></iframe></div>`;
+    if (s.type === 'html-file') {
+      const uid = 'hf-' + Math.random().toString(36).slice(2, 9);
+      setTimeout(() => {
+        const el = document.getElementById(uid);
+        if (!el) return;
+        fetch(s.src)
+          .then(r => r.text())
+          .then(html => {
+            html = html.replace(/<head[\s\S]*?<\/head>/gi, '');
+            html = html.replace(/<style[\s\S]*?<\/style>/gi, '');
+            html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+            html = html.replace(/<\/?html[^>]*>/gi, '');
+            html = html.replace(/<\/?body[^>]*>/gi, '');
+            html = html.replace(/\s*style="[^"]*"/gi, '');
+            html = html.replace(/\s*class="[^"]*"/gi, '');
+            el.innerHTML = html;
+          })
+          .catch(() => { el.innerHTML = '<div class="warn-box">Erreur de chargement.</div>'; });
+      }, 0);
+      return `<div class="cours-html-block" id="${uid}"></div>`;
+    }
     return '';
   }).join('');
 }

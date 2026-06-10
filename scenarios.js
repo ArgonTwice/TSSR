@@ -225,6 +225,103 @@ const SCENARIOS = {
     ],
   },
 
+  linux_admin_base: {
+    id: 'linux_admin_base',
+    title: 'Administration Serveur Linux',
+    icon: '🐧',
+    desc: 'Utilisateurs, services, surveillance système',
+    type: 'linux',
+    steps: [
+      {
+        id: 'whoami',
+        instruction: 'Affiche l\'utilisateur courant.',
+        hint: '<code>whoami</code>',
+        validate: (cmd) => cmd.trim() === 'whoami',
+        successMsg: '✓ whoami affiche le nom de l\'utilisateur courant. id donne l\'UID, GID et les groupes.',
+      },
+      {
+        id: 'groups',
+        instruction: 'Affiche les groupes de l\'utilisateur courant.',
+        hint: '<code>groups</code>',
+        validate: (cmd) => /^groups(\s|$)/.test(cmd.trim()),
+        successMsg: '✓ groups liste tous les groupes. sudo dans la liste = droits d\'administration.',
+      },
+      {
+        id: 'service-status',
+        instruction: 'Vérifie le statut du service <code>ssh</code>.',
+        hint: '<code>systemctl status ssh</code>',
+        validate: (cmd) => /^systemctl\s+status\s+(ssh|sshd)/.test(cmd.trim()),
+        successMsg: '✓ systemctl status montre Active, PID et logs récents. Active: (running) = service en marche.',
+      },
+      {
+        id: 'disk-space',
+        instruction: 'Affiche l\'espace disque disponible.',
+        hint: '<code>df -h</code>',
+        validate: (cmd) => /^df(\s|$)/.test(cmd.trim()),
+        successMsg: '✓ df -h (human-readable) affiche l\'espace par partition. / est la partition principale.',
+      },
+      {
+        id: 'ram-usage',
+        instruction: 'Affiche l\'utilisation de la RAM.',
+        hint: '<code>free -h</code>',
+        validate: (cmd) => /^free(\s|$)/.test(cmd.trim()),
+        successMsg: '✓ free -h affiche total, utilisé, libre et buffers/cache. available = RAM réellement disponible.',
+      },
+      {
+        id: 'recent-logs',
+        instruction: 'Affiche les 20 dernières lignes du journal système.',
+        hint: '<code>journalctl -n 20</code>',
+        validate: (cmd) => /^journalctl(\s|$)/.test(cmd.trim()),
+        successMsg: '✓ journalctl interroge le journal systemd. -n 20 = 20 dernières lignes. -f = temps réel.',
+      },
+    ],
+  },
+
+  linux_securite: {
+    id: 'linux_securite',
+    title: 'Sécurisation SSH et Pare-feu',
+    icon: '🔒',
+    desc: 'Config SSH, UFW, analyse des logs auth',
+    type: 'linux',
+    steps: [
+      {
+        id: 'read-sshd-config',
+        instruction: 'Affiche le fichier de configuration du serveur SSH.',
+        hint: '<code>cat /etc/ssh/sshd_config</code>',
+        validate: (cmd) => cmd.includes('cat') && cmd.includes('sshd_config'),
+        successMsg: '✓ /etc/ssh/sshd_config contient toute la config du serveur SSH. Toujours redémarrer ssh après modif.',
+      },
+      {
+        id: 'check-permitroot',
+        instruction: 'Vérifie si la connexion root SSH est désactivée.',
+        hint: '<code>grep PermitRootLogin /etc/ssh/sshd_config</code>',
+        validate: (cmd) => cmd.includes('grep') && /permitrootlogin/i.test(cmd),
+        successMsg: '✓ PermitRootLogin no = connexion root refusée. Bonne pratique de sécurité obligatoire.',
+      },
+      {
+        id: 'ssh-service-status',
+        instruction: 'Vérifie que le service SSH est actif.',
+        hint: '<code>systemctl status ssh</code>',
+        validate: (cmd) => /^systemctl\s+status\s+(ssh|sshd)/.test(cmd.trim()),
+        successMsg: '✓ SSH doit être Active: (running). Si inactif : systemctl start ssh.',
+      },
+      {
+        id: 'open-ports',
+        instruction: 'Affiche les ports TCP en écoute sur le serveur.',
+        hint: '<code>netstat -tlnp</code> ou <code>ss -tlnp</code>',
+        validate: (cmd) => /^(netstat|ss)(\s|$)/.test(cmd.trim()),
+        successMsg: '✓ Port 22 = SSH actif. ss est le remplaçant moderne de netstat. -l listening, -n numérique.',
+      },
+      {
+        id: 'auth-log',
+        instruction: 'Affiche le log d\'authentification pour détecter les tentatives SSH.',
+        hint: '<code>tail /var/log/auth.log</code>',
+        validate: (cmd) => cmd.includes('auth.log'),
+        successMsg: '✓ /var/log/auth.log trace toutes les connexions SSH et sudo. Surveiller "Failed password".',
+      },
+    ],
+  },
+
   // ===== WINDOWS =====
   windows_bases: {
     id: 'windows_bases',

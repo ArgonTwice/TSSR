@@ -378,6 +378,103 @@ const SCENARIOS = {
       },
     ],
   },
+
+  windows_ad_setup: {
+    id: 'windows_ad_setup',
+    title: 'Configurer Active Directory',
+    icon: '🏢',
+    desc: 'Utilisateurs, OUs, groupes, GPO',
+    type: 'windows',
+    steps: [
+      {
+        id: 'list-users',
+        instruction: 'Liste tous les utilisateurs Active Directory.',
+        hint: '<code>Get-ADUser -Filter *</code>',
+        validate: (cmd) => /^get-aduser\s+/i.test(cmd) && cmd.includes('*'),
+        successMsg: '✓ Get-ADUser -Filter * liste tous les comptes du domaine. Ajoute -Properties * pour tout afficher.',
+      },
+      {
+        id: 'new-user',
+        instruction: 'Crée un utilisateur AD avec le login <code>j.dupont</code>.',
+        hint: '<code>New-ADUser -Name "Jean Dupont" -SamAccountName "j.dupont" -Enabled $true</code>',
+        validate: (cmd) => /^new-aduser\s+/i.test(cmd) && /j\.dupont/i.test(cmd),
+        successMsg: '✓ New-ADUser crée le compte. Sans -Enabled $true le compte est désactivé par défaut.',
+      },
+      {
+        id: 'new-ou',
+        instruction: 'Crée une Unité d\'Organisation nommée <code>Informatique</code>.',
+        hint: '<code>New-ADOrganizationalUnit -Name "Informatique" -Path "DC=tssr,DC=local"</code>',
+        validate: (cmd) => /^new-adorganizationalunit\s+/i.test(cmd) && /informatique/i.test(cmd),
+        successMsg: '✓ Les OUs structurent l\'annuaire et permettent d\'appliquer des GPO ciblées.',
+      },
+      {
+        id: 'new-group',
+        instruction: 'Crée un groupe de sécurité global <code>GRP-Informatique</code>.',
+        hint: '<code>New-ADGroup -Name "GRP-Informatique" -GroupScope Global -GroupCategory Security</code>',
+        validate: (cmd) => /^new-adgroup\s+/i.test(cmd) && /grp-informatique/i.test(cmd),
+        successMsg: '✓ GroupScope Global = membres du même domaine. Universel = toute la forêt.',
+      },
+      {
+        id: 'add-member',
+        instruction: 'Ajoute <code>j.dupont</code> au groupe <code>GRP-Informatique</code>.',
+        hint: '<code>Add-ADGroupMember -Identity "GRP-Informatique" -Members "j.dupont"</code>',
+        validate: (cmd) => /^add-adgroupmember\s+/i.test(cmd) && /j\.dupont/i.test(cmd),
+        successMsg: '✓ Add-ADGroupMember accepte un tableau de membres. Get-ADGroupMember pour vérifier.',
+      },
+      {
+        id: 'gpo-update',
+        instruction: 'Force l\'application des stratégies de groupe sur ce poste.',
+        hint: '<code>gpupdate /force</code>',
+        validate: (cmd) => /^gpupdate\s+\/force/i.test(cmd.trim()),
+        successMsg: '✓ gpupdate /force applique immédiatement toutes les GPO. gpresult /R pour vérifier.',
+      },
+    ],
+  },
+
+  windows_dns_dhcp: {
+    id: 'windows_dns_dhcp',
+    title: 'Configurer DNS et DHCP',
+    icon: '🌐',
+    desc: 'Résolution DNS, étendues DHCP, baux',
+    type: 'windows',
+    steps: [
+      {
+        id: 'ipconfig-all',
+        instruction: 'Affiche la configuration réseau complète (DNS, DHCP, MAC...).',
+        hint: '<code>ipconfig /all</code>',
+        validate: (cmd) => /^ipconfig\s+\/all/i.test(cmd.trim()),
+        successMsg: '✓ ipconfig /all affiche le serveur DHCP, les DNS configurés et la durée du bail.',
+      },
+      {
+        id: 'resolve-dns',
+        instruction: 'Vérifie la résolution DNS de <code>srv01.tssr.local</code>.',
+        hint: '<code>Resolve-DnsName srv01.tssr.local</code>',
+        validate: (cmd) => /^resolve-dnsname\s+/i.test(cmd.trim()),
+        successMsg: '✓ Resolve-DnsName = nslookup PowerShell. Retourne Type, TTL et IP résolue.',
+      },
+      {
+        id: 'dhcp-scope',
+        instruction: 'Crée une étendue DHCP pour la plage 192.168.1.100–200.',
+        hint: '<code>Add-DhcpServerv4Scope -Name "LAN" -StartRange 192.168.1.100 -EndRange 192.168.1.200 -SubnetMask 255.255.255.0</code>',
+        validate: (cmd) => /^add-dhcpserverv4scope\s+/i.test(cmd.trim()),
+        successMsg: '✓ L\'étendue définit la plage de distribution. Configurer ensuite les options (routeur, DNS).',
+      },
+      {
+        id: 'dhcp-leases',
+        instruction: 'Affiche les baux DHCP actifs sur l\'étendue 192.168.1.0.',
+        hint: '<code>Get-DhcpServerv4Lease -ScopeId 192.168.1.0</code>',
+        validate: (cmd) => /^get-dhcpserverv4lease\s+/i.test(cmd.trim()),
+        successMsg: '✓ Chaque bail contient : IP attribuée, adresse MAC, hostname, date d\'expiration.',
+      },
+      {
+        id: 'check-dhcp-service',
+        instruction: 'Vérifie que le service DHCP Server est actif.',
+        hint: '<code>Get-Service DHCPServer</code>',
+        validate: (cmd) => /^(get-service|gsv)\s+dhcp/i.test(cmd.trim()),
+        successMsg: '✓ DHCPServer doit être Running. Restart-Service DHCPServer pour relancer si besoin.',
+      },
+    ],
+  },
 };
 
 // ===== MOTEUR SCENARIO =====

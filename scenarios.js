@@ -572,6 +572,110 @@ const SCENARIOS = {
       },
     ],
   },
+
+  windows_hyperv: {
+    id: 'windows_hyperv',
+    title: 'Gérer Hyper-V via PowerShell',
+    icon: '📦',
+    desc: 'Créer et administrer des VMs Hyper-V',
+    type: 'windows',
+    steps: [
+      {
+        id: 'get-vm',
+        instruction: 'Liste toutes les VMs Hyper-V présentes sur ce serveur.',
+        hint: '<code>Get-VM</code>',
+        validate: (cmd) => /^get-vm(\s|$)/i.test(cmd.trim()),
+        successMsg: '✓ Get-VM affiche toutes les VMs avec leur état (Running/Off/Paused).',
+      },
+      {
+        id: 'new-vm',
+        instruction: 'Crée une VM nommée <code>VM-Test</code> avec 2 Go de RAM.',
+        hint: '<code>New-VM -Name "VM-Test" -MemoryStartupBytes 2GB -NewVHDPath "C:\\VMs\\test.vhdx" -NewVHDSizeBytes 20GB</code>',
+        validate: (cmd) => /^new-vm\s+/i.test(cmd) && /vm-test/i.test(cmd),
+        successMsg: '✓ New-VM crée la VM avec le disque virtuel VHDX. -Generation 2 pour les OS modernes.',
+      },
+      {
+        id: 'start-vm',
+        instruction: 'Démarre la VM <code>VM-Test</code>.',
+        hint: '<code>Start-VM -Name "VM-Test"</code>',
+        validate: (cmd) => /^start-vm\s+/i.test(cmd) && /vm-test/i.test(cmd),
+        successMsg: '✓ Start-VM démarre la VM. Stop-VM -Force pour l\'arrêt forcé. Suspend-VM pour la suspendre.',
+      },
+      {
+        id: 'checkpoint-vm',
+        instruction: 'Crée un checkpoint nommé <code>avant-config</code> sur <code>VM-Test</code>.',
+        hint: '<code>Checkpoint-VM -Name "VM-Test" -SnapshotName "avant-config"</code>',
+        validate: (cmd) => /^checkpoint-vm\s+/i.test(cmd) && /avant-config/i.test(cmd),
+        successMsg: '✓ Checkpoint-VM capture l\'état complet. Toujours nommer avec la date ou l\'action prévue.',
+      },
+      {
+        id: 'get-checkpoint',
+        instruction: 'Liste les checkpoints de la VM <code>VM-Test</code>.',
+        hint: '<code>Get-VMCheckpoint -VMName "VM-Test"</code>',
+        validate: (cmd) => /^get-vmcheckpoint\s+/i.test(cmd),
+        successMsg: '✓ Get-VMCheckpoint liste tous les snapshots. Restore-VMCheckpoint pour restaurer.',
+      },
+      {
+        id: 'stop-vm',
+        instruction: 'Arrête la VM <code>VM-Test</code> proprement.',
+        hint: '<code>Stop-VM -Name "VM-Test"</code>',
+        validate: (cmd) => /^stop-vm\s+/i.test(cmd) && /vm-test/i.test(cmd),
+        successMsg: '✓ Stop-VM envoie un signal d\'arrêt à l\'OS. -Force coupe l\'alimentation immédiatement.',
+      },
+    ],
+  },
+
+  windows_vm_reseau: {
+    id: 'windows_vm_reseau',
+    title: 'Réseaux virtuels Hyper-V',
+    icon: '🌐',
+    desc: 'Commutateurs virtuels, adaptateurs réseau VM',
+    type: 'windows',
+    steps: [
+      {
+        id: 'get-vmswitch',
+        instruction: 'Liste les commutateurs virtuels Hyper-V existants.',
+        hint: '<code>Get-VMSwitch</code>',
+        validate: (cmd) => /^get-vmswitch(\s|$)/i.test(cmd.trim()),
+        successMsg: '✓ Get-VMSwitch affiche le type (External/Internal/Private) et l\'adaptateur lié.',
+      },
+      {
+        id: 'new-vmswitch',
+        instruction: 'Crée un commutateur interne nommé <code>vSwitch-Lab</code>.',
+        hint: '<code>New-VMSwitch -Name "vSwitch-Lab" -SwitchType Internal</code>',
+        validate: (cmd) => /^new-vmswitch\s+/i.test(cmd) && /vswitch-lab/i.test(cmd),
+        successMsg: '✓ Internal = VM↔hôte sans accès réseau externe. Private = VM↔VM uniquement.',
+      },
+      {
+        id: 'add-network-adapter',
+        instruction: 'Connecte <code>VM-Test</code> au commutateur <code>vSwitch-Lab</code>.',
+        hint: '<code>Add-VMNetworkAdapter -VMName "VM-Test" -SwitchName "vSwitch-Lab"</code>',
+        validate: (cmd) => /^add-vmnetworkadapter\s+/i.test(cmd),
+        successMsg: '✓ Add-VMNetworkAdapter ajoute une carte réseau virtuelle. Connect-VMNetworkAdapter pour connecter une existante.',
+      },
+      {
+        id: 'get-vm-state',
+        instruction: 'Affiche l\'état et les ressources de <code>VM-Test</code>.',
+        hint: '<code>Get-VM -Name "VM-Test"</code>',
+        validate: (cmd) => /^get-vm\s+/i.test(cmd) && /vm-test/i.test(cmd),
+        successMsg: '✓ State, CPUUsage, MemoryAssigned, Uptime — toutes les infos d\'une VM en un coup.',
+      },
+      {
+        id: 'get-network-adapter',
+        instruction: 'Liste les adaptateurs réseau de <code>VM-Test</code>.',
+        hint: '<code>Get-VMNetworkAdapter -VMName "VM-Test"</code>',
+        validate: (cmd) => /^get-vmnetworkadapter\s+/i.test(cmd),
+        successMsg: '✓ Affiche le switch connecté, l\'adresse MAC et l\'IP si Hyper-V Integration Services est actif.',
+      },
+      {
+        id: 'test-connection',
+        instruction: 'Teste la connectivité vers l\'hôte Hyper-V depuis ce poste.',
+        hint: '<code>Test-Connection 192.168.1.1</code>',
+        validate: (cmd) => /^test-connection\s+/i.test(cmd.trim()),
+        successMsg: '✓ Test-Connection = ping PowerShell. Retourne un objet avec latence, TTL et adresse source.',
+      },
+    ],
+  },
 };
 
 // ===== MOTEUR SCENARIO =====

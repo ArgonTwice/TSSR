@@ -47,7 +47,7 @@ const MODULE_GROUPS = [
   { label: 'Fondamentaux',  ids: ['numerisation', 'reseaux', 'securite'] },
   { label: 'Linux',          ids: ['linux', 'linux-server'] },
   { label: 'Windows',        ids: ['windows', 'windows-server'] },
-  { label: 'Infrastructure', ids: ['virtualisation', 'cisco'] },
+  { label: 'Infrastructure', ids: ['virtualisation', 'cisco', 'supervision'] },
 ];
 
 function renderNav() {

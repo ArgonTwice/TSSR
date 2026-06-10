@@ -578,76 +578,6 @@ body {
 }
 
 /* ===== COURS TAB ===== */
-.cours-container { max-width: 820px; }
-
-.cours-section {
-  margin-bottom: 40px;
-}
-
-.cours-section h2 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.cours-section h2::before {
-  content: '';
-  display: inline-block;
-  width: 3px;
-  height: 18px;
-  background: var(--accent);
-  border-radius: 2px;
-}
-
-.cours-section p {
-  color: var(--text2);
-  font-size: 14.5px;
-  line-height: 1.8;
-  margin-bottom: 12px;
-}
-
-.cours-section ul, .cours-section ol {
-  color: var(--text2);
-  font-size: 14.5px;
-  line-height: 1.8;
-  padding-left: 20px;
-  margin-bottom: 12px;
-}
-
-.cours-section li { margin-bottom: 4px; }
-
-.cours-section table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13.5px;
-  margin: 16px 0;
-  font-family: var(--font-mono);
-}
-
-.cours-section th {
-  background: var(--bg3);
-  color: var(--text2);
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border-bottom: 1px solid var(--border2);
-}
-
-.cours-section td {
-  padding: 10px 14px;
-  color: var(--text2);
-  border-bottom: 1px solid var(--border);
-}
-
-.cours-section tr:hover td { background: var(--bg3); }
 
 .code-block {
   background: var(--bg3);
@@ -1857,114 +1787,6 @@ body {
   #terminal-fs-content .cli-layout { padding: 10px; }
 }
 
-/* ===== COURS — STEPS & SCHEMA ===== */
-
-/* Steps numérotés style TP */
-.cours-step {
-  display: flex;
-  gap: 0;
-  margin-bottom: 14px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  position: relative;
-}
-.cours-step::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px; height: 100%;
-  background: var(--accent);
-  opacity: 0.5;
-}
-.cours-step-num {
-  background: var(--bg3);
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  min-width: 48px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 14px 6px;
-  border-right: 1px solid var(--border);
-  letter-spacing: 0.03em;
-  flex-shrink: 0;
-}
-.cours-step-body {
-  padding: 12px 16px;
-  flex: 1;
-}
-.cours-step-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 6px;
-}
-.cours-step-content {
-  font-size: 13.5px;
-  color: var(--text2);
-  line-height: 1.7;
-}
-.cours-step-content strong { color: var(--text); }
-.cours-step-content code {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  background: var(--bg4);
-  padding: 1px 5px;
-  border-radius: 3px;
-  color: var(--accent);
-}
-
-/* Bloc "Pourquoi ?" */
-.step-why-block {
-  background: rgba(0,229,160,0.06);
-  border-left: 3px solid rgba(0,229,160,0.4);
-  border-radius: 0 var(--radius) var(--radius) 0;
-  padding: 10px 14px;
-  margin-top: 10px;
-  font-size: 12.5px;
-  color: #9dbd8a;
-  line-height: 1.6;
-}
-.step-why-block strong { color: var(--accent2, #5bc4f7); }
-.step-why-block code {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  background: rgba(0,0,0,0.2);
-  padding: 1px 4px;
-  border-radius: 3px;
-}
-
-/* Schéma ASCII */
-.schema-block {
-  background: #07090f;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--blue);
-  border-radius: var(--radius);
-  padding: 16px 20px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 1.85;
-  overflow-x: auto;
-  margin: 12px 0;
-  white-space: pre;
-}
-
-/* Cours section h2 (reset depuis data) */
-.cours-section h2 {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--text);
-  margin: 32px 0 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-}
-.cours-section h2:first-child { margin-top: 0; }
-
 .html-file-wrap {
   border-radius: 8px;
   overflow: hidden;
@@ -1976,7 +1798,7 @@ body {
   width: 100%;
   height: 82vh;
   border: none;
-  background: #fff;
+  background: var(--bg);
 }
 
 /* ===== NOTES ===== */
@@ -2063,4 +1885,418 @@ body {
   color: var(--text2);
   white-space: pre-wrap;
   line-height: 1.6;
+}
+
+/* ===== COURS — REFONTE COMPLÈTE ===== */
+
+.cours-container { max-width: 860px; }
+
+.cours-sommaire {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  margin-bottom: 32px;
+}
+.cours-sommaire-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.cours-sommaire-link {
+  display: block;
+  font-size: 13.5px;
+  color: var(--text2);
+  text-decoration: none;
+  padding: 4px 0;
+  transition: color var(--transition);
+  font-weight: 600;
+}
+.cours-sommaire-link:hover { color: var(--accent); }
+
+.cours-article {
+  margin-bottom: 48px;
+  scroll-margin-top: 20px;
+}
+.cours-article + .cours-article {
+  border-top: 1px solid var(--border);
+  padding-top: 40px;
+}
+
+.cours-article-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.cours-article-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-radius: 6px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+.cours-article-title {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+.cours-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cours-badge-test  { background: var(--amber-dim); color: var(--amber); }
+.cours-badge-draft { background: var(--red-dim); color: var(--red); }
+.cours-badge-new   { background: var(--accent-dim); color: var(--accent); }
+
+.cours-content h2 {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  margin: 32px 0 14px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid var(--border) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.cours-content h2::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.cours-content h2:first-child { margin-top: 0 !important; }
+
+.cours-content h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text2);
+  margin: 22px 0 10px;
+  padding-left: 12px;
+  border-left: 2px solid var(--border2);
+}
+
+.cours-content p {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 14px;
+}
+.cours-content p strong { color: var(--text); }
+.cours-content p code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg4);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+.cours-content ul,
+.cours-content ol {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.8;
+  padding-left: 22px;
+  margin-bottom: 14px;
+}
+.cours-content li { margin-bottom: 5px; }
+.cours-content li code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg4);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+.cours-content .code-block {
+  background: #07090f;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: #b8c4a8;
+  line-height: 1.75;
+  overflow-x: auto;
+  margin: 14px 0;
+  white-space: pre;
+}
+
+.cours-content .info-box {
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 13.5px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin: 14px 0;
+}
+.cours-content .info-box strong { color: #93c5fd; }
+.cours-content .info-box code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: rgba(59,130,246,0.15);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #93c5fd;
+}
+
+.cours-content .warn-box {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 13.5px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin: 14px 0;
+}
+.cours-content .warn-box strong { color: #fcd34d; }
+
+.cours-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 16px 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.cours-content th {
+  background: var(--bg3);
+  color: var(--text2);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border2);
+  font-family: var(--font-mono);
+}
+.cours-content td {
+  padding: 10px 14px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+  vertical-align: top;
+}
+.cours-content td code {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  background: var(--bg4);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+.cours-content td strong { color: var(--text); }
+.cours-content tr:last-child td { border-bottom: none; }
+.cours-content tr:hover td { background: rgba(255,255,255,0.02); }
+
+.cours-content .schema-block {
+  background: #07090f;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.9;
+  overflow-x: auto;
+  margin: 14px 0;
+  white-space: pre;
+}
+
+.cours-content .cours-step {
+  display: flex;
+  gap: 0;
+  margin-bottom: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.cours-content .cours-step-num {
+  background: var(--bg4);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 52px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 14px 6px;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.cours-content .cours-step-body { padding: 12px 16px; flex: 1; }
+.cours-content .cours-step-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.cours-content .cours-step-content {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.cours-content .cours-step-content code {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  background: var(--bg4);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+.cours-content .step-why-block {
+  background: rgba(0,229,160,0.05);
+  border-left: 2px solid rgba(0,229,160,0.3);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: #7db899;
+  line-height: 1.6;
+}
+.cours-content .step-why-block strong { color: var(--accent2, #5bc4f7); }
+.cours-content .step-why-block code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: rgba(0,0,0,0.2);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.cours-html-block {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.cours-html-block table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.cours-html-block th {
+  background: var(--bg3);
+  color: var(--text2);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border2);
+}
+.cours-html-block td {
+  padding: 10px 14px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+}
+.cours-html-block tr:last-child td { border-bottom: none; }
+.cours-html-block code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg4);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+.cours-html-block pre {
+  background: #07090f;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: #b8c4a8;
+  line-height: 1.75;
+  overflow-x: auto;
+  margin: 14px 0;
+  white-space: pre;
+}
+.cours-html-block pre code { background: none; color: inherit; padding: 0; }
+.cours-html-block h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 28px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.cours-html-block h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text2);
+  margin: 18px 0 8px;
+}
+.cours-html-block ul, .cours-html-block ol {
+  padding-left: 22px;
+  margin-bottom: 12px;
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.cours-html-block p {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+.cours-html-block section {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+.tag.cli-tag     { background: rgba(0,229,160,0.1) !important; color: #00b87a !important; }
+.tag.cli-tag-win { background: rgba(59,130,246,0.1) !important; color: #60a5fa !important; }
+
+@media (max-width: 768px) {
+  .cours-article-title { font-size: 18px !important; }
+  .cours-content .code-block { font-size: 11.5px; padding: 12px 14px; }
+  .cours-content table { font-size: 12px; }
+  .cours-content th, .cours-content td { padding: 8px 10px; }
 }

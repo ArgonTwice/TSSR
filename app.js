@@ -115,36 +115,29 @@ function renderHome() {
   renderNav();
   const stats = document.getElementById('home-stats');
   const totalCours = MODULES.reduce((a, m) => a + m.cours.length, 0);
-  const totalFC = MODULES.reduce((a, m) => a + m.flashcards.length, 0);
-  const totalQCM = MODULES.reduce((a, m) => a + m.qcm.length, 0);
   stats.innerHTML = `
     <div class="stat-card"><span class="stat-num">${MODULES.length}</span><span class="stat-lbl">Modules</span></div>
     <div class="stat-card"><span class="stat-num">${totalCours}</span><span class="stat-lbl">Cours</span></div>
-    <div class="stat-card"><span class="stat-num">${totalFC}</span><span class="stat-lbl">Flashcards</span></div>
-    <div class="stat-card"><span class="stat-num">${totalQCM}</span><span class="stat-lbl">Questions</span></div>
     <div class="stat-card"><span class="stat-num">${globalProgress()}%</span><span class="stat-lbl">Progression</span></div>`;
   const grid = document.getElementById('module-grid');
   grid.innerHTML = '';
   MODULES.forEach((m, i) => {
     const prog = getProgress(m.id);
-    const hasContent = m.cours.length || m.flashcards.length || m.qcm.length;
     const card = document.createElement('div');
     card.className = 'module-card';
     card.style = `--card-color:${m.color};animation-delay:${i*40}ms`;
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', `Module ${m.label}`);
-    const tags = ['cours','flashcards','qcm'].map(t => {
-      const cnt = m[t].length;
-      return `<span class="tag ${cnt?'has-content':''}">${t==='qcm'?'QCM':t}${cnt?` (${cnt})`:''}</span>`;
-    });
-    const hasCli = m.linux_cli || m.windows_cli;
-    if (hasCli) {
-      if (m.linux_cli) tags.push('<span class="tag has-content cli-tag">CLI Linux</span>');
-      if (m.windows_cli) tags.push('<span class="tag has-content cli-tag-win">CLI Windows</span>');
-    }
+    const tags = [];
+    if (m.cours.length)  tags.push(`<span class="tag has-content">cours (${m.cours.length})</span>`);
+    if (m.linux_cli)     tags.push('<span class="tag cli-tag">CLI Linux</span>');
+    if (m.windows_cli)   tags.push('<span class="tag cli-tag-win">CLI Windows</span>');
+    if (m.gameshell)     tags.push('<span class="tag cli-tag">GameShell</span>');
+    if (m.netrunner)     tags.push('<span class="tag cli-tag-win">NetRunner</span>');
+    if (!tags.length)    tags.push('<span class="tag">À venir</span>');
     card.innerHTML = `
-      ${!hasContent && !hasCli ? '<span class="module-empty-badge">À venir</span>' : ''}
+      ${!m.cours.length && !m.linux_cli && !m.windows_cli ? '<span class="module-empty-badge">À venir</span>' : ''}
       <span class="module-card-icon">${m.icon}</span>
       <div class="module-card-title">${m.label}</div>
       <div class="module-card-desc">${m.desc}</div>
@@ -175,8 +168,6 @@ function openModule(moduleId) {
 
   const tabs = [];
   if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',        icon: '📖', cli: false });
-  if (m.flashcards.length)  tabs.push({ id: 'flashcards',  label: 'Cartes',       icon: '🃏', cli: false });
-  if (m.qcm.length)         tabs.push({ id: 'qcm',         label: 'QCM',          icon: '✅', cli: false });
   if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧', cli: true,  color: '#00e5a0' });
   if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟', cli: true,  color: '#3b82f6' });
   if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'Pratique',      icon: '🎮', cli: true, color: '#00e5a0' });
@@ -228,8 +219,6 @@ function renderTabContent(tabId) {
     return;
   }
   if (tabId === 'cours')       renderCours(m, el);
-  else if (tabId === 'flashcards') renderFlashcards(m, el);
-  else if (tabId === 'qcm')    renderQCM(m, el);
   else if (tabId === 'linux_cli')   renderCLI('linux', m, el);
   else if (tabId === 'windows_cli') renderCLI('windows', m, el);
   else if (tabId === 'gameshell')    renderGameshell(el);
@@ -270,23 +259,50 @@ function renderCours(m, el) {
   }
   const wrap = document.createElement('div');
   wrap.className = 'cours-container';
-  m.cours.forEach(cours => {
-    const sec = document.createElement('article');
-    const badgeHtml = cours.badge === 'test'
-      ? '<span style="background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:10px;vertical-align:middle;letter-spacing:.5px">TEST</span>'
-      : '';
-    sec.innerHTML = `<div class="cours-section"><h2>${cours.titre}${badgeHtml}</h2>${renderCoursContent(cours.sections)}</div>`;
-    wrap.appendChild(sec);
+
+  if (m.cours.length > 1) {
+    const sommaire = document.createElement('nav');
+    sommaire.className = 'cours-sommaire';
+    sommaire.innerHTML = '<div class="cours-sommaire-title">📋 Sommaire</div>' +
+      m.cours.map((c, i) =>
+        `<a class="cours-sommaire-link" href="#cours-${c.id}">${i + 1}. ${c.titre}</a>`
+      ).join('');
+    wrap.appendChild(sommaire);
+  }
+
+  m.cours.forEach((cours, idx) => {
+    const article = document.createElement('article');
+    article.className = 'cours-article';
+    article.id = `cours-${cours.id}`;
+
+    const header = document.createElement('div');
+    header.className = 'cours-article-header';
+    header.innerHTML = `
+      <div class="cours-article-num">0${idx + 1}</div>
+      <div>
+        <h2 class="cours-article-title">${cours.titre}</h2>
+        ${cours.badge ? `<span class="cours-badge cours-badge-${cours.badge}">${cours.badge.toUpperCase()}</span>` : ''}
+      </div>`;
+    article.appendChild(header);
+
+    const content = document.createElement('div');
+    content.className = 'cours-content';
+    content.innerHTML = renderCoursContent(cours.sections);
+    article.appendChild(content);
+
+    wrap.appendChild(article);
   });
+
   el.innerHTML = '';
   el.appendChild(wrap);
-  setProgress(m.id, { pct: Math.max(getProgress(m.id).pct||0, 33) });
+  setProgress(m.id, { pct: Math.max(getProgress(m.id).pct || 0, 33) });
 }
 function renderCoursContent(sections) {
   if (!sections) return '';
   return sections.map(s => {
     if (typeof s === 'string') return `<p>${s}</p>`;
     if (s.type === 'p')     return `<p>${s.content}</p>`;
+    if (s.type === 'html')  return `<div class="cours-html-block">${s.content}</div>`;
     if (s.type === 'code')  return `<pre class="code-block">${escHtml(s.content)}</pre>`;
     if (s.type === 'info')  return `<div class="info-box">${s.content}</div>`;
     if (s.type === 'warn')  return `<div class="warn-box">${s.content}</div>`;
@@ -294,7 +310,7 @@ function renderCoursContent(sections) {
     if (s.type === 'ol')    return `<ol>${s.items.map(i=>`<li>${i}</li>`).join('')}</ol>`;
     if (s.type === 'table') return renderTable(s);
     if (s.type === 'h2')    return `<h2>${s.content}</h2>`;
-    if (s.type === 'h3')    return `<h3 style="font-size:15px;font-weight:700;color:var(--text);margin:20px 0 10px">${s.content}</h3>`;
+    if (s.type === 'h3')    return `<h3>${s.content}</h3>`;
     if (s.type === 'schema') return renderSchema(s.content);
     if (s.type === 'steps')  return renderSteps(s.items);
     if (s.type === 'html-file') return `<div class="html-file-wrap"><iframe src="${s.src}" class="cours-iframe" title="Cours" loading="lazy"></iframe></div>`;

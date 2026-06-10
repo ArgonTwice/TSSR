@@ -11,56 +11,105 @@
       --r:#ff2040;--b:#00ccff;--y:#ffaa00;
     }
     html,body{height:100%;background:#000;overflow:hidden}
-    /* CRT scanlines */
     body::after{
       content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       background:repeating-linear-gradient(0deg,transparent 0,transparent 1px,rgba(0,0,0,.06) 1px,rgba(0,0,0,.06) 2px);
     }
+
+    /* ── App container ── */
     #app{
       height:100vh;display:flex;flex-direction:column;
-      color:var(--g);font-family:'Courier New',Courier,monospace;font-size:14px;
+      color:var(--g);font-family:'Courier New',Courier,monospace;font-size:13px;
+      padding:10px;gap:6px;
     }
-    /* ── Header ── */
+
+    /* ── Info-box ── */
+    #info-box{
+      flex-shrink:0;background:#0d1117;border-radius:6px;
+      padding:8px 16px;font-size:12px;color:var(--gd);
+    }
+    #info-box strong{color:var(--g)}
+
+    /* ── Mission table ── */
+    #mission-table-wrap{
+      flex-shrink:0;max-height:150px;overflow-y:auto;
+      background:#0d1117;border-radius:8px;padding:10px;
+    }
+    #mission-table-wrap::-webkit-scrollbar{width:3px}
+    #mission-table-wrap::-webkit-scrollbar-track{background:#0d1117}
+    #mission-table-wrap::-webkit-scrollbar-thumb{background:var(--gdk);border-radius:2px}
+    #mission-table{
+      width:100%;border-collapse:collapse;
+      font-size:12px;font-family:'Courier New',Courier,monospace;table-layout:fixed;
+    }
+    #mission-table col.c1{width:30%}
+    #mission-table col.c2{width:40%}
+    #mission-table col.c3{width:30%}
+    #mission-table th{
+      color:var(--gd);text-align:left;padding:4px 8px;
+      border-bottom:1px solid #1a2a1a;font-weight:normal;letter-spacing:1px;
+    }
+    #mission-table td{
+      padding:0 8px;height:36px;
+      border-right:1px solid #1a2a1a;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      vertical-align:middle;
+    }
+    #mission-table td:last-child{border-right:none}
+    #mission-table tbody tr:not(:last-child) td{border-bottom:1px solid #0a1a0a}
+    #mission-table td:first-child{color:var(--g)}
+    #mission-table td:last-child{color:var(--gd)}
+
+    /* ── Terminal header ── */
     #hdr{
+      flex-shrink:0;height:40px;min-height:40px;
       display:flex;align-items:center;justify-content:space-between;
-      padding:5px 16px;border-bottom:1px solid var(--gdk);
-      background:rgba(0,255,65,.03);flex-shrink:0;gap:8px;min-height:38px;
+      padding:0 16px;background:#0a1628;border-radius:6px;gap:8px;
     }
-    #hdr-l{font-size:12px;color:var(--gd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #hdr-l{font-size:13px;color:var(--gd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     #hdr-l strong{color:var(--g)}
-    #hdr-m{font-size:11px;color:var(--gd);flex:1;text-align:center;letter-spacing:1px}
+    #hdr-m{font-size:13px;color:var(--gd);flex:1;text-align:center;letter-spacing:1px;white-space:nowrap}
     #timer{
-      font-size:20px;font-weight:bold;letter-spacing:2px;min-width:58px;text-align:right;
+      font-size:16px;font-weight:bold;color:#00ff41;
+      letter-spacing:2px;min-width:52px;text-align:right;
       font-variant-numeric:tabular-nums;
     }
-    .tok{color:var(--g)}
+    .tok{color:#00ff41}
     .twarn{color:var(--y)}
     .tdanger{color:var(--r);animation:tpulse .55s infinite}
     @keyframes tpulse{0%,100%{opacity:1;text-shadow:0 0 10px var(--r)}50%{opacity:.55;text-shadow:none}}
-    /* ── Terminal ── */
-    #term{flex:1;overflow-y:auto;padding:10px 16px 6px;scroll-behavior:smooth}
+
+    /* ── Terminal output ── */
+    #term{
+      flex:1;overflow-y:auto;background:#000;
+      padding:12px 16px;scroll-behavior:smooth;
+      border-radius:6px;min-height:0;
+    }
     #term::-webkit-scrollbar{width:3px}
     #term::-webkit-scrollbar-track{background:#000}
     #term::-webkit-scrollbar-thumb{background:var(--gdk);border-radius:2px}
-    .ln{line-height:1.58;white-space:pre-wrap;word-break:break-word;min-height:1em}
+    .ln{line-height:1.5;word-wrap:break-word;word-break:break-word;min-height:1em}
     .ln-i   {color:var(--g)}
-    .ln-ok  {color:var(--g)}
-    .ln-err {color:#ff5555}
+    .ln-ok  {color:#00e5a0}
+    .ln-err {color:#ff4444}
     .ln-sys {color:var(--b)}
-    .ln-hint{color:var(--y)}
-    .ln-ctx {color:#999999;font-style:italic}
+    .ln-hint{color:#00ff41}
+    .ln-ctx {color:#aaaaaa;font-style:italic}
     .ln-sep {color:var(--gdk)}
-    /* ── Input ── */
+
+    /* ── Input bar ── */
     #inp-row{
-      display:flex;align-items:center;padding:7px 16px;
-      border-top:1px solid var(--gdk);background:#000;flex-shrink:0;
+      flex-shrink:0;height:44px;min-height:44px;
+      display:flex;align-items:center;padding:0 16px;
+      border-top:1px solid #1a2a1a;background:#000;border-radius:6px;
     }
-    #prompt{color:var(--g);margin-right:4px;user-select:none;white-space:nowrap}
+    #prompt{color:#00ff41;margin-right:4px;user-select:none;white-space:nowrap;font-size:14px}
     #cmd{
       flex:1;background:transparent;border:none;outline:none;
-      color:var(--g);font:inherit;caret-color:var(--g);
+      color:#00ff41;font:inherit;font-size:14px;caret-color:#00ff41;
     }
     #cmd::placeholder{color:var(--gdk)}
+
     /* ── Overlays ── */
     .ov{
       position:fixed;inset:0;display:flex;flex-direction:column;
@@ -94,6 +143,7 @@
       25%{transform:translate(-2px,1px);filter:hue-rotate(60deg)}
       75%{transform:translate(2px,-1px);filter:hue-rotate(-60deg)}
     }
+
     /* ── Boot ── */
     #boot{
       position:fixed;inset:0;background:#000;color:var(--g);
@@ -123,17 +173,60 @@
 
 <!-- App -->
 <div id="app">
+
+  <!-- Info-box -->
+  <div id="info-box">🎮 Jeu PowerShell/CMD — 3 missions · tape <strong>help</strong> pour les indices</div>
+
+  <!-- Mission table -->
+  <div id="mission-table-wrap">
+    <table id="mission-table">
+      <colgroup>
+        <col class="c1"><col class="c2"><col class="c3">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Mission</th>
+          <th>Objectif</th>
+          <th>Commandes clés</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1 — Infiltration Initiale</td>
+          <td>Éliminer un virus bloquant C:\Temp, lister et lire le flag</td>
+          <td>taskkill · dir · type</td>
+        </tr>
+        <tr>
+          <td>2 — Extraction de Données</td>
+          <td>Localiser des credentials cachés sur le serveur</td>
+          <td>tasklist · taskkill · dir · type</td>
+        </tr>
+        <tr>
+          <td>3 — Nettoyage des Traces</td>
+          <td>Effacer les logs avant détection IDS</td>
+          <td>wevtutil el · cl security · qe security</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Terminal header -->
   <div id="hdr">
     <div id="hdr-l"><strong id="hm">MISSION 1/3</strong> — <span id="hn">…</span></div>
-    <div id="hdr-m" id="hs">ÉTAPE 1/—</div>
+    <div id="hdr-m">ÉTAPE 1/—</div>
     <div id="timer" class="tok">00:00</div>
   </div>
+
+  <!-- Terminal output -->
   <div id="term"><div id="out"></div></div>
+
+  <!-- Input bar -->
   <div id="inp-row">
     <span id="prompt">C:\&gt;&nbsp;</span>
     <input id="cmd" type="text" autocomplete="off" autocorrect="off"
            autocapitalize="off" spellcheck="false" placeholder="entrez une commande...">
   </div>
+
 </div>
 
 <!-- Game Over -->
@@ -495,7 +588,7 @@ function bootStep() {
     setTimeout(() => { bootEl.classList.add('h'); initMission(0); }, 350);
     return;
   }
-  bootMsgEl.textContent = BOOT_MSGS[bi++] || ' ';
+  bootMsgEl.textContent = BOOT_MSGS[bi++] || ' ';
   setTimeout(bootStep, bi === BOOT_MSGS.length ? 550 : 230);
 }
 setTimeout(bootStep, 200);

@@ -544,126 +544,133 @@ const MODULES = [
     topics: ['Système de fichiers', 'VIM', 'Droits', 'Processus', 'APT', 'Redirections'],
     cours: [
       {
-        id: 'encyclopedie-linux',
-        titre: 'Encyclopédie Linux — Formation TSSR',
+        id: 'linux-fondamentaux',
+        titre: 'Linux — Fondamentaux et Philosophie',
         sections: [
 
-          // 1. Installation & Philosophie
-          { type: 'h2', content: '1. Installation &amp; Philosophie' },
-          { type: 'p', content: 'Linux est un noyau open-source utilisé dans la majorité des serveurs, équipements réseau et systèmes embarqués. En formation TSSR, on travaille généralement sous Debian/Ubuntu dans une machine virtuelle (VirtualBox ou VMware).' },
-          { type: 'info', content: '<strong>Virtualisation :</strong> une VM Linux s\'installe depuis une image ISO. On choisit la langue, le partitionnement (ext4 recommandé) et un utilisateur non-root dès l\'installation.' },
-          { type: 'table', headers: ['Compte', 'Rôle', 'Invite de commande'], rows: [
-            ['root', 'Super-administrateur, droits illimités', '<code>#</code>'],
-            ['utilisateur', 'Compte courant, droits limités', '<code>$</code>'],
-          ]},
-          { type: 'warn', content: '<strong>Ne jamais travailler en root au quotidien.</strong> Utiliser <code>sudo</code> pour élever les privilèges ponctuellement.' },
-          { type: 'code', content: 'sudo apt update          # exécute apt en tant que root\nsudo -i                  # ouvre un shell root (quitter avec exit)\nwhoami                   # affiche l\'utilisateur courant\nid                       # UID, GID et groupes' },
-
-          // 2. Navigation & Système de fichiers
-          { type: 'h2', content: '2. Navigation &amp; Système de fichiers' },
-          { type: 'p', content: 'Linux utilise une arborescence unique enracinée en <code>/</code>. Pas de lettres de lecteur comme sous Windows : tout est monté sous la racine.' },
-          { type: 'table', headers: ['Répertoire', 'Contenu'], rows: [
-            ['<code>/</code>',     'Racine du système'],
-            ['<code>/etc</code>',  'Fichiers de configuration système'],
-            ['<code>/home</code>', 'Répertoires personnels des utilisateurs'],
-            ['<code>/var</code>',  'Données variables (logs, bases, cache)'],
-            ['<code>/bin</code>',  'Binaires essentiels (ls, cp, mv…)'],
-            ['<code>/usr</code>',  'Applications installées'],
-            ['<code>/tmp</code>',  'Fichiers temporaires (vidés au reboot)'],
-            ['<code>/proc</code>', 'Pseudo-FS : infos noyau/processus en temps réel'],
-          ]},
-          { type: 'code', content: 'pwd                      # affiche le répertoire courant\nls                       # liste les fichiers\nls -l                    # format long (droits, taille, date)\nls -la                   # idem + fichiers cachés (commençant par .)\nls -lh                   # tailles lisibles (Ko, Mo)\ncd /etc                  # aller dans /etc\ncd ~                     # aller dans son home\ncd ..                    # remonter d\'un niveau\ncd -                     # revenir au répertoire précédent\ntree                     # arborescence graphique (si installé)' },
-          { type: 'info', content: '<strong>Chemin absolu vs relatif :</strong> <code>/home/user/docs</code> est absolu (part de /). <code>../docs</code> est relatif (part du répertoire courant).' },
-
-          // 3. Manipulation de fichiers
-          { type: 'h2', content: '3. Manipulation de fichiers' },
-          { type: 'code', content: 'mkdir dossier            # créer un répertoire\nmkdir -p a/b/c           # créer l\'arborescence complète\ntouch fichier.txt        # créer un fichier vide (ou mettre à jour la date)\ncp source dest           # copier un fichier\ncp -r src/ dest/         # copier un dossier (récursif)\nmv ancien nouveau        # déplacer ou renommer\nrm fichier               # supprimer un fichier\nrm -r dossier/           # supprimer un dossier et son contenu\nrm -rf dossier/          # idem, sans confirmation (dangereux)' },
-          { type: 'warn', content: '<strong>rm -rf</strong> est irréversible. Il n\'y a pas de corbeille en ligne de commande. Vérifier deux fois avant d\'exécuter.' },
-          { type: 'code', content: 'cat fichier.txt          # afficher le contenu\nless fichier.txt         # affichage page par page (q pour quitter)\nhead -n 5 fichier.txt    # 5 premières lignes\ntail -n 5 fichier.txt    # 5 dernières lignes\ntail -f /var/log/syslog  # suivre un fichier en temps réel\nwc -l fichier.txt        # compter les lignes\nfile fichier             # type du fichier' },
-
-          // 4. Édition VIM
-          { type: 'h2', content: '4. Édition VIM' },
-          { type: 'p', content: 'VIM est l\'éditeur de texte en ligne de commande incontournable. Il fonctionne par modes : on ne tape pas directement comme dans un éditeur graphique.' },
-          { type: 'table', headers: ['Mode', 'Description', 'Accès'], rows: [
-            ['Normal',    'Navigation, copier/coller, suppression', 'Touche <code>Échap</code>'],
-            ['Insertion', 'Saisie de texte',                        '<code>i</code> (avant curseur), <code>a</code> (après), <code>o</code> (nouvelle ligne)'],
-            ['Commande',  'Sauvegarder, quitter, rechercher',       '<code>:</code> depuis le mode Normal'],
-          ]},
-          { type: 'steps', items: [
-            { num: '1', title: 'Ouvrir un fichier',         code: 'vim fichier.txt' },
-            { num: '2', title: 'Passer en mode insertion',  content: 'Appuyer sur <kbd>i</kbd>' },
-            { num: '3', title: 'Écrire du texte',           content: 'Saisir normalement' },
-            { num: '4', title: 'Revenir en mode normal',    content: 'Appuyer sur <kbd>Échap</kbd>' },
-            { num: '5', title: 'Sauvegarder et quitter',    code: ':wq' },
-          ]},
-          { type: 'table', headers: ['Commande', 'Action'], rows: [
-            ['<code>:w</code>',    'Sauvegarder'],
-            ['<code>:q</code>',    'Quitter (si pas de modification)'],
-            ['<code>:wq</code>',   'Sauvegarder et quitter'],
-            ['<code>:q!</code>',   'Quitter sans sauvegarder (forcer)'],
-            ['<code>/mot</code>',  'Rechercher "mot" (n = occurrence suivante)'],
-            ['<code>dd</code>',    'Supprimer la ligne courante (mode normal)'],
-            ['<code>yy</code>',    'Copier la ligne (yank)'],
-            ['<code>p</code>',     'Coller après le curseur'],
-            ['<code>u</code>',     'Annuler (undo)'],
-            ['<code>Ctrl+r</code>','Rétablir (redo)'],
+          { type: 'h2', content: '1. Qu\'est-ce que Linux ?' },
+          { type: 'p', content: 'Linux est un <strong>noyau</strong> (kernel) créé par Linus Torvalds en 1991. Ce que l\'on appelle communément "Linux" est en réalité un assemblage : <strong>Noyau Linux + Outils GNU + Environnement</strong>. C\'est pourquoi on devrait dire GNU/Linux.' },
+          { type: 'table', headers: ['Composant', 'Rôle', 'Exemple'], rows: [
+            ['Noyau (Kernel)', 'Gère le matériel, la mémoire, les processus', 'linux-6.1.0'],
+            ['Shell', 'Interface entre l\'utilisateur et le noyau', 'bash zsh fish'],
+            ['Outils GNU', 'Commandes de base (ls cp mv grep...)', 'coreutils binutils'],
+            ['Gestionnaire de paquets', 'Installe/met à jour les logiciels', 'apt (Debian) yum (RHEL)'],
+            ['Init système', 'Premier processus (PID 1), démarre les services', 'systemd (moderne)'],
+            ['Bibliothèques système', 'Code partagé entre les programmes', 'glibc'],
           ]},
 
-          // 5. Droits Linux
-          { type: 'h2', content: '5. Droits Linux' },
-          { type: 'p', content: 'Chaque fichier a des droits pour 3 entités : le propriétaire (u), le groupe (g), et les autres (o). Les droits sont r (lecture), w (écriture), x (exécution).' },
-          { type: 'table', headers: ['Droit', 'Lettre', 'Valeur octale'], rows: [
-            ['Lecture',    'r', '4'],
-            ['Écriture',   'w', '2'],
-            ['Exécution',  'x', '1'],
-            ['Aucun droit','—', '0'],
+          { type: 'h2', content: '2. Les distributions Linux' },
+          { type: 'table', headers: ['Distribution', 'Base', 'Gestionnaire paquets', 'Usage', 'Certifications'], rows: [
+            ['Debian', 'Debian', 'apt/dpkg', 'Serveurs stables', 'LPIC'],
+            ['Ubuntu Server', 'Debian', 'apt/dpkg', 'Serveurs cloud débutants', 'LPIC Ubuntu'],
+            ['Red Hat Enterprise (RHEL)', 'RHEL', 'dnf/rpm', 'Entreprises support payant', 'RHCE RHCSA'],
+            ['AlmaLinux / Rocky', 'RHEL compatible', 'dnf/rpm', 'Alternative RHEL gratuite', 'RHCSA'],
+            ['CentOS Stream', 'RHEL upstream', 'dnf/rpm', 'Test avant RHEL', '—'],
+            ['openSUSE', 'SUSE', 'zypper/rpm', 'Entreprises Europe', 'SUSE CLA'],
+            ['Kali Linux', 'Debian', 'apt/dpkg', 'Tests de pénétration', 'OSCP'],
           ]},
-          { type: 'info', content: '<strong>Lecture rapide de chmod :</strong> <code>755</code> = rwxr-xr-x (propriétaire : tout ; groupe et autres : lecture + exécution). <code>644</code> = rw-r--r-- (fichier de config type).' },
-          { type: 'code', content: 'ls -l fichier.txt\n# -rw-r--r-- 1 alice staff 1024 juin  9 10:00 fichier.txt\n#  ^^^       ^\n#  droits    |— nb liens\n#  u=rw g=r o=r\n\nchmod 755 script.sh      # rwxr-xr-x\nchmod +x  script.sh      # ajouter exécution à tous\nchmod u+w fichier.txt    # ajouter écriture au propriétaire\nchmod o-r fichier.txt    # retirer lecture aux autres\n\nchown alice fichier.txt         # changer propriétaire\nchown alice:staff fichier.txt   # changer propriétaire et groupe\nchgrp staff fichier.txt         # changer groupe uniquement' },
+          { type: 'info', content: '<strong>Pour le TSSR :</strong> Debian est la distribution de référence. Les commandes sont identiques sur Ubuntu. Les concepts sont transposables sur RHEL/CentOS avec quelques différences (dnf au lieu d\'apt, firewalld au lieu d\'ufw).' },
 
-          // 6. Redirections & Flux
-          { type: 'h2', content: '6. Redirections &amp; Flux' },
-          { type: 'table', headers: ['Flux', 'Numéro', 'Description'], rows: [
-            ['stdin',  '0', 'Entrée standard (clavier par défaut)'],
-            ['stdout', '1', 'Sortie standard (terminal par défaut)'],
-            ['stderr', '2', 'Sortie d\'erreur (terminal par défaut)'],
+          { type: 'h2', content: '3. L\'arborescence Linux (FHS)' },
+          { type: 'p', content: 'Le Filesystem Hierarchy Standard définit où chaque type de fichier doit être placé. Contrairement à Windows (C:\\, D:\\), Linux a une seule racine : <strong>/</strong>' },
+          { type: 'table', headers: ['Répertoire', 'Contenu', 'Exemples de fichiers'], rows: [
+            ['/', 'Racine — point de départ de tout', '—'],
+            ['/etc', 'Fichiers de configuration système', '/etc/passwd /etc/ssh/sshd_config /etc/hosts'],
+            ['/home', 'Répertoires personnels des utilisateurs', '/home/anthony /home/marie'],
+            ['/root', 'Répertoire personnel de root', '~root'],
+            ['/var', 'Données variables (logs, BDD, mails, web)', '/var/log /var/www /var/lib/mysql'],
+            ['/tmp', 'Fichiers temporaires (vidé au démarrage)', 'Fichiers de session upload'],
+            ['/usr', 'Programmes et données utilisateurs', '/usr/bin /usr/lib /usr/share'],
+            ['/bin', 'Commandes essentielles', 'ls cp mv grep bash'],
+            ['/sbin', 'Commandes système (root)', 'fdisk iptables reboot'],
+            ['/lib', 'Bibliothèques partagées', 'glibc.so libc.so'],
+            ['/dev', 'Fichiers de périphériques', '/dev/sda /dev/null /dev/random'],
+            ['/proc', 'Système de fichiers virtuel (info noyau)', '/proc/cpuinfo /proc/meminfo /proc/net'],
+            ['/sys', 'Système de fichiers virtuel (matériel)', '/sys/class/net /sys/block'],
+            ['/mnt', 'Points de montage temporaires', 'Disques USB montés manuellement'],
+            ['/media', 'Points de montage automatiques', 'CD-ROM clés USB'],
+            ['/opt', 'Logiciels optionnels tiers', '/opt/google /opt/vmware'],
+            ['/boot', 'Noyau et bootloader', '/boot/vmlinuz /boot/grub'],
           ]},
-          { type: 'code', content: 'ls > liste.txt           # redirige stdout vers fichier (écrase)\nls >> liste.txt          # redirige stdout (ajoute)\nls 2> erreurs.txt        # redirige stderr vers fichier\nls > tout.txt 2>&1       # redirige stdout ET stderr\nls 2>/dev/null           # jeter les erreurs\ncat < fichier.txt        # stdin depuis fichier\ncommande1 | commande2    # pipe : stdout1 → stdin2\necho "texte" | wc -c    # compter les caractères via pipe' },
-          { type: 'info', content: '<strong>Chaîner avec pipes :</strong> <code>cat /etc/passwd | grep bash | cut -d: -f1</code> — affiche les utilisateurs avec bash comme shell.' },
+          { type: 'code', content: '# Tout est fichier sous Linux — même les périphériques !\nls /dev/\n# sda        → Premier disque dur SCSI/SATA\n# sda1       → Première partition de sda\n# sdb        → Deuxième disque\n# nvme0n1    → SSD NVMe\n# nvme0n1p1  → Première partition NVMe\n# tty0       → Terminal console\n# ttyS0      → Port série COM1\n# null       → Trou noir (jeter des données)\n# zero       → Source de zéros infinie\n# random     → Générateur de nombres aléatoires\n# urandom    → Générateur aléatoire non-bloquant\n\n# Exemples d\'utilisation des fichiers spéciaux :\ncat /dev/null                          # Fichier vide\ndd if=/dev/zero of=/tmp/test bs=1M count=100   # Créer un fichier de 100Mo\njournalctl > /dev/null 2>&1            # Jeter toute la sortie' },
 
-          // 7. Gestion processus & services
-          { type: 'h2', content: '7. Gestion des processus &amp; services' },
-          { type: 'h3', content: 'Processus' },
-          { type: 'code', content: 'ps aux                   # liste tous les processus\nps aux | grep nginx      # filtrer par nom\ntop                      # moniteur interactif (q pour quitter)\nhtop                     # version améliorée (si installé)\nkill 1234                # envoyer SIGTERM au PID 1234\nkill -9 1234             # forcer la fin (SIGKILL)\npkill nginx              # tuer par nom\nkillall nginx            # tuer toutes les instances\nnohup cmd &              # lancer en arrière-plan, immunisé au logout' },
-          { type: 'code', content: 'commande &               # lancer en arrière-plan\njobs                     # lister les tâches en arrière-plan\nfg %1                    # ramener la tâche 1 au premier plan\nbg %1                    # reprendre la tâche 1 en arrière-plan\nCtrl+Z                   # suspendre la commande en cours\nCtrl+C                   # interrompre la commande en cours' },
-          { type: 'h3', content: 'Services (systemd)' },
-          { type: 'code', content: 'systemctl status ssh              # état du service ssh\nsystemctl start  ssh             # démarrer\nsystemctl stop   ssh             # arrêter\nsystemctl restart ssh            # redémarrer\nsystemctl enable  ssh            # activer au démarrage\nsystemctl disable ssh            # désactiver au démarrage\nsystemctl list-units --type=service   # lister les services\njournalctl -u ssh                # logs du service ssh\njournalctl -f                    # suivre les logs en temps réel' },
+          { type: 'h2', content: '4. Utilisateurs et permissions — Concepts fondamentaux' },
+          { type: 'p', content: 'Linux est un système multi-utilisateurs. Chaque fichier appartient à un <strong>utilisateur</strong> et un <strong>groupe</strong>. Les permissions définissent qui peut faire quoi.' },
+          { type: 'code', content: '# Structure des permissions :\n# -rwxr-xr-- 1 anthony admins 4096 Jan 4 10:00 script.sh\n#  │││││││││\n#  ││││││││└── Autres (others) : r-- = lecture seule\n#  │││││││\n#  ││││││└──── Groupe (group)  : r-x = lecture + exécution\n#  │││││\n#  ││││└────── Propriétaire    : rwx = tous droits\n#  │││\n#  ││└──────── Type (- fichier, d répertoire, l lien, b bloc, c caractère)\n#  │\n#  └────────── Premier caractère = type de fichier\n\n# Valeurs numériques :\n# r = 4 (lecture)\n# w = 2 (écriture)\n# x = 1 (exécution)\n\n# Calcul chmod :\n# rwx = 4+2+1 = 7\n# rw- = 4+2+0 = 6\n# r-x = 4+0+1 = 5\n# r-- = 4+0+0 = 4\n# --- = 0+0+0 = 0\n\n# Exemples communs :\n# chmod 755 script.sh   → rwxr-xr-x (script exécutable)\n# chmod 644 config.txt  → rw-r--r-- (fichier config)\n# chmod 600 ~/.ssh/id_rsa → rw------- (clé SSH privée)\n# chmod 700 ~/.ssh/     → rwx------ (répertoire SSH)\n# chmod 777 /tmp/test   → DANGER — tout le monde peut tout faire\n\n# Permissions spéciales :\n# SetUID (4000) : exécute avec les droits du propriétaire\n# chmod 4755 programme → rwsr-xr-x\n# Exemple : /usr/bin/passwd (modifie /etc/shadow en root)\n\n# SetGID (2000) : exécute avec les droits du groupe\n# chmod 2755 programme → rwxr-sr-x\n# Sur répertoire : les nouveaux fichiers héritent du groupe\n\n# Sticky bit (1000) : seul le proprio peut supprimer\n# chmod 1777 /tmp → drwxrwxrwt\n# Exemple : /tmp est world-writable mais chacun protège ses fichiers' },
+        ],
+      },
 
-          // 8. Filtrage & Traitement
-          { type: 'h2', content: '8. Filtrage &amp; Traitement de texte' },
-          { type: 'h3', content: 'grep — rechercher des lignes' },
-          { type: 'code', content: 'grep "motif" fichier.txt         # lignes contenant "motif"\ngrep -i "motif" fichier.txt      # insensible à la casse\ngrep -r "motif" /etc/            # récursif dans un dossier\ngrep -v "motif" fichier.txt      # lignes NE contenant PAS "motif"\ngrep -n "motif" fichier.txt      # afficher les numéros de ligne\ngrep -c "motif" fichier.txt      # compter les occurrences\ngrep -E "^root|^alice" /etc/passwd  # regex étendue' },
-          { type: 'h3', content: 'cut — extraire des colonnes' },
-          { type: 'code', content: 'cut -d: -f1 /etc/passwd          # 1er champ, délimiteur :\ncut -d: -f1,3 /etc/passwd        # champs 1 et 3\ncut -c1-10 fichier.txt           # caractères 1 à 10 de chaque ligne' },
-          { type: 'h3', content: 'sed — remplacer du texte' },
-          { type: 'code', content: 'sed "s/ancien/nouveau/" fichier.txt    # remplace 1ère occurrence par ligne\nsed "s/ancien/nouveau/g" fichier.txt   # remplace toutes les occurrences\nsed -i "s/foo/bar/g" fichier.txt       # modifie le fichier en place\nsed "/^#/d" fichier.txt                # supprime les lignes commençant par #' },
-          { type: 'h3', content: 'awk — traitement structuré' },
-          { type: 'code', content: 'awk "{print $1}" fichier.txt      # affiche le 1er champ (séparateur espace)\nawk -F: "{print $1,$3}" /etc/passwd   # séparateur :, champs 1 et 3\nawk "$3 > 1000" /etc/passwd      # lignes où le champ 3 > 1000\nawk "END{print NR}" fichier.txt  # compter le nombre de lignes' },
+      {
+        id: 'commandes-linux',
+        titre: 'Commandes Linux Essentielles',
+        sections: [
 
-          // 9. Gestion des paquets APT
-          { type: 'h2', content: '9. Gestion des paquets — APT' },
-          { type: 'p', content: 'APT (Advanced Package Tool) est le gestionnaire de paquets de Debian/Ubuntu. Il télécharge et installe les logiciels depuis des dépôts officiels.' },
-          { type: 'steps', items: [
-            { num: '1', title: 'Mettre à jour la liste des paquets', code: 'sudo apt update', why: 'Synchronise la liste locale avec les dépôts — à faire avant toute installation.' },
-            { num: '2', title: 'Mettre à jour les paquets installés', code: 'sudo apt upgrade', why: 'Installe les nouvelles versions de tous les paquets existants.' },
-            { num: '3', title: 'Installer un paquet',                code: 'sudo apt install vim',  why: 'Télécharge et installe vim et ses dépendances.' },
-            { num: '4', title: 'Désinstaller un paquet',             code: 'sudo apt remove vim',   why: 'Supprime le paquet mais garde les fichiers de configuration.' },
-            { num: '5', title: 'Désinstaller + config',              code: 'sudo apt purge vim',    why: 'Supprime le paquet ET ses fichiers de configuration.' },
-            { num: '6', title: 'Nettoyer les paquets orphelins',     code: 'sudo apt autoremove',   why: 'Supprime les dépendances devenues inutiles.' },
-          ]},
-          { type: 'code', content: 'apt search nginx                 # rechercher un paquet\napt show nginx                   # informations sur un paquet\ndpkg -l | grep nginx             # vérifier si installé\ndpkg -L nginx                    # lister les fichiers du paquet\napt list --installed             # tous les paquets installés\napt-cache policy nginx           # version installée vs disponible' },
-          { type: 'info', content: '<strong>Rappel :</strong> toujours faire <code>sudo apt update</code> avant <code>apt install</code>, sinon APT peut proposer une version obsolète.' },
+          { type: 'h2', content: '1. Navigation et exploration' },
+          { type: 'code', content: '# pwd — Print Working Directory\npwd\n# /home/anthony\n\n# ls — List directory contents\nls                    # Fichiers et répertoires\nls -l                 # Format long (permissions taille date)\nls -la                # Long + fichiers cachés (commençant par .)\nls -lh                # Long + tailles lisibles (Ko Mo Go)\nls -lt                # Long + tri par date (plus récent en premier)\nls -lS                # Long + tri par taille (plus grand en premier)\nls -lR                # Récursif (affiche tous les sous-répertoires)\nls -d */              # Répertoires seulement\nls *.log              # Seulement les .log (glob)\n\n# cd — Change Directory\ncd /etc               # Chemin absolu\ncd Documents          # Chemin relatif\ncd ..                 # Remonter d\'un niveau\ncd ../..              # Remonter de deux niveaux\ncd ~                  # Aller dans le home\ncd -                  # Retourner au répertoire précédent\ncd /                  # Aller à la racine\n\n# find — Recherche de fichiers\nfind / -name "passwd"                    # Chercher par nom\nfind /etc -name "*.conf"                 # Tous les .conf dans /etc\nfind /var/log -name "*.log" -mtime -7    # Modifiés ces 7 derniers jours\nfind / -user anthony                     # Fichiers de l\'utilisateur anthony\nfind / -perm 777                         # Fichiers avec perms 777 (dangereux !)\nfind /tmp -size +100M                    # Fichiers > 100 Mo\nfind / -type l                           # Liens symboliques\nfind /var/log -name "*.log" -exec ls -lh {} \\;  # Exécuter ls sur chaque résultat\nfind / -name "*.sh" -exec chmod +x {} \\;        # Rendre tous les .sh exécutables\n\n# which / whereis — Trouver un exécutable\nwhich python3          # /usr/bin/python3\nwhereis ssh            # ssh: /usr/bin/ssh /etc/ssh /usr/share/man/man1/ssh.1.gz' },
 
+          { type: 'h2', content: '2. Gestion des fichiers et répertoires' },
+          { type: 'code', content: '# mkdir — Créer un répertoire\nmkdir projet                        # Simple\nmkdir -p projet/src/lib/utils       # Avec parents (-p)\nmkdir -m 750 confidentiel           # Avec permissions spécifiques\n\n# touch — Créer un fichier vide / mettre à jour la date\ntouch fichier.txt\ntouch -t 202401041200 fichier.txt   # Définir une date précise\n\n# cp — Copier\ncp source.txt dest.txt              # Copier un fichier\ncp -r dossier/ copie/               # Copier un répertoire (-r récursif)\ncp -p source.txt dest.txt           # Préserver les attributs (date perms)\ncp -a dossier/ copie/               # Archive = -r -p + liens symboliques\ncp -u source.txt dest.txt           # Copier seulement si source plus récente\n\n# mv — Déplacer / Renommer\nmv ancien.txt nouveau.txt           # Renommer\nmv fichier.txt /tmp/                # Déplacer\nmv -i source.txt dest.txt           # Demander confirmation si existe\n\n# rm — Supprimer\nrm fichier.txt                      # Supprimer un fichier\nrm -r dossier/                      # Supprimer un répertoire et son contenu\nrm -rf dossier/                     # Forcer (sans confirmation)\nrm -i fichier.txt                   # Demander confirmation\n\n# DANGER : ces commandes sont IRRÉVERSIBLES\n# rm -rf /        → Détruit tout le système !\n# Toujours vérifier avant rm -rf\n\n# ln — Liens\nln -s /etc/nginx/sites-available/tssr.conf /etc/nginx/sites-enabled/\n# Lien symbolique (soft link) = raccourci\n\nln /etc/hosts /tmp/hosts_backup\n# Lien physique (hard link) = même fichier, deux noms' },
+
+          { type: 'h2', content: '3. Affichage et manipulation de fichiers texte' },
+          { type: 'code', content: '# cat — Afficher le contenu\ncat /etc/passwd\ncat -n fichier.txt          # Avec numéros de lignes\n\n# less — Affichage paginé\nless /var/log/syslog        # q=quitter /motif=chercher n=suivant G=fin\n\n# head / tail — Début / fin de fichier\nhead /etc/passwd            # 10 premières lignes (défaut)\nhead -n 20 /var/log/syslog  # 20 premières lignes\ntail /var/log/syslog        # 10 dernières lignes\ntail -n 50 /var/log/syslog  # 50 dernières lignes\ntail -f /var/log/syslog     # Suivi en temps réel (Ctrl+C pour arrêter)\n\n# grep — Recherche dans du texte\ngrep "error" /var/log/syslog               # Lignes contenant "error"\ngrep -i "error" /var/log/syslog            # Insensible à la casse\ngrep -n "error" /var/log/syslog            # Avec numéros de ligne\ngrep -v "DEBUG" /var/log/app.log           # Lignes NE contenant PAS "DEBUG"\ngrep -r "password" /etc/                   # Récursif dans /etc\ngrep -c "error" /var/log/syslog            # Compter les occurrences\ngrep -A 3 "error" logfile                  # 3 lignes APRÈS la correspondance\ngrep -B 3 "error" logfile                  # 3 lignes AVANT\ngrep -E "error|warning|critical" logfile   # Regex étendue (OU)\ngrep "^root" /etc/passwd                   # Commence par "root"\ngrep "bash$" /etc/passwd                   # Finit par "bash"\n\n# Exemples pratiques grep :\ngrep "Failed password" /var/log/auth.log   # Tentatives SSH échouées\ngrep "Accepted password" /var/log/auth.log # Connexions SSH réussies\n\n# wc / sort / uniq / cut / sed / awk\nwc -l /etc/passwd                          # Nombre de lignes\nsort -t: -k 3 -n /etc/passwd              # Trier par UID\nsort fichier.txt | uniq -c | sort -rn     # Compter occurrences\ncut -d: -f1 /etc/passwd                   # Extraire colonne 1\nsed -i \'s/ancien/nouveau/g\' fichier.txt   # Remplacer en place\nawk -F: \'{print $1, $3}\' /etc/passwd       # Champs 1 et 3' },
+
+          { type: 'h2', content: '4. Redirections et pipes' },
+          { type: 'code', content: '# Les 3 flux standard :\n# stdin  (0) : entrée standard (clavier par défaut)\n# stdout (1) : sortie standard (terminal par défaut)\n# stderr (2) : sortie d\'erreur (terminal par défaut)\n\n# Redirections :\ncommande > fichier          # Redirige stdout vers fichier (écrase)\ncommande >> fichier         # Redirige stdout vers fichier (ajoute)\ncommande 2> erreur.txt      # Redirige stderr vers fichier\ncommande > fichier 2>&1     # Redirige stdout ET stderr vers fichier\ncommande 2>/dev/null        # Jeter les erreurs (trou noir)\ncommande > /dev/null 2>&1   # Jeter TOUT (stdout + stderr)\n\n# Pipes — chaîner les commandes\ncat /etc/passwd | grep -v "#" | cut -d: -f1 | sort\n# → Afficher tous les utilisateurs triés alphabétiquement\n\nps aux | grep apache | grep -v grep\n# → Trouver les processus apache sans afficher grep lui-même\n\ndf -h | grep -v tmpfs | sort -k5 -rn\n# → Espace disque trié par utilisation (% décroissant)\n\ndu -sh /var/log/* | sort -rh | head -10\n# → Les 10 plus gros fichiers/dossiers dans /var/log\n\ncat /var/log/auth.log | grep "Failed password" | awk \'{print $11}\' | sort | uniq -c | sort -rn | head -10\n# → Top 10 des IPs avec le plus de tentatives SSH échouées\n\n# tee — Afficher ET écrire dans un fichier\ncommande | tee fichier.txt              # Affiche ET écrit\ncommande | tee -a fichier.txt           # Affiche ET ajoute' },
+
+          { type: 'h2', content: '5. Gestion des utilisateurs et groupes' },
+          { type: 'code', content: '# /etc/passwd — Format : utilisateur:x:UID:GID:commentaire:home:shell\n# root:x:0:0:root:/root:/bin/bash\n# anthony:x:1000:1000:Anthony,,,:/home/anthony:/bin/bash\n# www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\n\n# UID importants :\n# 0        = root\n# 1-999    = comptes système (services)\n# 1000+    = utilisateurs humains\n\n# /etc/shadow — Mots de passe hashés (sudo requis)\n# /etc/group  — Format : groupe:x:GID:membres\n\n# Créer un utilisateur\nuseradd -m -s /bin/bash -G sudo,docker anthony\n# -m : créer le home  -s : shell  -G : groupes supplémentaires\n\npasswd anthony                           # Définir le mot de passe\necho "anthony:TempP@ss!" | chpasswd      # Non interactif\n\n# Modifier un utilisateur\nusermod -aG docker anthony               # Ajouter au groupe (-a = append !)\nusermod -s /bin/zsh anthony              # Changer le shell\nusermod -L anthony                       # Verrouiller le compte\nusermod -U anthony                       # Déverrouiller\n\n# Supprimer un utilisateur\nuserdel anthony                          # Supprimer seulement le compte\nuserdel -r anthony                       # Supprimer compte + home + mail\n\n# Gestion des groupes\ngroupadd devops\ngpasswd -a anthony devops                # Ajouter un utilisateur\ngpasswd -d anthony devops                # Retirer un utilisateur\n\n# Voir les groupes d\'un utilisateur\ngroups anthony\nid anthony\n# uid=1000(anthony) gid=1000(anthony) groups=1000(anthony),27(sudo),999(docker)\n\n# Changer d\'utilisateur\nsu - marie                               # Devenir marie (avec son environnement)\nsudo commande                            # Exécuter en tant que root\nsudo -i                                  # Shell root interactif' },
+
+          { type: 'h2', content: '6. Permissions avancées' },
+          { type: 'code', content: '# chmod — Changer les permissions\nchmod 755 script.sh           # Notation octale\nchmod u+x script.sh           # Ajouter exécution au propriétaire\nchmod g-w fichier.txt         # Retirer écriture au groupe\nchmod o-rwx secret.txt        # Retirer tous droits aux autres\nchmod a+r public.txt          # Ajouter lecture à tous (all)\nchmod -R 755 /var/www/html/   # Récursif\n\n# Exemples concrets :\nchmod 600 ~/.ssh/id_rsa           # Clé SSH privée — OBLIGATOIRE\nchmod 644 ~/.ssh/id_rsa.pub       # Clé publique\nchmod 700 ~/.ssh/                 # Répertoire SSH\nchmod 755 /var/www/html/          # Répertoire web\nchmod 644 /var/www/html/*.html    # Fichiers web\n\n# chown — Changer le propriétaire\nchown anthony fichier.txt         # Changer propriétaire\nchown anthony:developers proj/    # Changer propriétaire ET groupe\nchown -R www-data:www-data /var/www/  # Récursif (Apache/Nginx)\n\n# umask — Masque de création par défaut\numask                  # 0022 (défaut)\n# Fichier = 0666 - 0022 = 0644 (rw-r--r--)\n# Répertoire = 0777 - 0022 = 0755 (rwxr-xr-x)\n\n# ACL — Access Control Lists (droits fins)\napt install acl\nsetfacl -m u:marie:r fichier.txt  # Donner lecture à marie\ngetfacl fichier.txt               # Voir les ACLs\nsetfacl -R -m u:marie:rx /home/anthony/projet/  # Récursif' },
+        ],
+      },
+
+      {
+        id: 'services-linux',
+        titre: 'Services, Réseau et Administration Linux',
+        sections: [
+
+          { type: 'h2', content: '1. Systemd — Gestion des services' },
+          { type: 'p', content: 'Systemd est le système d\'init moderne de Linux (remplace SysV init). Il démarre les services en parallèle, gère les dépendances et centralise les logs.' },
+          { type: 'code', content: '# systemctl — Interface principale de systemd\n\nsystemctl start apache2         # Démarrer\nsystemctl stop apache2          # Arrêter\nsystemctl restart apache2       # Arrêter puis démarrer\nsystemctl reload apache2        # Recharger la config sans couper\nsystemctl enable apache2        # Activer au démarrage\nsystemctl disable apache2       # Désactiver au démarrage\nsystemctl enable --now apache2  # Activer ET démarrer immédiatement\nsystemctl status apache2        # Voir le statut détaillé\nsystemctl is-active apache2     # active / inactive\nsystemctl is-enabled apache2    # enabled / disabled\n\n# Lister les services\nsystemctl list-units --type=service                    # Services actifs\nsystemctl list-units --type=service --state=running    # Services en cours\nsystemctl list-units --type=service --state=failed     # Services en échec\nsystemctl list-unit-files --type=service               # Tous + état enabled\n\n# Créer un service personnalisé\ncat > /etc/systemd/system/mon-app.service << EOF\n[Unit]\nDescription=Mon Application TSSR\nAfter=network.target mysql.service\nRequires=mysql.service\n\n[Service]\nType=simple\nUser=www-data\nWorkingDirectory=/opt/mon-app\nExecStart=/opt/mon-app/start.sh\nRestart=on-failure\nRestartSec=5s\n\n[Install]\nWantedBy=multi-user.target\nEOF\n\nsystemctl daemon-reload    # Recharger la config systemd\nsystemctl enable --now mon-app' },
+
+          { type: 'h2', content: '2. Journald — Logs centralisés' },
+          { type: 'code', content: '# journalctl — Consulter les logs systemd\n\njournalctl                          # Tous les logs\njournalctl -b                       # Logs depuis le dernier boot\njournalctl -f                       # Suivi en temps réel\njournalctl -n 50                    # 50 dernières lignes\njournalctl --since "1 hour ago"     # Dernière heure\njournalctl --since "2024-01-04 09:00:00" --until "2024-01-04 10:00:00"\njournalctl -u apache2               # Logs d\'un service spécifique\njournalctl -p err                   # Seulement les erreurs\njournalctl -p warning..err          # Warning et erreurs\njournalctl --disk-usage             # Espace utilisé\njournalctl --vacuum-size=500M       # Réduire à 500M\n\n# Niveaux de sévérité :\n# 0 emerg  1 alert  2 crit  3 err  4 warning  5 notice  6 info  7 debug\n\n# Fichiers de logs classiques :\ntail -f /var/log/syslog             # Logs système généraux\ntail -f /var/log/auth.log           # Authentifications SSH sudo su\ntail -f /var/log/apache2/access.log # Requêtes HTTP\ntail -f /var/log/apache2/error.log  # Erreurs Apache\n\n# Analyser les tentatives d\'intrusion SSH :\ngrep "Failed password" /var/log/auth.log | \\\n  awk \'{print $11}\' | sort | uniq -c | sort -rn | head -20' },
+
+          { type: 'h2', content: '3. Réseau Linux — Configuration et diagnostic' },
+          { type: 'code', content: '# ip — Commande réseau moderne (remplace ifconfig)\n\nip link show                        # Toutes les interfaces\nip link set eth0 up                 # Activer une interface\nip addr show                        # Toutes les IPs\nip addr add 192.168.1.100/24 dev eth0     # Ajouter une IP (temporaire)\nip addr del 192.168.1.100/24 dev eth0     # Supprimer une IP\nip route show                       # Table de routage\nip route add default via 192.168.1.1      # Route par défaut\nip neigh show                       # Table ARP\n\n# Configuration permanente — Debian (/etc/network/interfaces)\nauto eth0\niface eth0 inet static\n  address 192.168.1.10\n  netmask 255.255.255.0\n  gateway 192.168.1.1\n  dns-nameservers 192.168.1.10 8.8.8.8\n\n# Netplan (Ubuntu Server 18+)\n# /etc/netplan/01-config.yaml\nnetwork:\n  version: 2\n  ethernets:\n    eth0:\n      addresses: [192.168.1.10/24]\n      routes:\n        - to: default\n          via: 192.168.1.1\n      nameservers:\n        addresses: [192.168.1.10, 8.8.8.8]\nnetplan apply\n\n# DNS\ncat /etc/resolv.conf                # Serveurs DNS utilisés\nresolvectl status                   # Via systemd-resolved\nresolvectl flush-caches             # Vider le cache DNS' },
+
+          { type: 'h2', content: '4. Diagnostic réseau complet' },
+          { type: 'code', content: '# Ping\nping -c 4 8.8.8.8                    # 4 paquets\nping -s 1400 -c 4 8.8.8.8            # Paquet de 1400 octets\nping -M do -s 1472 8.8.8.8           # Test MTU (ne pas fragmenter)\n\n# Traceroute\ntraceroute 8.8.8.8                   # UDP (défaut)\ntraceroute -I 8.8.8.8                # ICMP\ntraceroute -n 8.8.8.8                # Sans résolution DNS\nmtr 8.8.8.8                         # Traceroute continu\n\n# Ports ouverts\nss -tuln                             # Ports en écoute (TCP+UDP)\nss -tnp                              # Connexions TCP avec PID\nlsof -i :80                          # Qui utilise le port 80 ?\n\n# Analyse de trafic\ntcpdump -i eth0                      # Capturer tout le trafic\ntcpdump -i eth0 port 80              # Filtrer par port\ntcpdump -i eth0 host 192.168.1.20    # Filtrer par hôte\ntcpdump -i eth0 -w capture.pcap      # Sauvegarder pour Wireshark\n\n# Tests pratiques\ncurl -v http://192.168.1.20           # Test HTTP\nnc -zv 192.168.1.20 80               # Test port ouvert\ndig @192.168.1.10 google.com          # Via mon DNS\ndig @8.8.8.8 google.com              # Via DNS Google' },
+
+          { type: 'h2', content: '5. Gestion des paquets Debian/Ubuntu' },
+          { type: 'code', content: '# apt — Interface haut niveau\napt update                           # Mettre à jour la liste\napt upgrade                          # Mettre à jour les paquets\napt install nginx                    # Installer\napt install -y nginx                 # Installer sans confirmation\napt remove nginx                     # Désinstaller (garde les configs)\napt purge nginx                      # Désinstaller + supprimer configs\napt autoremove                       # Supprimer les dépendances orphelines\napt search nginx                     # Chercher un paquet\napt show nginx                       # Détails d\'un paquet\napt list --installed                 # Paquets installés\n\n# dpkg — Interface bas niveau\ndpkg -l nginx                        # Statut d\'un paquet\ndpkg -i paquet.deb                   # Installer un .deb\ndpkg -L nginx                        # Fichiers installés par un paquet\ndpkg -S /etc/nginx/nginx.conf        # Quel paquet a installé ce fichier ?\n\n# Mises à jour de sécurité automatiques\napt install unattended-upgrades\ndpkg-reconfigure -plow unattended-upgrades' },
+
+          { type: 'h2', content: '6. Processus et performances système' },
+          { type: 'code', content: '# ps — Lister les processus\nps aux                               # Tous les processus\nps aux | grep apache                 # Chercher un processus\nps --sort=-%mem | head -10           # Top 10 consommateurs RAM\nps --sort=-%cpu | head -10           # Top 10 consommateurs CPU\n\n# top / htop — Monitoring temps réel\ntop\nhtop    # Plus convivial (apt install htop)\n\n# kill — Envoyer des signaux\nkill 1234                            # SIGTERM (arrêt propre)\nkill -9 1234                         # SIGKILL (arrêt forcé)\nkill -HUP 1234                       # SIGHUP (rechargement config)\nkillall apache2                      # Tuer par nom\n\n# Performances système\nfree -h                              # Mémoire RAM\ndf -h                                # Espace disque\ndu -sh /var/log/*                    # Taille des dossiers\niostat -x 1                          # I/O disque\nuptime                               # Charge système (load average)\nlscpu                                # Infos CPU\ncat /proc/meminfo                    # Détails mémoire\n\n# Processus en arrière-plan\ncommande &                           # Lancer en arrière-plan\njobs                                 # Voir les jobs\nnohup commande &                     # Continuer après déconnexion\nscreen -S session_name               # Terminal persistant\ntmux new -s ma_session               # Multiplexeur terminal' },
+        ],
+      },
+
+      {
+        id: 'ssh-securite-linux',
+        titre: 'SSH, Sécurité et Durcissement Linux',
+        sections: [
+
+          { type: 'h2', content: '1. SSH — Secure Shell' },
+          { type: 'p', content: 'SSH est le protocole d\'administration à distance sécurisé. Il chiffre toutes les communications (remplace Telnet, rsh, rcp non chiffrés).' },
+          { type: 'code', content: '# Connexion SSH\nssh anthony@192.168.1.10            # Connexion standard\nssh -p 2222 anthony@192.168.1.10    # Port personnalisé\nssh -i ~/.ssh/ma_cle anthony@srv    # Clé spécifique\nssh -J bastion anthony@srv-interne  # Via un bastion (jump host)\nssh -L 8080:192.168.1.20:80 srv     # Tunnel SSH (port forwarding)\n\n# Génération de clés SSH\nssh-keygen -t ed25519 -C "anthony@tssr.local"\n# → Crée ~/.ssh/id_ed25519 (privée) et ~/.ssh/id_ed25519.pub (publique)\n\n# RSA si ed25519 non supporté :\nssh-keygen -t rsa -b 4096 -C "anthony@tssr.local"\n\n# Copier la clé publique sur un serveur\nssh-copy-id -i ~/.ssh/id_ed25519.pub anthony@192.168.1.10\n# Ou manuellement :\ncat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys\nchmod 600 ~/.ssh/authorized_keys\nchmod 700 ~/.ssh\n\n# Fichier de config SSH client (~/.ssh/config)\ncat > ~/.ssh/config << EOF\nHost srv-prod\n  HostName 192.168.1.10\n  User anthony\n  Port 2222\n  IdentityFile ~/.ssh/id_ed25519\n  ServerAliveInterval 60\n\nHost srv-interne\n  HostName 10.0.0.50\n  User root\n  ProxyJump bastion\nEOF\nchmod 600 ~/.ssh/config\n# Maintenant : ssh srv-prod au lieu de ssh -p 2222 -i ~/.ssh/id_ed25519 anthony@192.168.1.10' },
+
+          { type: 'h2', content: '2. Configuration sécurisée du serveur SSH' },
+          { type: 'code', content: '# /etc/ssh/sshd_config — Configuration du serveur\n\nPort 2222                          # Changer le port\nPermitRootLogin no                 # JAMAIS de connexion root directe\nPasswordAuthentication no          # Clés SSH uniquement (recommandé)\nPubkeyAuthentication yes           # Authentification par clé\n\nMaxAuthTries 3                     # 3 tentatives max\nMaxSessions 5                      # 5 sessions simultanées max\nLoginGraceTime 30                  # 30s pour s\'authentifier\n\nAllowUsers anthony marie           # Whitelist utilisateurs\n# OU\nAllowGroups sshusers               # Whitelist groupe\n\nX11Forwarding no                   # Pas de forwarding graphique\nClientAliveInterval 300            # Déconnecter après 5min d\'inactivité\nClientAliveCountMax 2\n\n# Algorithmes cryptographiques sécurisés\nKexAlgorithms curve25519-sha256,diffie-hellman-group16-sha512\nCiphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com\n\n# Appliquer les changements :\nsshd -t                            # Vérifier la syntaxe\nsystemctl restart sshd' },
+
+          { type: 'h2', content: '3. Fail2ban — Protection contre le brute force' },
+          { type: 'code', content: '# Fail2ban surveille les logs et bannit les IPs\napt install fail2ban\n\n# /etc/fail2ban/jail.local\n[DEFAULT]\nbantime  = 3600          # 1h de ban\nfindtime  = 600          # Fenêtre de détection 10min\nmaxretry = 3             # 3 tentatives max\nignoreip = 127.0.0.1/8 192.168.1.0/24\n\n[sshd]\nenabled  = true\nport     = 2222\nfilter   = sshd\nlogpath  = /var/log/auth.log\nmaxretry = 3\n\nsystemctl enable --now fail2ban\n\n# Commandes fail2ban :\nfail2ban-client status                    # Vue d\'ensemble\nfail2ban-client status sshd               # IPs bannies pour SSH\nfail2ban-client set sshd unbanip 1.2.3.4  # Débannir une IP\nfail2ban-client reload                    # Recharger la config' },
+
+          { type: 'h2', content: '4. UFW — Pare-feu simplifié' },
+          { type: 'code', content: '# UFW (Uncomplicated Firewall) — Interface simplifiée pour iptables\n\nufw default deny incoming              # Tout bloquer par défaut\nufw default allow outgoing             # Autoriser le trafic sortant\n\n# ATTENTION : autoriser SSH AVANT d\'activer UFW !\nufw allow 2222/tcp                     # Notre port SSH\n\n# Activer UFW\nufw enable\n\n# Règles courantes :\nufw allow 80/tcp                       # HTTP\nufw allow 443/tcp                      # HTTPS\nufw allow from 192.168.1.0/24          # Tout depuis le LAN\nufw allow from 192.168.1.0/24 to any port 3306   # MySQL depuis LAN\nufw deny from 185.220.101.0/24         # Bloquer un range suspect\n\n# Règles numérotées :\nufw status numbered\nufw delete 3                           # Supprimer règle n°3\n\n# Vue d\'ensemble :\nufw status verbose\n\n# Désactiver (urgence) :\nufw disable' },
+
+          { type: 'h2', content: '5. Sudo — Élévation de privilèges contrôlée' },
+          { type: 'code', content: '# /etc/sudoers — TOUJOURS éditer avec visudo !\n# visudo vérifie la syntaxe avant de sauvegarder\nvisudo\n\n# Exemples de règles sudoers :\nanthony ALL=(ALL:ALL) ALL                                # Tous les droits\nanthony ALL=(ALL) NOPASSWD: ALL                         # Sans mot de passe (déconseillé)\nanthony ALL=(ALL) /bin/systemctl start apache2, /bin/systemctl stop apache2\nmarie   ALL=(ALL) /usr/bin/apt update, /usr/bin/apt upgrade\n%sysadmin ALL=(ALL:ALL) ALL                             # Groupe entier\n\n# Bonne pratique : fichier séparé\necho "anthony ALL=(ALL) /bin/systemctl" > /etc/sudoers.d/anthony\nchmod 440 /etc/sudoers.d/anthony\n\n# Voir ce qu\'on peut faire avec sudo :\nsudo -l                              # Droits de l\'utilisateur courant\nsudo -k                              # Invalider le cache sudo\n\n# Crontab — Planification des tâches\ncrontab -e                           # Éditer la crontab\ncrontab -l                           # Lister les tâches\ncrontab -u marie -l                  # Tâches d\'un autre utilisateur\n\n# Format : min heure jour mois jour_semaine commande\n0 2 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1\n# → Sauvegarde tous les jours à 2h00\n\n*/5 * * * * /usr/local/bin/check.sh\n# → Toutes les 5 minutes\n\n0 0 * * 1 /usr/local/bin/weekly.sh\n# → Chaque lundi à minuit' },
         ],
       },
     ],

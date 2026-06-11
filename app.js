@@ -181,7 +181,7 @@ function openModule(moduleId) {
   if (tabs.length === 0) {
     renderTabContent('empty');
     showScreen('module-screen');
-    history.pushState({ screen: 'module', moduleId: m.id }, '', '#module-' + m.id);
+    history.pushState({ screen: 'module', moduleId: m.id, tab: null }, '', '#module-' + m.id);
     closeSidebar();
     return;
   }
@@ -199,20 +199,27 @@ function openModule(moduleId) {
     btn.addEventListener('click', () => switchTab(t.id));
     tabBar.appendChild(btn);
   });
-  switchTab(tabs[0].id);
+  switchTab(tabs[0].id, true);
   showScreen('module-screen');
-  history.pushState({ screen: 'module', moduleId: m.id }, '', '#module-' + m.id);
+  history.pushState({ screen: 'module', moduleId: m.id, tab: tabs[0].id }, '', '#module-' + m.id + '/' + tabs[0].id);
   closeSidebar();
 }
 
 // ===== TABS =====
-function switchTab(tabId) {
+function switchTab(tabId, skipHistory) {
   state.currentTab = tabId;
   document.querySelectorAll('.tab-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tabId);
     b.setAttribute('aria-selected', b.dataset.tab === tabId ? 'true' : 'false');
   });
   renderTabContent(tabId);
+  if (!skipHistory && state.currentModule) {
+    history.pushState(
+      { screen: 'module', moduleId: state.currentModule.id, tab: tabId },
+      '',
+      '#module-' + state.currentModule.id + '/' + tabId
+    );
+  }
 }
 function renderTabContent(tabId) {
   const el = document.getElementById('tab-content');
@@ -3161,8 +3168,8 @@ function showScreen(id) {
   const screenName = id.replace('-screen', '');
   if (screenName === 'home') {
     history.replaceState({ screen: 'home' }, '', '#');
-  } else {
-    history.pushState({ screen: screenName, moduleId: state.currentModule?.id }, '', '#' + screenName);
+  } else if (screenName !== 'module') {
+    history.pushState({ screen: screenName }, '', '#' + screenName);
   }
 }
 function closeSidebar() {
@@ -3196,7 +3203,12 @@ window.addEventListener('popstate', (e) => {
     document.getElementById('home-screen').classList.add('active');
     document.getElementById('content').scrollTop = 0;
   } else if (state_nav.screen === 'module' && state_nav.moduleId) {
-    openModule(state_nav.moduleId);
+    if (state.currentModule?.id === state_nav.moduleId && state_nav.tab) {
+      switchTab(state_nav.tab, true);
+    } else {
+      openModule(state_nav.moduleId);
+      if (state_nav.tab) switchTab(state_nav.tab, true);
+    }
   } else if (state_nav.screen === 'terminals' || state_nav.screen === 'terminal-fs') {
     openTerminals();
   } else {
@@ -3204,6 +3216,15 @@ window.addEventListener('popstate', (e) => {
   }
 });
 
-history.replaceState({ screen: 'home' }, '', '#');
 renderGlobalProgress();
-renderHome();
+const _hash = location.hash.replace('#', '');
+const _moduleMatch = _hash.match(/^module-([^/]+)(?:\/(.+))?$/);
+if (_moduleMatch) {
+  history.replaceState({ screen: 'home' }, '', '#');
+  renderHome();
+  openModule(_moduleMatch[1]);
+  if (_moduleMatch[2]) switchTab(_moduleMatch[2], true);
+} else {
+  history.replaceState({ screen: 'home' }, '', '#');
+  renderHome();
+}

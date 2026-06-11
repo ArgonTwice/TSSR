@@ -401,7 +401,6 @@ const MODULES = [
       {
         id: 'admin-windows-test',
         titre: 'Administration Windows — CMD & PowerShell',
-        badge: 'test',
         sections: [
           { type: 'h2', content: '1. Gestion des Utilisateurs et Groupes (CMD - Net)' },
           { type: 'warn', content: 'L\'invite de commande doit être lancée en mode Administrateur.' },

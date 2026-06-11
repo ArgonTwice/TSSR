@@ -155,7 +155,7 @@ function renderHome() {
 }
 
 // ===== OPEN MODULE =====
-function openModule(moduleId) {
+function openModule(moduleId, skipHistory = false) {
   const m = MODULES.find(x => x.id === moduleId);
   if (!m) return;
   state.currentModule = m;
@@ -181,7 +181,10 @@ function openModule(moduleId) {
   if (tabs.length === 0) {
     renderTabContent('empty');
     showScreen('module-screen');
-    history.pushState({ screen: 'module', moduleId: m.id, tab: null }, '', '#module-' + m.id);
+    if (!skipHistory) {
+      history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
+      history.pushState({ screen: 'module', moduleId: m.id, tab: null, scroll: 0 }, '', '#module-' + m.id);
+    }
     closeSidebar();
     return;
   }
@@ -201,7 +204,10 @@ function openModule(moduleId) {
   });
   switchTab(tabs[0].id, true);
   showScreen('module-screen');
-  history.pushState({ screen: 'module', moduleId: m.id, tab: tabs[0].id }, '', '#module-' + m.id + '/' + tabs[0].id);
+  if (!skipHistory) {
+    history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
+    history.pushState({ screen: 'module', moduleId: m.id, tab: tabs[0].id, scroll: 0 }, '', '#module-' + m.id + '/' + tabs[0].id);
+  }
   closeSidebar();
 }
 
@@ -214,8 +220,9 @@ function switchTab(tabId, skipHistory) {
   });
   renderTabContent(tabId);
   if (!skipHistory && state.currentModule) {
+    history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
     history.pushState(
-      { screen: 'module', moduleId: state.currentModule.id, tab: tabId },
+      { screen: 'module', moduleId: state.currentModule.id, tab: tabId, scroll: 0 },
       '',
       '#module-' + state.currentModule.id + '/' + tabId
     );
@@ -3206,9 +3213,11 @@ window.addEventListener('popstate', (e) => {
     if (state.currentModule?.id === state_nav.moduleId && state_nav.tab) {
       switchTab(state_nav.tab, true);
     } else {
-      openModule(state_nav.moduleId);
+      openModule(state_nav.moduleId, true);
       if (state_nav.tab) switchTab(state_nav.tab, true);
     }
+    const scroll = state_nav.scroll || 0;
+    requestAnimationFrame(() => { document.getElementById('content').scrollTop = scroll; });
   } else if (state_nav.screen === 'terminals' || state_nav.screen === 'terminal-fs') {
     openTerminals();
   } else {

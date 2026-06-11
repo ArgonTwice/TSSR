@@ -62,6 +62,40 @@ input:focus{outline:none;border-color:#00ff88}
 .nres .r.blue span:last-child{color:#3b82f6}
 .mask-grid-wrap{margin-bottom:12px}
 
+/* ASCII */
+.ascii-in{width:100%;background:#0f1117;border:1.5px solid #2d3748;color:#e2e8f0;padding:8px 10px;border-radius:5px;font-size:15px;font-family:'Courier New',monospace;margin-bottom:12px}
+.ascii-in:focus{outline:none;border-color:#00ff88}
+.ascii-table{width:100%;border-collapse:collapse;font-size:13px}
+.ascii-table th{font-size:10px;color:#4a5568;text-transform:uppercase;letter-spacing:.5px;text-align:left;padding:4px 8px;border-bottom:1px solid #2d3748}
+.ascii-table td{padding:5px 8px;border-bottom:1px solid #161b22;font-family:'Courier New',monospace}
+.ascii-table tr:hover td{background:#161b22}
+.ascii-table .ch{color:#00ff88;font-size:15px;font-weight:700}
+.ascii-table .dv{color:#e2e8f0}
+.ascii-table .hv{color:#3b82f6}
+.ascii-table .bv{color:#718096;font-size:11px}
+.ascii-ctrl{color:#f59e0b!important}
+.ascii-bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.ascii-bar .btn-sm{background:transparent;color:#718096;border:1px solid #2d3748;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px}
+.ascii-bar .btn-sm:hover{border-color:#718096;color:#e2e8f0}
+
+/* CHMOD */
+.chmod-wrap{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.chmod-grp{background:#0f1117;border:1px solid #2d3748;border-radius:8px;padding:14px;flex:1;min-width:120px}
+.chmod-grp-lbl{font-size:11px;color:#4a5568;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;text-align:center}
+.chmod-bits{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
+.chmod-bit{display:flex;flex-direction:column;align-items:center;gap:4px}
+.chmod-bit-lbl{font-size:10px;color:#718096}
+.chmod-btn{width:38px;height:38px;border-radius:6px;border:1.5px solid #2d3748;background:#0f1117;color:#4a5568;font-size:14px;font-weight:700;cursor:pointer;transition:all .1s}
+.chmod-btn.on{background:#00ff88;color:#0f1117;border-color:#00ff88}
+.chmod-oct{font-size:2rem;font-weight:700;font-family:'Courier New',monospace;color:#e2e8f0;text-align:center}
+.chmod-result{background:#0f1117;border:1px solid #2d3748;border-radius:8px;padding:14px}
+.chmod-result-num{font-size:2.5rem;font-weight:700;font-family:'Courier New',monospace;color:#00ff88;text-align:center;margin-bottom:8px}
+.chmod-result-str{font-size:1.1rem;font-family:'Courier New',monospace;color:#3b82f6;text-align:center;margin-bottom:12px;letter-spacing:2px}
+.chmod-refs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chmod-ref{background:#161b22;border:1px solid #2d3748;border-radius:4px;padding:4px 8px;font-size:12px;font-family:monospace;cursor:pointer;transition:border-color .1s}
+.chmod-ref:hover{border-color:#00ff88;color:#00ff88}
+.chmod-ref span{color:#4a5568;margin-right:4px}
+
 /* LOGIC GATES */
 .ab-row{display:flex;gap:16px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
 .ab-grp{display:flex;align-items:center;gap:8px;font-size:13px}
@@ -89,7 +123,9 @@ input:focus{outline:none;border-color:#00ff88}
 
 <div class="tabs">
   <button class="tab active" onclick="showTab('conv',this)">Convertisseur</button>
-  <button class="tab" onclick="showTab('net',this)">Découpage Réseau</button>
+  <button class="tab" onclick="showTab('net',this)">Réseau</button>
+  <button class="tab" onclick="showTab('ascii',this)">ASCII</button>
+  <button class="tab" onclick="showTab('chmod',this)">chmod</button>
   <button class="tab" onclick="showTab('gates',this)">Portes Logiques</button>
 </div>
 
@@ -123,6 +159,49 @@ input:focus{outline:none;border-color:#00ff88}
     </div>
     <div class="mask-grid-wrap" id="mask-grid-wrap"></div>
     <div class="nres" id="nres"><div class="r"><span>Remplis IP et nombre de postes</span><span>—</span></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASCII ═══════════════ -->
+<div id="panel-ascii" class="panel">
+  <div class="card">
+    <h2>Convertisseur ASCII / Texte</h2>
+    <div class="ascii-bar">
+      <button class="btn-sm" onclick="setAsciiPreset('TSSR')">TSSR</button>
+      <button class="btn-sm" onclick="setAsciiPreset('HTTP/1.1')">HTTP/1.1</button>
+      <button class="btn-sm" onclick="setAsciiPreset('root')">root</button>
+      <button class="btn-sm" onclick="setAsciiPreset('Hello\nWorld')">Hello\nWorld</button>
+      <button class="btn-sm" onclick="setAsciiPreset('')">Reset</button>
+    </div>
+    <input class="ascii-in" id="ascii-in" type="text" placeholder="Tape du texte ici…" oninput="renderAscii()" maxlength="64">
+    <div style="overflow-x:auto">
+      <table class="ascii-table" id="ascii-tbl">
+        <thead><tr><th>Char</th><th>Déc</th><th>Hex</th><th>Binaire</th><th>Catégorie</th></tr></thead>
+        <tbody id="ascii-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CHMOD ═══════════════ -->
+<div id="panel-chmod" class="panel">
+  <div class="card">
+    <h2>Calculateur chmod — Permissions Unix</h2>
+    <div class="chmod-wrap" id="chmod-groups"></div>
+    <div class="chmod-result">
+      <div class="chmod-result-num" id="chmod-num">644</div>
+      <div class="chmod-result-str" id="chmod-str">rw-r--r--</div>
+      <div style="font-size:11px;color:#4a5568;text-align:center;margin-bottom:8px">Raccourcis courants</div>
+      <div class="chmod-refs">
+        <div class="chmod-ref" onclick="applyChmod(6,4,4)"><span>644</span>fichier texte</div>
+        <div class="chmod-ref" onclick="applyChmod(7,5,5)"><span>755</span>script/dossier</div>
+        <div class="chmod-ref" onclick="applyChmod(6,0,0)"><span>600</span>clé SSH</div>
+        <div class="chmod-ref" onclick="applyChmod(7,0,0)"><span>700</span>dossier privé</div>
+        <div class="chmod-ref" onclick="applyChmod(7,7,7)"><span style="color:#ef4444">777</span>DANGER</div>
+        <div class="chmod-ref" onclick="applyChmod(6,4,0)"><span>640</span>config sensible</div>
+        <div class="chmod-ref" onclick="applyChmod(4,4,4)"><span>444</span>lecture seule</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -347,6 +426,99 @@ function renderTruthTables() {
 }
 
 renderGatesLive(); renderTruthTables();
+
+// ══ ASCII ══
+const ASCII_CTRL = {0:'NUL',1:'SOH',2:'STX',3:'ETX',4:'EOT',5:'ENQ',6:'ACK',7:'BEL',8:'BS',9:'HT',10:'LF',11:'VT',12:'FF',13:'CR',14:'SO',15:'SI',16:'DLE',17:'DC1',18:'DC2',19:'DC3',20:'DC4',21:'NAK',22:'SYN',23:'ETB',24:'CAN',25:'EM',26:'SUB',27:'ESC',28:'FS',29:'GS',30:'RS',31:'US',127:'DEL'};
+function asciiCat(c){
+  if(c<32||c===127) return 'contrôle';
+  if(c>=48&&c<=57) return 'chiffre';
+  if(c>=65&&c<=90) return 'majuscule';
+  if(c>=97&&c<=122) return 'minuscule';
+  if(c===32) return 'espace';
+  return 'symbole';
+}
+function renderAscii(){
+  const txt = document.getElementById('ascii-in').value;
+  const body = document.getElementById('ascii-body');
+  if(!txt){body.innerHTML='<tr><td colspan="5" style="color:#4a5568;padding:12px 8px">Tape du texte pour voir la table ASCII</td></tr>';return;}
+  body.innerHTML = [...txt].map(ch=>{
+    const c = ch.charCodeAt(0);
+    const ctrl = ASCII_CTRL[c];
+    const disp = ctrl ? `<span class="ascii-ctrl">${ctrl}</span>` : (c===32?'<span style="color:#4a5568">SP</span>':`<span class="ch">${ch}</span>`);
+    const cat = asciiCat(c);
+    return `<tr>
+      <td>${disp}</td>
+      <td class="dv">${c}</td>
+      <td class="hv">0x${c.toString(16).toUpperCase().padStart(2,'0')}</td>
+      <td class="bv">${c.toString(2).padStart(8,'0')}</td>
+      <td style="font-size:11px;color:#4a5568">${cat}</td>
+    </tr>`;
+  }).join('');
+}
+function setAsciiPreset(v){
+  document.getElementById('ascii-in').value = v;
+  renderAscii();
+}
+renderAscii();
+
+// ══ CHMOD ══
+const CHMOD_GROUPS = ['Propriétaire','Groupe','Autres'];
+const CHMOD_BITS   = [['r',4],['w',2],['x',1]];
+let chmodState = [[1,1,0],[1,0,0],[1,0,0]]; // 644 par défaut
+
+function buildChmod(){
+  const wrap = document.getElementById('chmod-groups');
+  wrap.innerHTML = '';
+  CHMOD_GROUPS.forEach((lbl,gi)=>{
+    const grp = document.createElement('div');
+    grp.className = 'chmod-grp';
+    grp.innerHTML = `<div class="chmod-grp-lbl">${lbl}</div>`;
+    const bits = document.createElement('div');
+    bits.className = 'chmod-bits';
+    CHMOD_BITS.forEach(([name,],bi)=>{
+      const col = document.createElement('div');
+      col.className = 'chmod-bit';
+      const btn = document.createElement('button');
+      btn.className = 'chmod-btn' + (chmodState[gi][bi]?' on':'');
+      btn.textContent = name;
+      btn.id = `cm${gi}${bi}`;
+      btn.onclick = ()=>{ chmodState[gi][bi]^=1; btn.classList.toggle('on',!!chmodState[gi][bi]); updateChmod(); };
+      const lbl2 = document.createElement('div');
+      lbl2.className = 'chmod-bit-lbl';
+      lbl2.textContent = CHMOD_BITS[bi][1];
+      col.appendChild(btn); col.appendChild(lbl2);
+      bits.appendChild(col);
+    });
+    grp.appendChild(bits);
+    const oct = document.createElement('div');
+    oct.className = 'chmod-oct'; oct.id = 'coct'+gi;
+    grp.appendChild(oct);
+    wrap.appendChild(grp);
+  });
+  updateChmod();
+}
+
+function updateChmod(){
+  const vals = chmodState.map(g=> g[0]*4 + g[1]*2 + g[2]*1);
+  CHMOD_GROUPS.forEach((_,gi)=>{
+    document.getElementById('coct'+gi).textContent = vals[gi];
+    CHMOD_BITS.forEach(([,],bi)=>{
+      const btn = document.getElementById(`cm${gi}${bi}`);
+      if(btn) btn.classList.toggle('on',!!chmodState[gi][bi]);
+    });
+  });
+  document.getElementById('chmod-num').textContent = vals.join('');
+  const sym = chmodState.map(g=>(g[0]?'r':'-')+(g[1]?'w':'-')+(g[2]?'x':'-')).join('');
+  document.getElementById('chmod-str').textContent = sym;
+}
+
+function applyChmod(o,g,a){
+  const parse = v=>[(v>>2)&1,(v>>1)&1,v&1];
+  chmodState = [parse(o),parse(g),parse(a)];
+  buildChmod();
+}
+
+buildChmod();
 </script>
 </body>
 </html>

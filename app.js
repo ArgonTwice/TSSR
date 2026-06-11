@@ -109,6 +109,7 @@ function renderGlobalProgress() {
 
 // ===== HOME =====
 function renderHome() {
+  history.replaceState({ screen: 'home' }, '', '#');
   state.currentModule = null;
   state.currentScreen = 'home';
   document.getElementById('mobile-module-name').textContent = '';
@@ -180,6 +181,7 @@ function openModule(moduleId) {
   if (tabs.length === 0) {
     renderTabContent('empty');
     showScreen('module-screen');
+    history.pushState({ screen: 'module', moduleId: m.id }, '', '#module-' + m.id);
     closeSidebar();
     return;
   }
@@ -199,6 +201,7 @@ function openModule(moduleId) {
   });
   switchTab(tabs[0].id);
   showScreen('module-screen');
+  history.pushState({ screen: 'module', moduleId: m.id }, '', '#module-' + m.id);
   closeSidebar();
 }
 
@@ -3155,6 +3158,12 @@ function showScreen(id) {
   document.getElementById('content').scrollTop = 0;
   state.currentScreen = id.replace('-screen','');
   renderNav();
+  const screenName = id.replace('-screen', '');
+  if (screenName === 'home') {
+    history.replaceState({ screen: 'home' }, '', '#');
+  } else {
+    history.pushState({ screen: screenName, moduleId: state.currentModule?.id }, '', '#' + screenName);
+  }
 }
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
@@ -3176,5 +3185,25 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 
+window.addEventListener('popstate', (e) => {
+  const state_nav = e.state;
+  if (!state_nav || state_nav.screen === 'home') {
+    state.currentModule = null;
+    state.currentScreen = 'home';
+    document.getElementById('mobile-module-name').textContent = '';
+    renderNav();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('home-screen').classList.add('active');
+    document.getElementById('content').scrollTop = 0;
+  } else if (state_nav.screen === 'module' && state_nav.moduleId) {
+    openModule(state_nav.moduleId);
+  } else if (state_nav.screen === 'terminals' || state_nav.screen === 'terminal-fs') {
+    openTerminals();
+  } else {
+    renderHome();
+  }
+});
+
+history.replaceState({ screen: 'home' }, '', '#');
 renderGlobalProgress();
 renderHome();

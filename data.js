@@ -1308,77 +1308,100 @@ const MODULES = [
     linux_cli: true,
     cours: [
       {
-        id: 'ios-bases',
-        titre: 'Cisco IOS — Prise en main',
+        id: 'ios-fondamentaux',
+        titre: 'Cisco IOS — Fondamentaux et Navigation',
         sections: [
-          { type: 'h2', content: 'Les modes IOS' },
-          { type: 'table', headers: ['Mode', 'Invite', 'Accès', 'Usage'], rows: [
-            ['Utilisateur',         'Router>',             'Connexion initiale',    'Commandes de base (ping, show)'],
-            ['Privilégié',          'Router#',             'enable',                'Diagnostic complet, sauvegarde'],
-            ['Configuration globale','Router(config)#',    'configure terminal',    'Modifier la configuration'],
-            ['Interface',           'Router(config-if)#',  'interface fa0/0',       'Configurer une interface'],
-            ['VLAN',                'Router(config-vlan)#','vlan 10',               'Créer et nommer un VLAN'],
+
+          { type: 'h2', content: '1. Qu\'est-ce que Cisco IOS ?' },
+          { type: 'p', content: 'IOS (Internetwork Operating System) est le système d\'exploitation des équipements Cisco (routeurs, switches, pare-feux). Il existe en plusieurs versions : IOS classique, IOS-XE (moderne), IOS-XR (opérateurs), NX-OS (datacenter Nexus).' },
+          { type: 'table', headers: ['Plateforme', 'OS', 'Usage', 'Exemples'], rows: [
+            ['Routeurs ISR', 'IOS / IOS-XE', 'Agences succursales', 'ISR 1100 2900 4000'],
+            ['Switches Catalyst', 'IOS / IOS-XE', 'LAN entreprise', 'Catalyst 2960 3650 9200'],
+            ['Switches Nexus', 'NX-OS', 'Datacenter', 'Nexus 3000 5000 9000'],
+            ['ASA / Firepower', 'ASA-OS / FTD', 'Pare-feu', 'ASA 5506 5516'],
+            ['Routeurs haut de gamme', 'IOS-XR', 'Opérateurs', 'ASR 9000 CRS'],
           ]},
-          { type: 'h2', content: 'Commandes de navigation essentielles' },
-          { type: 'code', content: 'Router> enable                          # Passer en mode privilégié\nRouter# configure terminal               # Passer en config globale\nRouter(config)# hostname R1              # Renommer le routeur\nRouter(config)# end                      # Retour direct au mode privilégié\nRouter(config)# exit                     # Remonter d\'un niveau\nRouter# show running-config              # Voir la config active\nRouter# show startup-config             # Voir la config sauvegardée\nRouter# copy running-config startup-config  # Sauvegarder\nRouter# reload                           # Redémarrer' },
-          { type: 'h2', content: 'Sécuriser l\'accès' },
-          { type: 'code', content: '# Mot de passe mode privilégié (chiffré)\nRouter(config)# enable secret MonMotDePasse\n\n# Mot de passe console\nRouter(config)# line console 0\nRouter(config-line)# password Console123\nRouter(config-line)# login\n\n# Bannière de connexion\nRouter(config)# banner motd # Accès restreint au personnel autorisé #\n\n# Chiffrer tous les mots de passe en clair\nRouter(config)# service password-encryption' },
-          { type: 'h2', content: 'Configuration d\'une interface' },
-          { type: 'code', content: 'Router(config)# interface GigabitEthernet0/0\nRouter(config-if)# ip address 192.168.1.1 255.255.255.0\nRouter(config-if)# description LAN-Principal\nRouter(config-if)# no shutdown           # Activer l\'interface\nRouter(config-if)# exit\n\n# Vérifier les interfaces\nRouter# show interfaces\nRouter# show ip interface brief          # Vue synthétique (état + IP)' },
-          { type: 'h2', content: 'Commandes de vérification (show)' },
-          { type: 'code', content: 'show version                  # Version IOS et informations matériel\nshow running-config           # Configuration active (RAM)\nshow ip interface brief       # État de toutes les interfaces\nshow ip route                 # Table de routage\nshow arp                      # Table ARP\nshow mac address-table        # Table MAC (switch)\nshow vlan brief               # VLANs configurés\nshow spanning-tree            # État STP\nping 192.168.1.1              # Test de connectivité\ntraceroute 8.8.8.8            # Chemin réseau' },
+
+          { type: 'h2', content: '2. Les modes IOS — Navigation essentielle' },
+          { type: 'p', content: 'IOS utilise des modes hiérarchiques. Chaque mode a son propre prompt et ses propres commandes disponibles. Comprendre ces modes est fondamental.' },
+          { type: 'table', headers: ['Mode', 'Prompt', 'Commande d\'accès', 'Commandes disponibles'], rows: [
+            ['EXEC utilisateur', 'Router>', 'Connexion initiale', 'ping traceroute show (limité)'],
+            ['EXEC privilégié', 'Router#', 'enable (+ mot de passe)', 'Toutes les show, debug, copy, reload'],
+            ['Configuration globale', 'Router(config)#', 'configure terminal (conf t)', 'Modifier hostname, routes, ACL...'],
+            ['Configuration interface', 'Router(config-if)#', 'interface GigabitEthernet0/0', 'IP adresse shutdown description'],
+            ['Configuration ligne', 'Router(config-line)#', 'line console 0 / line vty 0 4', 'Mots de passe accès console/SSH'],
+            ['Configuration routeur', 'Router(config-router)#', 'router ospf 1', 'Protocoles de routage'],
+            ['Configuration VLAN', 'Switch(config-vlan)#', 'vlan 10', 'Nom du VLAN'],
+          ]},
+          { type: 'code', content: '# Navigation entre les modes :\nRouter> enable                    # Passer en EXEC privilégié\nRouter#\nRouter# configure terminal        # Passer en configuration globale\nRouter(config)#\nRouter(config)# interface GigabitEthernet0/0\nRouter(config-if)#\nRouter(config-if)# exit           # Remonter d\'un niveau\nRouter(config)#\nRouter(config)# end               # Retour direct en EXEC privilégié\nRouter#\n# OU Ctrl+Z = même effet que end\n\n# Raccourcis clavier IOS :\n# Tab           : Complétion automatique\n# ?             : Aide contextuelle\n# Ctrl+C        : Annuler une commande\n# Ctrl+Z        : Retour en mode privilégié\n# Ctrl+Shift+6  : Interrompre ping/traceroute\n# flèche haut   : Commande précédente\n\n# Aide contextuelle :\nRouter# sh?                        # Commandes commençant par "sh"\nRouter# show ?                     # Sous-commandes de show\nRouter# show ip ?                  # Sous-commandes de show ip' },
+
+          { type: 'h2', content: '3. Configuration initiale d\'un équipement Cisco' },
+          { type: 'code', content: '# 1. Nom de l\'équipement\nRouter(config)# hostname R1-Paris\n\n# 2. Bannière légale\nR1-Paris(config)# banner motd #\n  *** ACCES AUTORISE UNIQUEMENT ***\n  Propriete de TSSR Entreprise\n#\n\n# 3. Mot de passe mode privilégié (TOUJOURS enable secret, jamais enable password)\nR1-Paris(config)# enable secret P@ssword_Enable2024!\n\n# 4. Mot de passe console\nR1-Paris(config)# line console 0\nR1-Paris(config-line)# password P@ss_Console!\nR1-Paris(config-line)# login\nR1-Paris(config-line)# exec-timeout 5 0     # Déconnexion après 5 min\nR1-Paris(config-line)# exit\n\n# 5. Chiffrer tous les mots de passe\nR1-Paris(config)# service password-encryption\n\n# 6. SSH (désactiver Telnet)\nR1-Paris(config)# ip domain-name tssr.local\nR1-Paris(config)# crypto key generate rsa modulus 2048\nR1-Paris(config)# ip ssh version 2\nR1-Paris(config)# username admin privilege 15 secret P@ss_Admin!\nR1-Paris(config)# line vty 0 4\nR1-Paris(config-line)# transport input ssh   # SSH UNIQUEMENT\nR1-Paris(config-line)# login local\nR1-Paris(config-line)# exec-timeout 10 0\nR1-Paris(config-line)# exit\n\n# 7. NTP — Synchronisation horaire\nR1-Paris(config)# ntp server 192.168.1.10\nR1-Paris(config)# clock timezone CET 1\n\n# 8. Sauvegarder la configuration !\nR1-Paris# copy running-config startup-config\n# OU\nR1-Paris# write memory\n# OU abrégé\nR1-Paris# wr' },
+
+          { type: 'h2', content: '4. Commandes show — Diagnostic et vérification' },
+          { type: 'code', content: '# show running-config — Configuration active (en RAM)\nR1# show running-config\nR1# show running-config | begin interface    # Depuis "interface"\nR1# show running-config | section ospf      # Section OSPF\n\n# show ip interface brief — Vue synthétique\nR1# show ip interface brief\n# Interface              IP-Address      OK? Method Status    Protocol\n# GigabitEthernet0/0    192.168.1.1    YES NVRAM  up         up\n# GigabitEthernet0/2    unassigned     YES NVRAM  admin down down\n\n# Statuts :\n# up/up           = opérationnel\n# up/down         = câble OK (L1) mais problème L2\n# down/down       = pas de câble ou interface off\n# admin down/down = désactivée manuellement (shutdown)\n\n# show interfaces — Détails complets avec compteurs d\'erreurs\nR1# show interfaces GigabitEthernet0/0\n# Erreurs à surveiller : CRC input errors Giants Runts Drops\n# CRC = câble défectueux/interférences\n\n# show ip route — Table de routage\nR1# show ip route\n# Codes: L-local C-connected S-static O-OSPF B-BGP\n# C  192.168.1.0/24 is directly connected, Gi0/0\n# S  10.10.0.0/16 [1/0] via 192.168.1.254\n# O  172.16.0.0/16 [110/2] via 10.0.0.2\n# [110/2] = [distance administrative / métrique]\n# Distance : 0=directe 1=statique 90=EIGRP 110=OSPF 120=RIP\n\nR1# show arp                               # Table ARP\nR1# show cdp neighbors                     # Voisins Cisco\nR1# show version                           # Version IOS et matériel\nR1# show clock                             # Heure système' },
         ],
       },
+
       {
-        id: 'vlan-switching',
-        titre: 'VLANs et Switching Cisco',
+        id: 'routage-cisco',
+        titre: 'Routage Cisco — Statique, OSPF et BGP',
         sections: [
-          { type: 'h2', content: 'Qu\'est-ce qu\'un VLAN ?' },
-          { type: 'p', content: 'Un VLAN (Virtual LAN) segmente logiquement un réseau physique en plusieurs réseaux virtuels isolés. Chaque VLAN est un domaine de broadcast indépendant.' },
-          { type: 'table', headers: ['VLAN', 'Nom', 'Usage'], rows: [
-            ['1',  'Default',     'VLAN par défaut — tous les ports y appartiennent initialement'],
-            ['10', 'VLAN-RH',     'Ressources Humaines'],
-            ['20', 'VLAN-IT',     'Informatique'],
-            ['30', 'VLAN-MGMT',   'Management réseau (équipements)'],
-            ['99', 'VLAN-NATIF',  'VLAN natif sur les trunks (remplacer VLAN 1)'],
+
+          { type: 'h2', content: '1. Configuration des interfaces' },
+          { type: 'code', content: '# Interface LAN\nR1(config)# interface GigabitEthernet0/0\nR1(config-if)# description "LAN-Principal-192.168.1.0/24"\nR1(config-if)# ip address 192.168.1.1 255.255.255.0\nR1(config-if)# no shutdown\nR1(config-if)# ip helper-address 192.168.1.10    # Relay DHCP\nR1(config-if)# exit\n\n# Interface WAN\nR1(config)# interface GigabitEthernet0/1\nR1(config-if)# description "WAN-FAI-203.0.113.0/30"\nR1(config-if)# ip address 203.0.113.2 255.255.255.252\nR1(config-if)# no shutdown\nR1(config-if)# exit\n\n# Interface loopback (IP stable pour management)\nR1(config)# interface Loopback0\nR1(config-if)# ip address 1.1.1.1 255.255.255.255\nR1(config-if)# exit\n\n# Sous-interfaces Router-on-a-Stick\nR1(config)# interface GigabitEthernet0/0.10\nR1(config-subif)# encapsulation dot1Q 10\nR1(config-subif)# ip address 192.168.10.1 255.255.255.0\nR1(config-subif)# exit\n\nR1(config)# interface GigabitEthernet0/0.20\nR1(config-subif)# encapsulation dot1Q 20\nR1(config-subif)# ip address 192.168.20.1 255.255.255.0\nR1(config-subif)# exit\n\nR1(config)# interface GigabitEthernet0/0\nR1(config-if)# no shutdown\nR1(config-if)# exit' },
+
+          { type: 'h2', content: '2. Routage statique' },
+          { type: 'code', content: '# Route statique simple\nR1(config)# ip route 10.10.0.0 255.255.0.0 192.168.1.254\n\n# Route par défaut\nR1(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.1\n\n# Route flottante (backup)\nR1(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.1 1   # Primaire AD=1\nR1(config)# ip route 0.0.0.0 0.0.0.0 203.0.114.1 5   # Backup AD=5\n\n# Vérifier :\nR1# show ip route static\nR1# show ip route 0.0.0.0\n\n# Supprimer :\nR1(config)# no ip route 10.10.0.0 255.255.0.0 192.168.1.254\n\n# Summarization — regrouper des routes\n# 192.168.0.0/24 + .1/24 + .2/24 + .3/24 → 192.168.0.0/22\nR-Paris(config)# ip route 192.168.0.0 255.255.252.0 10.0.0.2' },
+
+          { type: 'h2', content: '3. OSPF — Open Shortest Path First' },
+          { type: 'p', content: 'OSPF est un protocole de routage dynamique à état de lien (Link State). Il construit une carte complète du réseau et calcule le chemin le plus court (algorithme de Dijkstra).' },
+          { type: 'table', headers: ['Concept OSPF', 'Description', 'Détail'], rows: [
+            ['Area', 'Zone OSPF pour limiter les LSA', 'Area 0 = backbone obligatoire'],
+            ['Router ID', 'Identifiant unique du routeur OSPF', 'Loopback0 ou plus haute IP'],
+            ['Hello', 'Paquets pour découvrir/maintenir voisins', 'Toutes les 10s (point-à-point)'],
+            ['Dead Interval', 'Délai avant de considérer un voisin mort', '40s = 4 × Hello interval'],
+            ['LSA', 'Link State Advertisement — infos sur les liens', 'Partagé avec tous les routeurs de l\'area'],
+            ['DR/BDR', 'Designated Router sur réseaux multi-accès', 'Réduit le nombre d\'adjacences'],
+            ['Métrique', 'Coût = 100Mbps / bande passante', '10G=1 1G=1 100M=1 10M=10'],
           ]},
-          { type: 'h2', content: 'Créer et assigner des VLANs' },
-          { type: 'code', content: '# Créer un VLAN\nSwitch(config)# vlan 10\nSwitch(config-vlan)# name VLAN-RH\nSwitch(config-vlan)# exit\n\n# Assigner un port en mode access\nSwitch(config)# interface FastEthernet0/1\nSwitch(config-if)# switchport mode access\nSwitch(config-if)# switchport access vlan 10\nSwitch(config-if)# exit\n\n# Vérifier\nSwitch# show vlan brief' },
-          { type: 'h2', content: 'Liens Trunk (802.1Q)' },
-          { type: 'p', content: 'Un trunk transporte plusieurs VLANs sur un seul lien physique (entre switches ou switch/routeur), en ajoutant un tag 802.1Q à chaque trame.' },
-          { type: 'code', content: 'Switch(config)# interface GigabitEthernet0/1\nSwitch(config-if)# switchport mode trunk\nSwitch(config-if)# switchport trunk native vlan 99\nSwitch(config-if)# switchport trunk allowed vlan 10,20,30,99\nSwitch(config-if)# exit\n\n# Vérifier le trunk\nSwitch# show interfaces trunk' },
-          { type: 'h2', content: 'Routage inter-VLAN (Router-on-a-Stick)' },
-          { type: 'p', content: 'Permet à des VLANs différents de communiquer via des sous-interfaces sur un seul lien trunk vers un routeur.' },
-          { type: 'code', content: 'Router(config)# interface GigabitEthernet0/0.10\nRouter(config-subif)# encapsulation dot1Q 10\nRouter(config-subif)# ip address 192.168.10.1 255.255.255.0\n\nRouter(config)# interface GigabitEthernet0/0.20\nRouter(config-subif)# encapsulation dot1Q 20\nRouter(config-subif)# ip address 192.168.20.1 255.255.255.0\n\n# Activer l\'interface physique\nRouter(config)# interface GigabitEthernet0/0\nRouter(config-if)# no shutdown' },
-          { type: 'h2', content: 'Spanning Tree Protocol (STP)' },
-          { type: 'p', content: 'STP (IEEE 802.1D) empêche les boucles dans les réseaux commutés en bloquant les liens redondants. RSTP (802.1w) est la version rapide.' },
-          { type: 'code', content: 'show spanning-tree                               # État général STP\nshow spanning-tree vlan 10                       # STP pour le VLAN 10\nSwitch(config)# spanning-tree vlan 10 root primary   # Forcer le root bridge' },
+          { type: 'code', content: '# Configuration OSPF Single Area\nR1(config)# router ospf 1\nR1(config-router)# router-id 1.1.1.1\nR1(config-router)# network 192.168.1.0 0.0.0.255 area 0\nR1(config-router)# network 10.0.0.0 0.0.0.3 area 0\nR1(config-router)# passive-interface GigabitEthernet0/0  # Pas de Hello vers LAN\nR1(config-router)# default-information originate         # Redistribuer route par défaut\nR1(config-router)# exit\n\n# Wildcards OSPF :\n# 0.0.0.0   = hôte exact\n# 0.0.0.255 = /24\n# 255.255.255.255 = n\'importe quelle IP (any)\n\n# Tuning :\nR1(config-if)# ip ospf hello-interval 5\nR1(config-if)# ip ospf dead-interval 20\nR1(config-if)# ip ospf cost 10\nR1(config-if)# ip ospf priority 100    # 0 = jamais DR\n\n# Vérification :\nR1# show ip ospf neighbor\n# Neighbor ID  Pri  State    Dead Time  Address    Interface\n# 2.2.2.2      1   FULL/DR  00:00:32   10.0.0.2   Gi0/1\n\n# États voisins : Down→Init→2-Way→Exstart→Exchange→Loading→FULL\n# FULL = voisin pleinement fonctionnel\n\nR1# show ip ospf database              # Base LSDB\nR1# show ip route ospf                 # Routes OSPF\nR1# show ip ospf interface brief       # Coûts et états\nR1# no debug all                       # Désactiver tous les debugs !' },
+
+          { type: 'h2', content: '4. ACL — Access Control Lists' },
+          { type: 'p', content: 'Les ACL filtrent le trafic réseau. Elles sont traitées de haut en bas — la première règle qui correspond est appliquée. Une règle implicite <strong>deny any</strong> est toujours à la fin.' },
+          { type: 'code', content: '# ACL Standard (1-99) — filtre sur IP SOURCE uniquement\n# → Placer AU PLUS PRÈS de la DESTINATION\n\nR1(config)# access-list 10 permit 192.168.1.0 0.0.0.255\nR1(config)# access-list 10 deny any log\n\nR1(config)# interface GigabitEthernet0/1\nR1(config-if)# ip access-group 10 out     # Trafic SORTANT\nR1(config-if)# exit\n\n# ACL Étendue (100-199) — filtre source+destination+protocole+port\n# → Placer AU PLUS PRÈS de la SOURCE\n\nR1(config)# ip access-list extended ACL-LAN-TO-WAN\nR1(config-ext-nacl)# permit tcp 192.168.1.0 0.0.0.255 any eq 80\nR1(config-ext-nacl)# permit tcp 192.168.1.0 0.0.0.255 any eq 443\nR1(config-ext-nacl)# permit tcp 192.168.1.0 0.0.0.255 any eq 53\nR1(config-ext-nacl)# permit udp 192.168.1.0 0.0.0.255 any eq 53\nR1(config-ext-nacl)# permit icmp 192.168.1.0 0.0.0.255 any\nR1(config-ext-nacl)# deny ip any any log\nR1(config-ext-nacl)# exit\n\nR1(config)# interface GigabitEthernet0/0\nR1(config-if)# ip access-group ACL-LAN-TO-WAN in\nR1(config-if)# exit\n\n# Mots-clés :\n# any = n\'importe qui | host = IP exacte\n# eq 80 = port 80 | gt/lt = supérieur/inférieur\n# established = connexions TCP déjà établies (ACK/RST)\n\n# Vérifier :\nR1# show access-lists                  # Compteurs de matches\nR1# show ip interface Gi0/0            # Quelle ACL appliquée\nR1# clear access-list counters         # Remettre compteurs à zéro' },
         ],
       },
+
       {
-        id: 'routage-acl',
-        titre: 'Routage Statique, OSPF et ACL',
+        id: 'vlan-cisco',
+        titre: 'VLANs Cisco — Configuration Complète',
         sections: [
-          { type: 'h2', content: 'Routes statiques' },
-          { type: 'code', content: '# Route statique vers un réseau distant\nRouter(config)# ip route 192.168.2.0 255.255.255.0 192.168.1.254\n\n# Route par défaut (vers Internet)\nRouter(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.1\n\n# Vérifier la table de routage\nRouter# show ip route' },
-          { type: 'info', content: 'La table de routage affiche C (Connected), S (Static), O (OSPF), R (RIP). La route la plus spécifique est toujours préférée.' },
-          { type: 'h2', content: 'OSPF — Open Shortest Path First' },
-          { type: 'p', content: 'Protocole de routage dynamique à état de lien. Calcule le chemin le plus court via l\'algorithme de Dijkstra. Converge rapidement, adapté aux grands réseaux.' },
-          { type: 'code', content: 'Router(config)# router ospf 1\nRouter(config-router)# router-id 1.1.1.1\nRouter(config-router)# network 192.168.1.0 0.0.0.255 area 0\nRouter(config-router)# network 10.0.0.0 0.0.0.3 area 0\n\n# Vérifier OSPF\nRouter# show ip ospf neighbor         # Voisins (FULL = adjacence OK)\nRouter# show ip ospf database         # Base de données des liens\nRouter# show ip route ospf            # Routes apprises par OSPF' },
-          { type: 'h2', content: 'ACL — Listes de Contrôle d\'Accès' },
-          { type: 'p', content: 'Les ACL filtrent le trafic réseau. Standard (source IP uniquement) ou Étendue (source, destination, protocole, port).' },
-          { type: 'code', content: '! ACL Standard numérotée (1-99)\nRouter(config)# access-list 10 deny 192.168.2.0 0.0.0.255\nRouter(config)# access-list 10 permit any\n\n! ACL Étendue numérotée (100-199)\nRouter(config)# access-list 100 permit tcp 192.168.1.0 0.0.0.255 any eq 80\nRouter(config)# access-list 100 permit tcp 192.168.1.0 0.0.0.255 any eq 443\nRouter(config)# access-list 100 deny ip any any\n\n! Appliquer sur une interface\nRouter(config)# interface GigabitEthernet0/1\nRouter(config-if)# ip access-group 100 in    ! Trafic entrant\nRouter(config-if)# ip access-group 10 out    ! Trafic sortant\n\n! Vérifier\nRouter# show access-lists' },
-          { type: 'warn', content: 'Une ACL se termine toujours par un deny implicite (tout ce qui n\'est pas permis est bloqué). Toujours ajouter permit any si nécessaire.' },
-          { type: 'h2', content: 'Packet Tracer — Guide de démarrage' },
-          { type: 'p', content: 'Cisco Packet Tracer est un simulateur réseau gratuit. Téléchargeable sur netacad.com (compte gratuit requis).' },
-          { type: 'steps', items: [
-            { num: '1', title: 'Télécharger',            content: 'netacad.com → Ressources → Packet Tracer (compte Cisco Network Academy gratuit).' },
-            { num: '2', title: 'Créer une topologie',    content: 'Glisser-déposer des équipements depuis la barre inférieure (routeurs, switches, PCs).' },
-            { num: '3', title: 'Connecter',              content: 'Choisir le bon câble : droit (PC↔Switch), croisé (Switch↔Switch), console (PC↔Routeur/Switch).' },
-            { num: '4', title: 'Configurer via CLI',     content: 'Cliquer sur l\'équipement → onglet CLI → taper les commandes IOS.' },
-            { num: '5', title: 'Mode Simulation',        content: 'Basculer en mode Simulation pour analyser le chemin des paquets paquet par paquet.' },
-          ]},
-          { type: 'info', content: 'Câble console (bleu) = accès CLI. Câble droit = PC↔Switch ou Switch↔Routeur. Câble croisé = Switch↔Switch ou PC↔PC (obsolète avec Auto-MDIX).' },
+
+          { type: 'h2', content: '1. VLANs sur les switches Cisco' },
+          { type: 'code', content: '# Créer les VLANs\nSW1(config)# vlan 10\nSW1(config-vlan)# name VLAN-RH\nSW1(config-vlan)# exit\nSW1(config)# vlan 20\nSW1(config-vlan)# name VLAN-IT\nSW1(config-vlan)# exit\nSW1(config)# vlan 99\nSW1(config-vlan)# name VLAN-MGMT-NATIF\nSW1(config-vlan)# exit\n\n# Ports ACCESS — Connexion aux postes\nSW1(config)# interface range FastEthernet0/1-10\nSW1(config-if-range)# switchport mode access\nSW1(config-if-range)# switchport access vlan 10\nSW1(config-if-range)# spanning-tree portfast\nSW1(config-if-range)# spanning-tree bpduguard enable\nSW1(config-if-range)# exit\n\n# Port TRUNK — Vers switch ou routeur\nSW1(config)# interface GigabitEthernet0/1\nSW1(config-if)# switchport mode trunk\nSW1(config-if)# switchport trunk native vlan 99\nSW1(config-if)# switchport trunk allowed vlan 10,20,30,40,99\nSW1(config-if)# switchport nonegotiate         # Désactiver DTP\nSW1(config-if)# exit\n\n# IP de management\nSW1(config)# interface vlan 99\nSW1(config-if)# ip address 192.168.99.10 255.255.255.0\nSW1(config-if)# no shutdown\nSW1(config-if)# exit\nSW1(config)# ip default-gateway 192.168.99.1\n\n# Vérifications :\nSW1# show vlan brief\nSW1# show interfaces trunk\nSW1# show interfaces FastEthernet0/1 switchport' },
+
+          { type: 'h2', content: '2. STP — Spanning Tree Protocol' },
+          { type: 'code', content: '# Configurer le Root Bridge\nSW-CORE(config)# spanning-tree vlan 10,20,30,40 root primary\n# OU manuellement :\nSW-CORE(config)# spanning-tree vlan 10 priority 4096\n\n# Root secondaire (failover)\nSW-BACKUP(config)# spanning-tree vlan 10,20,30,40 root secondary\n\n# Mode RSTP (rapide — recommandé)\nSW1(config)# spanning-tree mode rapid-pvst\n# Convergence ~1-2s au lieu de 30-50s\n\n# PortFast — skip Listening/Learning pour les ports PC\nSW1(config)# spanning-tree portfast default    # Global\nSW1(config-if)# spanning-tree portfast         # Interface\n\n# BPDU Guard — protection contre switches pirates\nSW1(config-if)# spanning-tree bpduguard enable\n# Si switch connecté → port err-disable\n# Auto-recovery :\nSW1(config)# errdisable recovery cause bpduguard\nSW1(config)# errdisable recovery interval 30\n\n# Root Guard\nSW1(config-if)# spanning-tree guard root\n\n# Vérifications :\nSW1# show spanning-tree\nSW1# show spanning-tree vlan 10\n# Rôles : Root(meilleur chemin) Desg(best sur segment) Altn(bloqué) Back(bloqué)\n# États : BLK(bloqué) LIS(15s) LRN(15s) FWD(forwarding normal) DIS(disabled)' },
+
+          { type: 'h2', content: '3. EtherChannel — Agrégation de liens' },
+          { type: 'code', content: '# EtherChannel = plusieurs liens physiques → 1 lien logique\n# Avantages : bande passante + redondance\n# Protocoles : LACP (802.3ad, standard) ou PAgP (Cisco, déprécié)\n\n# Sur SW1 :\nSW1(config)# interface range GigabitEthernet0/1-2\nSW1(config-if-range)# channel-group 1 mode active      # LACP actif\nSW1(config-if-range)# exit\n\nSW1(config)# interface Port-Channel1\nSW1(config-if)# switchport mode trunk\nSW1(config-if)# switchport trunk native vlan 99\nSW1(config-if)# switchport trunk allowed vlan 10,20,30,40,99\nSW1(config-if)# exit\n\n# Sur SW-CORE :\nSW-CORE(config)# interface range GigabitEthernet0/1-2\nSW-CORE(config-if-range)# channel-group 1 mode passive   # LACP passif\nSW-CORE(config-if-range)# exit\n\n# Vérifications :\nSW1# show etherchannel summary\n# 1  Po1(SU)  LACP  Gi0/1(P) Gi0/2(P)\n# SU = Layer2 Up  P = Bundled (en service)\n\nSW1# show lacp neighbor' },
+        ],
+      },
+
+      {
+        id: 'sauvegarde-ios',
+        titre: 'Sauvegarde, Restauration et Gestion IOS',
+        sections: [
+
+          { type: 'h2', content: '1. Sauvegarde de la configuration' },
+          { type: 'code', content: '# Copie vers TFTP\nR1# copy running-config tftp:\nAddress or name of remote host? 192.168.1.100\nDestination filename? R1-running-config-2024-01-04\n\n# Copie vers FTP\nR1(config)# ip ftp username admin\nR1(config)# ip ftp password P@ssword!\nR1# copy running-config ftp://192.168.1.100/R1-backup.cfg\n\n# Copie vers clé USB\nR1# copy running-config usbflash0:R1-backup.cfg\n\n# Restaurer (merge avec config existante) :\nR1# copy tftp: running-config\n\n# Remplacer complètement :\nR1# configure replace tftp://192.168.1.100/R1-clean.cfg\n\n# Réinitialiser aux paramètres usine :\nR1# write erase          # Supprimer la startup-config\nR1# reload\n\n# Gérer les fichiers IOS :\nR1# dir flash:\nR1# dir all-filesystems  # Voir tous les systèmes de fichiers' },
+
+          { type: 'h2', content: '2. Mise à jour de l\'IOS' },
+          { type: 'code', content: '# Vérifier la version\nR1# show version\n\n# Copier le nouvel IOS depuis TFTP\nR1# copy tftp flash:\nAddress or name of remote host? 192.168.1.100\nSource filename? isr4200-universalk9.17.09.01.SPA.bin\nDestination filename? isr4200-universalk9.17.09.01.SPA.bin\n\n# Vérifier le checksum MD5\nR1# verify md5 flash:isr4200-universalk9.17.09.01.SPA.bin\n\n# Configurer le boot sur le nouvel IOS\nR1(config)# boot system flash:isr4200-universalk9.17.09.01.SPA.bin\nR1(config)# end\nR1# write memory\nR1# reload\n\n# Après redémarrage, supprimer l\'ancien IOS :\nR1# delete flash:isr4200-universalk9.17.06.01a.SPA.bin\n\n# Configuration Register :\n# 0x2102 = boot normal\n# 0x2100 = boot ROMMON\n# 0x2142 = ignorer startup-config (récupération MDP)\nR1# show version | include Configuration register' },
+
+          { type: 'h2', content: '3. Récupération de mot de passe IOS' },
+          { type: 'code', content: '# Nécessite un accès physique au câble console\n\n# Étape 1 : Entrer en ROMMON\n# Appuyer sur Ctrl+Break pendant les 60 premières secondes du démarrage\n\n# Étape 2 : En ROMMON\nrommon 1> confreg 0x2142    # Ignorer la startup-config\nrommon 2> reset\n\n# Étape 3 : Au boot, pas de config chargée\nRouter> enable               # Pas de mot de passe !\nRouter# copy startup-config running-config\n\n# Étape 4 : Changer le mot de passe\nRouter(config)# enable secret NouveauP@ss!\n\n# Étape 5 : Rétablir le configuration register\nRouter(config)# config-register 0x2102\n\n# Étape 6 : Sauvegarder et redémarrer\nRouter# copy running-config startup-config\nRouter# reload' },
         ],
       },
     ],

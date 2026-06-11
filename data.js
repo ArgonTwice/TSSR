@@ -745,55 +745,179 @@ const MODULES = [
     topics: ['Diskpart', 'SAM', 'NTFS', 'icacls', 'BitLocker', 'Pare-feu'],
     cours: [
       {
-        id: 'cours_windows_objectifs',
-        titre: 'Administration Windows : Disques, SAM, NTFS et Sécurisation',
+        id: 'windows-server-bases',
+        titre: 'Windows Server 2022 — Installation et Configuration',
         sections: [
-          { type: 'html-file', src: 'modules/windows/cours_windows_objectifs.html' },
+
+          { type: 'h2', content: '1. Les éditions de Windows Server 2022' },
+          { type: 'table', headers: ['Édition', 'VMs incluses', 'Usage', 'Particularités'], rows: [
+            ['Essentials', '0', 'TPE < 25 users', 'Pas de virtualisation, interface simplifiée'],
+            ['Standard', '2', 'Serveurs standard', 'Tous les rôles, 2 VMs Hyper-V incluses'],
+            ['Datacenter', 'Illimitées', 'Datacenters', 'VMs illimitées, Storage Spaces Direct, SDN'],
+            ['Azure Edition', 'Illimitées', 'Azure uniquement', 'Hotpatching — mises à jour sans redémarrage'],
+          ]},
+          { type: 'info', content: '<strong>Licencing Core :</strong> Windows Server 2022 est licencié par paire de cœurs physiques (minimum 8 paires = 16 cœurs par serveur). Un serveur 4 cœurs paie quand même pour 16 cœurs minimum.' },
+
+          { type: 'h2', content: '2. Installation pas à pas' },
+          { type: 'steps', items: [
+            {
+              num: '1',
+              title: 'Prérequis matériels',
+              content: 'CPU 64 bits 1.4 GHz minimum · RAM 512 Mo (2 Go avec GUI) · Disque 32 Go minimum · Réseau Ethernet',
+              why: 'Pour un serveur de production : 16 Go RAM minimum, 2 CPUs, SSD NVMe, 2 cartes réseau (redondance). Les specs minimales sont pour un lab.'
+            },
+            {
+              num: '2',
+              title: 'Choix de l\'option d\'installation',
+              content: '<strong>Server Core</strong> : pas d\'interface graphique, ligne de commande uniquement, surface d\'attaque réduite, recommandé en production.<br><strong>Server with Desktop Experience</strong> : interface graphique complète, recommandé pour apprendre.',
+              why: 'Microsoft pousse vers Server Core depuis 2016. En production, moins de paquets installés = moins de vulnérabilités = moins de redémarrages pour les mises à jour.'
+            },
+            {
+              num: '3',
+              title: 'Partitionnement',
+              content: 'Partition système : 100 Mo (EFI) + 128 Mo (MSR) + 60 Go minimum (OS). Laisser le reste pour les données sur un disque séparé.',
+              why: 'Séparer OS et données : si le disque OS tombe en panne, les données sont préservées. Plus facile de réinstaller l\'OS sans toucher aux données.'
+            },
+            {
+              num: '4',
+              title: 'Configuration post-installation',
+              content: 'Renommer le serveur · Configurer l\'IP fixe · Rejoindre le domaine · Configurer Windows Update · Activer le pare-feu · Installer les mises à jour',
+              code: '# PowerShell — Configuration initiale complète\n# Renommer le serveur\nRename-Computer -NewName "SRV-PROD-01" -Restart\n\n# Après redémarrage — IP fixe\nNew-NetIPAddress -InterfaceAlias "Ethernet" `\n  -IPAddress 192.168.1.10 `\n  -PrefixLength 24 `\n  -DefaultGateway 192.168.1.1\n\nSet-DnsClientServerAddress -InterfaceAlias "Ethernet" `\n  -ServerAddresses ("192.168.1.10","192.168.1.11")\n\n# Vérifier\nGet-NetIPConfiguration\nipconfig /all\n\n# Rejoindre le domaine\nAdd-Computer -DomainName "tssr.local" `\n  -Credential (Get-Credential) `\n  -OUPath "OU=Serveurs,DC=tssr,DC=local" `\n  -Restart',
+              why: 'Toujours IP fixe sur un serveur. Un serveur avec DHCP change d\'IP au redémarrage → les clients ne le trouvent plus. Les serveurs DNS AD en particulier DOIVENT avoir une IP fixe.'
+            },
+            {
+              num: '5',
+              title: 'Ajouter un rôle via Server Manager',
+              content: 'Server Manager → Gérer → Ajouter des rôles et fonctionnalités → Suivant → Installation basée sur un rôle → Choisir le serveur → Cocher le rôle → Suivant → Installer',
+              code: '# Équivalent PowerShell (plus rapide)\nInstall-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools\nInstall-WindowsFeature -Name DNS -IncludeManagementTools\nInstall-WindowsFeature -Name DHCP -IncludeManagementTools\nInstall-WindowsFeature -Name Web-Server -IncludeManagementTools\n\n# Lister tous les rôles disponibles\nGet-WindowsFeature | Where-Object {$_.InstallState -eq "Installed"}\n\n# Lister les rôles installés\nGet-WindowsFeature | Where-Object {$_.Installed -eq $true}',
+            },
+          ]},
+
+          { type: 'h2', content: '3. Gestion des disques et stockage' },
+          { type: 'code', content: '# Gestion des disques avec PowerShell\n\n# Voir tous les disques\nGet-Disk\n\n# Initialiser un nouveau disque (GPT recommandé)\nInitialize-Disk -Number 1 -PartitionStyle GPT\n\n# Créer une partition et formater\nNew-Partition -DiskNumber 1 -UseMaximumSize -AssignDriveLetter |\nFormat-Volume -FileSystem NTFS -NewFileSystemLabel "Donnees" -Confirm:$false\n\n# Voir les volumes\nGet-Volume\n\n# Diskpart (outil classique)\ndiskpart\nlist disk\nselect disk 1\nclean           # ATTENTION : efface tout !\ncreate partition primary\nformat fs=ntfs quick label="Donnees"\nassign letter=D\nexit\n\n# Storage Spaces (RAID logiciel Windows)\n# Voir les disques disponibles pour un pool\nGet-PhysicalDisk | Where-Object CanPool -eq $true\n\n# Créer un pool de stockage\n$disques = Get-PhysicalDisk | Where-Object CanPool -eq $true\nNew-StoragePool -FriendlyName "Pool-Data" `\n  -StorageSubSystemFriendlyName (Get-StorageSubSystem).FriendlyName `\n  -PhysicalDisks $disques\n\n# Créer un disque virtuel miroir (RAID 1)\nNew-VirtualDisk -StoragePoolFriendlyName "Pool-Data" `\n  -FriendlyName "VDisk-Mirror" `\n  -ResiliencySettingName "Mirror" `\n  -Size 100GB' },
+
+          { type: 'h2', content: '4. Gestion des services Windows' },
+          { type: 'code', content: '# Services Windows — commandes essentielles\n\n# Voir tous les services\nGet-Service | Sort-Object Status -Descending\nGet-Service | Where-Object Status -eq "Stopped"\n\n# Démarrer / Arrêter / Redémarrer\nStart-Service -Name "wuauserv"        # Windows Update\nStop-Service -Name "Spooler"          # Spouleur impression\nRestart-Service -Name "DNS"           # Serveur DNS\n\n# Activer/désactiver au démarrage\nSet-Service -Name "Spooler" -StartupType Automatic\nSet-Service -Name "Telnet" -StartupType Disabled\n\n# Voir les services qui dépendent d\'un autre\nGet-Service -Name "DNS" -DependentServices\nGet-Service -Name "DNS" -RequiredServices\n\n# Services critiques à connaître :\n# NTDS        : Active Directory Domain Services\n# DNS         : Serveur DNS\n# DHCP        : Serveur DHCP\n# Netlogon    : Authentification domaine\n# W32Time     : Synchronisation horaire (Kerberos en dépend !)\n# RpcSs       : Remote Procedure Call (fondation de beaucoup de services)\n# SamSs       : Security Accounts Manager\n# EventLog    : Journal des événements\n# WinRM       : Windows Remote Management (PowerShell distant)\n\n# Réparer un service qui ne démarre pas\nsc config DNS start= auto\nsc start DNS\n# Voir le code d\'erreur\nsc query DNS' },
         ],
       },
+
       {
-        id: 'admin-windows-test',
-        titre: 'Administration Windows — CMD & PowerShell',
+        id: 'active-directory',
+        titre: 'Active Directory — Installation, Structure et Administration',
         sections: [
-          { type: 'h2', content: '1. Gestion des Utilisateurs et Groupes (CMD - Net)' },
-          { type: 'warn', content: 'L\'invite de commande doit être lancée en mode Administrateur.' },
-          { type: 'ul', items: [
-            '<code>net user Anthony P@ssword123 /add</code> : Crée un compte utilisateur.',
-            '<code>net localgroup Support /add</code> : Crée un groupe local nommé "Support".',
-            '<code>net localgroup Support Anthony /add</code> : Ajoute l\'utilisateur au groupe.',
-            '<code>net user Anthony</code> : Affiche les informations complètes du compte.',
+
+          { type: 'h2', content: '1. Qu\'est-ce qu\'Active Directory ?' },
+          { type: 'p', content: 'Active Directory est le service d\'annuaire de Microsoft. Il centralise l\'<strong>authentification</strong> (qui es-tu ?), l\'<strong>autorisation</strong> (qu\'as-tu le droit de faire ?) et la <strong>gestion des ressources</strong> (ordinateurs, utilisateurs, imprimantes, partages) d\'un réseau Windows.' },
+          { type: 'table', headers: ['Concept', 'Description', 'Exemple concret'], rows: [
+            ['Domaine', 'Périmètre administratif AD avec une base commune', 'tssr.local'],
+            ['Forêt', 'Ensemble de domaines partageant schéma et catalogue global', 'tssr.local + filiale.tssr.local'],
+            ['Arbre', 'Domaines liés partageant un namespace DNS contigu', 'tssr.local et rh.tssr.local'],
+            ['DC (Domain Controller)', 'Serveur hébergeant AD DS — authentifie et réplique', 'SRV-DC-01.tssr.local'],
+            ['FSMO', 'Rôles spéciaux sur certains DCs', 'PDC Emulator, RID Master, etc.'],
+            ['Catalogue global', 'DC avec copie partielle de tous les objets de la forêt', 'Accélère les recherches cross-domain'],
+            ['Schema', 'Définition de tous les types d\'objets et attributs AD', 'Étendu par Exchange, Skype, SCCM...'],
           ]},
-          { type: 'h2', content: '2. Gestion des Disques (Diskpart)' },
-          { type: 'warn', content: '<strong>ATTENTION :</strong> La commande <code>clean</code> supprime toutes les données du disque sélectionné.' },
-          { type: 'code', content: 'diskpart               # Lance l\'outil\nlist disk              # Liste les disques physiques\nselect disk 0          # Sélectionne le disque 0\nclean                  # Efface toute la structure\ncreate partition primary size=50000  # Partition de 50Go\nformat fs=ntfs quick   # Formatage rapide\nassign letter=E        # Monte le disque en E:' },
-          { type: 'h2', content: '3. Administration Domaine (Active Directory)' },
-          { type: 'ul', items: [
-            '<code>wmic computersystem get domain</code> : Vérifie à quel domaine appartient la machine.',
-            '<code>Add-Computer -DomainName "carrefour.local" -Credential (Get-Credential)</code> : Joint la machine au domaine (PowerShell).',
+
+          { type: 'h2', content: '2. Protocoles utilisés par Active Directory' },
+          { type: 'table', headers: ['Protocole', 'Port', 'Rôle'], rows: [
+            ['Kerberos', 'TCP/UDP 88', 'Authentification principale — tickets chiffrés'],
+            ['LDAP', 'TCP 389', 'Interrogation de l\'annuaire'],
+            ['LDAPS', 'TCP 636', 'LDAP chiffré (TLS)'],
+            ['DNS', 'TCP/UDP 53', 'Résolution des noms DC et SRV records'],
+            ['SMB', 'TCP 445', 'Accès à SYSVOL et NETLOGON (GPO scripts)'],
+            ['RPC', 'TCP 135 + dynamiques', 'Réplication entre DCs communication AD'],
+            ['NTP/W32Time', 'UDP 123', 'Synchronisation horaire — CRITIQUE pour Kerberos'],
+            ['Global Catalog', 'TCP 3268 (3269 SSL)', 'Recherches multi-domaines'],
           ]},
-          { type: 'h2', content: '4. PowerShell — Cmdlets essentielles' },
-          { type: 'info', content: 'Syntaxe basée sur <strong>Verbe-Nom</strong>. Les résultats sont des objets manipulables.' },
-          { type: 'ul', items: [
-            '<code>Get-Process</code> : Liste les processus.',
-            '<code>Stop-Process -Name "chrome" -Force</code> : Tue un processus par son nom.',
-            '<code>Get-Service</code> : Liste les services Windows.',
-            '<code>Restart-Service -Name "wuauserv"</code> : Redémarre Windows Update.',
-            '<strong>Pipe :</strong> <code>Get-Process | Where-Object {$_.CPU -gt 100}</code> : Filtre les processus gourmands en CPU.',
+          { type: 'warn', content: '<strong>Kerberos et l\'heure :</strong> Kerberos refuse les tickets avec plus de 5 minutes de décalage horaire. Si les horloges des clients et DCs se désynchronisent, PERSONNE ne peut se connecter au domaine. W32Time doit absolument fonctionner.' },
+
+          { type: 'h2', content: '3. Installation d\'Active Directory DS' },
+          { type: 'code', content: '# Étape 1 : Installer le rôle AD DS\nInstall-WindowsFeature AD-Domain-Services -IncludeManagementTools\n\n# Étape 2 : Promouvoir en contrôleur de domaine\n# Nouvelle forêt (premier DC) :\nInstall-ADDSForest `\n  -DomainName "tssr.local" `\n  -DomainNetbiosName "TSSR" `\n  -DomainMode "WinThreshold" `\n  -ForestMode "WinThreshold" `\n  -DatabasePath "C:\\Windows\\NTDS" `\n  -SysvolPath "C:\\Windows\\SYSVOL" `\n  -LogPath "C:\\Windows\\NTDS" `\n  -SafeModeAdministratorPassword (ConvertTo-SecureString "P@ssword2024!" -AsPlainText -Force) `\n  -InstallDns `\n  -Force\n\n# Le serveur redémarre automatiquement\n# Après redémarrage : connexion avec TSSR\\Administrateur\n\n# Ajouter un second DC (haute disponibilité)\nInstall-ADDSDomainController `\n  -DomainName "tssr.local" `\n  -SiteName "Default-First-Site-Name" `\n  -InstallDns `\n  -Credential (Get-Credential "TSSR\\Administrateur") `\n  -SafeModeAdministratorPassword (ConvertTo-SecureString "P@ssword2024!" -AsPlainText -Force) `\n  -Force\n\n# Vérifier l\'installation\nGet-ADDomain\nGet-ADForest\nGet-ADDomainController -Filter *\n\n# Vérifier les SRV records DNS (essentiels pour AD)\nnslookup -type=SRV _ldap._tcp.tssr.local\nnslookup -type=SRV _kerberos._tcp.tssr.local' },
+
+          { type: 'h2', content: '4. Structure AD — OUs, Utilisateurs, Groupes, Ordinateurs' },
+          { type: 'h3', content: '4.1 Unités d\'Organisation (OU)' },
+          { type: 'p', content: 'Les OUs sont des conteneurs qui organisent les objets AD. Elles permettent d\'appliquer des GPO ciblées et de déléguer l\'administration.' },
+          { type: 'code', content: '# Structure OU recommandée :\n# tssr.local\n# ├── _Admin          (comptes admins séparés des users normaux)\n# ├── Serveurs\n# │   ├── DC\n# │   ├── Applicatifs\n# │   └── Fichiers\n# ├── Utilisateurs\n# │   ├── Informatique\n# │   ├── Comptabilite\n# │   ├── Direction\n# │   └── Desactivés\n# ├── Ordinateurs\n# │   ├── Portables\n# │   ├── Fixes\n# │   └── Salles\n# └── Groupes\n\n# Créer la structure OU avec PowerShell :\nNew-ADOrganizationalUnit -Name "_Admin"       -Path "DC=tssr,DC=local"\nNew-ADOrganizationalUnit -Name "Utilisateurs" -Path "DC=tssr,DC=local"\nNew-ADOrganizationalUnit -Name "Informatique" -Path "OU=Utilisateurs,DC=tssr,DC=local"\nNew-ADOrganizationalUnit -Name "Comptabilite" -Path "OU=Utilisateurs,DC=tssr,DC=local"\nNew-ADOrganizationalUnit -Name "Serveurs"     -Path "DC=tssr,DC=local"\nNew-ADOrganizationalUnit -Name "Ordinateurs"  -Path "DC=tssr,DC=local"\nNew-ADOrganizationalUnit -Name "Groupes"      -Path "DC=tssr,DC=local"\n\n# Lister les OUs\nGet-ADOrganizationalUnit -Filter * | Select-Object Name, DistinguishedName' },
+
+          { type: 'h3', content: '4.2 Gestion des utilisateurs' },
+          { type: 'code', content: '# Créer un utilisateur complet\nNew-ADUser `\n  -Name "Jean Dupont" `\n  -GivenName "Jean" `\n  -Surname "Dupont" `\n  -SamAccountName "j.dupont" `\n  -UserPrincipalName "j.dupont@tssr.local" `\n  -Path "OU=Informatique,OU=Utilisateurs,DC=tssr,DC=local" `\n  -Department "Informatique" `\n  -Title "Technicien réseau" `\n  -Office "Bâtiment A - Bureau 201" `\n  -OfficePhone "+33 1 23 45 67 89" `\n  -EmailAddress "j.dupont@tssr.local" `\n  -Description "Technicien TSSR promo 2024" `\n  -AccountPassword (ConvertTo-SecureString "TempP@ss2024!" -AsPlainText -Force) `\n  -ChangePasswordAtLogon $true `\n  -Enabled $true\n\n# Lister les utilisateurs avec détails\nGet-ADUser -Filter * -Properties * | `\n  Select-Object Name, SamAccountName, Department, Enabled, `\n  LastLogonDate, PasswordLastSet, PasswordNeverExpires | `\n  Format-Table -AutoSize\n\n# Chercher un utilisateur spécifique\nGet-ADUser -Filter {Name -like "Jean*"}\nGet-ADUser -Identity "j.dupont" -Properties *\n\n# Modifier un utilisateur\nSet-ADUser -Identity "j.dupont" `\n  -Title "Administrateur Système" `\n  -Department "DSI"\n\n# Réinitialiser un mot de passe\nSet-ADAccountPassword -Identity "j.dupont" `\n  -Reset `\n  -NewPassword (ConvertTo-SecureString "NewP@ss2024!" -AsPlainText -Force)\nSet-ADUser -Identity "j.dupont" -ChangePasswordAtLogon $true\n\n# Désactiver/activer un compte\nDisable-ADAccount -Identity "j.dupont"\nEnable-ADAccount -Identity "j.dupont"\n\n# Supprimer un utilisateur\nRemove-ADUser -Identity "j.dupont" -Confirm:$false\n\n# Trouver les comptes inactifs depuis 30 jours\n$date = (Get-Date).AddDays(-30)\nGet-ADUser -Filter {LastLogonDate -lt $date -and Enabled -eq $true} `\n  -Properties LastLogonDate | `\n  Select-Object Name, SamAccountName, LastLogonDate | `\n  Sort-Object LastLogonDate' },
+
+          { type: 'h3', content: '4.3 Gestion des groupes' },
+          { type: 'table', headers: ['Type de groupe', 'Portée', 'Membres', 'Utilisation'], rows: [
+            ['Sécurité Local Domaine', 'Domaine local', 'Utilisateurs de n\'importe quel domaine de la forêt', 'Assigner des droits sur ressources locales'],
+            ['Sécurité Global', 'Forêt entière', 'Utilisateurs du même domaine seulement', 'Regrouper des utilisateurs par fonction'],
+            ['Sécurité Universel', 'Forêt entière', 'N\'importe quel objet de la forêt', 'Accès multi-domaines (forêts)'],
+            ['Distribution', 'Email seulement', 'N\'importe quel objet', 'Listes de diffusion Exchange'],
           ]},
-          { type: 'h2', content: '5. Diagnostic Réseau' },
-          { type: 'table', headers: ['Problème', 'Commande'], rows: [
-            ['Info IP/DNS/DHCP', '<code>ipconfig /all</code>'],
-            ['Vérifier connectivité', '<code>ping 8.8.8.8</code>'],
-            ['Vérifier résolution DNS', '<code>nslookup google.com</code>'],
-            ['Vider cache DNS', '<code>ipconfig /flushdns</code>'],
-            ['Chemin réseau', '<code>route print</code>'],
+          { type: 'info', content: '<strong>Bonne pratique AGDLP :</strong> Accounts → Global Groups → Domain Local Groups → Permissions.<br>Exemple : Utilisateurs (comptes) → GG-Comptables (groupe global) → DL-Lecture-Compta (groupe local domaine) → Droit lecture sur \\\\SRV-FICHIERS\\Comptabilite' },
+          { type: 'code', content: '# Créer des groupes\nNew-ADGroup -Name "GG-Comptables" `\n  -GroupScope Global `\n  -GroupCategory Security `\n  -Path "OU=Groupes,DC=tssr,DC=local" `\n  -Description "Tous les utilisateurs de la comptabilité"\n\nNew-ADGroup -Name "DL-Lecture-Compta" `\n  -GroupScope DomainLocal `\n  -GroupCategory Security `\n  -Path "OU=Groupes,DC=tssr,DC=local"\n\n# Ajouter des membres\nAdd-ADGroupMember -Identity "GG-Comptables" -Members "j.dupont","m.martin"\nAdd-ADGroupMember -Identity "DL-Lecture-Compta" -Members "GG-Comptables"\n\n# Lister les membres\nGet-ADGroupMember -Identity "GG-Comptables" | Select-Object Name, SamAccountName\n\n# Voir les groupes d\'un utilisateur\n(Get-ADUser -Identity "j.dupont" -Properties MemberOf).MemberOf\n\n# Retirer un membre\nRemove-ADGroupMember -Identity "GG-Comptables" -Members "j.dupont" -Confirm:$false\n\n# Groupe imbriqué : ajouter GG-Comptables dans DL-Lecture-Compta\nAdd-ADGroupMember -Identity "DL-Lecture-Compta" -Members "GG-Comptables"' },
+
+          { type: 'h2', content: '5. Les rôles FSMO' },
+          { type: 'p', content: 'FSMO (Flexible Single Master Operations) sont 5 rôles spéciaux qui ne peuvent exister que sur UN seul DC à la fois dans leur périmètre.' },
+          { type: 'table', headers: ['Rôle FSMO', 'Périmètre', 'Rôle', 'Impact si indisponible'], rows: [
+            ['Schema Master', 'Forêt', 'Seul DC pouvant modifier le schéma AD', 'Extensions de schéma impossibles'],
+            ['Domain Naming Master', 'Forêt', 'Gère l\'ajout/suppression de domaines', 'Impossible d\'ajouter un domaine'],
+            ['PDC Emulator', 'Domaine', 'Synchro horaire, lockouts, GPO, changements MDP', 'Authentifications lentes, horloges désync'],
+            ['RID Master', 'Domaine', 'Distribue des blocs de RIDs aux DCs', 'Impossible de créer des objets AD'],
+            ['Infrastructure Master', 'Domaine', 'Met à jour les références cross-domain', 'Problèmes avec groupes universels'],
           ]},
-          { type: 'h2', content: '6. Quiz rapide' },
-          { type: 'ul', items: [
-            'Redémarrer le service DNS ? → <code>Restart-Service Dnscache</code>',
-            'Lister les disques via diskpart ? → <code>list disk</code>',
-            'Tuer un processus par son nom ? → <code>taskkill /F /IM nom.exe</code>',
+          { type: 'code', content: '# Voir les rôles FSMO :\nnetdom query fsmo\n\n# Ou via PowerShell :\nGet-ADDomain | Select-Object PDCEmulator, RIDMaster, InfrastructureMaster\nGet-ADForest | Select-Object SchemaMaster, DomainNamingMaster\n\n# Transférer un rôle FSMO (DC source toujours disponible) :\nMove-ADDirectoryServerOperationMasterRole `\n  -Identity "SRV-DC-02" `\n  -OperationMasterRole PDCEmulator\n\n# Saisir un rôle FSMO (DC source en panne - IRRÉVERSIBLE) :\n# ntdsutil → "roles" → "connections" → "connect to server SRV-DC-02"\n# → "quit" → "seize PDC"' },
+        ],
+      },
+
+      {
+        id: 'gpo',
+        titre: 'GPO — Stratégies de Groupe',
+        sections: [
+
+          { type: 'h2', content: '1. Qu\'est-ce qu\'une GPO ?' },
+          { type: 'p', content: 'Une GPO (Group Policy Object) est un ensemble de paramètres de configuration appliqués automatiquement aux utilisateurs et ordinateurs d\'un domaine AD. Elle permet de <strong>standardiser</strong> les configurations, <strong>renforcer la sécurité</strong> et <strong>automatiser</strong> des tâches sur des milliers de machines.' },
+          { type: 'table', headers: ['Ce qu\'une GPO peut faire', 'Exemples'], rows: [
+            ['Sécurité système', 'Politique de mots de passe, verrouillage de compte, audit'],
+            ['Interface utilisateur', 'Fond d\'écran imposé, désactiver le panneau de configuration'],
+            ['Logiciels', 'Installer/désinstaller des applications automatiquement (MSI)'],
+            ['Scripts', 'Exécuter des scripts au démarrage/arrêt/connexion/déconnexion'],
+            ['Réseau', 'Mapper des lecteurs réseau, configurer les proxies'],
+            ['Sécurité réseau', 'Règles pare-feu, IPSec, certificats'],
+            ['Restrictions logicielles', 'AppLocker — bloquer certains exécutables'],
+            ['Windows Update', 'Pointer vers WSUS, planifier les redémarrages'],
           ]},
+
+          { type: 'h2', content: '2. Ordre d\'application LSDOU' },
+          { type: 'p', content: 'Les GPO s\'appliquent dans un ordre précis. En cas de conflit, la dernière appliquée gagne (sauf exceptions).' },
+          { type: 'table', headers: ['Ordre', 'Niveau', 'Portée', 'Exemple'], rows: [
+            ['1 (1er appliqué)', 'Local (L)', 'La machine elle-même', 'gpedit.msc en local'],
+            ['2', 'Site (S)', 'Machines du site AD physique', 'GPO appliquée au site Paris'],
+            ['3', 'Domaine (D)', 'Tout le domaine', 'Politique de mots de passe domaine'],
+            ['4 (dernier)', 'OU (OU)', 'L\'OU et ses sous-OUs', 'GPO spécifique à l\'OU Comptabilité'],
+          ]},
+          { type: 'info', content: '<strong>Résultat :</strong> L\'OU a la priorité la plus haute (écrase les niveaux précédents). Si une GPO de domaine dit "fond d\'écran bleu" et une GPO d\'OU dit "fond d\'écran rouge", les machines de l\'OU auront un fond rouge.' },
+
+          { type: 'h2', content: '3. Créer et configurer une GPO' },
+          { type: 'code', content: '# Via GPMC (Group Policy Management Console)\n# Ouvrir : gpmc.msc\n\n# Structure GPMC :\n# Forêt\n# └── Domaines\n#     └── tssr.local\n#         ├── Default Domain Policy (politique MDP domaine)\n#         ├── Objets de stratégie de groupe\n#         │   ├── GPO-Securite-Poste\n#         │   ├── GPO-Fond-Ecran\n#         │   └── GPO-Mappage-Lecteurs\n#         └── OUs\n#             ├── Informatique\n#             │   └── GPO-Admin-Outils (liée ici)\n#             └── Comptabilite\n#                 └── GPO-Restrictions (liée ici)\n\n# Créer une GPO via PowerShell :\nNew-GPO -Name "GPO-Securite-Postes" -Comment "Sécurité standard postes de travail"\n\n# Lier la GPO à une OU :\nNew-GPLink -Name "GPO-Securite-Postes" `\n  -Target "OU=Ordinateurs,DC=tssr,DC=local" `\n  -Enforced No `\n  -LinkEnabled Yes\n\n# Configurer un paramètre de la GPO (fond d\'écran) :\nSet-GPRegistryValue -Name "GPO-Fond-Ecran" `\n  -Key "HKCU\\Control Panel\\Desktop" `\n  -ValueName "Wallpaper" `\n  -Type String `\n  -Value "\\\\SRV-FICHIERS\\Commun\\wallpaper.jpg"\n\nSet-GPRegistryValue -Name "GPO-Fond-Ecran" `\n  -Key "HKCU\\Control Panel\\Desktop" `\n  -ValueName "WallpaperStyle" `\n  -Type String `\n  -Value "2"   # 2=Stretch 3=Tile 6=Fit 10=Fill 22=Span' },
+
+          { type: 'h2', content: '4. GPO de sécurité essentielles' },
+          { type: 'code', content: '# Politique de mots de passe (domaine entier)\n# Chemin : Config Ordi > Paramètres Windows > Paramètres de sécurité > Stratégies de compte\n\n# Configurer via PowerShell :\nSet-ADDefaultDomainPasswordPolicy -Identity "tssr.local" `\n  -MinPasswordLength 12 `\n  -ComplexityEnabled $true `\n  -MaxPasswordAge (New-TimeSpan -Days 90) `\n  -MinPasswordAge (New-TimeSpan -Days 1) `\n  -PasswordHistoryCount 12 `\n  -ReversibleEncryptionEnabled $false\n\n# Fine-Grained Password Policy (politiques différentes par groupe)\nNew-ADFineGrainedPasswordPolicy `\n  -Name "PSO-Admins" `\n  -Precedence 10 `\n  -MinPasswordLength 16 `\n  -PasswordHistoryCount 24 `\n  -MaxPasswordAge (New-TimeSpan -Days 60) `\n  -ComplexityEnabled $true `\n  -LockoutThreshold 3 `\n  -LockoutDuration (New-TimeSpan -Minutes 60) `\n  -LockoutObservationWindow (New-TimeSpan -Minutes 30)\n\n# Appliquer la PSO au groupe Admins\nAdd-ADFineGrainedPasswordPolicySubject `\n  -Identity "PSO-Admins" `\n  -Subjects "GG-Administrateurs"\n\n# Politique de verrouillage de compte\n# Seuil : 5 tentatives\n# Durée : 30 minutes\n# Remise à zéro : 30 minutes\n\n# Audit des connexions\n# Chemin : Config Ordi > Paramètres Windows > Paramètres sécu > Stratégies locales > Audit\n# Activer : Audit des connexions → Succès et Échecs\n# Activer : Audit des changements de stratégie de compte → Succès\n# Activer : Audit de la gestion des comptes → Succès et Échecs' },
+
+          { type: 'h2', content: '5. Scripts via GPO' },
+          { type: 'code', content: '# Mappage de lecteurs réseau au logon\n# Chemin : Config User > Paramètres Windows > Scripts > Ouverture de session\n# Ou : Config User > Préférences > Paramètres Windows > Mappages de lecteurs\n\n# Script PowerShell de logon (mappage_lecteurs.ps1) :\n$user = $env:USERNAME\n$dept = (Get-ADUser $user -Properties Department).Department\n\n# Lecteur commun pour tous\nNew-PSDrive -Name "Z" -PSProvider FileSystem `\n  -Root "\\\\SRV-FICHIERS\\Commun" -Persist\n\n# Lecteur selon le département\nswitch ($dept) {\n  "Informatique"  { New-PSDrive -Name "Y" -PSProvider FileSystem -Root "\\\\SRV-FICHIERS\\IT" -Persist }\n  "Comptabilite"  { New-PSDrive -Name "Y" -PSProvider FileSystem -Root "\\\\SRV-FICHIERS\\Compta" -Persist }\n  "Direction"     { New-PSDrive -Name "Y" -PSProvider FileSystem -Root "\\\\SRV-FICHIERS\\Direction" -Persist }\n}\n\n# Lecteur personnel\nNew-PSDrive -Name "H" -PSProvider FileSystem `\n  -Root "\\\\SRV-FICHIERS\\Home\\$user" -Persist\n\n# Script de démarrage machine (startup.ps1) :\n# À placer dans : Config Ordi > Paramètres Windows > Scripts > Démarrage\n\n# Vérifier et installer un certificat\nif (-not (Get-ChildItem Cert:\\LocalMachine\\Root | Where-Object Subject -like "*TSSR-CA*")) {\n  Import-Certificate -FilePath "\\\\SRV-PKI\\certs\\TSSR-RootCA.cer" `\n    -CertStoreLocation Cert:\\LocalMachine\\Root\n  Write-EventLog -LogName Application -Source "GPO-Script" `\n    -EventId 1001 -Message "Certificat TSSR-CA installé"\n}' },
+
+          { type: 'h2', content: '6. Dépannage des GPO' },
+          { type: 'code', content: '# Forcer l\'application des GPO\ngpupdate /force\ngpupdate /force /boot   # Forcer + redémarrer si nécessaire\ngpupdate /force /logoff # Forcer + déconnecter si nécessaire\n\n# Voir les GPO appliquées sur la machine locale\ngpresult /R              # Résumé texte dans le terminal\ngpresult /H C:\\gpo.html  # Rapport HTML détaillé\ngpresult /Scope Computer # Seulement ordinateur\ngpresult /Scope User     # Seulement utilisateur\ngpresult /User j.dupont /H C:\\gpo_jean.html\n\n# Exemple de sortie gpresult /R :\n# INFORMATIONS SUR L\'ORDINATEUR\n# Nom CN de l\'ordinateur : PC-JEAN.tssr.local\n# GPO appliquées :\n#   Default Domain Policy\n#   GPO-Securite-Postes\n#   GPO-Fond-Ecran\n# GPO refusées : aucune\n\n# INFORMATIONS SUR L\'UTILISATEUR\n# Nom CN : Jean Dupont\n# OU de l\'utilisateur : OU=Informatique...\n# GPO appliquées :\n#   Default Domain Policy\n#   GPO-Mappage-Lecteurs\n\n# Outil RSoP (Resultant Set of Policy)\nrsop.msc    # Interface graphique\n\n# Problèmes courants :\n# GPO non appliquée → vérifier :\n# 1. GPO bien liée à l\'OU correcte\n# 2. Filtrage de sécurité : groupe contient bien l\'objet\n# 3. gpupdate /force exécuté\n# 4. WMI filter ne bloque pas\n# 5. Héritage bloqué sur l\'OU ?' },
+        ],
+      },
+
+      {
+        id: 'dns-dhcp-windows',
+        titre: 'DNS et DHCP sur Windows Server',
+        sections: [
+
+          { type: 'h2', content: '1. DNS Windows Server' },
+          { type: 'p', content: 'Le DNS est INDISPENSABLE à Active Directory. Sans DNS fonctionnel, les clients ne trouvent pas les DCs, Kerberos ne fonctionne pas, les GPO ne s\'appliquent pas.' },
+          { type: 'code', content: '# Installation du rôle DNS\nInstall-WindowsFeature DNS -IncludeManagementTools\n\n# Créer une zone DNS principale\nAdd-DnsServerPrimaryZone -Name "tssr.local" `\n  -ReplicationScope "Domain" `\n  -DynamicUpdate "Secure"\n\n# Créer une zone de recherche inversée\nAdd-DnsServerPrimaryZone -NetworkId "192.168.1.0/24" `\n  -ReplicationScope "Domain" `\n  -DynamicUpdate "Secure"\n\n# Enregistrements A\nAdd-DnsServerResourceRecordA -ZoneName "tssr.local" `\n  -Name "srv-web" `\n  -IPv4Address "192.168.1.20" `\n  -TimeToLive (New-TimeSpan -Seconds 3600)\n\n# Enregistrements CNAME\nAdd-DnsServerResourceRecordCName -ZoneName "tssr.local" `\n  -Name "www" `\n  -HostNameAlias "srv-web.tssr.local"\n\n# Enregistrements MX\nAdd-DnsServerResourceRecordMX -ZoneName "tssr.local" `\n  -Name "." `\n  -MailExchange "srv-mail.tssr.local" `\n  -Preference 10\n\n# Enregistrement PTR (DNS inversé)\nAdd-DnsServerResourceRecordPtr -ZoneName "1.168.192.in-addr.arpa" `\n  -Name "20" `\n  -PtrDomainName "srv-web.tssr.local"\n\n# Transfert conditionnel (resolver d\'autres domaines)\nAdd-DnsServerConditionalForwarderZone -Name "partenaire.fr" `\n  -MasterServers "203.0.113.1" `\n  -ReplicationScope "Domain"\n\n# Forwarders globaux (résolution Internet)\nSet-DnsServerForwarder -IPAddress "8.8.8.8","1.1.1.1"\n\n# Vérifier et diagnostiquer :\nGet-DnsServerResourceRecord -ZoneName "tssr.local" | Format-Table\nTest-DnsServer -IPAddress 192.168.1.10 -ComputerName SRV-DC-01\nnslookup srv-web.tssr.local 192.168.1.10\nnslookup -type=SRV _ldap._tcp.tssr.local' },
+
+          { type: 'h2', content: '2. DHCP Windows Server' },
+          { type: 'code', content: '# Installation\nInstall-WindowsFeature DHCP -IncludeManagementTools\n\n# Autoriser le serveur DHCP dans AD (obligatoire en domaine)\nAdd-DhcpServerInDC -DnsName "srv-dc-01.tssr.local" -IPAddress 192.168.1.10\n\n# Créer une étendue (scope)\nAdd-DhcpServerv4Scope `\n  -Name "LAN-Principal" `\n  -Description "Réseau principal 192.168.1.0/24" `\n  -StartRange 192.168.1.100 `\n  -EndRange 192.168.1.200 `\n  -SubnetMask 255.255.255.0 `\n  -State Active `\n  -LeaseDuration (New-TimeSpan -Hours 24)\n\n# Configurer les options DHCP\nSet-DhcpServerv4OptionValue -ScopeId 192.168.1.0 `\n  -Router 192.168.1.1 `\n  -DnsServer 192.168.1.10,192.168.1.11 `\n  -DnsDomain "tssr.local" `\n  -WinsServer 192.168.1.10\n\n# Exclusions (IPs déjà utilisées en statique)\nAdd-DhcpServerv4ExclusionRange `\n  -ScopeId 192.168.1.0 `\n  -StartRange 192.168.1.1 `\n  -EndRange 192.168.1.99\n\n# Réservation DHCP (IP fixe basée sur la MAC)\nAdd-DhcpServerv4Reservation `\n  -ScopeId 192.168.1.0 `\n  -IPAddress 192.168.1.150 `\n  -ClientId "00-1A-2B-3C-4D-5E" `\n  -Description "Imprimante HP LaserJet"\n\n# DHCP Failover (haute disponibilité entre 2 serveurs DHCP)\nAdd-DhcpServerv4Failover `\n  -Name "DHCP-Failover-LAN" `\n  -PartnerServer "SRV-DC-02" `\n  -ScopeId 192.168.1.0 `\n  -Mode HotStandby `\n  -MaxClientLeadTime (New-TimeSpan -Hours 1) `\n  -SharedSecret "S3cr3t!DHCP"\n\n# Voir les baux actifs\nGet-DhcpServerv4Lease -ScopeId 192.168.1.0 | `\n  Select-Object IPAddress, ClientId, HostName, LeaseExpiryTime | `\n  Sort-Object IPAddress\n\n# Voir les statistiques\nGet-DhcpServerv4ScopeStatistics\n\n# Compaction de la base DHCP\nInvoke-DhcpServerv4DatabaseBackup -Path "C:\\DHCP-Backup"\nInvoke-DhcpServerv4DatabaseRestore -Path "C:\\DHCP-Backup"' },
         ],
       },
     ],

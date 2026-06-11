@@ -11,10 +11,269 @@ const MODULES = [
     outils: 'modules/numerisation/outils.html',
     cours: [
       {
-        id: 'cours_optimise_claude',
-        titre: 'Architecture des Données : Encodage, Systèmes de Numération et Logique Booléenne',
+        id: 'numerisation-complet',
+        titre: 'Numération, Encodage & Logique Booléenne',
         sections: [
-          { type: 'html-file', src: 'modules/numerisation/cours_optimise_claude.html' },
+
+          // ══════════════════════════════════════════
+          // PARTIE 1 — POURQUOI LES ORDINATEURS UTILISENT LE BINAIRE
+          // ══════════════════════════════════════════
+          { type: 'h2', content: '1. Pourquoi le binaire ?' },
+          { type: 'p', content: 'Un ordinateur est une machine électronique. Un transistor ne connaît que deux états : <strong>courant passe (1)</strong> ou <strong>courant ne passe pas (0)</strong>. C\'est physiquement impossible d\'avoir "un peu de courant" de façon fiable. C\'est pourquoi TOUT dans un ordinateur est exprimé en binaire : textes, images, sons, vidéos, instructions CPU.' },
+          { type: 'info', content: '<strong>Analogie :</strong> Un interrupteur électrique, c\'est du binaire. Allumé = 1, éteint = 0. Un processeur moderne contient des milliards de transistors — autant d\'interrupteurs microscopiques qui s\'allument et s\'éteignent des milliards de fois par seconde.' },
+          { type: 'table', headers: ['Concept', 'Symbole', 'Tension électrique', 'Exemple'], rows: [
+            ['Bit à 0', '0', '0V (pas de signal)', 'Transistor bloqué'],
+            ['Bit à 1', '1', '3.3V ou 5V', 'Transistor passant'],
+            ['Octet (8 bits)', '0b11001010', 'Combinaison de 8 transistors', 'Valeur 202 en décimal'],
+          ]},
+          { type: 'p', content: 'Un <strong>bit</strong> est l\'unité minimale d\'information. 8 bits forment un <strong>octet</strong> (byte en anglais). Avec 8 bits, on peut représenter 2⁸ = <strong>256 valeurs différentes</strong> (de 0 à 255).' },
+          { type: 'table', headers: ['Unité', 'Équivalent', 'Exemple concret'], rows: [
+            ['1 bit', '0 ou 1', 'Un interrupteur'],
+            ['1 octet (8 bits)', '256 valeurs possibles', 'Un caractère ASCII'],
+            ['1 Ko (kilooctet)', '1 024 octets', 'Un court email texte'],
+            ['1 Mo (mégaoctet)', '1 024 Ko = 1 048 576 octets', 'Une photo basse résolution'],
+            ['1 Go (gigaoctet)', '1 024 Mo', 'Un film HD compressé'],
+            ['1 To (téraoctet)', '1 024 Go', 'Disque dur standard'],
+            ['1 Po (pétaoctet)', '1 024 To', 'Données Facebook par jour'],
+          ]},
+
+          // ══════════════════════════════════════════
+          // PARTIE 2 — NUMÉRATION BINAIRE
+          // ══════════════════════════════════════════
+          { type: 'h2', content: '2. Numération Binaire — Base 2' },
+          { type: 'p', content: 'En base 10 (notre système), chaque position représente une puissance de 10. En base 2, chaque position représente une puissance de 2. La position la plus à droite vaut 2⁰ = 1, la suivante 2¹ = 2, puis 2² = 4, etc.' },
+
+          { type: 'table', headers: ['Position', '7', '6', '5', '4', '3', '2', '1', '0'], rows: [
+            ['Puissance de 2', '2⁷', '2⁶', '2⁵', '2⁴', '2³', '2²', '2¹', '2⁰'],
+            ['Valeur décimale', '128', '64', '32', '16', '8', '4', '2', '1'],
+          ]},
+          { type: 'info', content: '<strong>Astuce mémorisation :</strong> Retiens la suite 1-2-4-8-16-32-64-128 de droite à gauche. Chaque valeur est le double de la précédente.' },
+
+          { type: 'h3', content: '2.1 Binaire → Décimal : méthode des puissances' },
+          { type: 'p', content: 'Pour convertir un nombre binaire en décimal, on additionne les puissances de 2 correspondant aux bits à <strong>1</strong>.' },
+          { type: 'code', content: 'Exemple 1 : 10110011\n\nPosition :  7   6   5   4   3   2   1   0\nBit     :  1   0   1   1   0   0   1   1\nValeur  : 128   0  32  16   0   0   2   1\n\nRésultat : 128 + 32 + 16 + 2 + 1 = 179(10)\n\n──────────────────────────────────────────\n\nExemple 2 : 11111111 (valeur max d\'un octet)\n\nPosition :  7   6   5   4   3   2   1   0\nBit     :  1   1   1   1   1   1   1   1\nValeur  : 128  64  32  16   8   4   2   1\n\nRésultat : 128+64+32+16+8+4+2+1 = 255(10)\n→ C\'est pourquoi une IP ne peut pas dépasser 255 par octet !\n\n──────────────────────────────────────────\n\nExemple 3 : 00001010 (10 en décimal = LF dans ASCII)\n\nPosition :  7   6   5   4   3   2   1   0\nBit     :  0   0   0   0   1   0   1   0\nValeur  :  0   0   0   0   8   0   2   0\n\nRésultat : 8 + 2 = 10(10)' },
+
+          { type: 'h3', content: '2.2 Décimal → Binaire : méthode des soustractions' },
+          { type: 'p', content: 'On soustrait successivement les puissances de 2 décroissantes. Si la puissance "rentre", le bit vaut 1. Sinon, le bit vaut 0.' },
+          { type: 'code', content: 'Exemple 1 : Convertir 156(10) en binaire\n\nPuissance  Rentre ?  Bit  Reste\n  128        Oui      1    156-128 = 28\n   64        Non      0    28\n   32        Non      0    28\n   16        Oui      1    28-16 = 12\n    8        Oui      1    12-8  = 4\n    4        Oui      1    4-4   = 0\n    2        Non      0    0\n    1        Non      0    0\n\nRésultat : 10011100(2)\nVérification : 128+16+8+4 = 156 ✓\n\n──────────────────────────────────────────\n\nExemple 2 : Convertir 255(10) en binaire\n\n128 → Oui → 1 → reste 127\n 64 → Oui → 1 → reste 63\n 32 → Oui → 1 → reste 31\n 16 → Oui → 1 → reste 15\n  8 → Oui → 1 → reste 7\n  4 → Oui → 1 → reste 3\n  2 → Oui → 1 → reste 1\n  1 → Oui → 1 → reste 0\n\nRésultat : 11111111(2) → tous les bits à 1\n\n──────────────────────────────────────────\n\nExemple 3 : Convertir 192(10) en binaire\n(192 = masque réseau courant en notation décimale)\n\n128 → Oui → 1 → reste 64\n 64 → Oui → 1 → reste 0\n 32 → Non → 0\n 16 → Non → 0\n  8 → Non → 0\n  4 → Non → 0\n  2 → Non → 0\n  1 → Non → 0\n\nRésultat : 11000000(2)\n→ 255.255.255.192 = /26 en notation CIDR' },
+
+          { type: 'h3', content: '2.3 Méthode des divisions par 2' },
+          { type: 'p', content: 'Méthode alternative : diviser successivement par 2 et lire les restes de bas en haut.' },
+          { type: 'code', content: 'Exemple : 75(10) → binaire\n\n75 ÷ 2 = 37  reste 1  ← bit de poids faible (droite)\n37 ÷ 2 = 18  reste 1\n18 ÷ 2 = 9   reste 0\n 9 ÷ 2 = 4   reste 1\n 4 ÷ 2 = 2   reste 0\n 2 ÷ 2 = 1   reste 0\n 1 ÷ 2 = 0   reste 1  ← bit de poids fort (gauche)\n\nLire les restes de BAS en HAUT : 1001011(2)\nEn 8 bits : 01001011(2)\n\nVérification : 64+8+2+1 = 75 ✓' },
+
+          { type: 'h3', content: '2.4 Application réseau — Les masques de sous-réseau' },
+          { type: 'p', content: 'En réseau, les masques sont des octets dont les bits sont groupés : les bits à 1 représentent la partie réseau, les bits à 0 la partie hôte. C\'est pourquoi les masques sont toujours des valeurs précises.' },
+          { type: 'table', headers: ['Masque décimal', 'Binaire', 'CIDR', 'Bits réseau', 'Bits hôte'], rows: [
+            ['255.0.0.0', '11111111.00000000.00000000.00000000', '/8', '8', '24'],
+            ['255.255.0.0', '11111111.11111111.00000000.00000000', '/16', '16', '16'],
+            ['255.255.255.0', '11111111.11111111.11111111.00000000', '/24', '24', '8'],
+            ['255.255.255.128', '11111111.11111111.11111111.10000000', '/25', '25', '7'],
+            ['255.255.255.192', '11111111.11111111.11111111.11000000', '/26', '26', '6'],
+            ['255.255.255.224', '11111111.11111111.11111111.11100000', '/27', '27', '5'],
+            ['255.255.255.240', '11111111.11111111.11111111.11110000', '/28', '28', '4'],
+            ['255.255.255.252', '11111111.11111111.11111111.11111100', '/30', '30', '2'],
+          ]},
+          { type: 'warn', content: '<strong>Règle d\'or :</strong> Un masque valide n\'a JAMAIS de 0 avant un 1. 11111100 est valide. 10101010 ne l\'est PAS. C\'est pourquoi 255.255.255.253 n\'est PAS un masque valide.' },
+
+          // ══════════════════════════════════════════
+          // PARTIE 3 — HEXADÉCIMAL
+          // ══════════════════════════════════════════
+          { type: 'h2', content: '3. Numération Hexadécimale — Base 16' },
+          { type: 'p', content: 'L\'hexadécimal est la notation de prédilection des informaticiens car <strong>1 chiffre hex = exactement 4 bits</strong>, et <strong>2 chiffres hex = exactement 1 octet</strong>. C\'est beaucoup plus compact que le binaire.' },
+          { type: 'p', content: 'La base 16 nécessite 16 symboles : on utilise les chiffres 0-9 puis les lettres A-F.' },
+          { type: 'table', headers: ['Décimal', 'Hexadécimal', 'Binaire (4 bits)', 'Mémo'], rows: [
+            ['0', '0', '0000', ''],
+            ['1', '1', '0001', ''],
+            ['2', '2', '0010', ''],
+            ['3', '3', '0011', ''],
+            ['4', '4', '0100', ''],
+            ['5', '5', '0101', ''],
+            ['6', '6', '0110', ''],
+            ['7', '7', '0111', ''],
+            ['8', '8', '1000', 'Premier bit à 1'],
+            ['9', '9', '1001', ''],
+            ['10', 'A', '1010', 'A = 10'],
+            ['11', 'B', '1011', 'B = 11'],
+            ['12', 'C', '1100', 'C = 12'],
+            ['13', 'D', '1101', 'D = 13'],
+            ['14', 'E', '1110', 'E = 14'],
+            ['15', 'F', '1111', 'F = 15 = tous les bits à 1'],
+          ]},
+          { type: 'info', content: '<strong>Notation :</strong> On préfixe souvent l\'hex par <code>0x</code> (ex: 0xFF) ou <code>#</code> (couleurs web : #FF5733). En assembleur on utilise le suffixe <code>h</code> (FFh).' },
+
+          { type: 'h3', content: '3.1 Hexadécimal → Décimal' },
+          { type: 'p', content: 'Chaque position représente une puissance de 16. On multiplie chaque chiffre par sa puissance et on additionne.' },
+          { type: 'code', content: 'Exemple 1 : 0xFF → décimal\n\nF = 15, F = 15\n(15 × 16¹) + (15 × 16⁰)\n= 240 + 15\n= 255(10)\n→ Valeur maximale d\'un octet, masque 255 en réseau\n\n──────────────────────────────────────────\n\nExemple 2 : 0x1A2B → décimal\n\n1 × 16³ = 1 × 4096 = 4096\nA × 16² = 10 × 256 = 2560\n2 × 16¹ = 2 × 16   =   32\nB × 16⁰ = 11 × 1   =   11\n\nRésultat : 4096 + 2560 + 32 + 11 = 6699(10)\n\n──────────────────────────────────────────\n\nExemple 3 : 0xC0A80101 → adresse IP !\n\nC0 = 192\nA8 = 168\n01 = 1\n01 = 1\n\nRésultat : 192.168.1.1\n→ Les IPs sont stockées en 32 bits = 4 octets = 8 chiffres hex' },
+
+          { type: 'h3', content: '3.2 Décimal → Hexadécimal via binaire (méthode recommandée)' },
+          { type: 'p', content: 'La méthode la plus simple en pratique : convertir en binaire, puis regrouper par quartets (4 bits).' },
+          { type: 'code', content: 'Exemple 1 : 219(10) → hexadécimal\n\nÉtape 1 : 219 en binaire\n128 → Oui → 1 → reste 91\n 64 → Oui → 1 → reste 27\n 32 → Non → 0\n 16 → Oui → 1 → reste 11\n  8 → Oui → 1 → reste 3\n  4 → Non → 0\n  2 → Oui → 1 → reste 1\n  1 → Oui → 1 → reste 0\n→ 11011011(2)\n\nÉtape 2 : Grouper par 4 bits (de droite à gauche)\n1101 | 1011\n\nÉtape 3 : Convertir chaque quartet\n1101 = D (8+4+1 = 13)\n1011 = B (8+2+1 = 11)\n\nRésultat : 0xDB\nVérification : (13×16) + 11 = 208+11 = 219 ✓\n\n──────────────────────────────────────────\n\nExemple 2 : 172.16.0.1 → hex (adresse RFC 1918)\n\n172 = 10101100 → 1010|1100 → A C → 0xAC\n 16 = 00010000 → 0001|0000 → 1 0 → 0x10\n  0 = 00000000 → 0000|0000 → 0 0 → 0x00\n  1 = 00000001 → 0000|0001 → 0 1 → 0x01\n\nRésultat : 0xAC100001\n→ Utile pour analyser des traces réseau Wireshark' },
+
+          { type: 'h3', content: '3.3 Binaire ↔ Hexadécimal direct' },
+          { type: 'p', content: 'La conversion binaire ↔ hex est immédiate grâce à la correspondance 4 bits = 1 chiffre hex.' },
+          { type: 'code', content: 'Binaire → Hex :\n11110000 10101010 → 1111|0000 1010|1010 → F0 AA\n\nHex → Binaire :\n0xB4 → B=1011, 4=0100 → 10110100\n0xFF → F=1111, F=1111 → 11111111\n0x00 → 0=0000, 0=0000 → 00000000\n\nApplications courantes :\n0xFF   = 255 = 11111111 = masque réseau\n0xC0   = 192 = 11000000 = début plage /26\n0x80   = 128 = 10000000 = début plage /25\n0xFE   = 254 = 11111110 = avant-dernier octet\n0x0A   =  10 = 00001010 = LF (saut de ligne ASCII)\n0x1B   =  27 = 00011011 = ESC (échappement ASCII)' },
+
+          { type: 'h3', content: '3.4 Exercices pratiques — Adresses MAC' },
+          { type: 'p', content: 'Les adresses MAC (Media Access Control) sont toujours écrites en hexadécimal. Elles font 6 octets = 48 bits = 12 chiffres hex.' },
+          { type: 'code', content: 'Adresse MAC : 08:00:27:AB:CD:EF\n\nDécryptage :\n08:00:27 = OUI (Organizationally Unique Identifier) → fabricant\nAB:CD:EF = NIC (Network Interface Controller) → numéro unique\n\nDétail de 08:00:27 :\n08 = 00001000 → bit 1 (bit moins significatif de l\'octet 1)\n     → 0 = adresse unicast (pas de diffusion)\n     → bit 2 = 0 = adresse globale (non locale)\n00 = 00000000\n27 = 00100111\n\n08:00:27 est l\'OUI de CADMUS COMPUTER SYSTEMS\n(utilisé par VirtualBox pour ses VMs !)\n\n→ Sur Linux : ip link show | grep ether\n→ Sur Windows : ipconfig /all → Adresse physique' },
+
+          // ══════════════════════════════════════════
+          // PARTIE 4 — ASCII ET ENCODAGES
+          // ══════════════════════════════════════════
+          { type: 'h2', content: '4. Encodage des Caractères — ASCII, ISO-8859, UTF-8' },
+          { type: 'p', content: 'Un ordinateur ne stocke que des nombres. Pour stocker du texte, il faut une <strong>table de correspondance</strong> entre un nombre et un caractère. C\'est ce qu\'on appelle un <strong>encodage</strong>.' },
+
+          { type: 'h3', content: '4.1 ASCII — American Standard Code for Information Interchange' },
+          { type: 'p', content: 'Créé en 1963, ASCII est le premier standard d\'encodage. Il utilise 7 bits, soit 128 valeurs (0 à 127). Il couvre l\'anglais américain uniquement.' },
+          { type: 'table', headers: ['Plage', 'Type', 'Contenu', 'Exemples clés'], rows: [
+            ['0 – 31', 'Contrôle non imprimables', 'Commandes pour terminaux et imprimantes', 'BS(8) TAB(9) LF(10) CR(13) ESC(27)'],
+            ['32', 'Espace', 'Caractère espace', 'SP = 0x20'],
+            ['33 – 47', 'Ponctuation', 'Symboles spéciaux', '! " # $ % & \\\' ( ) * + , - . /'],
+            ['48 – 57', 'Chiffres', '0 à 9', '\'0\'=48 \'9\'=57'],
+            ['58 – 64', 'Ponctuation', 'Symboles', ': ; < = > ? @'],
+            ['65 – 90', 'Majuscules', 'A à Z', '\'A\'=65 \'Z\'=90'],
+            ['91 – 96', 'Ponctuation', 'Symboles', '[ \\\\ ] ^ _ `'],
+            ['97 – 122', 'Minuscules', 'a à z', '\'a\'=97 \'z\'=122'],
+            ['123 – 127', 'Ponctuation', 'Symboles', '{ | } ~ DEL'],
+          ]},
+          { type: 'info', content: '<strong>Astuce :</strong> La différence entre une majuscule et sa minuscule est toujours de 32. A=65, a=97, différence=32. B=66, b=98. Il suffit d\'activer/désactiver le bit 5 (valeur 32) pour basculer de majuscule à minuscule.' },
+          { type: 'code', content: 'Exemples de conversions texte ↔ ASCII :\n\n"TSSR" en ASCII décimal : 84 83 83 82\n"TSSR" en ASCII hex     : 54 53 53 52\n"TSSR" en binaire       : 01010100 01010011 01010011 01010010\n\nDécryptage de "OK\\n" :\nO = 79 = 0x4F = 01001111\nK = 75 = 0x4B = 01001011\n\\n= 10 = 0x0A = 00001010  ← LF (Line Feed)\n\nDécryptage d\'une trame réseau Wireshark :\n48 54 54 50 2F 31 2E 31 20 32 30 30 20 4F 4B\n H  T  T  P  /  1  .  1  SP  2  0  0  SP  O  K\n→ "HTTP/1.1 200 OK" !' },
+
+          { type: 'h3', content: '4.2 Caractères de contrôle — Les plus importants' },
+          { type: 'table', headers: ['Code déc', 'Code hex', 'Abrév', 'Nom', 'Usage'], rows: [
+            ['8', '0x08', 'BS', 'Backspace', 'Effacer le caractère précédent'],
+            ['9', '0x09', 'HT', 'Horizontal Tab', 'Tabulation — aligne les colonnes'],
+            ['10', '0x0A', 'LF', 'Line Feed', 'Saut de ligne Unix/Linux (\\n)'],
+            ['13', '0x0D', 'CR', 'Carriage Return', 'Retour chariot — Windows utilise CR+LF'],
+            ['27', '0x1B', 'ESC', 'Escape', 'Séquences ANSI couleur terminal'],
+            ['32', '0x20', 'SP', 'Space', 'Espace — premier caractère imprimable'],
+            ['127', '0x7F', 'DEL', 'Delete', 'Supprimer'],
+          ]},
+          { type: 'warn', content: '<strong>Problème Windows vs Linux :</strong> Windows termine les lignes par CR+LF (0x0D 0x0A = "\\r\\n"). Linux utilise seulement LF (0x0A = "\\n"). C\'est pourquoi un fichier texte Windows ouvert sous Linux peut avoir des "^M" en fin de ligne. Correction : dos2unix fichier.txt' },
+
+          { type: 'h3', content: '4.3 ISO-8859 — Extension 8 bits' },
+          { type: 'p', content: 'Pour ajouter les caractères accentués, l\'ISO a créé la famille ISO-8859. Elle utilise 8 bits (256 valeurs) : les 128 premiers sont identiques à ASCII, les 128 suivants varient selon la région.' },
+          { type: 'table', headers: ['Norme', 'Région', 'Caractères ajoutés'], rows: [
+            ['ISO-8859-1 (Latin-1)', 'Europe occidentale', 'é è ê ë à â ù û ü ô î ï ç'],
+            ['ISO-8859-2', 'Europe centrale', 'Polonais Tchèque Hongrois...'],
+            ['ISO-8859-5', 'Cyrillique', 'Russe Serbe Bulgare...'],
+            ['ISO-8859-7', 'Grec', 'Alphabet grec'],
+            ['ISO-8859-9', 'Turc', 'Caractères turcs'],
+            ['Windows-1252', 'Windows Europe Occ.', 'Proche Latin-1 + €, guillemets typographiques'],
+          ]},
+          { type: 'warn', content: '<strong>Le problème des encodages multiples :</strong> Si un fichier encodé en ISO-8859-1 est lu avec ISO-8859-5, les caractères accentués deviennent du cyrillique illisible. C\'est pourquoi UTF-8 a été créé.' },
+
+          { type: 'h3', content: '4.4 UTF-8 — La solution universelle' },
+          { type: 'p', content: 'UTF-8 encode l\'intégralité du standard Unicode (plus d\'un million de caractères) en utilisant de 1 à 4 octets par caractère. Il est rétrocompatible avec ASCII : les 128 premiers caractères ont le même code.' },
+          { type: 'table', headers: ['Plage Unicode', 'Octets UTF-8', 'Exemples'], rows: [
+            ['U+0000 à U+007F', '1 octet', 'Tous les caractères ASCII (A, 0, espace...)'],
+            ['U+0080 à U+07FF', '2 octets', 'Latin étendu, Arabe, Hébreu (é=0xC3A9)'],
+            ['U+0800 à U+FFFF', '3 octets', 'Japonais, Chinois, Coréen, Grec'],
+            ['U+10000 à U+10FFFF', '4 octets', 'Emojis, symboles rares, cunéiforme'],
+          ]},
+          { type: 'code', content: 'Encodage UTF-8 du caractère "é" (U+00E9) :\n\nCode Unicode : U+00E9 = 233 en décimal\nEn binaire   : 11101001\n\nRègle UTF-8 pour plage U+0080-U+07FF (2 octets) :\nFormat : 110xxxxx 10xxxxxx\nBits   : 11 100011 = 110 00011 10 101001\nOctets : 11000011 10101001\nHex    : C3       A9\n\n→ Le caractère "é" occupe 2 octets en UTF-8 : 0xC3 0xA9\n\nComparaison :\nASCII   : "e" = 1 octet (0x65)\nISO-8859-1 : "é" = 1 octet (0xE9)\nUTF-8   : "é" = 2 octets (0xC3 0xA9)\n\nC\'est pourquoi les chaînes UTF-8 ont un len() différent\ndu nombre de caractères affichés !' },
+          { type: 'info', content: '<strong>BOM (Byte Order Mark) :</strong> Certains éditeurs Windows ajoutent les octets 0xEF 0xBB 0xBF au début d\'un fichier UTF-8. C\'est le BOM. Il peut causer des problèmes sous Linux (bash ne reconnaît pas le shebang). Pour le supprimer : <code>sed -i \'1s/^\\xEF\\xBB\\xBF//\' fichier.sh</code>' },
+
+          // ══════════════════════════════════════════
+          // PARTIE 5 — ALGÈBRE DE BOOLE
+          // ══════════════════════════════════════════
+          { type: 'h2', content: '5. Algèbre de Boole & Portes Logiques' },
+          { type: 'p', content: 'L\'algèbre de Boole (George Boole, 1854) est le fondement mathématique de toute l\'électronique numérique. Elle manipule des variables qui ne peuvent valoir que <strong>0 (FAUX)</strong> ou <strong>1 (VRAI)</strong>.' },
+
+          { type: 'h3', content: '5.1 Les trois opérateurs fondamentaux' },
+          { type: 'table', headers: ['Opérateur', 'Symbole', 'Langage', 'Règle simple'], rows: [
+            ['AND (ET)', 'A & B ou A ∧ B', 'Python: and, C: &&, Cisco: &', '1 seulement si A=1 ET B=1'],
+            ['OR (OU)', 'A | B ou A ∨ B', 'Python: or, C: ||, Cisco: |', '1 dès que A=1 OU B=1'],
+            ['XOR (OU exclusif)', 'A ⊕ B', 'Python: ^, C: ^', '1 seulement si A≠B'],
+            ['NOT (NON)', '¬A ou !A', 'Python: not, C: !', 'Inverse : 0→1 et 1→0'],
+          ]},
+
+          { type: 'h3', content: '5.2 Tables de vérité complètes' },
+          { type: 'table', headers: ['A', 'B', 'AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR'], rows: [
+            ['0', '0', '0', '0', '0', '1', '1', '1'],
+            ['0', '1', '0', '1', '1', '1', '0', '0'],
+            ['1', '0', '0', '1', '1', '1', '0', '0'],
+            ['1', '1', '1', '1', '0', '0', '0', '1'],
+          ]},
+          { type: 'info', content: '<strong>Mémo AND :</strong> "Mon boss ET moi devons signer" → les DEUX doivent être 1.<br><strong>Mémo OR :</strong> "Mon boss OU moi peut signer" → AU MOINS UN doit être 1.<br><strong>Mémo XOR :</strong> "Exactement l\'un OU l\'autre" → EXACTEMENT UN doit être 1 (pas les deux).' },
+
+          { type: 'h3', content: '5.3 AND et le masquage réseau' },
+          { type: 'p', content: 'L\'opération AND bit à bit est utilisée partout en réseau pour isoler la partie réseau d\'une adresse IP.' },
+          { type: 'code', content: 'Exemple 1 : IP 192.168.1.81 avec masque /24 (255.255.255.0)\n\nIP     : 192.168.1.81\nMasque : 255.255.255.0\n\nOctet par octet :\n192 = 11000000\n255 = 11111111\nAND = 11000000 = 192  ✓\n\n168 = 10101000\n255 = 11111111\nAND = 10101000 = 168  ✓\n\n  1 = 00000001\n255 = 11111111\nAND = 00000001 = 1    ✓\n\n 81 = 01010001\n  0 = 00000000\nAND = 00000000 = 0    ✓\n\nAdresse réseau = 192.168.1.0\n\n──────────────────────────────────────────\n\nExemple 2 : IP 10.20.30.100 avec masque /26 (255.255.255.192)\n\n100 = 01100100\n192 = 11000000\nAND = 01000000 = 64\n\nAdresse réseau = 10.20.30.64\nPlage hôtes = 10.20.30.65 → 10.20.30.126\nBroadcast = 10.20.30.127\n\n──────────────────────────────────────────\n\nPourquoi AND ?\nLà où le masque a un 1, on GARDE le bit de l\'IP.\nLà où le masque a un 0, on FORCE le bit à 0.\n→ On efface la partie hôte et on garde la partie réseau.' },
+
+          { type: 'h3', content: '5.4 OR et la construction du broadcast' },
+          { type: 'p', content: 'L\'adresse de broadcast s\'obtient en faisant OR entre l\'adresse réseau et l\'inverse du masque (wildcard mask).' },
+          { type: 'code', content: 'Exemple : Réseau 192.168.1.64/26\n\nMasque      = 255.255.255.192 = 11000000 (dernier octet)\nWildcard    = NOT(masque)     = 00111111 = 63\n\nAdresse réseau dernier octet : 01000000 = 64\nWildcard                     : 00111111\nOR                           : 01111111 = 127\n\nBroadcast = 192.168.1.127\n\nVérification :\nHôtes utilisables : 192.168.1.65 → 192.168.1.126\nNombre d\'hôtes : 2^6 - 2 = 62 hôtes' },
+
+          { type: 'h3', content: '5.5 XOR et RAID 5 — Comment ça marche vraiment' },
+          { type: 'p', content: 'XOR est réversible : si A ⊕ B = P (parité), alors P ⊕ B = A et P ⊕ A = B. C\'est cette propriété mathématique qui permet de reconstruire un disque perdu dans un RAID 5.' },
+          { type: 'code', content: 'Scénario RAID 5 avec 3 disques actifs :\n\nDonnées originales :\nDisque 1 : 10110100\nDisque 2 : 01101011\nParité   : 10110100 XOR 01101011 = 11011111\n\nVérification de la parité XOR :\n  10110100\n⊕ 01101011\n─────────\n  11011111  ← chaque colonne : 1 si bits différents\n\n──────────────────────────────────────────\n\nScénario : Disque 1 tombe en panne\n\nOn a encore :\nDisque 2 : 01101011\nParité   : 11011111\n\nReconstruction de Disque 1 :\nParité XOR Disque2 = Disque1\n  11011111\n⊕ 01101011\n─────────\n  10110100  ← Disque 1 reconstruit identiquement ✓\n\n──────────────────────────────────────────\n\nRègle XOR de reconstruction :\nSi P = D1 ⊕ D2 ⊕ D3\nAlors D1 = P ⊕ D2 ⊕ D3\nAlors D2 = P ⊕ D1 ⊕ D3\nAlors D3 = P ⊕ D1 ⊕ D2\n\nRAID 6 utilise deux calculs de parité différents\n(Reed-Solomon) pour tolérer 2 pannes simultanées.' },
+
+          { type: 'h3', content: '5.6 XOR et cryptographie basique' },
+          { type: 'p', content: 'XOR est aussi utilisé dans le chiffrement. Un message XOR avec une clé donne un cryptogramme. Le même XOR avec la même clé redonne le message original.' },
+          { type: 'code', content: 'Chiffrement XOR simple (one-time pad) :\n\nMessage   "A"  = 65  = 01000001\nClé       0x3F = 63  = 00111111\nChiffré        = XOR = 01111110 = 126 = "~"\n\nDéchiffrement :\nChiffré   "~"  = 126 = 01111110\nClé       0x3F = 63  = 00111111\nOriginal       = XOR = 01000001 = 65 = "A" ✓\n\n→ C\'est le principe de base de nombreux algorithmes\n  de chiffrement (AES, ChaCha20, RC4).' },
+
+          // ══════════════════════════════════════════
+          // PARTIE 6 — OCTAL
+          // ══════════════════════════════════════════
+          { type: 'h2', content: '6. Numération Octale — Base 8' },
+          { type: 'p', content: 'La base 8 utilise les chiffres 0 à 7. Elle est moins courante que l\'hex mais apparaît dans les permissions Linux (chmod) et certaines architectures.' },
+          { type: 'p', content: '<strong>1 chiffre octal = exactement 3 bits</strong>.' },
+          { type: 'table', headers: ['Octal', 'Binaire (3 bits)', 'Décimal'], rows: [
+            ['0', '000', '0'],
+            ['1', '001', '1'],
+            ['2', '010', '2'],
+            ['3', '011', '3'],
+            ['4', '100', '4'],
+            ['5', '101', '5'],
+            ['6', '110', '6'],
+            ['7', '111', '7'],
+          ]},
+          { type: 'h3', content: '6.1 Permissions Linux en octal' },
+          { type: 'p', content: 'Les permissions Unix (r=4, w=2, x=1) sont en réalité des bits dans un octet. chmod 755 manipule directement ces bits.' },
+          { type: 'code', content: 'Permission rwxr-xr-x (chmod 755) :\n\nProprietaire : rwx = 4+2+1 = 7 = 111 (binaire)\nGroupe       : r-x = 4+0+1 = 5 = 101 (binaire)\nAutres       : r-x = 4+0+1 = 5 = 101 (binaire)\n\nEn binaire complet : 111 101 101\nEn octal           : 7   5   5  → chmod 755\n\n──────────────────────────────────────────\n\nPermission rw-r--r-- (chmod 644) :\n\nProprietaire : rw- = 4+2+0 = 6 = 110\nGroupe       : r-- = 4+0+0 = 4 = 100\nAutres       : r-- = 4+0+0 = 4 = 100\n\nEn binaire : 110 100 100\nEn octal   : 6   4   4  → chmod 644\n\n──────────────────────────────────────────\n\nTableau de référence rapide :\n0 = --- = aucun droit\n1 = --x = exécution seule\n2 = -w- = écriture seule\n3 = -wx = écriture + exécution\n4 = r-- = lecture seule\n5 = r-x = lecture + exécution\n6 = rw- = lecture + écriture\n7 = rwx = tous les droits\n\nConventions courantes :\nchmod 644 = fichier texte (rw-r--r--)\nchmod 755 = script/répertoire (rwxr-xr-x)\nchmod 600 = clé SSH privée (rw-------)\nchmod 700 = répertoire privé (rwx------)\nchmod 777 = DANGER (tous droits pour tout le monde)' },
+
+          // ══════════════════════════════════════════
+          // PARTIE 7 — BCD ET AUTRES CODES
+          // ══════════════════════════════════════════
+          { type: 'h2', content: '7. Codes Spéciaux — BCD, EBCDIC, Unicode' },
+
+          { type: 'h3', content: '7.1 BCD — Binary Coded Decimal' },
+          { type: 'p', content: 'Le BCD encode chaque chiffre décimal (0-9) sur 4 bits. Il est utilisé dans les afficheurs, les horloges temps réel (RTC) et les systèmes financiers où la précision décimale est cruciale.' },
+          { type: 'code', content: 'Encodage BCD du nombre 2024 :\n\n2 → 0010\n0 → 0000\n2 → 0010\n4 → 0100\n\nBCD(2024) = 0010 0000 0010 0100\n           = 4 octets (2 chiffres par octet)\n\nComparaison :\n2024 en binaire pur = 11111101000 = 11 bits\n2024 en BCD         = 0010 0000 0010 0100 = 16 bits\n→ BCD est moins compact mais évite les erreurs\n  d\'arrondi float en comptabilité\n\nRTC (Real Time Clock) :\nLes puces RTC DS1307 stockent l\'heure en BCD\n10h30m45s → 0x10 0x30 0x45\nPas 0x0A 0x1E 0x2D (hex pur)' },
+
+          { type: 'h3', content: '7.2 EBCDIC — IBM et les mainframes' },
+          { type: 'p', content: 'L\'EBCDIC (Extended Binary Coded Decimal Interchange Code) est le standard d\'encodage IBM pour mainframes. Incompatible avec ASCII — la lettre A est 0xC1 en EBCDIC au lieu de 0x41 en ASCII.' },
+          { type: 'warn', content: '<strong>Piège en production :</strong> Si tu transfères un fichier entre un mainframe IBM (AS/400, z/OS) et un serveur Linux, les caractères seront illisibles sans conversion. Outil : <code>iconv -f EBCDIC-US -t UTF-8 fichier_ibm.txt</code>' },
+
+          { type: 'h3', content: '7.3 Unicode — L\'encodage universel' },
+          { type: 'p', content: 'Unicode est un standard qui attribue un point de code unique à chaque caractère de toutes les langues humaines. Ce n\'est pas un encodage — c\'est un répertoire. UTF-8, UTF-16, UTF-32 sont des encodages de ce répertoire.' },
+          { type: 'table', headers: ['Encodage', 'Taille', 'BOM', 'Usage'], rows: [
+            ['UTF-8', '1 à 4 octets', 'Optionnel (EF BB BF)', 'Web Linux emails — LE STANDARD'],
+            ['UTF-16 LE', '2 ou 4 octets', 'FF FE', 'Windows internes Java .NET'],
+            ['UTF-16 BE', '2 ou 4 octets', 'FE FF', 'Réseau protocoles'],
+            ['UTF-32', '4 octets fixes', '00 00 FE FF', 'Traitement interne (mémoire)'],
+          ]},
+          { type: 'code', content: 'Quelques points de code Unicode importants :\n\nU+0041 = A (Latin Capital Letter A)\nU+00E9 = é (Latin Small Letter E with Acute)\nU+20AC = € (Euro Sign)\nU+2603 = ☃ (Snowman)\nU+1F600 = 😀 (Grinning Face Emoji)\nU+1F4BB = 💻 (Personal Computer Emoji)\n\nDétection de l\'encodage d\'un fichier :\nfile fichier.txt\n→ UTF-8 Unicode text\n→ ISO-8859 text\n→ ASCII text\n\nConversion avec iconv :\niconv -f ISO-8859-1 -t UTF-8 ancien.txt > nouveau.txt\niconv -l    # lister tous les encodages supportés' },
+
+          // ══════════════════════════════════════════
+          // PARTIE 8 — CAS PRATIQUES RÉELS
+          // ══════════════════════════════════════════
+          { type: 'h2', content: '8. Cas Pratiques — Scénarios Réels d\'Administrateur' },
+
+          { type: 'h3', content: '8.1 Analyser une trame réseau en hex' },
+          { type: 'p', content: 'En administration, tu seras amené à analyser des captures Wireshark ou des logs en hexadécimal. Voici comment décoder une réponse HTTP.' },
+          { type: 'code', content: 'Dump hexadécimal d\'une réponse HTTP :\n\n48 54 54 50 2F 31 2E 31 20 32 30 30 20 4F 4B 0D\n0A 43 6F 6E 74 65 6E 74 2D 54 79 70 65 3A 20 74\n65 78 74 2F 68 74 6D 6C 0D 0A 0D 0A\n\nDécodage octet par octet :\n48=H 54=T 54=T 50=P 2F=/ 31=1 2E=. 31=1\n20=SP 32=2 30=0 30=0 20=SP 4F=O 4B=K 0D=CR\n0A=LF 43=C 6F=o 6E=n 74=t 65=e 6E=n 74=t\n2D=- 54=T 79=y 70=p 65=e 3A=: 20=SP 74=t\n65=e 78=x 74=t 2F=/ 68=h 74=t 6D=m 6C=l\n0D=CR 0A=LF 0D=CR 0A=LF\n\nRésultat :\n"HTTP/1.1 200 OK\\r\\n"\n"Content-Type: text/html\\r\\n"\n"\\r\\n"   ← ligne vide = fin des headers\n\n→ Le corps HTML suit juste après' },
+
+          { type: 'h3', content: '8.2 Calculer un plan d\'adressage IP' },
+          { type: 'code', content: 'Scénario : Entreprise avec 4 services\nRéseau disponible : 172.16.0.0/16\n\nBesoins :\n- Production    : 500 machines\n- Développement : 200 machines\n- DMZ           : 30 machines\n- Management    : 10 machines\n\nCalcul :\nProduction (500) → besoin 9 bits hôtes (2⁹=512>500)\n→ /23 (255.255.254.0) → 510 hôtes\n→ 172.16.0.0/23\n   Réseau : 172.16.0.0\n   Premier hôte : 172.16.0.1\n   Dernier hôte : 172.16.1.254\n   Broadcast : 172.16.1.255\n\nDéveloppement (200) → besoin 8 bits (2⁸=256>200)\n→ /24 (255.255.255.0) → 254 hôtes\n→ 172.16.2.0/24\n   Réseau : 172.16.2.0\n   Hôtes : .1 → .254\n   Broadcast : 172.16.2.255\n\nDMZ (30) → besoin 6 bits (2⁶=64>30)\n→ /26 (255.255.255.192) → 62 hôtes\n→ 172.16.3.0/26\n   Réseau : 172.16.3.0\n   Hôtes : .1 → .62\n   Broadcast : 172.16.3.63\n\nManagement (10) → besoin 4 bits (2⁴=16>10)\n→ /28 (255.255.255.240) → 14 hôtes\n→ 172.16.3.64/28\n   Réseau : 172.16.3.64\n   Hôtes : .65 → .78\n   Broadcast : 172.16.3.79' },
+
+          { type: 'h3', content: '8.3 Décoder une adresse MAC et identifier le fabricant' },
+          { type: 'code', content: 'Adresse MAC capturée : AC:DE:48:00:11:22\n\nOUI (3 premiers octets) : AC:DE:48\n\nConversion hex → binaire du premier octet :\nAC = 10101100\n\nBit 0 (LSB) = 0 → Unicast (adresse individuelle)\nBit 1      = 0 → Global (assignée par IEEE)\n\nBit 1 = 1 → Locally Administered Address (LAA)\n→ Adresse modifiée logiciellement (VM, VPN, spoofing)\n\nRecherche OUI :\nAC:DE:48 → PRIVATE (privé, non enregistré)\n\nOUI connus :\n00:50:56 → VMware\n08:00:27 → VirtualBox\nFA:16:3E → OpenStack (interfaces neutron)\nFE:XX:XX → Souvent interfaces bridge Linux\n\nCommandes :\nip link show | grep ether      # Linux\nGet-NetAdapter | Select MacAddress   # Windows\narp -a | grep 192.168.1.1      # Trouver MAC d\'une IP' },
+
+          { type: 'h3', content: '8.4 Vérifier l\'encodage d\'un fichier de configuration' },
+          { type: 'code', content: '# Problème courant : script bash avec BOM UTF-8\n# Symptôme : "bash: ./script.sh: /usr/bin/bash^M: bad interpreter"\n\n# Diagnostic\nfile script.sh\n→ "UTF-8 Unicode (with BOM) text, with CRLF line terminators"\n\n# Deux problèmes :\n# 1. BOM (EF BB BF) avant le shebang\n# 2. Fins de ligne Windows (CRLF au lieu de LF)\n\n# Vérification en hex\nhexdump -C script.sh | head -3\n→ ef bb bf 23 21 2f 75 73 72 2f 62 69 6e 2f 62 61\n  ^BOM^  ^ #  !  /  u  s  r  /  b  i  n  /  b  a\n\n# Correction\ndos2unix script.sh              # Supprimer CR+LF → LF\nsed -i \'1s/^\\xEF\\xBB\\xBF//\' script.sh  # Supprimer BOM\n\n# Vérification finale\nfile script.sh\n→ "Bourne-Again shell script, ASCII text executable"' },
+
         ],
       },
     ],

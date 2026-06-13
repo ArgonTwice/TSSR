@@ -942,177 +942,92 @@ const MODULES = [
     topics: ['Installation', 'AD DS', 'GPO', 'DNS', 'DHCP', 'IIS', 'RDS'],
     windows_cli: true,
     cours: [
-      {
-        id: 'install-ws2025',
-        titre: 'Installation Windows Server 2025',
-        sections: [
-          { type: 'h2', content: 'Prérequis matériels' },
-          { type: 'table', headers: ['Composant', 'Minimum', 'Recommandé'], rows: [
-            ['CPU',    '2 GHz 64 bits',  '2 GHz 64 bits (multicœur)'],
-            ['RAM',    '2 Go',            '16 Go'],
-            ['Disque', '32 Go',           '100 Go'],
-            ['Réseau', 'Carte Ethernet',  'Carte Ethernet Gigabit'],
-          ]},
-          { type: 'h2', content: 'Éditions disponibles' },
-          { type: 'table', headers: ['Édition', 'Description'], rows: [
-            ['Standard',   'Virtualisation limitée : 2 VMs incluses'],
-            ['Datacenter', 'VMs illimitées — environnements cloud et datacenter'],
-            ['Essentials', '25 utilisateurs max — petites structures'],
-          ]},
-          { type: 'h2', content: 'Processus d\'installation pas à pas' },
-          { type: 'steps', items: [
-            { num: '1', title: 'Démarrer depuis l\'ISO',         content: 'Sélectionner la langue, le fuseau horaire et la disposition du clavier.' },
-            { num: '2', title: 'Choisir l\'édition',             content: '<strong>Standard avec interface graphique</strong> (Desktop Experience) recommandé pour débuter.' },
-            { num: '3', title: 'Type d\'installation',           content: '<strong>Personnalisée</strong> — nouvelle installation propre sur le disque cible.' },
-            { num: '4', title: 'Partitionnement',                content: 'Créer une partition système de <strong>100 Go minimum</strong>.' },
-            { num: '5', title: 'Mot de passe Administrateur',    content: 'Minimum 12 caractères — majuscule + chiffre + symbole obligatoire.' },
-            { num: '6', title: 'Configuration post-installation', content: 'Renommer le serveur, configurer l\'IP fixe, activer Windows Update.' },
-          ]},
-          { type: 'h2', content: 'Configuration IP fixe (PowerShell)' },
-          { type: 'code', content: 'New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress 192.168.1.10 -PrefixLength 24 -DefaultGateway 192.168.1.1\nSet-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses 192.168.1.10' },
-          { type: 'h2', content: 'Renommer le serveur' },
-          { type: 'code', content: 'Rename-Computer -NewName "SRV-TSSR-01" -Restart' },
-          { type: 'warn', content: 'Toujours configurer une IP fixe avant de promouvoir en contrôleur de domaine.' },
-          { type: 'h2', content: 'Gestionnaire de serveur (Server Manager)' },
-          { type: 'p', content: 'Interface centrale de Windows Server. Permet d\'ajouter des rôles et fonctionnalités, surveiller les événements et gérer les services.' },
-          { type: 'ul', items: [
-            'Tableau de bord',
-            'Serveur local',
-            'Tous les serveurs',
-            'Rôles installés',
-          ]},
-        ],
-      },
-      {
-        id: 'active-directory',
-        titre: 'Active Directory — Installation et Configuration',
-        sections: [
-          { type: 'h2', content: 'Qu\'est-ce qu\'Active Directory ?' },
-          { type: 'p', content: 'Service d\'annuaire Microsoft qui centralise l\'authentification et la gestion des ressources réseau. Basé sur les protocoles LDAP et Kerberos.' },
-          { type: 'table', headers: ['Objet', 'Description', 'Exemple'], rows: [
-            ['Domaine',               'Unité administrative principale',         'tssr.local'],
-            ['Forêt',                 'Ensemble de domaines liés',               'tssr.local + filiale.tssr.local'],
-            ['OU (Unité d\'Org.)',    'Conteneur pour organiser les objets',     'OU=Informatique,DC=tssr,DC=local'],
-            ['Utilisateur',           'Compte d\'accès',                         'anthony.agnolon@tssr.local'],
-            ['Groupe',                'Collection d\'utilisateurs',               'GRP-Admins-IT'],
-            ['GPO',                   'Stratégie de groupe',                      'Fond d\'écran imposé'],
-          ]},
-          { type: 'h2', content: 'Installer le rôle AD DS' },
-          { type: 'steps', items: [
-            { num: '1', title: 'Via Server Manager',                   content: 'Gérer → Ajouter des rôles → Active Directory Domain Services → Suivant jusqu\'à Installation.' },
-            { num: '2', title: 'Via PowerShell',                       code: 'Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools' },
-            { num: '3', title: 'Promouvoir en contrôleur de domaine',  content: 'Cliquer sur le drapeau jaune dans Server Manager → Promouvoir ce serveur.' },
-            { num: '4', title: 'Nouvelle forêt',                       content: 'Nom de domaine racine : <code>tssr.local</code>' },
-            { num: '5', title: 'Niveau fonctionnel',                   content: 'Windows Server 2016 minimum recommandé.' },
-            { num: '6', title: 'Mot de passe DSRM',                   content: 'Mode restauration des services d\'annuaire — à conserver précieusement.' },
-            { num: '7', title: 'Redémarrage automatique',              content: 'Le serveur redémarre et devient contrôleur de domaine.' },
-          ]},
-          { type: 'h2', content: 'Gestion des utilisateurs (PowerShell)' },
-          { type: 'code', content: '# Créer un utilisateur\nNew-ADUser -Name "Jean Dupont" -GivenName "Jean" -Surname "Dupont" `\n  -SamAccountName "j.dupont" -UserPrincipalName "j.dupont@tssr.local" `\n  -Path "OU=Utilisateurs,DC=tssr,DC=local" `\n  -AccountPassword (ConvertTo-SecureString "P@ssword123" -AsPlainText -Force) `\n  -Enabled $true\n\n# Lister tous les utilisateurs\nGet-ADUser -Filter * | Select-Object Name, SamAccountName, Enabled\n\n# Désactiver un compte\nDisable-ADAccount -Identity "j.dupont"\n\n# Réinitialiser un mot de passe\nSet-ADAccountPassword -Identity "j.dupont" -Reset `\n  -NewPassword (ConvertTo-SecureString "NewP@ss123" -AsPlainText -Force)' },
-          { type: 'h2', content: 'Gestion des groupes' },
-          { type: 'code', content: '# Créer un groupe\nNew-ADGroup -Name "GRP-Informatique" -GroupScope Global -GroupCategory Security `\n  -Path "OU=Groupes,DC=tssr,DC=local"\n\n# Ajouter un membre\nAdd-ADGroupMember -Identity "GRP-Informatique" -Members "j.dupont"\n\n# Lister les membres\nGet-ADGroupMember -Identity "GRP-Informatique"' },
-          { type: 'h2', content: 'Gestion des Unités d\'Organisation' },
-          { type: 'code', content: '# Créer une OU\nNew-ADOrganizationalUnit -Name "Informatique" -Path "DC=tssr,DC=local"\n\n# Lister les OUs\nGet-ADOrganizationalUnit -Filter * | Select-Object Name, DistinguishedName' },
-          { type: 'h2', content: 'GPO — Stratégies de Groupe' },
-          { type: 'p', content: 'Les GPO permettent d\'imposer des paramètres sur les utilisateurs et ordinateurs du domaine.' },
-          { type: 'steps', items: [
-            { num: '1', title: 'Ouvrir GPMC',            content: '<code>gpmc.msc</code> dans Exécuter (Win+R).' },
-            { num: '2', title: 'Créer une GPO',           content: 'Clic droit sur l\'OU cible → Créer un objet GPO dans ce domaine.' },
-            { num: '3', title: 'Modifier la GPO',         content: 'Clic droit → Modifier → Configuration utilisateur ou Configuration ordinateur.' },
-            { num: '4', title: 'Exemples utiles',         content: 'Fond d\'écran imposé, désactiver les ports USB, mapper un lecteur réseau.' },
-            { num: '5', title: 'Forcer l\'application',   code: 'gpupdate /force' },
-          ]},
-          { type: 'code', content: '# Voir les GPO appliquées sur un poste client\ngpresult /R\ngpresult /H rapport.html' },
-        ],
-      },
-      {
-        id: 'dns-dhcp',
-        titre: 'DNS &amp; DHCP sur Windows Server',
-        sections: [
-          { type: 'h2', content: 'DNS — Domain Name System' },
-          { type: 'p', content: 'Traduit les noms de domaine en adresses IP. Essentiel au fonctionnement d\'Active Directory.' },
-          { type: 'table', headers: ['Type', 'Rôle', 'Exemple'], rows: [
-            ['A',     'Nom → IPv4',               'srv01.tssr.local → 192.168.1.10'],
-            ['AAAA',  'Nom → IPv6',               'srv01.tssr.local → ::1'],
-            ['PTR',   'IPv4 → Nom (DNS inversé)', '192.168.1.10 → srv01.tssr.local'],
-            ['MX',    'Serveur mail',              'tssr.local → mail.tssr.local'],
-            ['CNAME', 'Alias',                     'www.tssr.local → srv-web.tssr.local'],
-          ]},
-          { type: 'code', content: '# Installer le rôle DNS\nInstall-WindowsFeature -Name DNS -IncludeManagementTools\n\n# Créer un enregistrement A\nAdd-DnsServerResourceRecordA -ZoneName "tssr.local" -Name "srv-web" -IPv4Address "192.168.1.20"\n\n# Vérifier la résolution\nResolve-DnsName srv-web.tssr.local\n\n# Vider le cache DNS\nClear-DnsServerCache' },
-          { type: 'h2', content: 'DHCP — Dynamic Host Configuration Protocol' },
-          { type: 'p', content: 'Attribue automatiquement les paramètres réseau aux clients : adresse IP, masque, passerelle, serveur DNS.' },
-          { type: 'steps', items: [
-            { num: '1', title: 'Installer le rôle DHCP',       code: 'Install-WindowsFeature -Name DHCP -IncludeManagementTools' },
-            { num: '2', title: 'Autoriser le serveur dans AD',  code: 'Add-DhcpServerInDC -DnsName "srv01.tssr.local"' },
-            { num: '3', title: 'Créer une étendue',             content: 'Définir la plage d\'adresses IP à distribuer aux clients.' },
-            { num: '4', title: 'Configurer les options',        content: 'Passerelle (option 3), DNS (option 6), Domaine (option 15).' },
-            { num: '5', title: 'Activer l\'étendue',            content: 'Mettre l\'étendue en état Actif pour commencer la distribution des baux.' },
-          ]},
-          { type: 'code', content: '# Créer une étendue DHCP\nAdd-DhcpServerv4Scope -Name "LAN-Principal" `\n  -StartRange 192.168.1.100 -EndRange 192.168.1.200 `\n  -SubnetMask 255.255.255.0 -State Active\n\n# Configurer les options\nSet-DhcpServerv4OptionValue -ScopeId 192.168.1.0 `\n  -Router 192.168.1.1 `\n  -DnsServer 192.168.1.10 `\n  -DnsDomain "tssr.local"\n\n# Voir les baux actifs\nGet-DhcpServerv4Lease -ScopeId 192.168.1.0' },
-        ],
-      },
-      {
-        id: 'powershell-scripting',
-        titre: 'PowerShell Scripting — Automatisation Windows',
-        sections: [
-          { type: 'h2', content: 'Variables et types' },
-          { type: 'code', content: '# Variables\n$nom = "Anthony"\n$age = 25\n$pi = 3.14\n$vrai = $true\n\n# Afficher\nWrite-Host "Bonjour $nom, tu as $age ans"\nWrite-Output $nom\n\n# Types\n[string]$texte = "hello"\n[int]$nombre = 42\n[bool]$actif = $true\n[array]$liste = @("a", "b", "c")\n[hashtable]$dico = @{ nom="Jean"; age=30 }' },
-          { type: 'h2', content: 'Conditions et boucles' },
-          { type: 'code', content: '# If/ElseIf/Else\n$score = 85\nif ($score -ge 90) {\n    Write-Host "Excellent"\n} elseif ($score -ge 70) {\n    Write-Host "Bien"\n} else {\n    Write-Host "À améliorer"\n}\n\n# Opérateurs de comparaison PowerShell\n-eq    # égal\n-ne    # différent\n-gt    # supérieur\n-ge    # supérieur ou égal\n-lt    # inférieur\n-le    # inférieur ou égal\n-like  # correspondance avec wildcard (*)\n-match # correspondance regex\n\n# ForEach\n$serveurs = @("SRV-01", "SRV-02", "SRV-03")\nforeach ($srv in $serveurs) {\n    Write-Host "Vérification de $srv..."\n    Test-Connection $srv -Count 1 -Quiet\n}\n\n# While\n$i = 0\nwhile ($i -lt 5) {\n    Write-Host "Itération $i"\n    $i++\n}\n\n# For\nfor ($i = 1; $i -le 10; $i++) {\n    Write-Host "Ligne $i"\n}' },
-          { type: 'h2', content: 'Fonctions' },
-          { type: 'code', content: '# Définir une fonction\nfunction Get-InfoServeur {\n    param(\n        [string]$NomServeur,\n        [int]$Timeout = 100\n    )\n    $ping = Test-Connection -ComputerName $NomServeur -Count 1 -Quiet\n    $os = Get-WmiObject -ComputerName $NomServeur -Class Win32_OperatingSystem\n    return [PSCustomObject]@{\n        Serveur    = $NomServeur\n        Accessible = $ping\n        OS         = $os.Caption\n        RAM_Go     = [math]::Round($os.TotalVisibleMemorySize / 1MB, 2)\n    }\n}\n\n# Appel\nGet-InfoServeur -NomServeur "SRV-01"\nGet-InfoServeur -NomServeur "SRV-AD" -Timeout 200' },
-          { type: 'h2', content: 'Gestion des fichiers et logs' },
-          { type: 'code', content: '# Lire un fichier\nGet-Content C:\\\\logs\\\\app.log\nGet-Content C:\\\\logs\\\\app.log -Tail 50    # 50 dernières lignes\nGet-Content C:\\\\logs\\\\app.log -Wait       # En temps réel\n\n# Écrire dans un fichier\n"Ligne de log" | Out-File C:\\\\logs\\\\script.log -Append\nAdd-Content C:\\\\logs\\\\script.log "$(Get-Date) - Action effectuée"\n\n# Filtrer avec Select-String (équivalent grep)\nSelect-String -Path C:\\\\logs\\\\*.log -Pattern "ERROR"\nGet-Content app.log | Select-String "CRITICAL" | Out-File erreurs.txt' },
-          { type: 'h2', content: 'Script de rapport AD automatique' },
-          { type: 'code', content: '# rapport_ad.ps1 — Exemple complet\nparam([string]$OutputPath = "C:\\\\Rapports")\n\n$date = Get-Date -Format "yyyy-MM-dd"\n$fichier = "$OutputPath\\\\rapport_AD_$date.txt"\n\n# Utilisateurs inactifs depuis 30 jours\n$dateRef = (Get-Date).AddDays(-30)\n$inactifs = Get-ADUser -Filter {LastLogonDate -lt $dateRef -and Enabled -eq $true} `\n            -Properties LastLogonDate |\n            Select-Object Name, SamAccountName, LastLogonDate\n\n# Comptes expirés\n$expires = Search-ADAccount -AccountExpired | Select-Object Name, SamAccountName\n\n# Écriture du rapport\n"=== RAPPORT AD DU $date ===" | Out-File $fichier\n"`n--- Utilisateurs inactifs ($($inactifs.Count)) ---" | Out-File $fichier -Append\n$inactifs | Format-Table | Out-File $fichier -Append\n"`n--- Comptes expirés ($($expires.Count)) ---" | Out-File $fichier -Append\n$expires | Format-Table | Out-File $fichier -Append\n\nWrite-Host "Rapport généré : $fichier"' },
-        ],
-      },
-      {
-        id: 'gpo-avancees',
-        titre: 'GPO Avancées — Scripts, Sécurité, Préférences',
-        sections: [
-          { type: 'h2', content: 'Architecture des GPO' },
-          { type: 'p', content: 'Les GPO s\'appliquent dans l\'ordre LSDOU (Local → Site → Domain → OU). Une GPO appliquée en dernier écrase les précédentes.' },
-          { type: 'table', headers: ['Niveau', 'Priorité', 'Exemple'], rows: [
-            ['Local',     '1 (plus faible)', 'Gpedit.msc sur la machine'],
-            ['Site',      '2',               'Règles pour un bâtiment'],
-            ['Domaine',   '3',               'Règles pour tout le domaine'],
-            ['OU Parent', '4',               'Règles pour le département'],
-            ['OU Enfant', '5 (plus fort)',   'Règles pour le service'],
-          ]},
-          { type: 'h2', content: 'GPO de sécurité essentielles' },
-          { type: 'code', content: '# Paramètres via GPMC :\n# Config ordinateur → Paramètres Windows → Paramètres de sécurité\n\n# Politique de mots de passe :\nLongueur minimale            : 12 caractères\nComplexité requise           : Activé\nDurée de vie maximale        : 90 jours\nHistorique des mots de passe : 10 derniers mémorisés\n\n# Verrouillage de compte :\nSeuil de verrouillage        : 5 tentatives\nDurée de verrouillage        : 30 minutes\nRéinitialisation compteur    : 30 minutes\n\n# Audit :\nAudit des connexions         : Succès et Échecs\nAudit des changements AD     : Activé\nAudit accès aux objets       : Activé' },
-          { type: 'h2', content: 'Scripts de démarrage/connexion via GPO' },
-          { type: 'code', content: '# Chemin : Config Ordinateur → Paramètres Windows → Scripts → Démarrage\n\n# mappage_lecteurs.ps1\nNew-PSDrive -Name "Z" -PSProvider FileSystem `\n            -Root "\\\\\\\\SRV-FILE\\\\Partages\\\\$env:USERNAME" -Persist\n\nNew-PSDrive -Name "Y" -PSProvider FileSystem `\n            -Root "\\\\\\\\SRV-FILE\\\\Commun" -Persist\n\n# Chemin : Config Utilisateur → Paramètres Windows → Scripts → Ouverture de session' },
-          { type: 'h2', content: 'Filtrage et ciblage des GPO' },
-          { type: 'code', content: '# Filtrage WMI — Appliquer GPO uniquement si condition vraie\n# Exemple : appliquer seulement sur Windows 11\nSELECT * FROM Win32_OperatingSystem WHERE Version LIKE "10.0.2%"\n\n# Filtrage de sécurité\n# Par défaut : Utilisateurs authentifiés (tous)\n# Personnalisé : Groupe spécifique (ex: GRP-Informatique)\n\n# Héritage bloqué : empêche les GPO parentes de s\'appliquer\n# Obligatoire (Enforced) : la GPO s\'applique même si héritage bloqué' },
-          { type: 'h2', content: 'Vérification et dépannage GPO' },
-          { type: 'code', content: '# Sur le client Windows\ngpupdate /force                      # Forcer la mise à jour\ngpresult /R                          # Résumé textuel\ngpresult /H C:\\\\rapport_gpo.html      # Rapport HTML détaillé\nrsop.msc                             # Résultant de stratégie (GUI)\n\n# Événements GPO dans l\'observateur d\'événements\n# Journal : Apps and Services Logs → Microsoft → Windows → GroupPolicy → Operational' },
-        ],
-      },
-      {
-        id: 'wsus-hyperv',
-        titre: 'WSUS et Hyper-V — Mises à jour et Virtualisation',
-        sections: [
-          { type: 'h2', content: 'WSUS — Windows Server Update Services' },
-          { type: 'p', content: 'WSUS centralise la gestion des mises à jour Windows pour tout le parc informatique.' },
-          { type: 'steps', items: [
-            { num: '1', title: 'Installation',           content: 'Server Manager → Ajouter rôles → Windows Server Update Services → Choisir le stockage (ex: D:\\WSUS).' },
-            { num: '2', title: 'Configuration initiale', content: 'Sélectionner la source (Microsoft Update), choisir les langues et produits à synchroniser.' },
-            { num: '3', title: 'Synchronisation',        content: 'Télécharger les mises à jour depuis Microsoft Update.' },
-            { num: '4', title: 'Approbation',            content: 'Approuver manuellement ou automatiquement les mises à jour par groupe.' },
-            { num: '5', title: 'GPO client',             content: 'Configurer les postes via GPO pour pointer vers le serveur WSUS (port 8530).' },
-          ]},
-          { type: 'code', content: '# GPO pour pointer les clients vers WSUS :\n# Config Ordinateur → Modèles d\'administration → Windows Update\n# Spécifier l\'emplacement intranet du service de mise à jour Microsoft\n# URL : http://SRV-WSUS:8530\n\n# PowerShell — Vérifier les mises à jour en attente\nGet-WindowsUpdate\nInstall-WindowsUpdate -AcceptAll -AutoReboot' },
-          { type: 'h2', content: 'Hyper-V — Virtualisation Windows' },
-          { type: 'code', content: '# Activer Hyper-V\nEnable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All\n\n# Ou via PowerShell Server\nInstall-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart\n\n# Créer un switch virtuel\nNew-VMSwitch -Name "Switch-LAN" -NetAdapterName "Ethernet" -AllowManagementOS $true\n\n# Créer une VM\nNew-VM -Name "VM-Debian" -MemoryStartupBytes 2GB -Generation 2 `\n       -NewVHDPath "D:\\\\VMs\\\\VM-Debian.vhdx" -NewVHDSizeBytes 50GB `\n       -SwitchName "Switch-LAN"\n\n# Configurer le démarrage sur ISO\nAdd-VMDvdDrive -VMName "VM-Debian"\nSet-VMDvdDrive -VMName "VM-Debian" -Path "D:\\\\ISO\\\\debian-12.iso"\n\n# Démarrer la VM\nStart-VM -Name "VM-Debian"\n\n# Gérer les snapshots\nCheckpoint-VM -Name "VM-Debian" -SnapshotName "Avant-config"\nRestore-VMCheckpoint -VMName "VM-Debian" -Name "Avant-config"\nRemove-VMCheckpoint -VMName "VM-Debian" -Name "Avant-config"' },
-          { type: 'table', headers: ['Type switch Hyper-V', 'Description', 'Usage'], rows: [
-            ['Externe', 'Connecté à la carte réseau physique', 'Accès réseau réel'],
-            ['Interne', 'Entre VMs et hôte uniquement',        'Lab isolé avec accès hôte'],
-            ['Privé',   'Entre VMs uniquement',                'Lab totalement isolé'],
-          ]},
-        ],
-      },
+  {
+    id: 'ws2025-installation',
+    titre: 'Windows Server 2025 — Installation et Configuration Avancée',
+    sections: [
+
+      { type: 'h2', content: '1. Nouveautés Windows Server 2025' },
+      { type: 'table', headers: ['Nouveauté', 'Description', 'Avantage'], rows: [
+        ['Hotpatching', 'Mises à jour sans redémarrage (Azure Edition)', 'Disponibilité maximale'],
+        ['SMB over QUIC', 'Partages SMB via protocole QUIC (UDP)', 'Accès fichiers sécurisé sans VPN'],
+        ['Credential Guard par défaut', 'Protection des credentials en mémoire', 'Résistance pass-the-hash'],
+        ['TLS 1.3 par défaut', 'Protocole TLS moderne activé nativement', 'Sécurité communications'],
+        ['Delegated Managed Service Accounts (dMSA)', 'Comptes de service gérés délégués', 'Sécurité services améliorée'],
+        ['Storage Replica amélioré', 'Réplication stockage bi-directionnelle', 'DR et HA simplifiés'],
+        ['NUMA-aware improvements', 'Meilleure gestion mémoire NUMA', 'Performances HPC'],
+        ['AD amélioré', 'Nouveau niveau fonctionnel forêt/domaine', 'Fonctionnalités AD étendues'],
+      ]},
+
+      { type: 'h2', content: '2. Éditions et licencing' },
+      { type: 'table', headers: ['Édition', 'VMs incluses', 'Cœurs min', 'Usage', 'Prix approx.'], rows: [
+        ['Essentials', '0', '—', 'TPE < 25 users 50 appareils', '500€'],
+        ['Standard', '2 VMs Windows', '16 cœurs minimum', 'Serveurs standard non-virtualisés', '1200€'],
+        ['Datacenter', 'Illimitées', '16 cœurs minimum', 'Datacenters virtualisation intensive', '6000€'],
+        ['Azure Edition', 'Illimitées', 'Azure uniquement', 'Hotpatching SMB over QUIC', 'Inclus Azure'],
+      ]},
+      { type: 'info', content: '<strong>Licencing par cœur :</strong> Le prix est calculé par paire de cœurs physiques. Un serveur avec 2 CPUs × 8 cœurs = 16 cœurs = minimum légal. Un serveur 4 cœurs paie quand même pour 16 cœurs. Les VMs Windows incluses s\'appliquent par licence (Standard = 2 VMs par licence serveur).' },
+
+      { type: 'h2', content: '3. Installation et configuration initiale' },
+      { type: 'code', content: '# ============================================================\n# SCRIPT DE CONFIGURATION INITIALE WINDOWS SERVER 2025\n# ============================================================\n# Exécuter en PowerShell Administrator\n\n# 1. Renommer le serveur\n$NomServeur = "SRV-WEB-01"\nRename-Computer -NewName $NomServeur -Force\nWrite-Host "✓ Serveur renommé en $NomServeur" -ForegroundColor Green\n\n# 2. Configurer l\'IP fixe\n$Interface = Get-NetAdapter | Where-Object Status -eq "Up" | Select-Object -First 1\n\nNew-NetIPAddress \\\n  -InterfaceAlias $Interface.Name \\\n  -IPAddress "192.168.1.20" \\\n  -PrefixLength 24 \\\n  -DefaultGateway "192.168.1.1"\n\nSet-DnsClientServerAddress \\\n  -InterfaceAlias $Interface.Name \\\n  -ServerAddresses @("192.168.1.10", "192.168.1.11")\n\n# Désactiver IPv6 si non utilisé\nDisable-NetAdapterBinding -Name $Interface.Name -ComponentID ms_tcpip6\n\nWrite-Host "✓ Réseau configuré" -ForegroundColor Green\n\n# 3. Configurer le fuseau horaire et NTP\nSet-TimeZone -Id "Romance Standard Time"  # Europe/Paris\nw32tm /config /manualpeerlist:"192.168.1.10" /syncfromflags:manual /reliable:yes /update\nRestart-Service W32Time\nw32tm /resync /force\n\n# 4. Configurer le pare-feu Windows\nSet-NetFirewallProfile -Profile Domain,Public,Private -Enabled True\n\n# Autoriser la gestion à distance\nEnable-NetFirewallRule -DisplayGroup "Remote Desktop"\nEnable-NetFirewallRule -DisplayGroup "Windows Management Instrumentation (WMI)"\nEnable-NetFirewallRule -DisplayGroup "File and Printer Sharing"\n\n# 5. Activer WinRM (PowerShell distant)\nEnable-PSRemoting -Force\nSet-Service WinRM -StartupType Automatic\n\n# 6. Désactiver les services inutiles\n$ServicesADesactiver = @(\n  "XblGameSave",      # Xbox\n  "XboxGipSvc",       # Xbox\n  "DiagTrack",        # Télémétrie\n  "dmwappushservice", # WAP Push\n  "Fax",              # Télécopie\n  "TabletInputService" # Tablette\n)\nforeach ($svc in $ServicesADesactiver) {\n  if (Get-Service $svc -ErrorAction SilentlyContinue) {\n    Set-Service $svc -StartupType Disabled -ErrorAction SilentlyContinue\n    Stop-Service $svc -Force -ErrorAction SilentlyContinue\n  }\n}\nWrite-Host "✓ Services inutiles désactivés" -ForegroundColor Green\n\n# 7. Configurer les mises à jour automatiques (pointer vers WSUS)\n$wsusKey = "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate"\nNew-Item -Path $wsusKey -Force | Out-Null\nNew-Item -Path "$wsusKey\\AU" -Force | Out-Null\nSet-ItemProperty -Path "$wsusKey\\AU" -Name UseWUServer -Value 1\nSet-ItemProperty -Path $wsusKey -Name WUServer -Value "http://srv-wsus.tssr.local:8530"\nSet-ItemProperty -Path $wsusKey -Name WUStatusServer -Value "http://srv-wsus.tssr.local:8530"\n\n# 8. Rejoindre le domaine\n$CredDomaine = Get-Credential "TSSR\\Administrateur"\nAdd-Computer \\\n  -DomainName "tssr.local" \\\n  -Credential $CredDomaine \\\n  -OUPath "OU=Serveurs,DC=tssr,DC=local" \\\n  -Restart\n\nWrite-Host "✓ Configuration terminée - Redémarrage en cours..." -ForegroundColor Yellow' },
+
+      { type: 'h2', content: '4. Server Core — Administration sans GUI' },
+      { type: 'code', content: '# ============================================================\n# SERVER CORE — ADMINISTRATION CLI UNIQUEMENT\n# ============================================================\n\n# Outil de configuration initiale Server Core\nsconfig\n# Menu interactif pour :\n# 1. Rejoindre domaine\n# 2. Ajouter admin local\n# 3. Configurer réseau\n# 4. Configurer date/heure\n# 5. Activer Windows Update\n\n# Depuis un poste admin : se connecter en PSRemoting\nEnter-PSSession -ComputerName "srv-core-01" -Credential "TSSR\\Administrateur"\n# Le prompt devient : [srv-core-01]: PS C:\\Users\\...>\n\n# OU créer une session réutilisable\n$session = New-PSSession -ComputerName "srv-core-01" -Credential "TSSR\\Administrateur"\nInvoke-Command -Session $session -ScriptBlock { Get-ComputerInfo | Select-Object OsName, OsVersion }\nRemove-PSSession $session\n\n# Installer un rôle sur Server Core\nInstall-WindowsFeature -Name Web-Server -IncludeManagementTools\n\n# Utiliser RSAT depuis un poste admin pour gérer Server Core graphiquement\n# Sur le poste admin (Windows 10/11 Pro) :\nAdd-WindowsCapability -Online -Name Rsat.ServerManager.Tools~~~~0.0.1.0\nAdd-WindowsCapability -Online -Name Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0\nAdd-WindowsCapability -Online -Name Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0\n\n# Windows Admin Center (WAC) — Interface web moderne\n# Télécharger sur aka.ms/WindowsAdminCenter\n# Installer sur un serveur ou poste admin\n# Accès : https://nom-serveur\n# Gère Server Core graphiquement via navigateur' },
+    ],
+  },
+
+  {
+    id: 'wsus-gestion-mises-a-jour',
+    titre: 'WSUS — Gestion Centralisée des Mises à Jour',
+    sections: [
+
+      { type: 'h2', content: '1. Architecture WSUS' },
+      { type: 'p', content: 'WSUS (Windows Server Update Services) permet de contrôler et distribuer les mises à jour Microsoft sur tout le parc. Sans WSUS, chaque machine télécharge individuellement depuis Internet — perte de bande passante et perte de contrôle.' },
+      { type: 'table', headers: ['Composant', 'Rôle', 'Détail'], rows: [
+        ['Serveur WSUS', 'Télécharge et stocke les mises à jour depuis Microsoft', 'Connexion Internet nécessaire'],
+        ['Base de données', 'Stocke les métadonnées des mises à jour et l\'inventaire', 'WID (Windows Internal DB) ou SQL Server'],
+        ['Console WSUS', 'Interface d\'administration (approuver refuser)', 'Installée sur le serveur ou un poste admin'],
+        ['GPO Client', 'Configure les clients pour pointer vers WSUS', 'Déployée via Active Directory'],
+        ['Groupes d\'ordinateurs', 'Segmenter le déploiement (Test Prod)', 'Approuver pour Test puis Prod après validation'],
+        ['WSUS en cascade', 'Serveur WSUS enfant synchronise depuis un WSUS parent', 'Sites distants sans Internet direct'],
+      ]},
+
+      { type: 'h2', content: '2. Installation et configuration WSUS' },
+      { type: 'code', content: '# ============================================================\n# INSTALLATION WSUS\n# ============================================================\n\n# Prérequis :\n# - Windows Server 2019/2022\n# - Minimum 10 Go pour le stockage des mises à jour (100+ Go recommandé)\n# - IIS installé automatiquement avec WSUS\n\n# Installation avec stockage local\nInstall-WindowsFeature -Name UpdateServices -IncludeManagementTools\n\n# Configurer WSUS (chemin de stockage des MAJ)\n& "C:\\Program Files\\Update Services\\Tools\\WsusUtil.exe" postinstall CONTENT_DIR=D:\\WSUS_Updates\n\n# OU avec SQL Server externe (grandes infra)\n& "C:\\Program Files\\Update Services\\Tools\\WsusUtil.exe" postinstall SQL_INSTANCE_NAME=SRV-SQL\\WSUS CONTENT_DIR=D:\\WSUS_Updates\n\n# ============================================================\n# CONFIGURATION VIA POWERSHELL\n# ============================================================\n\n$wsus = Get-WsusServer -Name "SRV-WSUS" -PortNumber 8530\n\n# Configurer la source de synchronisation\n$syncConfig = $wsus.GetSubscription()\n$syncConfig.SynchronizeAutomatically = $true\n$syncConfig.SynchronizeAutomaticallyTimeOfDay = (New-TimeSpan -Hours 3) # 3h du matin\n$syncConfig.NumberOfSynchronizationsPerDay = 1\n$syncConfig.Save()\n\n# Classifications recommandées :\n# ✓ Critical Updates\n# ✓ Security Updates\n# ✓ Definition Updates (Defender)\n# ✓ Service Packs\n# Optionnel :\n# - Updates (fonctionnelles)\n# - Feature Packs\n# - Drivers (prudence !)\n\n# ============================================================\n# GROUPES D\'ORDINATEURS\n# ============================================================\n\n$wsus.CreateComputerTargetGroup("Groupe-Test")      # 5-10 machines\n$wsus.CreateComputerTargetGroup("Groupe-Production") # Toutes les machines\n$wsus.CreateComputerTargetGroup("Serveurs-Critiques") # DCs Exchange\n\n# Stratégie de déploiement recommandée :\n# Semaine 1 : Approuver pour Groupe-Test (Pilote)\n# Semaine 2 : Valider → Approuver pour Groupe-Production\n# Serveurs-Critiques : fenêtre maintenance mensuelle seulement\n\n# ============================================================\n# APPROBATION DES MISES À JOUR\n# ============================================================\n\n$groupeTest = $wsus.GetComputerTargetGroups() | Where-Object Name -eq "Groupe-Test"\n\n$wsus.GetUpdates() | Where-Object {\n  $_.MsrcSeverity -in @("Critical","Important") -and\n  $_.IsApproved -eq $false -and\n  $_.IsDeclined -eq $false\n} | ForEach-Object {\n  $_.Approve("Install", $groupeTest)\n  Write-Host "Approuvée : $($_.Title)"\n}\n\n# Refuser les mises à jour pour architectures non utilisées\n$wsus.GetUpdates() | Where-Object {\n  $_.Title -match "ia64|Itanium"\n} | ForEach-Object { $_.Decline() }\n\n# ============================================================\n# GPO CLIENTS WSUS\n# ============================================================\n\n$wsusKey = "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate"\n$wsusAUKey = "$wsusKey\\AU"\n\nNew-Item -Path $wsusKey -Force | Out-Null\nNew-Item -Path $wsusAUKey -Force | Out-Null\n\nSet-ItemProperty -Path $wsusKey -Name WUServer -Value "http://srv-wsus.tssr.local:8530"\nSet-ItemProperty -Path $wsusKey -Name WUStatusServer -Value "http://srv-wsus.tssr.local:8530"\nSet-ItemProperty -Path $wsusAUKey -Name UseWUServer -Value 1\n\n# 4 = Télécharger + installer selon planning (RECOMMANDÉ)\nSet-ItemProperty -Path $wsusAUKey -Name AUOptions -Value 4\n\n# Planning : tous les mardis à 3h00\nSet-ItemProperty -Path $wsusAUKey -Name ScheduledInstallDay -Value 3\nSet-ItemProperty -Path $wsusAUKey -Name ScheduledInstallTime -Value 3\n\n# Groupes WSUS côté client (affectation automatique)\nSet-ItemProperty -Path $wsusKey -Name TargetGroupEnabled -Value 1\nSet-ItemProperty -Path $wsusKey -Name TargetGroup -Value "Groupe-Production"\n\n# Forcer la détection côté client\nwuauclt /detectnow\nwuauclt /reportnow' },
+    ],
+  },
+
+  {
+    id: 'hyper-v-windows-server',
+    titre: 'Hyper-V Server — Virtualisation Windows Avancée',
+    sections: [
+
+      { type: 'h2', content: '1. Installation et switches virtuels' },
+      { type: 'code', content: '# ============================================================\n# INSTALLATION ET CONFIGURATION HYPER-V\n# ============================================================\n\n# Vérifier les prérequis CPU\n$cpu = Get-WmiObject Win32_Processor\n$cpu.VirtualizationFirmwareEnabled  # True = VT-x/AMD-V activé\n$cpu.SecondLevelAddressTranslationExtensions  # True = SLAT supporté\n\n# Installation Hyper-V\nInstall-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart\n\n# ============================================================\n# SWITCHES VIRTUELS\n# ============================================================\n\n# 1. Switch EXTERNE (accès réseau physique)\nNew-VMSwitch -Name "vSwitch-LAN" -NetAdapterName "Ethernet" -AllowManagementOS $true\n\n# 2. Switch INTERNE (VMs + hôte, pas de réseau externe)\nNew-VMSwitch -Name "vSwitch-Lab-Interne" -SwitchType Internal\nNew-NetIPAddress -InterfaceAlias "vEthernet (vSwitch-Lab-Interne)" -IPAddress "10.0.0.1" -PrefixLength 24\n\n# 3. Switch PRIVÉ (VMs uniquement)\nNew-VMSwitch -Name "vSwitch-Isolé" -SwitchType Private\n\n# ============================================================\n# CRÉATION DE VMs\n# ============================================================\n\nNew-VM \\\n  -Name "VM-DC-02" \\\n  -MemoryStartupBytes 4GB \\\n  -Generation 2 \\\n  -NewVHDPath "D:\\VMs\\VM-DC-02\\VM-DC-02.vhdx" \\\n  -NewVHDSizeBytes 60GB \\\n  -SwitchName "vSwitch-LAN" \\\n  -Path "D:\\VMs"\n\n# Configuration CPU et mémoire dynamique\nSet-VM "VM-DC-02" \\\n  -ProcessorCount 4 \\\n  -DynamicMemory \\\n  -MemoryMinimumBytes 1GB \\\n  -MemoryMaximumBytes 8GB \\\n  -MemoryStartupBytes 4GB\n\n# Secure Boot Generation 2\nSet-VMFirmware "VM-DC-02" -SecureBootTemplate MicrosoftWindows\n# Pour Linux :\n# Set-VMFirmware "VM-Linux" -SecureBootTemplate MicrosoftUEFICertificateAuthority\n\n# Attacher un ISO et démarrer\nAdd-VMDvdDrive "VM-DC-02"\nSet-VMDvdDrive "VM-DC-02" -Path "E:\\ISO\\WS2022.iso"\nStart-VM "VM-DC-02"\nvmconnect localhost "VM-DC-02"\n\n# ============================================================\n# DISQUES VIRTUELS\n# ============================================================\n\n# Créer un disque fixe (production)\nNew-VHD -Path "D:\\VMs\\VM-DB-01\\Data.vhdx" -SizeBytes 500GB -Fixed\n\nAdd-VMHardDiskDrive \\\n  -VMName "VM-DB-01" \\\n  -ControllerType SCSI \\\n  -ControllerNumber 0 \\\n  -ControllerLocation 1 \\\n  -Path "D:\\VMs\\VM-DB-01\\Data.vhdx"\n\n# Compacter / étendre\nOptimize-VHD -Path "D:\\VMs\\VM-Web-01\\VM-Web-01.vhdx" -Mode Full\nResize-VHD -Path "D:\\VMs\\VM-Web-01\\VM-Web-01.vhdx" -SizeBytes 80GB' },
+
+      { type: 'h2', content: '2. Hyper-V Replica — Disaster Recovery' },
+      { type: 'code', content: '# ============================================================\n# HYPER-V REPLICA\n# RPO : 30 secondes à 15 minutes\n# ============================================================\n\n# ── Sur le serveur REPLICA (récepteur) ──\nSet-VMReplicationServer \\\n  -ReplicationEnabled $true \\\n  -AllowedAuthenticationType Certificate \\\n  -CertificateThumbprint "THUMBPRINT_CERT" \\\n  -ReplicationAllowedFromAnyServer $false\n\nNew-VMReplicationAuthorizationEntry \\\n  -AllowedPrimaryServer "hyper-v-prod.tssr.local" \\\n  -ReplicaStorageLocation "E:\\Replicas" \\\n  -TrustGroup "TSSR"\n\n# ── Sur le serveur PRIMARY (source) ──\nEnable-VMReplication \\\n  -VMName "VM-SQL-01" \\\n  -ReplicaServerName "hyper-v-dr.tssr.local" \\\n  -ReplicaServerPort 443 \\\n  -AuthenticationType Certificate \\\n  -CertificateThumbprint "THUMBPRINT_CERT" \\\n  -CompressionEnabled $true \\\n  -ReplicationFrequencySec 300\n\n# Démarrer la réplication initiale\nStart-VMInitialReplication -VMName "VM-SQL-01" -DestinationPath "E:\\Replicas\\VM-SQL-01"\n\n# Surveiller\nGet-VMReplication | Select-Object VMName, State, Health, LastReplicationTime\n\n# ── BASCULEMENT ──\n\n# Test failover (non-destructif)\nStart-VMFailover -VMName "VM-SQL-01" -AsTest\nStart-VM -Name "VM-SQL-01 - Test"\nStop-VMFailover -VMName "VM-SQL-01"  # Annuler le test\n\n# Failover planifié (maintenance)\nStart-VMFailover -VMName "VM-SQL-01" -Prepare  # Sur PRIMARY\nStart-VMFailover -VMName "VM-SQL-01"            # Sur REPLICA\nStart-VM -Name "VM-SQL-01"\n\n# Failover non planifié (sinistre)\nStart-VMFailover -VMName "VM-SQL-01"  # Sur REPLICA directement\nStart-VM -Name "VM-SQL-01"' },
+
+      { type: 'h2', content: '3. Cluster de basculement — High Availability' },
+      { type: 'code', content: '# ============================================================\n# FAILOVER CLUSTERING HYPER-V\n# HA native : si un nœud tombe, VMs redémarrent sur l\'autre\n# Prérequis : stockage partagé (SAN iSCSI + CSV)\n# ============================================================\n\n# Installer les fonctionnalités\nInstall-WindowsFeature Failover-Clustering, Hyper-V -IncludeManagementTools\n\n# Valider les prérequis\nTest-Cluster -Node "HV-01.tssr.local","HV-02.tssr.local" -Include "Storage","Network"\n\n# Créer le cluster\nNew-Cluster \\\n  -Name "CLUSTER-HV" \\\n  -Node "HV-01.tssr.local","HV-02.tssr.local" \\\n  -StaticAddress "192.168.1.50"\n\n# Ajouter le stockage partagé\nGet-ClusterAvailableDisk | Add-ClusterDisk\n\n# Activer Cluster Shared Volumes (CSV)\n# CSV accessible de tous les nœuds simultanément\n# Chemin : C:\\ClusterStorage\\Volume1\nAdd-ClusterSharedVolume -Name "Disk 1"\n\n# Ajouter une VM au cluster (HA)\nAdd-ClusterVirtualMachineRole \\\n  -VMName "VM-SQL-01" \\\n  -VirtualMachineID (Get-VM "VM-SQL-01").VMId\n\n# Préférences HA\nGet-ClusterGroup "VM-SQL-01" | Set-ClusterGroup \\\n  -AutoFailbackType 1 \\\n  -FailbackWindowStart 2 \\\n  -FailbackWindowEnd 4\n\n# État du cluster\nGet-ClusterNode  | Select-Object Name, State\nGet-ClusterGroup | Select-Object Name, OwnerNode, State\nGet-ClusterResource | Where-Object State -ne Online\n\n# ============================================================\n# LIVE MIGRATION\n# ============================================================\n\nEnable-VMMigration\nSet-VMMigrationNetwork -IPAddress "192.168.10.200" -Subnet "255.255.255.0"\nSet-VMHost -MaximumVirtualMachineMigrations 2\n\n# Migrer une VM vers un autre hôte (sans interruption)\nMove-VM \\\n  -Name "VM-Web-01" \\\n  -DestinationHost "HV-02.tssr.local" \\\n  -IncludeStorage \\\n  -DestinationStoragePath "D:\\VMs"\n\n# Migrer seulement le stockage\nMove-VMStorage -VMName "VM-Web-01" -DestinationStoragePath "E:\\VMs"' },
+    ],
+  },
+
+  {
+    id: 'powershell-scripting-avance',
+    titre: 'PowerShell Scripting — Administration Windows Avancée',
+    sections: [
+
+      { type: 'h2', content: '1. Gestion avancée des utilisateurs AD' },
+      { type: 'code', content: '# ============================================================\n# AUDIT ET MAINTENANCE AD\n# ============================================================\n\n# Comptes inactifs depuis 90 jours\n$DateRef = (Get-Date).AddDays(-90)\nGet-ADUser -Filter {LastLogonDate -lt $DateRef -and Enabled -eq $true} \\\n  -Properties LastLogonDate, Department | \\\n  Select-Object Name, SamAccountName, Department, LastLogonDate | \\\n  Sort-Object LastLogonDate | \\\n  Export-Csv "C:\\Audit\\comptes_inactifs.csv" -NoTypeInformation -Encoding UTF8\n\n# Comptes avec mot de passe n\'expirant jamais\nGet-ADUser -Filter {PasswordNeverExpires -eq $true -and Enabled -eq $true} \\\n  -Properties PasswordNeverExpires, Department | \\\n  Where-Object { $_.DistinguishedName -notlike "*Service Accounts*" } | \\\n  Select-Object Name, SamAccountName, Department\n\n# Groupes vides\nGet-ADGroup -Filter * | Where-Object {\n  (Get-ADGroupMember $_ -ErrorAction SilentlyContinue).Count -eq 0\n} | Select-Object Name, GroupScope, DistinguishedName\n\n# Comptes verrouillés\nSearch-ADAccount -LockedOut | Select-Object Name, SamAccountName, LastLogonDate\nSearch-ADAccount -LockedOut | Unlock-ADAccount\n\n# Membres des groupes d\'administration\n@("Domain Admins","Enterprise Admins","Schema Admins","Administrators") | ForEach-Object {\n  Write-Host "\\n=== $_ ==="\n  Get-ADGroupMember $_ -Recursive | Get-ADUser -Properties LastLogonDate | \\\n    Select-Object Name, SamAccountName, LastLogonDate | Format-Table -AutoSize\n}\n\n# ============================================================\n# CRÉATION EN MASSE DEPUIS CSV\n# ============================================================\n\n# CSV : Prenom,Nom,Service,Email\n$Users = Import-Csv "C:\\Scripts\\nouveaux_users.csv" -Encoding UTF8\n\nforeach ($u in $Users) {\n  $Login = "$($u.Prenom[0].ToString().ToLower()).$($u.Nom.ToLower())"\n  $OU    = "OU=$($u.Service),OU=Utilisateurs,DC=tssr,DC=local"\n\n  try {\n    New-ADUser \\\n      -Name "$($u.Prenom) $($u.Nom)" \\\n      -GivenName $u.Prenom \\\n      -Surname $u.Nom \\\n      -SamAccountName $Login \\\n      -UserPrincipalName "$Login@tssr.local" \\\n      -Path $OU \\\n      -Department $u.Service \\\n      -EmailAddress $u.Email \\\n      -AccountPassword (ConvertTo-SecureString "P@ssInit2024!" -AsPlainText -Force) \\\n      -ChangePasswordAtLogon $true \\\n      -Enabled $true \\\n      -ErrorAction Stop\n\n    Add-ADGroupMember -Identity "GG-$($u.Service)" -Members $Login -ErrorAction SilentlyContinue\n    Write-Host "✓ $($u.Prenom) $($u.Nom) ($Login)" -ForegroundColor Green\n\n  } catch {\n    Write-Warning "✗ Erreur $($u.Prenom) $($u.Nom) : $_"\n  }\n}\n\n# Désactiver et archiver un utilisateur partant\nfunction Disable-DepartingUser {\n  param ([string]$SamAccountName)\n  $user = Get-ADUser $SamAccountName -Properties MemberOf\n  Disable-ADAccount -Identity $SamAccountName\n  $user.MemberOf | ForEach-Object {\n    Remove-ADGroupMember -Identity $_ -Members $SamAccountName -Confirm:$false\n  }\n  $NouveauMDP = ConvertTo-SecureString ([System.Web.Security.Membership]::GeneratePassword(20,5)) -AsPlainText -Force\n  Set-ADAccountPassword -Identity $SamAccountName -Reset -NewPassword $NouveauMDP\n  Move-ADObject \\\n    -Identity (Get-ADUser $SamAccountName).DistinguishedName \\\n    -TargetPath "OU=Desactives,DC=tssr,DC=local"\n  Set-ADUser $SamAccountName -Description "Désactivé le $(Get-Date -Format \'dd/MM/yyyy\')"\n  Write-Host "✓ $SamAccountName désactivé et archivé"\n}\n\nDisable-DepartingUser -SamAccountName "j.dupont"' },
+
+      { type: 'h2', content: '2. Partages SMB et permissions NTFS' },
+      { type: 'code', content: '# ============================================================\n# PARTAGES SMB\n# ============================================================\n\nNew-SmbShare \\\n  -Name "Commun" \\\n  -Path "D:\\Partages\\Commun" \\\n  -Description "Partage commun entreprise" \\\n  -FullAccess "TSSR\\Domain Admins" \\\n  -ChangeAccess "TSSR\\DL-RW-Commun" \\\n  -ReadAccess "TSSR\\DL-RO-Commun" \\\n  -FolderEnumerationMode AccessBased\n\nGet-SmbShare   | Select-Object Name, Path, Description\nGet-SmbSession | Select-Object ClientUserName, ClientComputerName, NumOpens\nGet-SmbOpenFile | Select-Object ClientUserName, Path\n\n# ============================================================\n# PERMISSIONS NTFS\n# ============================================================\n\n# Voir les ACL\n$ACL = Get-Acl "D:\\Partages\\Commun"\n$ACL.Access | Select-Object IdentityReference, FileSystemRights, AccessControlType, IsInherited\n\n# Ajouter une permission\n$ACL = Get-Acl "D:\\Partages\\RH"\n$Regle = New-Object System.Security.AccessControl.FileSystemAccessRule(\n  "TSSR\\GG-RH", "Modify",\n  "ContainerInherit, ObjectInherit", "None", "Allow"\n)\n$ACL.AddAccessRule($Regle)\nSet-Acl "D:\\Partages\\RH" $ACL\n\n# Bloquer l\'héritage\n$ACL.SetAccessRuleProtection($true, $false)\nSet-Acl "D:\\Partages\\Confidentiel" $ACL\n\n# Audit des permissions non héritées\nfunction Get-FolderPermissions {\n  param ([string]$Path, [switch]$Recurse)\n  $items = if ($Recurse) { Get-ChildItem $Path -Directory -Recurse } else { Get-Item $Path }\n  foreach ($item in $items) {\n    $acl = Get-Acl $item.FullName\n    $acl.Access | Where-Object IsInherited -eq $false | ForEach-Object {\n      [PSCustomObject]@{\n        Chemin    = $item.FullName\n        Principal = $_.IdentityReference\n        Droits    = $_.FileSystemRights\n        Type      = $_.AccessControlType\n      }\n    }\n  }\n}\n\nGet-FolderPermissions -Path "D:\\Partages" -Recurse | \\\n  Export-Csv "C:\\Audit\\permissions_ntfs.csv" -NoTypeInformation -Encoding UTF8' },
+
+      { type: 'h2', content: '3. Monitoring et alertes automatiques' },
+      { type: 'code', content: '# ============================================================\n# SCRIPT DE MONITORING — TÂCHE PLANIFIÉE\n# ============================================================\n\nfunction Send-AlertEmail {\n  param ([string]$Sujet, [string]$Corps)\n  Send-MailMessage \\\n    -From "monitoring@tssr.local" \\\n    -To "admin@tssr.local" \\\n    -Subject $Sujet \\\n    -BodyAsHtml $Corps \\\n    -SmtpServer "mail.tssr.local"\n}\n\nfunction Get-SystemHealth {\n  param ([string[]]$Serveurs)\n  foreach ($srv in $Serveurs) {\n    $result = [ordered]@{\n      Serveur = $srv\n      Alertes = [System.Collections.Generic.List[string]]::new()\n    }\n    if (Test-Connection $srv -Count 1 -Quiet -TimeoutSeconds 3) {\n      try {\n        $data = Invoke-Command -ComputerName $srv -ErrorAction Stop -ScriptBlock {\n          $cpu = (Get-WmiObject Win32_Processor | Measure-Object LoadPercentage -Average).Average\n          $ram = Get-WmiObject Win32_OperatingSystem\n          $ramPct = [math]::Round(($ram.TotalVisibleMemorySize - $ram.FreePhysicalMemory) / $ram.TotalVisibleMemorySize * 100, 1)\n          $disques = Get-PSDrive -PSProvider FileSystem | Where-Object Used -gt 0 | ForEach-Object {\n            @{Lettre=$_.Name; Pct=[math]::Round($_.Used/($_.Used+$_.Free)*100,1)}\n          }\n          @{CPU=$cpu; RAM=$ramPct; Disques=$disques}\n        }\n        $result.CPU = "$($data.CPU)%"\n        $result.RAM = "$($data.RAM)%"\n        $result.OK  = $true\n        if ($data.CPU -gt 90)  { $result.Alertes.Add("CPU CRITIQUE: $($data.CPU)%") }\n        if ($data.RAM -gt 90)  { $result.Alertes.Add("RAM CRITIQUE: $($data.RAM)%") }\n        foreach ($d in $data.Disques) {\n          if ($d.Pct -gt 90) { $result.Alertes.Add("DISQUE $($d.Lettre) CRITIQUE: $($d.Pct)%") }\n        }\n      } catch {\n        $result.OK = $false\n        $result.Alertes.Add("WinRM inaccessible")\n      }\n    } else {\n      $result.OK = $false\n      $result.Alertes.Add("PING ECHEC")\n    }\n    [PSCustomObject]$result\n  }\n}\n\n$serveurs = @("srv-ad-01","srv-ad-02","srv-web-01","srv-db-01","srv-mail-01")\n$sante = Get-SystemHealth -Serveurs $serveurs\n$sante | Format-Table Serveur, CPU, RAM, @{N=\'Alertes\';E={$_.Alertes -join "; "}} -AutoSize\n\n$alertes = $sante | Where-Object { $_.Alertes.Count -gt 0 }\nif ($alertes) {\n  $corps = "<h2>Alertes</h2><table border=1>"\n  $corps += "<tr><th>Serveur</th><th>Alertes</th></tr>"\n  foreach ($a in $alertes) {\n    $corps += "<tr><td>$($a.Serveur)</td><td style=\'color:red\'>$($a.Alertes -join \'<br>\')</td></tr>"\n  }\n  $corps += "</table>"\n  Send-AlertEmail -Sujet "[ALERTE] $($alertes.Count) serveur(s) en problème" -Corps $corps\n}\n\n# Planifier l\'exécution toutes les 5 minutes\n$action  = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-NonInteractive -File C:\\Scripts\\monitoring.ps1"\n$trigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Minutes 5) -Once -At (Get-Date)\nRegister-ScheduledTask -TaskName "Monitoring-Serveurs" -Action $action -Trigger $trigger -RunLevel Highest -User "SYSTEM"\nWrite-Host "✓ Monitoring toutes les 5 minutes activé"' },
+    ],
+  },
     ],
     flashcards: [],
     qcm: [],

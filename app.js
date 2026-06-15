@@ -82,16 +82,12 @@ function renderNav() {
     nav.appendChild(label);
 
     modulesGroupe.forEach(m => {
-      const prog = getProgress(m.id);
       const btn = document.createElement('button');
       btn.className = 'nav-item' + (state.currentModule?.id === m.id ? ' active' : '');
       btn.setAttribute('aria-label', m.label);
       btn.innerHTML = `
         <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
-        <span>${m.label}</span>
-        <span class="nav-item-right">
-          <span class="nav-progress-mini"><span class="nav-progress-mini-fill" style="width:${prog.pct||0}%"></span></span>
-        </span>`;
+        <span>${m.label}</span>`;
       btn.addEventListener('click', () => openModule(m.id));
       nav.appendChild(btn);
     });
@@ -112,7 +108,6 @@ function renderHome() {
   const grid = document.getElementById('module-grid');
   grid.innerHTML = '';
   MODULES.forEach((m, i) => {
-    const prog = getProgress(m.id);
     const card = document.createElement('div');
     card.className = 'module-card';
     card.style = `--card-color:${m.color};animation-delay:${i*40}ms`;
@@ -131,11 +126,7 @@ function renderHome() {
       <span class="module-card-icon">${m.icon}</span>
       <div class="module-card-title">${m.label}</div>
       <div class="module-card-desc">${m.desc}</div>
-      <div class="module-card-tags">${tags.join('')}</div>
-      <div class="module-card-progress">
-        <div class="progress-bar-wrap" style="flex:1"><div class="progress-bar-fill" style="width:${prog.pct||0}%;background:${m.color}"></div></div>
-        <span class="module-card-progress-pct">${prog.pct||0}%</span>
-      </div>`;
+      <div class="module-card-tags">${tags.join('')}</div>`;
     card.addEventListener('click', () => openModule(m.id));
     card.addEventListener('keydown', e => e.key === 'Enter' && openModule(m.id));
     grid.appendChild(card);
@@ -317,7 +308,6 @@ function renderCoursDetail(m, cours, idx, el) {
   wrap.appendChild(article);
   el.innerHTML = '';
   el.appendChild(wrap);
-  setProgress(m.id, { pct: Math.max(getProgress(m.id).pct || 0, 33) });
 }
 function openCours(coursId) {
   const m = state.currentModule;

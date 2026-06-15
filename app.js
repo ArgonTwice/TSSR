@@ -12,6 +12,7 @@ let state = {
   currentCours: null,
   currentTab: null,
   currentScreen: 'home',  // 'home' | 'module' | 'terminals' | 'terminal-fs'
+  openAccordion: null,
   qcm: { questions: [], idx: 0, answers: [], locked: false, done: false },
   fc: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
   cli: { type: null, history: [], histIdx: -1, cwd: '/', env: {} },
@@ -82,16 +83,72 @@ function renderNav() {
     nav.appendChild(label);
 
     modulesGroupe.forEach(m => {
+      const isActive    = state.currentModule?.id === m.id;
+      const isOpen      = state.openAccordion === m.id;
+      const hasAccordion = m.cours.length > 1;
+
       const btn = document.createElement('button');
-      btn.className = 'nav-item' + (state.currentModule?.id === m.id ? ' active' : '');
+      btn.className = 'nav-item' + (isActive ? ' active' : '');
       btn.setAttribute('aria-label', m.label);
-      btn.innerHTML = `
-        <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
-        <span>${m.label}</span>`;
-      btn.addEventListener('click', () => openModule(m.id));
+      btn.setAttribute('aria-expanded', String(isOpen));
+      btn.dataset.moduleId = m.id;
+
+      if (hasAccordion) {
+        btn.innerHTML = `
+          <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
+          <span>${m.label}</span>
+          <span class="nav-chevron${isOpen ? ' open' : ''}">›</span>`;
+        btn.addEventListener('click', () => toggleAccordion(m.id));
+      } else {
+        btn.innerHTML = `
+          <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
+          <span>${m.label}</span>`;
+        btn.addEventListener('click', () => {
+          if (m.cours.length === 1) {
+            openModule(m.id, false, m.cours[0].id);
+          } else {
+            openModule(m.id);
+          }
+          closeSidebar();
+        });
+      }
       nav.appendChild(btn);
+
+      if (hasAccordion) {
+        const panel = document.createElement('div');
+        panel.className = 'nav-accordion' + (isOpen ? ' open' : '');
+        panel.id = 'nav-acc-' + m.id;
+        m.cours.forEach(c => {
+          const isCoursActive = isActive && state.currentCours === c.id;
+          const cBtn = document.createElement('button');
+          cBtn.className = 'nav-cours-item' + (isCoursActive ? ' active' : '');
+          cBtn.textContent = c.titre;
+          cBtn.addEventListener('click', () => {
+            openModule(m.id, false, c.id);
+            closeSidebar();
+          });
+          panel.appendChild(cBtn);
+        });
+        nav.appendChild(panel);
+      }
     });
   });
+}
+function toggleAccordion(moduleId) {
+  const isOpen = state.openAccordion === moduleId;
+  // Close previous accordion if different
+  if (state.openAccordion && state.openAccordion !== moduleId) {
+    const prevPanel = document.getElementById('nav-acc-' + state.openAccordion);
+    const prevBtn   = document.querySelector(`[data-module-id="${state.openAccordion}"]`);
+    if (prevPanel) prevPanel.classList.remove('open');
+    if (prevBtn)   prevBtn.querySelector('.nav-chevron')?.classList.remove('open');
+  }
+  state.openAccordion = isOpen ? null : moduleId;
+  store.set('sidebar_open', state.openAccordion);
+  const panel = document.getElementById('nav-acc-' + moduleId);
+  const btn   = document.querySelector(`[data-module-id="${moduleId}"]`);
+  if (panel) panel.classList.toggle('open', !isOpen);
+  if (btn)   btn.querySelector('.nav-chevron')?.classList.toggle('open', !isOpen);
 }
 // ===== HOME =====
 function renderHome() {
@@ -135,11 +192,15 @@ function renderHome() {
 }
 
 // ===== OPEN MODULE =====
-function openModule(moduleId, skipHistory = false) {
+function openModule(moduleId, skipHistory = false, directCours = null) {
   const m = MODULES.find(x => x.id === moduleId);
   if (!m) return;
   state.currentModule = m;
-  state.currentCours = null;
+  state.currentCours = directCours;
+  if (m.cours.length > 1) {
+    state.openAccordion = m.id;
+    store.set('sidebar_open', m.id);
+  }
   document.getElementById('mobile-module-name').textContent = m.label;
   renderNav();
   const meta = document.getElementById('module-meta');
@@ -183,7 +244,7 @@ function openModule(moduleId, skipHistory = false) {
     btn.addEventListener('click', () => switchTab(t.id));
     tabBar.appendChild(btn);
   });
-  switchTab(tabs[0].id, true);
+  switchTab(tabs[0].id, true, true);
   showScreen('module-screen');
   if (!skipHistory) {
     history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
@@ -195,8 +256,8 @@ function openModule(moduleId, skipHistory = false) {
 }
 
 // ===== TABS =====
-function switchTab(tabId, skipHistory) {
-  state.currentCours = null;
+function switchTab(tabId, skipHistory, keepCours = false) {
+  if (!keepCours) state.currentCours = null;
   state.currentTab = tabId;
   document.querySelectorAll('.tab-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tabId);
@@ -315,6 +376,7 @@ function openCours(coursId) {
   const idx = m.cours.findIndex(c => c.id === coursId);
   if (idx === -1) return;
   state.currentCours = coursId;
+  renderNav();
   const el = document.getElementById('tab-content');
   renderCoursDetail(m, m.cours[idx], idx, el);
   history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
@@ -3200,6 +3262,7 @@ document.getElementById('back-btn').addEventListener('click', () => {
   const m = state.currentModule;
   if (state.currentCours !== null && m && m.cours.length > 1) {
     state.currentCours = null;
+    renderNav();
     const el = document.getElementById('tab-content');
     renderCoursIndex(m, el);
     history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
@@ -3260,6 +3323,7 @@ window.addEventListener('popstate', (e) => {
   }
 });
 
+state.openAccordion = store.get('sidebar_open') || null;
 const _hash = location.hash.replace('#', '');
 const _moduleMatch = _hash.match(/^module-([^/]+)(?:\/([^/]+)(?:\/(.+))?)?$/);
 if (_moduleMatch) {

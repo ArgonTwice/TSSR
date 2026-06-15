@@ -1638,20 +1638,22 @@ body {
 /* ===== TERMINAL FULLSCREEN ================================== */
 /* ============================================================ */
 
-#terminal-fullscreen {
+#terminal-fs-screen {
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
 }
-#terminal-fullscreen.active { display: flex; }
+#terminal-fs-screen.active { display: flex; }
 
 .terminal-fs-header {
   flex-shrink: 0;
   border-bottom: 1px solid var(--border);
 }
-.tfs-linux  { background: rgba(0,229,160,0.05); border-bottom-color: rgba(0,229,160,0.15) !important; }
-.tfs-windows { background: rgba(59,130,246,0.05); border-bottom-color: rgba(59,130,246,0.15) !important; }
+.tfs-linux     { background: rgba(0,229,160,0.05); border-bottom-color: rgba(0,229,160,0.15) !important; }
+.tfs-windows   { background: rgba(59,130,246,0.05); border-bottom-color: rgba(59,130,246,0.15) !important; }
+.tfs-cmd       { background: rgba(0,0,0,0.35); border-bottom-color: rgba(156,163,175,0.2) !important; }
+.tfs-netrunner { background: rgba(14,165,233,0.05); border-bottom-color: rgba(14,165,233,0.15) !important; }
 
 .tfs-inner {
   display: flex;
@@ -1715,6 +1717,8 @@ body {
 #terminal-fs-content .cli-wrap {
   height: 100%;
 }
+#terminal-fs-content > div { height: 100%; }
+#terminal-fs-content iframe { height: 100% !important; min-height: 0 !important; }
 
 /* ============================================================ */
 /* ===== ONGLETS CLI DANS MODULE ============================== */

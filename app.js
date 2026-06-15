@@ -11,7 +11,8 @@ let state = {
   currentModule: null,
   currentCours: null,
   currentTab: null,
-  currentScreen: 'home',  // 'home' | 'module' | 'terminals' | 'terminal-fs'
+  currentScreen: 'home',  // 'home' | 'module' | 'terminal-fs'
+  currentTerminal: null,  // 'linux' | 'windows' | 'cmd' | 'gameshell' | 'netrunner'
   openAccordion: null,
   qcm: { questions: [], idx: 0, answers: [], locked: false, done: false },
   fc: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
@@ -61,15 +62,39 @@ function renderNav() {
     { label: 'Projet',              modules: ['documentation'] },
   ];
 
+  const isTermActive = state.currentScreen === 'terminal-fs';
+  const isTermOpen   = state.openAccordion === 'terminals';
+
   const termBtn = document.createElement('button');
-  termBtn.className = 'nav-item nav-item-terminals' + (state.currentScreen === 'terminals' ? ' active' : '');
+  termBtn.className = 'nav-item nav-item-terminals' + (isTermActive ? ' active' : '');
   termBtn.setAttribute('aria-label', 'Terminaux');
+  termBtn.setAttribute('aria-expanded', String(isTermOpen));
+  termBtn.dataset.moduleId = 'terminals';
   termBtn.innerHTML = `
     <span class="nav-item-icon" style="background:rgba(0,229,160,0.1);color:var(--accent)">💻</span>
     <span>Terminaux</span>
-    <span class="nav-item-right"><span class="nav-badge" style="background:var(--accent-dim);color:var(--accent)">2</span></span>`;
-  termBtn.addEventListener('click', () => openTerminals());
+    <span class="nav-chevron${isTermOpen ? ' open' : ''}">›</span>`;
+  termBtn.addEventListener('click', () => toggleAccordion('terminals'));
   nav.appendChild(termBtn);
+
+  const TERM_ITEMS = [
+    { id: 'linux',     label: '🐧 Terminal Linux' },
+    { id: 'windows',   label: '💻 Terminal PowerShell' },
+    { id: 'cmd',       label: '🖥️ Terminal Windows (CMD)' },
+    { id: 'gameshell', label: '🎮 GameShell' },
+    { id: 'netrunner', label: '🚀 NetRunner' },
+  ];
+  const termPanel = document.createElement('div');
+  termPanel.className = 'nav-accordion' + (isTermOpen ? ' open' : '');
+  termPanel.id = 'nav-acc-terminals';
+  TERM_ITEMS.forEach(item => {
+    const iBtn = document.createElement('button');
+    iBtn.className = 'nav-cours-item' + (isTermActive && state.currentTerminal === item.id ? ' active' : '');
+    iBtn.textContent = item.label;
+    iBtn.addEventListener('click', () => { openTerminalFullscreen(item.id); closeSidebar(); });
+    termPanel.appendChild(iBtn);
+  });
+  nav.appendChild(termPanel);
 
   GROUPES.forEach(groupe => {
     const modulesGroupe = groupe.modules
@@ -154,6 +179,7 @@ function toggleAccordion(moduleId) {
 function renderHome() {
   history.replaceState({ screen: 'home' }, '', '#');
   state.currentModule = null;
+  state.currentTerminal = null;
   state.currentScreen = 'home';
   document.getElementById('mobile-module-name').textContent = '';
   renderNav();
@@ -753,6 +779,10 @@ function makeCLIState(type) {
       sudoEnabled: false,
       networkFault: null,
     };
+  } else if (type === 'cmd') {
+    const base = makeCLIState('windows');
+    base.type = 'cmd';
+    return base;
   } else {
     return {
       type: 'windows',
@@ -826,8 +856,9 @@ function renderCLI(type, m, el) {
   cliState = makeCLIState(type);
   scenarioState = null;
 
-  const isWin = type === 'windows';
-  const title = isWin ? '⚡ Windows PowerShell' : '🐧 Bash — ' + cliState.host;
+  const isWin = type === 'windows' || type === 'cmd';
+  const isCmd = type === 'cmd';
+  const title = isCmd ? '🖥️ Invite de commandes — cmd.exe' : (isWin ? '⚡ Windows PowerShell' : '🐧 Bash — ' + cliState.host);
   const headerClass = isWin ? 'cli-header-win' : 'cli-header-linux';
   el.innerHTML = `
     <div class="cli-layout">
@@ -843,7 +874,13 @@ function renderCLI(type, m, el) {
             <button class="cli-clear-btn" onclick="cliClear()" aria-label="Effacer le terminal">✕ clear</button>
           </div>
           <div class="cli-help-bar">
-            ${isWin
+            ${isCmd
+              ? `<span>Cmds :</span>
+                 <code>dir</code><code>cd</code><code>type</code><code>copy</code><code>move</code>
+                 <code>del</code><code>mkdir</code><code>ipconfig</code><code>ping</code><code>netstat</code>
+                 <code>tasklist</code><code>taskkill</code><code>whoami</code><code>cls</code>
+                 &nbsp;·&nbsp;<code style="color:var(--blue)">tp</code> TP guidés`
+              : isWin
               ? `<span>Cmds :</span>
                  <code>Get-ChildItem</code><code>Set-Location</code><code>Get-Content</code><code>New-Item</code>
                  <code>Remove-Item</code><code>Get-Process</code><code>ipconfig</code><code>ping</code>
@@ -880,7 +917,9 @@ function renderCLI(type, m, el) {
       <div id="scenario-panel" class="scenario-panel" style="display:none"></div>
     </div>`;
 
-  cliPrint(isWin
+  cliPrint(isCmd
+    ? `Microsoft Windows [Version 10.0.19045]\n(c) Microsoft Corporation. Tous droits réservés.\n\nTape <span style="color:#aaa">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n`
+    : isWin
     ? `<span style="color:var(--blue)">Windows PowerShell</span>\nCopyright (C) Microsoft Corporation.\n\nTape <span style="color:var(--blue)">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n`
     : `<span style="color:var(--accent)">Bienvenue sur ${cliState.host}</span> — Debian GNU/Linux\nConnecté : <span style="color:var(--accent)">${cliState.user}</span>\nTape <span style="color:var(--accent)">help</span> · <span style="color:var(--accent)">tp</span> pour les TP guidés\n🎮 <span style="color:var(--accent)">GameShell TSSR</span> — 30 missions pour maîtriser Linux. Tape <strong>tp gameshell</strong> pour commencer.\n`
   );
@@ -897,6 +936,8 @@ function cliPrompt() {
     return `<span class="cli-ps-user">${cliState.user}@${cliState.host}</span><span class="cli-ps-sep">:</span><span class="cli-ps-path">${shortCwd}</span><span class="cli-ps-dollar">$</span>`;
   } else if (cliState.diskpartMode) {
     return `<span class="cli-ps-path-win">DISKPART</span><span class="cli-ps-dollar-win">&gt;</span>`;
+  } else if (cliState.type === 'cmd') {
+    return `<span class="cli-ps-path-win">${cliState.cwd}</span><span class="cli-ps-dollar-win">&gt;</span>`;
   } else {
     return `<span class="cli-ps-path-win">PS ${cliState.cwd}</span><span class="cli-ps-dollar-win">&gt;</span>`;
   }
@@ -3136,6 +3177,62 @@ const CLI_CARDS = [
   },
 ];
 
+const TERMINAL_META = {
+  linux:     { icon: '🐧', label: 'Terminal Linux',         sublabel: 'Debian GNU/Linux',           color: '#00e5a0', cls: 'tfs-linux' },
+  windows:   { icon: '💻', label: 'Terminal PowerShell',    sublabel: 'Windows Server 2022',         color: '#3b82f6', cls: 'tfs-windows' },
+  cmd:       { icon: '🖥️', label: 'Terminal Windows (CMD)', sublabel: 'cmd.exe — Windows 10/Server', color: '#9ca3af', cls: 'tfs-cmd' },
+  gameshell: { icon: '🎮', label: 'GameShell',              sublabel: '30 missions Linux',           color: '#00e5a0', cls: 'tfs-linux' },
+  netrunner: { icon: '🚀', label: 'NetRunner',              sublabel: 'Jeu PowerShell/CMD',          color: '#0ea5e9', cls: 'tfs-netrunner' },
+};
+
+function openTerminalFullscreen(type) {
+  const meta = TERMINAL_META[type];
+  if (!meta) return;
+  state.currentScreen = 'terminal-fs';
+  state.currentTerminal = type;
+  document.getElementById('mobile-module-name').textContent = meta.label;
+
+  const header = document.getElementById('terminal-fs-header');
+  header.className = 'terminal-fs-header ' + meta.cls;
+  header.innerHTML = `
+    <div class="tfs-inner">
+      <button class="back-btn" id="tfs-back" aria-label="Retour à l'accueil">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Accueil
+      </button>
+      <div class="tfs-title-block">
+        <span class="tfs-os-icon">${meta.icon}</span>
+        <div>
+          <div class="tfs-title" style="color:${meta.color}">${meta.label}</div>
+          <div class="tfs-sub">${meta.sublabel}</div>
+        </div>
+      </div>
+      ${type !== 'gameshell' && type !== 'netrunner' ? `<div class="tfs-hints">
+        <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}">↑↓ historique</span>
+        <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}">Tab complétion</span>
+        <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}"><code>tp</code> pour les TP</span>
+        ${type === 'linux' ? `<span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}"><code>vim fichier</code></span>` : `<span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}"><code>help</code></span>`}
+      </div>` : ''}
+    </div>`;
+
+  document.getElementById('tfs-back').addEventListener('click', () => {
+    state.currentTerminal = null;
+    renderHome();
+  });
+
+  const fsContent = document.getElementById('terminal-fs-content');
+  fsContent.innerHTML = '';
+  if (type === 'gameshell') {
+    renderGameshell(fsContent);
+  } else if (type === 'netrunner') {
+    renderNetrunner(fsContent);
+  } else {
+    renderCLI(type, null, fsContent);
+  }
+
+  showScreen('terminal-fs-screen');
+}
+
 function openTerminals() {
   state.currentModule = null;
   state.currentScreen = 'terminals';
@@ -3234,7 +3331,7 @@ function openTerminalFS(type) {
 
   const fsContent = document.getElementById('terminal-fs-content');
   renderCLI(type, null, fsContent);
-  showScreen('terminal-fullscreen');
+  showScreen('terminal-fs-screen');
   closeSidebar();
 }
 

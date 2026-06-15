@@ -9,6 +9,7 @@ const store = {
 // ===== STATE =====
 let state = {
   currentModule: null,
+  currentCours: null,
   currentTab: null,
   currentScreen: 'home',  // 'home' | 'module' | 'terminals' | 'terminal-fs'
   qcm: { questions: [], idx: 0, answers: [], locked: false, done: false },
@@ -35,11 +36,6 @@ function setProgress(moduleId, data) {
   const prev = getProgress(moduleId);
   store.set('progress_' + moduleId, { ...prev, ...data });
   renderNav();
-  renderGlobalProgress();
-}
-function globalProgress() {
-  const totals = MODULES.map(m => getProgress(m.id).pct || 0);
-  return totals.length ? Math.round(totals.reduce((a, b) => a + b, 0) / totals.length) : 0;
 }
 
 // ===== RENDER NAV =====
@@ -101,12 +97,6 @@ function renderNav() {
     });
   });
 }
-function renderGlobalProgress() {
-  const pct = globalProgress();
-  document.getElementById('global-progress-bar').style.width = pct + '%';
-  document.getElementById('global-progress-pct').textContent = pct + '%';
-}
-
 // ===== HOME =====
 function renderHome() {
   history.replaceState({ screen: 'home' }, '', '#');
@@ -118,8 +108,7 @@ function renderHome() {
   const totalCours = MODULES.reduce((a, m) => a + m.cours.length, 0);
   stats.innerHTML = `
     <div class="stat-card"><span class="stat-num">${MODULES.length}</span><span class="stat-lbl">Modules</span></div>
-    <div class="stat-card"><span class="stat-num">${totalCours}</span><span class="stat-lbl">Cours</span></div>
-    <div class="stat-card"><span class="stat-num">${globalProgress()}%</span><span class="stat-lbl">Progression</span></div>`;
+    <div class="stat-card"><span class="stat-num">${totalCours}</span><span class="stat-lbl">Cours</span></div>`;
   const grid = document.getElementById('module-grid');
   grid.innerHTML = '';
   MODULES.forEach((m, i) => {
@@ -159,6 +148,7 @@ function openModule(moduleId, skipHistory = false) {
   const m = MODULES.find(x => x.id === moduleId);
   if (!m) return;
   state.currentModule = m;
+  state.currentCours = null;
   document.getElementById('mobile-module-name').textContent = m.label;
   renderNav();
   const meta = document.getElementById('module-meta');
@@ -206,13 +196,16 @@ function openModule(moduleId, skipHistory = false) {
   showScreen('module-screen');
   if (!skipHistory) {
     history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
-    history.pushState({ screen: 'module', moduleId: m.id, tab: tabs[0].id, scroll: 0 }, '', '#module-' + m.id + '/' + tabs[0].id);
+    const _firstTab = tabs[0].id;
+    const _initCoursPath = (_firstTab === 'cours' && state.currentCours) ? '/' + state.currentCours : '';
+    history.pushState({ screen: 'module', moduleId: m.id, tab: _firstTab, coursId: state.currentCours, scroll: 0 }, '', '#module-' + m.id + '/' + _firstTab + _initCoursPath);
   }
   closeSidebar();
 }
 
 // ===== TABS =====
 function switchTab(tabId, skipHistory) {
+  state.currentCours = null;
   state.currentTab = tabId;
   document.querySelectorAll('.tab-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tabId);
@@ -221,10 +214,11 @@ function switchTab(tabId, skipHistory) {
   renderTabContent(tabId);
   if (!skipHistory && state.currentModule) {
     history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
+    const _coursPath = (tabId === 'cours' && state.currentCours) ? '/' + state.currentCours : '';
     history.pushState(
-      { screen: 'module', moduleId: state.currentModule.id, tab: tabId, scroll: 0 },
+      { screen: 'module', moduleId: state.currentModule.id, tab: tabId, coursId: state.currentCours, scroll: 0 },
       '',
-      '#module-' + state.currentModule.id + '/' + tabId
+      '#module-' + state.currentModule.id + '/' + tabId + _coursPath
     );
   }
 }
@@ -274,45 +268,72 @@ function renderCours(m, el) {
     el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">📖</span><h3>Cours à venir</h3><p>Les cours seront ajoutés prochainement.</p></div>`;
     return;
   }
+  if (m.cours.length === 1) {
+    state.currentCours = m.cours[0].id;
+    renderCoursDetail(m, m.cours[0], 0, el);
+    return;
+  }
+  if (state.currentCours) {
+    const idx = m.cours.findIndex(c => c.id === state.currentCours);
+    if (idx !== -1) {
+      renderCoursDetail(m, m.cours[idx], idx, el);
+      return;
+    }
+  }
+  renderCoursIndex(m, el);
+}
+function renderCoursIndex(m, el) {
+  const grid = m.cours.map((c, i) => `
+    <div class="cours-card" role="button" tabindex="0"
+         onclick="openCours('${c.id}')"
+         onkeydown="if(event.key==='Enter')openCours('${c.id}')">
+      <div class="cours-card-num">${String(i + 1).padStart(2, '0')}</div>
+      <div class="cours-card-body">
+        <div class="cours-card-title">${c.titre}</div>
+        ${c.badge ? `<span class="cours-badge cours-badge-${c.badge}">${c.badge.toUpperCase()}</span>` : ''}
+      </div>
+    </div>`).join('');
+  el.innerHTML = `<div class="cours-index"><div class="cours-index-grid">${grid}</div></div>`;
+}
+function renderCoursDetail(m, cours, idx, el) {
+  const article = document.createElement('article');
+  article.className = 'cours-article';
+  article.id = `cours-${cours.id}`;
+  const header = document.createElement('div');
+  header.className = 'cours-article-header';
+  header.innerHTML = `
+    <div class="cours-article-num">${String(idx + 1).padStart(2, '0')}</div>
+    <div>
+      <h2 class="cours-article-title">${cours.titre}</h2>
+      ${cours.badge ? `<span class="cours-badge cours-badge-${cours.badge}">${cours.badge.toUpperCase()}</span>` : ''}
+    </div>`;
+  article.appendChild(header);
+  const content = document.createElement('div');
+  content.className = 'cours-content';
+  content.innerHTML = renderCoursContent(cours.sections);
+  article.appendChild(content);
   const wrap = document.createElement('div');
   wrap.className = 'cours-container';
-
-  if (m.cours.length > 1) {
-    const sommaire = document.createElement('nav');
-    sommaire.className = 'cours-sommaire';
-    sommaire.innerHTML = '<div class="cours-sommaire-title">📋 Sommaire</div>' +
-      m.cours.map((c, i) =>
-        `<a class="cours-sommaire-link" href="#cours-${c.id}">${i + 1}. ${c.titre}</a>`
-      ).join('');
-    wrap.appendChild(sommaire);
-  }
-
-  m.cours.forEach((cours, idx) => {
-    const article = document.createElement('article');
-    article.className = 'cours-article';
-    article.id = `cours-${cours.id}`;
-
-    const header = document.createElement('div');
-    header.className = 'cours-article-header';
-    header.innerHTML = `
-      <div class="cours-article-num">0${idx + 1}</div>
-      <div>
-        <h2 class="cours-article-title">${cours.titre}</h2>
-        ${cours.badge ? `<span class="cours-badge cours-badge-${cours.badge}">${cours.badge.toUpperCase()}</span>` : ''}
-      </div>`;
-    article.appendChild(header);
-
-    const content = document.createElement('div');
-    content.className = 'cours-content';
-    content.innerHTML = renderCoursContent(cours.sections);
-    article.appendChild(content);
-
-    wrap.appendChild(article);
-  });
-
+  wrap.appendChild(article);
   el.innerHTML = '';
   el.appendChild(wrap);
   setProgress(m.id, { pct: Math.max(getProgress(m.id).pct || 0, 33) });
+}
+function openCours(coursId) {
+  const m = state.currentModule;
+  if (!m) return;
+  const idx = m.cours.findIndex(c => c.id === coursId);
+  if (idx === -1) return;
+  state.currentCours = coursId;
+  const el = document.getElementById('tab-content');
+  renderCoursDetail(m, m.cours[idx], idx, el);
+  history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
+  history.pushState(
+    { screen: 'module', moduleId: m.id, tab: 'cours', coursId: coursId, scroll: 0 },
+    '',
+    '#module-' + m.id + '/cours/' + coursId
+  );
+  document.getElementById('content').scrollTop = 0;
 }
 function renderCoursContent(sections) {
   if (!sections) return '';
@@ -3186,8 +3207,23 @@ function closeSidebar() {
 
 // ===== INIT =====
 document.getElementById('back-btn').addEventListener('click', () => {
-  state.currentModule = null;
-  renderHome();
+  const m = state.currentModule;
+  if (state.currentCours !== null && m && m.cours.length > 1) {
+    state.currentCours = null;
+    const el = document.getElementById('tab-content');
+    renderCoursIndex(m, el);
+    history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
+    history.pushState(
+      { screen: 'module', moduleId: m.id, tab: 'cours', coursId: null, scroll: 0 },
+      '',
+      '#module-' + m.id + '/cours'
+    );
+    document.getElementById('content').scrollTop = 0;
+  } else {
+    state.currentModule = null;
+    state.currentCours = null;
+    renderHome();
+  }
 });
 document.getElementById('menu-toggle').addEventListener('click', () => {
   const open = document.getElementById('sidebar').classList.toggle('open');
@@ -3203,6 +3239,7 @@ window.addEventListener('popstate', (e) => {
   const state_nav = e.state;
   if (!state_nav || state_nav.screen === 'home') {
     state.currentModule = null;
+    state.currentCours = null;
     state.currentScreen = 'home';
     document.getElementById('mobile-module-name').textContent = '';
     renderNav();
@@ -3216,6 +3253,14 @@ window.addEventListener('popstate', (e) => {
       openModule(state_nav.moduleId, true);
       if (state_nav.tab) switchTab(state_nav.tab, true);
     }
+    if (state_nav.tab === 'cours' && state_nav.coursId) {
+      const _m = state.currentModule;
+      const _idx = _m ? _m.cours.findIndex(c => c.id === state_nav.coursId) : -1;
+      if (_idx !== -1) {
+        state.currentCours = state_nav.coursId;
+        renderCoursDetail(_m, _m.cours[_idx], _idx, document.getElementById('tab-content'));
+      }
+    }
     const scroll = state_nav.scroll || 0;
     requestAnimationFrame(() => { document.getElementById('content').scrollTop = scroll; });
   } else if (state_nav.screen === 'terminals' || state_nav.screen === 'terminal-fs') {
@@ -3225,14 +3270,21 @@ window.addEventListener('popstate', (e) => {
   }
 });
 
-renderGlobalProgress();
 const _hash = location.hash.replace('#', '');
-const _moduleMatch = _hash.match(/^module-([^/]+)(?:\/(.+))?$/);
+const _moduleMatch = _hash.match(/^module-([^/]+)(?:\/([^/]+)(?:\/(.+))?)?$/);
 if (_moduleMatch) {
   history.replaceState({ screen: 'home' }, '', '#');
   renderHome();
   openModule(_moduleMatch[1]);
   if (_moduleMatch[2]) switchTab(_moduleMatch[2], true);
+  if (_moduleMatch[2] === 'cours' && _moduleMatch[3]) {
+    const _m = MODULES.find(x => x.id === _moduleMatch[1]);
+    const _idx = _m ? _m.cours.findIndex(c => c.id === _moduleMatch[3]) : -1;
+    if (_idx !== -1) {
+      state.currentCours = _moduleMatch[3];
+      renderCoursDetail(_m, _m.cours[_idx], _idx, document.getElementById('tab-content'));
+    }
+  }
 } else {
   history.replaceState({ screen: 'home' }, '', '#');
   renderHome();

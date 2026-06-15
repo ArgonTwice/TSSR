@@ -200,33 +200,6 @@ body {
   white-space: nowrap;
 }
 
-.sidebar-footer {
-  padding: 16px 20px 20px;
-  border-top: 1px solid var(--border);
-}
-
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.progress-label {
-  font-size: 11px;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 600;
-}
-
-.progress-pct {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--accent);
-  font-weight: 600;
-}
-
 .progress-bar-wrap {
   height: 4px;
   background: var(--bg4);
@@ -1891,6 +1864,67 @@ body {
 
 .cours-container { max-width: 860px; }
 
+/* ===== COURS INDEX ===== */
+.cours-index { padding: 0; }
+
+.cours-index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.cours-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), transform var(--transition);
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cours-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.cours-card:hover {
+  border-color: rgba(0,229,160,0.35);
+  background: var(--bg4);
+  transform: translateY(-2px);
+}
+
+.cours-card:hover::before { opacity: 1; }
+
+.cours-card-num {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0.4;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.cours-card-body { flex: 1; min-width: 0; }
+
+.cours-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.45;
+}
+
 .cours-sommaire {
   background: var(--bg3);
   border: 1px solid var(--border);
@@ -2307,4 +2341,7 @@ body {
   .cours-content .code-block { font-size: 11.5px; padding: 12px 14px; }
   .cours-content table { font-size: 12px; }
   .cours-content th, .cours-content td { padding: 8px 10px; }
+  .cours-index-grid { grid-template-columns: 1fr; }
+  .cours-card { padding: 16px 18px; }
+  .cours-card-num { font-size: 18px; }
 }

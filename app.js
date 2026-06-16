@@ -480,12 +480,77 @@ function renderCoursDetail(m, cours, idx, el) {
   breadcrumb.appendChild(bcSep);
   breadcrumb.appendChild(bcTitle);
 
+  const aiBtn = document.createElement('button');
+  aiBtn.className = 'btn-ai-explain';
+  aiBtn.innerHTML = '&#x2728; Expliquer visuellement ce cours';
+  aiBtn.onclick = () => openAIExplainer(cours.titre, cours.sections);
+
   const wrap = document.createElement('div');
   wrap.className = 'cours-container';
   wrap.appendChild(breadcrumb);
   wrap.appendChild(article);
+  wrap.appendChild(aiBtn);
   el.innerHTML = '';
   el.appendChild(wrap);
+}
+function openAIExplainer(titre, sections) {
+  const contexte = sections
+    .filter(s => s.type === 'p' || s.type === 'h2')
+    .map(s => s.content)
+    .join('\n')
+    .slice(0, 2000);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'ai-overlay';
+  overlay.innerHTML = `
+    <div class="ai-modal">
+      <div class="ai-modal-header">
+        <span class="ai-modal-title">&#x2728; ${titre}</span>
+        <button class="ai-modal-close" onclick="this.closest('.ai-overlay').remove()">&#x2715;</button>
+      </div>
+      <div class="ai-modal-body">
+        <div class="ai-loading">
+          <div class="ai-spinner"></div>
+          <span>Génération en cours...</span>
+        </div>
+        <div class="ai-result" style="display:none"></div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'x-api-key': (window.ANTHROPIC_KEY || ''),
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      messages: [{
+        role: 'user',
+        content: `Tu es un formateur TSSR. Explique le concept "${titre}" de manière très simple et visuelle.\n\nContexte du cours :\n${contexte}\n\nFournis :\n1. Une analogie du quotidien simple (2-3 phrases)\n2. Les points clés à retenir (3-5 bullet points courts)\n3. Un exemple concret en 2-3 phrases\n4. Une astuce mémo pour retenir\n\nRéponds en français, de manière concise et pédagogique. Utilise des emojis.`
+      }]
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    const text = data.content?.[0]?.text || 'Erreur de génération.';
+    const body = overlay.querySelector('.ai-modal-body');
+    body.querySelector('.ai-loading').style.display = 'none';
+    const result = body.querySelector('.ai-result');
+    result.style.display = 'block';
+    result.innerHTML = '<p>' + text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+  })
+  .catch(() => {
+    overlay.querySelector('.ai-loading').style.display = 'none';
+    const result = overlay.querySelector('.ai-result');
+    result.style.display = 'block';
+    result.textContent = 'Erreur de connexion. Vérifiez votre connexion Internet et votre clé API (window.ANTHROPIC_KEY).';
+  });
 }
 function openCours(coursId) {
   const m = state.currentModule;
@@ -617,6 +682,12 @@ function renderSection(section) {
       pre.className = 'schema-block';
       pre.textContent = section.content;
       wrap.appendChild(pre); break;
+    }
+    case 'svg': {
+      const div = document.createElement('div');
+      div.className = 'schema-svg-wrapper';
+      div.innerHTML = section.content;
+      wrap.appendChild(div); break;
     }
     case 'info': {
       const div = document.createElement('div');

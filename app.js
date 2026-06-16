@@ -118,16 +118,22 @@ function renderNav() {
       btn.setAttribute('aria-expanded', String(isOpen));
       btn.dataset.moduleId = m.id;
 
+      const _iconEl = document.createElement('span');
+      _iconEl.className = 'nav-item-icon';
+      _iconEl.style.cssText = `background:${m.color}22;color:${m.color}`;
+      _iconEl.textContent = m.icon;
+      const _labelEl = document.createElement('span');
+      _labelEl.textContent = m.label;
+      btn.appendChild(_iconEl);
+      btn.appendChild(_labelEl);
+
       if (hasAccordion) {
-        btn.innerHTML = `
-          <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
-          <span>${m.label}</span>
-          <span class="nav-chevron${isOpen ? ' open' : ''}">›</span>`;
+        const _chev = document.createElement('span');
+        _chev.className = 'nav-chevron' + (isOpen ? ' open' : '');
+        _chev.textContent = '›';
+        btn.appendChild(_chev);
         btn.addEventListener('click', () => toggleAccordion(m.id));
       } else {
-        btn.innerHTML = `
-          <span class="nav-item-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
-          <span>${m.label}</span>`;
         btn.addEventListener('click', () => {
           if (m.cours.length === 1) {
             openModule(m.id, false, m.cours[0].id);
@@ -193,15 +199,20 @@ function renderHome() {
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', `Module ${m.label}`);
-    const tag = m.cours.length
-      ? `<span class="tag has-content">cours (${m.cours.length})</span>`
-      : '<span class="tag">À venir</span>';
     card.innerHTML = `
       ${!m.cours.length ? '<span class="module-empty-badge">À venir</span>' : ''}
-      <span class="module-card-icon">${m.icon}</span>
-      <div class="module-card-title">${m.label}</div>
-      <div class="module-card-desc">${m.desc}</div>
-      <div class="module-card-tags">${tag}</div>`;
+      <div class="module-card-icon-box"><span class="module-card-icon"></span></div>
+      <div class="module-card-title"></div>
+      <div class="module-card-desc"></div>
+      <div class="module-card-tags"></div>`;
+    card.querySelector('.module-card-icon').textContent = m.icon;
+    card.querySelector('.module-card-title').textContent = m.label;
+    card.querySelector('.module-card-desc').textContent = m.desc;
+    const tagsEl = card.querySelector('.module-card-tags');
+    const tagSpan = document.createElement('span');
+    tagSpan.className = m.cours.length ? 'tag has-content' : 'tag';
+    tagSpan.textContent = m.cours.length ? `cours (${m.cours.length})` : 'À venir';
+    tagsEl.appendChild(tagSpan);
     card.addEventListener('click', () => openModule(m.id));
     card.addEventListener('keydown', e => e.key === 'Enter' && openModule(m.id));
     grid.appendChild(card);
@@ -222,10 +233,20 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
   document.getElementById('mobile-module-name').textContent = m.label;
   renderNav();
   const meta = document.getElementById('module-meta');
-  meta.innerHTML = `
-    <span class="module-meta-icon">${m.icon}</span>
-    <span class="module-meta-title">${m.label}</span>
-    <span class="module-meta-badge" style="background:${m.color}22;color:${m.color}">${m.topics.slice(0,3).join(' · ')}</span>`;
+  meta.innerHTML = '';
+  const _mIcon = document.createElement('span');
+  _mIcon.className = 'module-meta-icon';
+  _mIcon.textContent = m.icon;
+  const _mTitle = document.createElement('span');
+  _mTitle.className = 'module-meta-title';
+  _mTitle.textContent = m.label;
+  const _mBadge = document.createElement('span');
+  _mBadge.className = 'module-meta-badge';
+  _mBadge.style.cssText = `background:${m.color}22;color:${m.color}`;
+  _mBadge.textContent = m.topics.slice(0,3).join(' · ');
+  meta.appendChild(_mIcon);
+  meta.appendChild(_mTitle);
+  meta.appendChild(_mBadge);
 
   const tabs = [];
   if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',        icon: '📖', cli: false });
@@ -369,22 +390,45 @@ function renderCoursDetail(m, cours, idx, el) {
   const article = document.createElement('article');
   article.className = 'cours-article';
   article.id = `cours-${cours.id}`;
+
   const header = document.createElement('div');
   header.className = 'cours-article-header';
-  header.innerHTML = `
-    <div class="cours-article-num">${String(idx + 1).padStart(2, '0')}</div>
-    <div>
-      <h2 class="cours-article-title">${cours.titre}</h2>
-      ${cours.badge ? `<span class="cours-badge cours-badge-${cours.badge}">${cours.badge.toUpperCase()}</span>` : ''}
-    </div>`;
+  const numDiv = document.createElement('div');
+  numDiv.className = 'cours-article-num';
+  numDiv.textContent = String(idx + 1).padStart(2, '0');
+  const titleWrap = document.createElement('div');
+  const h2 = document.createElement('h2');
+  h2.className = 'cours-article-title';
+  h2.textContent = cours.titre;
+  titleWrap.appendChild(h2);
+  if (cours.badge) {
+    const badge = document.createElement('span');
+    badge.className = `cours-badge cours-badge-${cours.badge}`;
+    badge.textContent = cours.badge.toUpperCase();
+    titleWrap.appendChild(badge);
+  }
+  header.appendChild(numDiv);
+  header.appendChild(titleWrap);
   article.appendChild(header);
+
   const content = document.createElement('div');
   content.className = 'cours-content';
   content.innerHTML = renderCoursContent(cours.sections);
   article.appendChild(content);
+
   const breadcrumb = document.createElement('nav');
   breadcrumb.className = 'cours-breadcrumb';
-  breadcrumb.innerHTML = `<span>${escHtml(m.label)}</span><span class="bc-sep">›</span><span>${escHtml(cours.titre)}</span>`;
+  const bcMod = document.createElement('span');
+  bcMod.textContent = m.label;
+  const bcSep = document.createElement('span');
+  bcSep.className = 'bc-sep';
+  bcSep.textContent = '›';
+  const bcTitle = document.createElement('span');
+  bcTitle.textContent = cours.titre;
+  breadcrumb.appendChild(bcMod);
+  breadcrumb.appendChild(bcSep);
+  breadcrumb.appendChild(bcTitle);
+
   const wrap = document.createElement('div');
   wrap.className = 'cours-container';
   wrap.appendChild(breadcrumb);

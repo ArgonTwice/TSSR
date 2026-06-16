@@ -290,7 +290,7 @@ const MODULES = [
     cours: [
       {
         id: 'modele-osi',
-        titre: 'Modèle OSI & TCP/IP â€” Les 7 Couches',
+        titre: 'Modèle OSI & TCP/IP - Les 7 Couches',
         sections: [
 
           { type: 'h2', content: '1. Pourquoi un modèle en couches ?' },
@@ -497,7 +497,7 @@ const MODULES = [
 
       {
         id: 'wifi-securite',
-        titre: 'WiFi â€” Standards, Configuration et Sécurité',
+        titre: 'WiFi - Standards, Configuration et Sécurité',
         sections: [
 
           { type: 'h2', content: '1. Les standards WiFi' },
@@ -545,7 +545,7 @@ const MODULES = [
     cours: [
       {
         id: 'linux-fondamentaux',
-        titre: 'Linux â€” Fondamentaux et Philosophie',
+        titre: 'Linux - Fondamentaux et Philosophie',
         sections: [
 
           { type: 'h2', content: '1. Qu\'est-ce que Linux ?' },
@@ -690,7 +690,7 @@ const MODULES = [
     cours: [
       {
         id: 'services-web-linux',
-        titre: 'Services Web Linux â€” Apache, Nginx et PHP',
+        titre: 'Services Web Linux - Apache, Nginx et PHP',
         sections: [
 
           { type: 'h2', content: '1. Apache2 â€” Serveur Web de référence' },
@@ -704,7 +704,7 @@ const MODULES = [
 
       {
         id: 'stockage-linux-serveur',
-        titre: 'Stockage Avancé Linux â€” LVM, NFS et Samba',
+        titre: 'Stockage Avancé Linux - LVM, NFS et Samba',
         sections: [
 
           { type: 'h2', content: '1. LVM en production' },
@@ -720,7 +720,7 @@ const MODULES = [
 
       {
         id: 'docker-compose-production',
-        titre: 'Docker en Production â€” Compose et Bonnes Pratiques',
+        titre: 'Docker en Production - Compose et Bonnes Pratiques',
         sections: [
 
           { type: 'h2', content: '1. Docker Compose â€” Stack complète de production' },
@@ -733,7 +733,7 @@ const MODULES = [
 
       {
         id: 'ansible-automatisation',
-        titre: 'Ansible â€” Automatisation d\'Infrastructure Linux',
+        titre: 'Ansible - Automatisation d\'Infrastructure Linux',
         sections: [
 
           { type: 'h2', content: '1. Concepts et installation Ansible' },
@@ -757,7 +757,7 @@ const MODULES = [
     cours: [
       {
         id: 'windows-server-bases',
-        titre: 'Windows Server 2022 â€” Installation et Configuration',
+        titre: 'Windows Server 2022 - Installation et Configuration',
         sections: [
 
           { type: 'h2', content: '1. Les éditions de Windows Server 2022' },
@@ -814,7 +814,7 @@ const MODULES = [
 
       {
         id: 'active-directory',
-        titre: 'Active Directory â€” Installation, Structure et Administration',
+        titre: 'Active Directory - Installation, Structure et Administration',
         sections: [
 
           { type: 'h2', content: '1. Qu\'est-ce qu\'Active Directory ?' },
@@ -878,7 +878,7 @@ const MODULES = [
 
       {
         id: 'gpo',
-        titre: 'GPO â€” Stratégies de Groupe',
+        titre: 'GPO - Stratégies de Groupe',
         sections: [
 
           { type: 'h2', content: '1. Qu\'est-ce qu\'une GPO ?' },
@@ -948,7 +948,7 @@ const MODULES = [
     cours: [
   {
     id: 'ws2025-installation',
-    titre: 'Windows Server 2025 â€” Installation et Configuration Avancée',
+    titre: 'Windows Server 2025 - Installation et Configuration Avancée',
     sections: [
 
       { type: 'h2', content: '1. Nouveautés Windows Server 2025' },
@@ -1014,7 +1014,7 @@ const MODULES = [
 
   {
     id: 'wsus-gestion-mises-a-jour',
-    titre: 'WSUS â€” Gestion Centralisée des Mises à Jour',
+    titre: 'WSUS - Gestion Centralisée des Mises à Jour',
     sections: [
 
       { type: 'h2', content: '1. Architecture WSUS' },
@@ -1035,7 +1035,7 @@ const MODULES = [
 
   {
     id: 'hyper-v-windows-server',
-    titre: 'Hyper-V Server â€” Virtualisation Windows Avancée',
+    titre: 'Hyper-V Server - Virtualisation Windows Avancée',
     sections: [
 
       { type: 'h2', content: '1. Architecture Hyper-V avancée' },
@@ -1051,7 +1051,7 @@ const MODULES = [
 
   {
     id: 'powershell-scripting-avance',
-    titre: 'PowerShell Scripting â€” Administration Windows Avancée',
+    titre: 'PowerShell Scripting - Administration Windows Avancée',
     sections: [
 
       { type: 'h2', content: '1. Gestion avancée des utilisateurs et groupes AD' },
@@ -1074,14 +1074,14 @@ const MODULES = [
     label: 'Virtualisation',
     icon: '\u{1F4E6}',
     color: '#8b5cf6',
-    desc: 'Concepts, VMware Workstation, Hyper-V, VirtualBox â€” création et gestion de VMs',
+    desc: 'Concepts, VMware Workstation, Hyper-V, VirtualBox - création et gestion de VMs',
     topics: ['Hyperviseur', 'VMware', 'Hyper-V', 'VirtualBox', 'Snapshots', 'Réseaux VM'],
     windows_cli: true,
     cours: [
 
       {
         id: 'virtualisation-fondamentaux',
-        titre: 'Virtualisation â€” Concepts et Hyperviseurs',
+        titre: 'Virtualisation - Concepts et Hyperviseurs',
         sections: [
 
           { type: 'h2', content: '1. Qu\'est-ce que la virtualisation ?' },
@@ -1126,7 +1126,7 @@ const MODULES = [
 
       {
         id: 'vmware-vsphere',
-        titre: 'VMware ESXi & vSphere â€” Virtualisation Entreprise',
+        titre: 'VMware ESXi & vSphere - Virtualisation Entreprise',
         sections: [
 
           { type: 'h2', content: '1. Architecture VMware vSphere' },
@@ -1181,7 +1181,7 @@ const MODULES = [
 
       {
         id: 'docker',
-        titre: 'Docker â€” Conteneurisation',
+        titre: 'Docker - Conteneurisation',
         sections: [
 
           { type: 'h2', content: '1. VMs vs Conteneurs' },
@@ -1225,7 +1225,7 @@ const MODULES = [
     cours: [
       {
         id: 'securite-fondamentaux-avances',
-        titre: 'Fondamentaux Sécurité — CIA, Menaces et Défense en Profondeur',
+        titre: 'Fondamentaux Sécurité - CIA, Menaces et Défense en Profondeur',
         sections: [
 
           { type: 'h2', content: '1. La triade CIA et ses extensions' },
@@ -1261,7 +1261,7 @@ const MODULES = [
 
       {
         id: 'pentest-methodologie',
-        titre: 'Pentest — Méthodologie et Outils',
+        titre: 'Pentest - Méthodologie et Outils',
         sections: [
 
           { type: 'h2', content: '1. Cadre légal et méthodologie' },
@@ -1288,7 +1288,7 @@ const MODULES = [
 
       {
         id: 'attaques-ad',
-        titre: 'Attaques Active Directory — Kerberoasting, Pass-the-Hash et Golden Ticket',
+        titre: 'Attaques Active Directory - Kerberoasting, Pass-the-Hash et Golden Ticket',
         sections: [
 
           { type: 'h2', content: '1. Attaques Kerberos' },
@@ -1368,7 +1368,7 @@ const MODULES = [
     cours: [
       {
         id: 'ios-avance',
-        titre: 'Cisco IOS — Configuration Avancée et Sécurité',
+        titre: 'Cisco IOS - Configuration Avancée et Sécurité',
         sections: [
 
           { type: 'h2', content: '1. Navigation et modes IOS — Rappel complet' },
@@ -1391,7 +1391,7 @@ const MODULES = [
 
       {
         id: 'ospf-avance',
-        titre: 'OSPF Avancé — Multi-area, Authentification et Tuning',
+        titre: 'OSPF Avancé - Multi-area, Authentification et Tuning',
         sections: [
 
           { type: 'h2', content: '1. OSPF Single Area — Rappel et détail' },
@@ -1408,7 +1408,7 @@ const MODULES = [
 
       {
         id: 'bgp',
-        titre: 'BGP — Border Gateway Protocol',
+        titre: 'BGP - Border Gateway Protocol',
         sections: [
 
           { type: 'h2', content: '1. Concepts BGP' },
@@ -1463,7 +1463,7 @@ const MODULES = [
     cours: [
       {
         id: 'supervision-concepts',
-        titre: 'Supervision â€” Concepts Fondamentaux et SNMP v3',
+        titre: 'Supervision - Concepts Fondamentaux et SNMP v3',
         sections: [
           { type: 'h2', content: '1. Architecture de supervision' },
           { type: 'table', headers: ['Composant', 'Rôle', 'Protocoles/Outils'], rows: [
@@ -1515,7 +1515,7 @@ const MODULES = [
 
       {
         id: 'zabbix-complet',
-        titre: 'Zabbix â€” Installation, Templates, Triggers et Alertes',
+        titre: 'Zabbix - Installation, Templates, Triggers et Alertes',
         sections: [
           { type: 'h2', content: '1. Architecture Zabbix' },
           { type: 'table', headers: ['Composant', 'Rôle', 'Port'], rows: [
@@ -1549,7 +1549,7 @@ const MODULES = [
 
       {
         id: 'prometheus-alertmanager',
-        titre: 'Prometheus â€” Architecture, PromQL et Alertmanager',
+        titre: 'Prometheus - Architecture, PromQL et Alertmanager',
         sections: [
           { type: 'h2', content: '1. Architecture Prometheus' },
           { type: 'p', content: 'Prometheus est un système de supervision open-source basé sur un modèle <strong>pull</strong> â€” il interroge régulièrement les endpoints HTTP des exporters. Idéal pour les environnements cloud-native et Kubernetes.' },
@@ -1573,7 +1573,7 @@ const MODULES = [
 
       {
         id: 'grafana-dashboards',
-        titre: 'Grafana â€” Dashboards, Panels et Visualisation',
+        titre: 'Grafana - Dashboards, Panels et Visualisation',
         sections: [
           { type: 'h2', content: '1. Installation Grafana' },
           { type: 'code', content: '# ============================================================\n# GRAFANA OSS sur Ubuntu 22.04\n# ============================================================\napt install -y apt-transport-https software-properties-common\nwget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor > /usr/share/keyrings/grafana.gpg\necho "deb [signed-by=/usr/share/keyrings/grafana.gpg] https://apt.grafana.com stable main" > /etc/apt/sources.list.d/grafana.list\napt update && apt install -y grafana\n\n# Configuration /etc/grafana/grafana.ini\ncat >> /etc/grafana/grafana.ini << EOF\n[server]\nhttp_port = 3000\ndomain = grafana.entreprise.fr\nroot_url = https://grafana.entreprise.fr\n\n[security]\nadmin_user = admin\nadmin_password = GrafanaAdmin2024!  # Ã€ changer après premier login\nsecret_key = clé_secrète_aléatoire_32chars\ncookie_secure = true\n\n[auth]\ndisable_login_form = false\n\n[auth.ldap]\nenabled = true\nconfig_file = /etc/grafana/ldap.toml\n\n[smtp]\nenabled = true\nhost = smtp.entreprise.fr:587\nuser = grafana@entreprise.fr\npassword = MotDePasse!\nfrom_address = grafana@entreprise.fr\nEOF\n\nsystemctl enable --now grafana-server\nufw allow 3000\n\n# Premier login : http://IP:3000  admin/GrafanaAdmin2024!' },
@@ -1599,7 +1599,7 @@ const MODULES = [
 
       {
         id: 'elk-stack',
-        titre: 'ELK Stack â€” Elasticsearch, Logstash, Kibana',
+        titre: 'ELK Stack - Elasticsearch, Logstash, Kibana',
         sections: [
           { type: 'h2', content: '1. Architecture ELK' },
           { type: 'table', headers: ['Composant', 'Rôle', 'Port'], rows: [
@@ -1621,7 +1621,7 @@ const MODULES = [
 
       {
         id: 'itil-glpi-supervision',
-        titre: 'ITIL v4 et GLPI â€” Gestion des Services IT',
+        titre: 'ITIL v4 et GLPI - Gestion des Services IT',
         sections: [
           { type: 'h2', content: '1. ITIL v4 â€” Principes fondamentaux' },
           { type: 'p', content: 'ITIL (Information Technology Infrastructure Library) est un référentiel de bonnes pratiques pour la gestion des services informatiques. La version 4 introduit le <strong>Système de Valeur des Services (SVS)</strong> centré sur la co-création de valeur.' },
@@ -1671,7 +1671,7 @@ const MODULES = [
     cours: [
       {
         id: 'raid-complet',
-        titre: 'RAID â€” Niveaux, Configuration et Gestion',
+        titre: 'RAID - Niveaux, Configuration et Gestion',
         sections: [
 
           { type: 'h2', content: '1. Qu\'est-ce que le RAID ?' },
@@ -1705,7 +1705,7 @@ const MODULES = [
 
       {
         id: 'san-nas-iscsi',
-        titre: 'SAN, NAS et iSCSI â€” Stockage Réseau',
+        titre: 'SAN, NAS et iSCSI - Stockage Réseau',
         sections: [
 
           { type: 'h2', content: '1. NAS vs SAN â€” Différences fondamentales' },
@@ -1737,7 +1737,7 @@ const MODULES = [
 
       {
         id: 'strategie-sauvegarde',
-        titre: 'Stratégies de Sauvegarde â€” Théorie et Pratique',
+        titre: 'Stratégies de Sauvegarde - Théorie et Pratique',
         sections: [
 
           { type: 'h2', content: '1. Les types de sauvegarde' },
@@ -1775,7 +1775,7 @@ const MODULES = [
 
       {
         id: 'cloud-fondamentaux',
-        titre: 'Cloud Computing â€” Concepts et Modèles',
+        titre: 'Cloud Computing - Concepts et Modèles',
         sections: [
 
           { type: 'h2', content: '1. Qu\'est-ce que le Cloud Computing ?' },
@@ -1820,7 +1820,7 @@ const MODULES = [
 
       {
         id: 'azure-fondamentaux',
-        titre: 'Microsoft Azure â€” Services Essentiels',
+        titre: 'Microsoft Azure - Services Essentiels',
         sections: [
 
           { type: 'h2', content: '1. Structure et organisation Azure' },
@@ -1874,7 +1874,7 @@ const MODULES = [
 
       {
         id: 'aws-notions',
-        titre: 'Amazon Web Services â€” Notions Essentielles',
+        titre: 'Amazon Web Services - Notions Essentielles',
         sections: [
 
           { type: 'h2', content: '1. Services AWS fondamentaux' },
@@ -1900,7 +1900,7 @@ const MODULES = [
 
       {
         id: 'infrastructure-as-code',
-        titre: 'Infrastructure as Code â€” Terraform et ARM',
+        titre: 'Infrastructure as Code - Terraform et ARM',
         sections: [
 
           { type: 'h2', content: '1. Pourquoi l\'Infrastructure as Code ?' },
@@ -1932,7 +1932,7 @@ const MODULES = [
 
       {
         id: 'protocoles-messagerie',
-        titre: 'Protocoles de Messagerie â€” SMTP, IMAP, POP3',
+        titre: 'Protocoles de Messagerie - SMTP, IMAP, POP3',
         sections: [
 
           { type: 'h2', content: '1. Architecture d\'un système de messagerie' },
@@ -1971,7 +1971,7 @@ const MODULES = [
 
       {
         id: 'postfix-dovecot',
-        titre: 'Postfix & Dovecot â€” Serveur Mail Linux',
+        titre: 'Postfix & Dovecot - Serveur Mail Linux',
         sections: [
 
           { type: 'h2', content: '1. Installation de la stack mail' },
@@ -1990,7 +1990,7 @@ const MODULES = [
 
       {
         id: 'exchange-server',
-        titre: 'Exchange Server â€” Messagerie Windows',
+        titre: 'Exchange Server - Messagerie Windows',
         sections: [
 
           { type: 'h2', content: '1. Architecture Exchange Server 2019' },
@@ -2073,7 +2073,7 @@ const MODULES = [
 
       {
         id: 'regex-python',
-        titre: 'Expressions Régulières â€” Regex',
+        titre: 'Expressions Régulières - Regex',
         sections: [
 
           { type: 'h2', content: '1. Syntaxe des expressions régulières' },
@@ -2107,7 +2107,7 @@ const MODULES = [
 
       {
         id: 'sql-bdd',
-        titre: 'Bases de Données SQL â€” MySQL et SQL Server',
+        titre: 'Bases de Données SQL - MySQL et SQL Server',
         sections: [
 
           { type: 'h2', content: '1. Concepts fondamentaux des bases de données' },
@@ -2138,7 +2138,7 @@ const MODULES = [
 
       {
         id: 'powershell-avance',
-        titre: 'PowerShell Avancé â€” Automatisation Windows',
+        titre: 'PowerShell Avancé - Automatisation Windows',
         sections: [
 
           { type: 'h2', content: '1. Pipeline et objets PowerShell' },
@@ -2234,7 +2234,7 @@ const MODULES = [
 
       {
         id: 'ad-securite-avancee',
-        titre: 'Sécurité AD Avancée â€” Tiering, LAPS et PAM',
+        titre: 'Sécurité AD Avancée - Tiering, LAPS et PAM',
         sections: [
 
           { type: 'h2', content: '1. Modèle de Tiering Active Directory' },
@@ -2330,7 +2330,7 @@ const MODULES = [
       },
       {
         id: 'gestion-projet',
-        titre: 'Gestion de Projet IT â€” ITIL et Agile',
+        titre: 'Gestion de Projet IT - ITIL et Agile',
         sections: [
           { type: 'h2', content: 'Cycle de vie ITIL v4' },
           { type: 'table', headers: ['Pratique ITIL', 'Description', 'Livrables'], rows: [

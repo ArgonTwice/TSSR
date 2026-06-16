@@ -229,6 +229,10 @@ function toggleAccordion(moduleId) {
   if (btn)   btn.querySelector('.nav-chevron')?.classList.toggle('open', !isOpen);
 }
 // ===== HOME =====
+function goHome() {
+  state.currentCours = null;
+  renderHome();
+}
 function renderHome() {
   history.replaceState({ screen: 'home' }, '', '#');
   state.currentModule = null;

@@ -116,18 +116,18 @@ function renderNav() {
     termBtn.setAttribute('aria-expanded', String(isTermOpen));
     termBtn.dataset.moduleId = 'terminals';
     termBtn.innerHTML = `
-      <span class="nav-item-icon" style="background:rgba(0,229,160,0.1);color:var(--accent)">💻</span>
+      <span class="nav-item-icon" style="background:rgba(0,229,160,0.1);color:var(--accent)">>_</span>
       <span>Terminaux</span>
       <span class="nav-chevron${isTermOpen ? ' open' : ''}">›</span>`;
     termBtn.addEventListener('click', () => toggleAccordion('terminals'));
     nav.appendChild(termBtn);
 
     const TERM_ITEMS = [
-      { id: 'linux',     label: '🐧 Terminal Linux' },
-      { id: 'windows',   label: '💻 Terminal PowerShell' },
-      { id: 'cmd',       label: '🖥️ Terminal Windows (CMD)' },
-      { id: 'gameshell', label: '🎮 GameShell' },
-      { id: 'netrunner', label: '🚀 NetRunner' },
+      { id: 'linux',     label: 'Terminal Linux' },
+      { id: 'windows',   label: 'Terminal PowerShell' },
+      { id: 'cmd',       label: 'Terminal Windows (CMD)' },
+      { id: 'gameshell', label: 'GameShell' },
+      { id: 'netrunner', label: 'NetRunner' },
     ];
     const termPanel = document.createElement('div');
     termPanel.className = 'nav-accordion' + (isTermOpen ? ' open' : '');
@@ -300,13 +300,13 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
   meta.appendChild(_mBadge);
 
   const tabs = [];
-  if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',        icon: '📖', cli: false });
-  if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: '🐧', cli: true,  color: '#00e5a0' });
-  if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: '🪟', cli: true,  color: '#3b82f6' });
-  if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'Pratique',      icon: '🎮', cli: true, color: '#00e5a0' });
-  if (m.id === 'windows' && m.netrunner) tabs.push({ id: 'netrunner',  label: 'Jeu PowerShell', icon: '🎮', cli: true, color: '#0ea5e9' });
-  if (m.outils) tabs.push({ id: 'outils', label: 'Outils', icon: '🔧', cli: false });
-  tabs.push({ id: 'notes', label: 'Notes', icon: '📝', cli: false });
+  if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',        icon: 'Ã°ÂÂÂ', cli: false });
+  if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: 'Ã°ÂÂÂ§', cli: true,  color: '#00e5a0' });
+  if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: 'Ã°ÂÂªÂ', cli: true,  color: '#3b82f6' });
+  if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'Pratique',      icon: 'Ã°ÂÂÂ®', cli: true, color: '#00e5a0' });
+  if (m.id === 'windows' && m.netrunner) tabs.push({ id: 'netrunner',  label: 'Jeu PowerShell', icon: 'Ã°ÂÂÂ®', cli: true, color: '#0ea5e9' });
+  if (m.outils) tabs.push({ id: 'outils', label: 'Outils', icon: 'Ã°ÂÂÂ§', cli: false });
+  tabs.push({ id: 'notes', label: 'Notes', icon: 'Ã°ÂÂÂ', cli: false });
 
   const tabBar = document.getElementById('tab-bar');
   tabBar.innerHTML = '';
@@ -368,7 +368,7 @@ function renderTabContent(tabId) {
   const el = document.getElementById('tab-content');
   const m = state.currentModule;
   if (tabId === 'empty' || !m) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">🚧</span><h3>Contenu à venir</h3><p>Ce module sera alimenté prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">Ã°ÂÂÂ§</span><h3>Contenu à venir</h3><p>Ce module sera alimenté prochainement.</p></div>`;
     return;
   }
   if (tabId === 'cours')       renderCours(m, el);
@@ -407,7 +407,7 @@ function renderNetrunner(el) {
 // ===== COURS =====
 function renderCours(m, el) {
   if (!m.cours.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">📖</span><h3>Cours à venir</h3><p>Les cours seront ajoutés prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">Ã°ÂÂÂ</span><h3>Cours à venir</h3><p>Les cours seront ajoutés prochainement.</p></div>`;
     return;
   }
   if (m.cours.length === 1) {
@@ -840,7 +840,7 @@ function renderNotes(m, el) {
       }).filter(Boolean).join('');
       area.innerHTML = entries ||
         `<div class="empty-state" style="padding:60px 0">
-          <span class="empty-state-icon">📝</span>
+          <span class="empty-state-icon">Ã°ÂÂÂ</span>
           <h3>Aucune note pour l'instant</h3>
           <p>Les notes de chaque membre apparaîtront ici.</p>
         </div>`;
@@ -866,7 +866,7 @@ function renderNotes(m, el) {
 
   const btns = MEMBRES.map(p =>
     `<button class="np-btn${p===cur?' active':''}" data-p="${p}">${p}</button>`
-  ).join('') + `<button class="np-btn np-btn-resume${cur==='Résumé'?' active':''}" data-p="Résumé">📋 Résumé</button>`;
+  ).join('') + `<button class="np-btn np-btn-resume${cur==='Résumé'?' active':''}" data-p="Résumé">Ã°ÂÂÂ Résumé</button>`;
 
   el.innerHTML = `<div class="notes-wrap"><div class="notes-people">${btns}</div><div class="notes-area"></div></div>`;
   el.querySelectorAll('.np-btn').forEach(b => b.addEventListener('click', () => showPerson(b.dataset.p)));
@@ -876,7 +876,7 @@ function renderNotes(m, el) {
 // ===== FLASHCARDS =====
 function renderFlashcards(m, el) {
   if (!m.flashcards.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">🃏</span><h3>Cartes à venir</h3><p>Les cartes seront ajoutées prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">Ã°ÂÂÂ</span><h3>Cartes à venir</h3><p>Les cartes seront ajoutées prochainement.</p></div>`;
     return;
   }
   state.fc = { cards: shuffle(m.flashcards), idx: 0, flipped: false, session: { easy:0, medium:0, hard:0 } };
@@ -893,7 +893,7 @@ function renderFlashcardView(el, m) {
     el.innerHTML = `
       <div class="flashcard-arena">
         <div class="flashcard-done">
-          <div style="font-size:48px;margin-bottom:16px">🎯</div>
+          <div style="font-size:48px;margin-bottom:16px">Ã°ÂÂÂ¯</div>
           <h3>Session terminée !</h3>
           <p>Facile : <strong>${session.easy}</strong> · Moyen : <strong>${session.medium}</strong> · Difficile : <strong>${session.hard}</strong></p>
           <div style="display:flex;gap:12px;justify-content:center">
@@ -916,7 +916,7 @@ function renderFlashcardView(el, m) {
           <div class="flashcard-face flashcard-front">
             <span class="flashcard-side-label">Question</span>
             <div class="flashcard-text">${card.recto}</div>
-            <span class="flashcard-hint">← cliquer pour révéler →</span>
+            <span class="flashcard-hint">Ã¢ÂÂ cliquer pour révéler Ã¢ÂÂ</span>
           </div>
           <div class="flashcard-face flashcard-back">
             <span class="flashcard-side-label">Réponse</span>
@@ -958,7 +958,7 @@ function fcRate(rating) {
 // ===== QCM =====
 function renderQCM(m, el) {
   if (!m.qcm.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">✅</span><h3>QCM à venir</h3><p>Les questions seront ajoutées prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">Ã¢ÂÂ</span><h3>QCM à venir</h3><p>Les questions seront ajoutées prochainement.</p></div>`;
     return;
   }
   state.qcm = {
@@ -992,7 +992,7 @@ function renderQCMQuestion(el, m) {
       </div>
       <div class="qcm-nav">
         <button class="btn-primary" id="qcm-next-btn" style="display:none" onclick="qcmNext()">
-          ${idx+1<total?'Question suivante →':'Voir les résultats →'}
+          ${idx+1<total?'Question suivante Ã¢ÂÂ':'Voir les résultats Ã¢ÂÂ'}
         </button>
       </div>
     </div>`;
@@ -1033,7 +1033,7 @@ function renderQCMResults(el, m) {
   const mm = Math.floor(elapsed/60).toString().padStart(2,'0');
   const ss = (elapsed%60).toString().padStart(2,'0');
   setProgress(m.id, { pct: Math.max(getProgress(m.id).pct||0, pct>=70?100:66), qcm_best: Math.max(getProgress(m.id).qcm_best||0, pct) });
-  const emoji = pct>=80?'🎉':pct>=60?'👍':'📚';
+  const emoji = pct>=80?'Ã°ÂÂÂ':pct>=60?'Ã°ÂÂÂ':'Ã°ÂÂÂ';
   const msg = pct>=80?'Excellent !':pct>=60?'Pas mal, continue !':'À retravailler...';
   const errorsHtml = answers.filter(a=>!a.correct).map(a=>`
     <div class="qcm-error-item">
@@ -1181,7 +1181,7 @@ function renderCLI(type, m, el) {
 
   const isWin = type === 'windows' || type === 'cmd';
   const isCmd = type === 'cmd';
-  const title = isCmd ? '🖥️ Invite de commandes — cmd.exe' : (isWin ? '⚡ Windows PowerShell' : '🐧 Bash — ' + cliState.host);
+  const title = isCmd ? 'Ã°ÂÂÂ¥Ã¯Â¸Â Invite de commandes — cmd.exe' : (isWin ? 'Ã¢ÂÂ¡ Windows PowerShell' : 'Ã°ÂÂÂ§ Bash — ' + cliState.host);
   const headerClass = isWin ? 'cli-header-win' : 'cli-header-linux';
   el.innerHTML = `
     <div class="cli-layout">
@@ -1194,7 +1194,7 @@ function renderCLI(type, m, el) {
               <span class="cli-dot cli-dot-green"></span>
             </div>
             <span class="cli-title">${title}</span>
-            <button class="cli-clear-btn" onclick="cliClear()" aria-label="Effacer le terminal">✕ clear</button>
+            <button class="cli-clear-btn" onclick="cliClear()" aria-label="Effacer le terminal">Ã¢ÂÂ clear</button>
           </div>
           <div class="cli-help-bar">
             ${isCmd
@@ -1244,7 +1244,7 @@ function renderCLI(type, m, el) {
     ? `Microsoft Windows [Version 10.0.19045]\n(c) Microsoft Corporation. Tous droits réservés.\n\nTape <span style="color:#aaa">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n`
     : isWin
     ? `<span style="color:var(--blue)">Windows PowerShell</span>\nCopyright (C) Microsoft Corporation.\n\nTape <span style="color:var(--blue)">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n`
-    : `<span style="color:var(--accent)">Bienvenue sur ${cliState.host}</span> — Debian GNU/Linux\nConnecté : <span style="color:var(--accent)">${cliState.user}</span>\nTape <span style="color:var(--accent)">help</span> · <span style="color:var(--accent)">tp</span> pour les TP guidés\n🎮 <span style="color:var(--accent)">GameShell TSSR</span> — 30 missions pour maîtriser Linux. Tape <strong>tp gameshell</strong> pour commencer.\n`
+    : `<span style="color:var(--accent)">Bienvenue sur ${cliState.host}</span> — Debian GNU/Linux\nConnecté : <span style="color:var(--accent)">${cliState.user}</span>\nTape <span style="color:var(--accent)">help</span> · <span style="color:var(--accent)">tp</span> pour les TP guidés\nÃ°ÂÂÂ® <span style="color:var(--accent)">GameShell TSSR</span> — 30 missions pour maîtriser Linux. Tape <strong>tp gameshell</strong> pour commencer.\n`
   );
 
   const input = document.getElementById('cli-input');
@@ -1467,10 +1467,10 @@ const TP_SCENARIOS = {
       onStart: () => { cliState.networkFault = 'dhcp'; },
       onEnd:   () => { cliState.networkFault = null; },
       steps: [
-        { instr: '⚠️ Signalement : les utilisateurs ne peuvent plus joindre le réseau. Commence par vérifier la configuration IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'Ã¢ÂÂ Ã¯Â¸Â Signalement : les utilisateurs ne peuvent plus joindre le réseau. Commence par vérifier la configuration IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
         { instr: 'L\'IP est une adresse APIPA (169.254.x.x). Le service DHCP Client est peut-être arrêté. Vérifie-le.', hint: 'Get-Service dhcp', check: c => /^get-service\b.*dhcp/i.test(c.trim()) || /^gsv\b.*dhcp/i.test(c.trim()) },
         { instr: 'Le service est bien arrêté. Avant de le redémarrer, vérifie que la carte réseau elle-même fonctionne : teste le loopback.', hint: 'ping 127.0.0.1', check: c => /^ping\b.*127\.0\.0\.1/i.test(c.trim()) },
-        { instr: 'Loopback OK → carte réseau fonctionnelle. Teste maintenant la passerelle 192.168.1.1.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1\.1/i.test(c.trim()) },
+        { instr: 'Loopback OK Ã¢ÂÂ carte réseau fonctionnelle. Teste maintenant la passerelle 192.168.1.1.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1\.1/i.test(c.trim()) },
         { instr: 'Timeout confirmé — la passerelle est inaccessible. Cause identifiée : DHCP Client stoppé. Redémarre-le.', hint: 'Start-Service dhcp', check: c => /^start-service\b.*dhcp/i.test(c.trim()) || /^sasv\b.*dhcp/i.test(c.trim()) },
         { instr: 'Service redémarré. Renouvelle maintenant le bail DHCP pour obtenir une nouvelle adresse IP.', hint: 'ipconfig /renew', check: c => /^ipconfig\s+\/renew/i.test(c.trim()) },
         { instr: 'Bail obtenu ! Vérifie la nouvelle configuration IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
@@ -1484,7 +1484,7 @@ const TP_SCENARIOS = {
       onStart: () => { cliState.networkFault = 'gateway'; },
       onEnd:   () => { cliState.networkFault = null; },
       steps: [
-        { instr: '⚠️ Signalement : le serveur peut joindre les postes du réseau local mais plus Internet ni les autres sites. Vérifie la config IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'Ã¢ÂÂ Ã¯Â¸Â Signalement : le serveur peut joindre les postes du réseau local mais plus Internet ni les autres sites. Vérifie la config IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
         { instr: 'Note la passerelle : 192.168.99.1 — elle n\'appartient pas au réseau 192.168.1.0/24. Confirme que le réseau local fonctionne.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1\.1/i.test(c.trim()) },
         { instr: 'Réseau local OK. Teste maintenant une IP externe.', hint: 'ping 8.8.8.8', check: c => /^ping\b.*8\.8\.8\.8/i.test(c.trim()) },
         { instr: 'Timeout confirmé. Trace la route pour localiser où ça bloque.', hint: 'tracert 8.8.8.8', check: c => /^tracert\b/i.test(c.trim()) },
@@ -1501,11 +1501,11 @@ const TP_SCENARIOS = {
       onStart: () => { cliState.networkFault = 'conflict'; },
       onEnd:   () => { cliState.networkFault = null; },
       steps: [
-        { instr: '⚠️ Signalement : connexions instables, coupures aléatoires. Commence par vérifier la configuration IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'Ã¢ÂÂ Ã¯Â¸Â Signalement : connexions instables, coupures aléatoires. Commence par vérifier la configuration IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
         { instr: 'La config semble normale mais Windows mentionne un conflit. Consulte les événements système récents.', hint: 'Get-EventLog -LogName System -Newest 10', check: c => /^get-eventlog\b/i.test(c.trim()) || /^get-winevent\b/i.test(c.trim()) },
         { instr: 'Event ID 4199 confirmé : conflit d\'adresse IP. Vérifie la table ARP pour trouver l\'intrus.', hint: 'arp -a', check: c => /^arp\b/i.test(c.trim()) },
         { instr: 'Deux entrées MAC pour 192.168.1.20 ! Une MAC étrangère écrase la nôtre. Confirme l\'instabilité avec un ping.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1\.1/i.test(c.trim()) },
-        { instr: '50% de perte → trafic capté aléatoirement par l\'autre machine. Solution : changer notre IP. Attribue 192.168.1.21.', hint: 'netsh interface ip set address "Ethernet" static 192.168.1.21 255.255.255.0 192.168.1.1', check: c => /^netsh\b/i.test(c.trim()) },
+        { instr: '50% de perte Ã¢ÂÂ trafic capté aléatoirement par l\'autre machine. Solution : changer notre IP. Attribue 192.168.1.21.', hint: 'netsh interface ip set address "Ethernet" static 192.168.1.21 255.255.255.0 192.168.1.1', check: c => /^netsh\b/i.test(c.trim()) },
         { instr: 'Configuration appliquée. Vérifie la nouvelle IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
         { instr: 'IP changée en 192.168.1.21. Plus de conflit. Confirme la stabilité réseau.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1/i.test(c.trim()) },
       ],
@@ -1515,7 +1515,7 @@ const TP_SCENARIOS = {
     {
       id: 'diagnostic',
       title: 'Diagnostic réseau complet',
-      desc: 'Une machine Linux ne ping pas 8.8.8.8. Diagnostique méthodiquement : interface → gateway → DNS.',
+      desc: 'Une machine Linux ne ping pas 8.8.8.8. Diagnostique méthodiquement : interface Ã¢ÂÂ gateway Ã¢ÂÂ DNS.',
       steps: [
         { instr: 'Commence par vérifier la configuration des interfaces réseau.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
         { instr: 'eth0 est UP avec 192.168.1.10/24. Vérifie si une route par défaut est configurée.', hint: 'ip route', check: c => /^ip\s+(r|route)\b/i.test(c.trim()) },
@@ -1559,7 +1559,7 @@ const TP_SCENARIOS = {
       onStart: () => { cliState.networkFault = 'dhcp'; },
       onEnd:   () => { cliState.networkFault = null; },
       steps: [
-        { instr: '⚠️ Signalement : impossible d\'accéder au réseau. Commence par vérifier la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'Ã¢ÂÂ Ã¯Â¸Â Signalement : impossible d\'accéder au réseau. Commence par vérifier la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
         { instr: 'APIPA 169.254.47.18 détectée — le DHCP n\'a pas répondu. Vérifie la table de routage.', hint: 'ip route', check: c => /^ip\s+(r|route)\b/i.test(c.trim()) },
         { instr: 'Pas de route par défaut. Consulte les logs pour confirmer le problème DHCP.', hint: 'journalctl', check: c => /^journalctl\b/i.test(c.trim()) },
         { instr: 'Logs confirmés : timeouts DHCP répétés. Teste la connectivité réseau de base.', hint: 'ping -c 4 192.168.1.1', check: c => /^ping\b/i.test(c.trim()) },
@@ -1576,7 +1576,7 @@ const TP_SCENARIOS = {
       onStart: () => { cliState.networkFault = 'gateway'; },
       onEnd:   () => { cliState.networkFault = null; },
       steps: [
-        { instr: '⚠️ Signalement : accès LAN OK mais internet impossible. Vérifie la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'Ã¢ÂÂ Ã¯Â¸Â Signalement : accès LAN OK mais internet impossible. Vérifie la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
         { instr: 'IP normale. Teste internet en IP directe (sans DNS).', hint: 'ping -c 4 8.8.8.8', check: c => /^ping\b/i.test(c.trim()) && /8\.8\.8\.8/.test(c) },
         { instr: '100% perte. Vérifie la table de routage pour trouver la cause.', hint: 'ip route', check: c => /^ip\s+(r|route)\b/i.test(c.trim()) },
         { instr: 'Passerelle 192.168.99.1 hors réseau ! Vérifie que la gateway est joignable via ARP.', hint: 'arp -n', check: c => /^arp\b/i.test(c.trim()) },
@@ -1593,7 +1593,7 @@ const TP_SCENARIOS = {
       onStart: () => { cliState.networkFault = 'conflict'; },
       onEnd:   () => { cliState.networkFault = null; },
       steps: [
-        { instr: '⚠️ Signalement : connexions instables, coupures aléatoires. Vérifie la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
+        { instr: 'Ã¢ÂÂ Ã¯Â¸Â Signalement : connexions instables, coupures aléatoires. Vérifie la configuration IP.', hint: 'ip addr', check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()) },
         { instr: 'IP visible mais message de conflit. Consulte les logs kernel.', hint: 'journalctl', check: c => /^journalctl\b/i.test(c.trim()) },
         { instr: 'Conflit ARP confirmé dans les logs. Identifie l\'intrus dans la table ARP.', hint: 'arp -n', check: c => /^arp\b/i.test(c.trim()) },
         { instr: 'Double MAC pour 192.168.1.10 ! Confirme l\'instabilité avec un ping.', hint: 'ping -c 4 192.168.1.1', check: c => /^ping\b/i.test(c.trim()) },
@@ -1605,34 +1605,34 @@ const TP_SCENARIOS = {
     {
       id: 'gameshell',
       title: 'GameShell — Missions Linux',
-      icon: '🎮',
+      icon: 'Ã°ÂÂÂ®',
       desc: 'Missions progressives inspirées du vrai GameShell — 30 étapes pour maîtriser le terminal Linux.',
       autosave: true,
       levels: [
-        { at: 5,  label: 'Niveau 1 — Découverte',          emoji: '🌱' },
-        { at: 10, label: 'Niveau 2 — Fichiers',             emoji: '📁' },
-        { at: 15, label: 'Niveau 3 — Exploration',          emoji: '🔍' },
-        { at: 20, label: 'Niveau 4 — Permissions',          emoji: '🔐' },
-        { at: 25, label: 'Niveau 5 — Processus & Services', emoji: '⚙️' },
+        { at: 5,  label: 'Niveau 1 — Découverte',          emoji: 'Ã°ÂÂÂ±' },
+        { at: 10, label: 'Niveau 2 — Fichiers',             emoji: 'Ã°ÂÂÂ' },
+        { at: 15, label: 'Niveau 3 — Exploration',          emoji: 'Ã°ÂÂÂ' },
+        { at: 20, label: 'Niveau 4 — Permissions',          emoji: 'Ã°ÂÂÂ' },
+        { at: 25, label: 'Niveau 5 — Processus & Services', emoji: 'Ã¢ÂÂÃ¯Â¸Â' },
       ],
       onStart: () => {
         const saved = store.get('gameshell_progress');
         if (saved && saved.step > 0 && saved.step < 30) {
           scenarioState.step = saved.step;
-          cliPrint(`<span style="color:var(--accent)">▶ Reprise depuis la mission ${saved.step + 1}/30 — progression restaurée.</span>\n<span style="color:var(--text2)">Tape <strong>tp quit</strong> pour abandonner · <strong>tp gameshell</strong> + suppr local pour tout recommencer.</span>`);
+          cliPrint(`<span style="color:var(--accent)">Ã¢ÂÂ¶ Reprise depuis la mission ${saved.step + 1}/30 — progression restaurée.</span>\n<span style="color:var(--text2)">Tape <strong>tp quit</strong> pour abandonner · <strong>tp gameshell</strong> + suppr local pour tout recommencer.</span>`);
         } else {
           cliPrint(`<div style="color:var(--accent);font-family:monospace;white-space:pre;line-height:1.5">
-╔══════════════════════════════════════════════════════╗
-║  🎮  G A M E S H E L L   T S S R                    ║
-║      30 missions pour maîtriser Linux                ║
-╠══════════════════════════════════════════════════════╣
-║  Niv.1 Découverte    · missions  1-5                 ║
-║  Niv.2 Fichiers      · missions  6-10                ║
-║  Niv.3 Exploration   · missions 11-15                ║
-║  Niv.4 Permissions   · missions 16-20                ║
-║  Niv.5 Processus     · missions 21-25                ║
-║  Niv.6 Maître        · missions 26-30                ║
-╚══════════════════════════════════════════════════════╝</div>
+Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+Ã¢ÂÂ  Ã°ÂÂÂ®  G A M E S H E L L   T S S R                    Ã¢ÂÂ
+Ã¢ÂÂ      30 missions pour maîtriser Linux                Ã¢ÂÂ
+Ã¢ÂÂ Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ£
+Ã¢ÂÂ  Niv.1 Découverte    · missions  1-5                 Ã¢ÂÂ
+Ã¢ÂÂ  Niv.2 Fichiers      · missions  6-10                Ã¢ÂÂ
+Ã¢ÂÂ  Niv.3 Exploration   · missions 11-15                Ã¢ÂÂ
+Ã¢ÂÂ  Niv.4 Permissions   · missions 16-20                Ã¢ÂÂ
+Ã¢ÂÂ  Niv.5 Processus     · missions 21-25                Ã¢ÂÂ
+Ã¢ÂÂ  Niv.6 Maître        · missions 26-30                Ã¢ÂÂ
+Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ</div>
 <span style="color:var(--text2)">Bienvenue, technicien. Ton terminal est ton arme.
 Suis les missions dans le panneau à droite.
 Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
@@ -1640,9 +1640,9 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
       },
       onEnd: () => { store.set('gameshell_progress', null); },
       steps: [
-        // ── NIVEAU 1 — Découverte ──────────────────────────────────────
+        // Ã¢ÂÂÃ¢ÂÂ NIVEAU 1 — Découverte Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
         {
-          instr: '⭐ Niv.1 Mission 1/30 — Affiche ton répertoire courant.',
+          instr: 'Ã¢Â­Â Niv.1 Mission 1/30 — Affiche ton répertoire courant.',
           hint: 'pwd',
           check: c => /^pwd$/i.test(c.trim()),
           successMsg: 'pwd = Print Working Directory. Affiche le chemin absolu où tu te trouves.',
@@ -1671,9 +1671,9 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
           check: c => /^ls\b.*-[a-zA-Z]*a/.test(c.trim()),
           successMsg: 'Les fichiers cachés commencent par un point : .bashrc, .profile, .ssh — invisibles avec ls normal.',
         },
-        // ── NIVEAU 2 — Fichiers ───────────────────────────────────────
+        // Ã¢ÂÂÃ¢ÂÂ NIVEAU 2 — Fichiers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
         {
-          instr: '⭐ Niv.2 Mission 6/30 — Crée un dossier nommé "mission".',
+          instr: 'Ã¢Â­Â Niv.2 Mission 6/30 — Crée un dossier nommé "mission".',
           hint: 'mkdir mission',
           check: c => /^mkdir\s+mission$/.test(c.trim()),
           successMsg: 'mkdir = Make Directory. mkdir -p a/b/c crée toute l\'arborescence d\'un coup.',
@@ -1702,9 +1702,9 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
           check: c => /^cat\s+objectif\.txt/.test(c.trim()),
           successMsg: 'cat = concatenate. Pour les gros fichiers, préfère less (pagination avec q pour quitter).',
         },
-        // ── NIVEAU 3 — Exploration ────────────────────────────────────
+        // Ã¢ÂÂÃ¢ÂÂ NIVEAU 3 — Exploration Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
         {
-          instr: '⭐ Niv.3 Mission 11/30 — Affiche le nom de cette machine via /etc/hostname.',
+          instr: 'Ã¢Â­Â Niv.3 Mission 11/30 — Affiche le nom de cette machine via /etc/hostname.',
           hint: 'cat /etc/hostname',
           check: c => /^cat\b/.test(c.trim()) && /hostname/.test(c),
           successMsg: '/etc/hostname contient le nom court de la machine. Modifiable avec hostnamectl.',
@@ -1733,9 +1733,9 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
           check: c => /^cp\s+objectif\.txt\s+sauvegarde\.txt/.test(c.trim()),
           successMsg: 'cp copie un fichier. cp -r pour les répertoires. L\'original est conservé.',
         },
-        // ── NIVEAU 4 — Permissions ────────────────────────────────────
+        // Ã¢ÂÂÃ¢ÂÂ NIVEAU 4 — Permissions Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
         {
-          instr: '⭐ Niv.4 Mission 16/30 — Affiche les permissions des fichiers avec ls -l.',
+          instr: 'Ã¢Â­Â Niv.4 Mission 16/30 — Affiche les permissions des fichiers avec ls -l.',
           hint: 'ls -l',
           check: c => /^ls\b.*-[a-zA-Z]*l/.test(c.trim()),
           successMsg: 'Format : -rw-r--r-- 1 user group size date nom. Les 3 triplets rwx = propriétaire, groupe, autres.',
@@ -1764,9 +1764,9 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
           check: c => /^ln\s+-s\b/.test(c.trim()) && /objectif\.txt/.test(c),
           successMsg: 'Un lien symbolique est un raccourci. ls -l affiche -> objectif.txt. Supprimer le lien ne touche pas la cible.',
         },
-        // ── NIVEAU 5 — Processus & Services ──────────────────────────
+        // Ã¢ÂÂÃ¢ÂÂ NIVEAU 5 — Processus & Services Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
         {
-          instr: '⭐ Niv.5 Mission 21/30 — Affiche tous les processus en cours avec ps aux.',
+          instr: 'Ã¢Â­Â Niv.5 Mission 21/30 — Affiche tous les processus en cours avec ps aux.',
           hint: 'ps aux',
           check: c => /^ps\b/.test(c.trim()) && /aux/.test(c),
           successMsg: 'a = tous utilisateurs, u = format lisible, x = inclure sans terminal. PID = identifiant unique du processus.',
@@ -1775,7 +1775,7 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
           instr: 'Mission 22/30 — Filtre les processus bash avec un pipe : ps aux | grep bash.',
           hint: 'ps aux | grep bash',
           check: c => /^ps\b/.test(c.trim()) && /\|\s*grep\b/.test(c) && /bash/.test(c),
-          successMsg: 'Le pipe | enchaîne les commandes : stdout de gauche → stdin de droite. Fondement du shell Unix.',
+          successMsg: 'Le pipe | enchaîne les commandes : stdout de gauche Ã¢ÂÂ stdin de droite. Fondement du shell Unix.',
         },
         {
           instr: 'Mission 23/30 — Vérifie l\'état du service SSH avec systemctl status.',
@@ -1795,9 +1795,9 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
           check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()),
           successMsg: 'ip addr remplace l\'ancien ifconfig. lo = loopback 127.0.0.1, eth0 = carte réseau principale.',
         },
-        // ── NIVEAU 6 — Maître du terminal ────────────────────────────
+        // Ã¢ÂÂÃ¢ÂÂ NIVEAU 6 — Maître du terminal Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
         {
-          instr: '⭐ Niv.6 Mission 26/30 — Lance "ls /root 2>/dev/null" pour supprimer silencieusement les erreurs.',
+          instr: 'Ã¢Â­Â Niv.6 Mission 26/30 — Lance "ls /root 2>/dev/null" pour supprimer silencieusement les erreurs.',
           hint: 'ls /root 2>/dev/null',
           check: c => /2>\s*\/dev\/null/.test(c),
           successMsg: '2>/dev/null envoie stderr dans le néant. Utile dans les scripts pour ignorer les erreurs non critiques.',
@@ -1821,10 +1821,10 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
           successMsg: 'uniq supprime les lignes consécutives identiques — toujours précédé de sort. uniq -c compte les occurrences.',
         },
         {
-          instr: 'Mission 30/30 🏆 — Pipe ultime : extrait les users bash → cat /etc/passwd | grep bash | cut -d: -f1 | sort',
+          instr: 'Mission 30/30 Ã°ÂÂÂ — Pipe ultime : extrait les users bash Ã¢ÂÂ cat /etc/passwd | grep bash | cut -d: -f1 | sort',
           hint: 'cat /etc/passwd | grep bash | cut -d: -f1 | sort',
           check: c => /grep\b/.test(c) && /cut\b/.test(c) && /sort\b/.test(c) && (c.match(/\|/g)||[]).length >= 2,
-          successMsg: '🎮 MISSION ACCOMPLIE ! grep filtre, cut extrait une colonne, sort trie. Ce pipe est utilisé quotidiennement par les admins sys.',
+          successMsg: 'Ã°ÂÂÂ® MISSION ACCOMPLIE ! grep filtre, cut extrait une colonne, sort trie. Ce pipe est utilisé quotidiennement par les admins sys.',
         },
       ],
     },
@@ -1852,7 +1852,7 @@ function handleTPCommand(args, type) {
     scenarioCheck = (cmd) => tpValidate(cmd);
     if (sc.onStart) sc.onStart();
     renderScenarioPanel();
-    out(`\n<span style="color:var(--${type==='windows'?'blue':'accent'})">▶ TP lancé : ${sc.title}</span>\nObjectif : ${sc.desc}\n\n→ Lis le panneau TP à droite. Complète chaque étape dans l\'ordre.\n`);
+    out(`\n<span style="color:var(--${type==='windows'?'blue':'accent'})">Ã¢ÂÂ¶ TP lancé : ${sc.title}</span>\nObjectif : ${sc.desc}\n\nÃ¢ÂÂ Lis le panneau TP à droite. Complète chaque étape dans l\'ordre.\n`);
     return;
   }
   if (sub === 'quit' || sub === 'stop') {
@@ -1870,7 +1870,7 @@ function handleTPCommand(args, type) {
     scenarioCheck = (cmd) => tpValidate(cmd);
     if (directSc.onStart) directSc.onStart();
     renderScenarioPanel();
-    out(`\n<span style="color:var(--${type==='windows'?'blue':'accent'})">▶ TP lancé : ${directSc.title}</span>\nObjectif : ${directSc.desc}\n\n→ Lis le panneau TP à droite. Complète chaque étape dans l'ordre.\n`);
+    out(`\n<span style="color:var(--${type==='windows'?'blue':'accent'})">Ã¢ÂÂ¶ TP lancé : ${directSc.title}</span>\nObjectif : ${directSc.desc}\n\nÃ¢ÂÂ Lis le panneau TP à droite. Complète chaque étape dans l'ordre.\n`);
     return;
   }
   err(`tp : argument invalide. Options : list | start <id> | quit`);
@@ -1902,14 +1902,14 @@ function tpValidate(cmd) {
     scenarioCheck = null;
     if (scenario.onEnd) scenario.onEnd();
     renderScenarioPanel();
-    cliPrint(`<div class="cli-explain">🏆 <strong>TP terminé !</strong> Tu as complété "${scenario.title}" en ${scenario.steps.length} étapes. Tape <strong>tp</strong> pour un nouveau TP.</div>`);
+    cliPrint(`<div class="cli-explain">Ã°ÂÂÂ <strong>TP terminé !</strong> Tu as complété "${scenario.title}" en ${scenario.steps.length} étapes. Tape <strong>tp</strong> pour un nouveau TP.</div>`);
   } else {
     renderScenarioPanel();
     const next = scenario.steps[scenarioState.step];
     const explainHtml = current.successMsg
-      ? `<div style="color:var(--text2);margin:4px 0 6px;font-size:13px">💡 ${current.successMsg}</div>`
+      ? `<div style="color:var(--text2);margin:4px 0 6px;font-size:13px">Ã°ÂÂÂ¡ ${current.successMsg}</div>`
       : '';
-    cliPrint(`<div class="cli-explain">✅ Étape ${step + 1}/${scenario.steps.length} validée !${explainHtml ? '\n' + explainHtml : ''}\n→ Étape ${scenarioState.step + 1} : ${escHtml(next.instr)}</div>`);
+    cliPrint(`<div class="cli-explain">Ã¢ÂÂ Étape ${step + 1}/${scenario.steps.length} validée !${explainHtml ? '\n' + explainHtml : ''}\nÃ¢ÂÂ Étape ${scenarioState.step + 1} : ${escHtml(next.instr)}</div>`);
   }
 }
 
@@ -1937,14 +1937,14 @@ function renderScenarioPanel() {
     </div>`;
   }
 
-  let doneBanner = done ? `<div class="sc-done-banner">🏆 TP complété !</div>` : '';
+  let doneBanner = done ? `<div class="sc-done-banner">Ã°ÂÂÂ TP complété !</div>` : '';
 
   panel.style.display = 'flex';
   panel.innerHTML = `
     <div class="sc-header">
-      <span class="sc-icon">📋</span>
+      <span class="sc-icon">Ã°ÂÂÂ</span>
       <span class="sc-title">${escHtml(scenario.title)}</span>
-      <button class="sc-close" onclick="scenarioState=null;scenarioCheck=null;document.getElementById('scenario-panel').style.display='none'">✕</button>
+      <button class="sc-close" onclick="scenarioState=null;scenarioCheck=null;document.getElementById('scenario-panel').style.display='none'">Ã¢ÂÂ</button>
     </div>
     <div class="sc-progress"><div class="sc-progress-bar" style="width:${pct}%"></div></div>
     <div class="sc-steps">${stepsHtml}</div>
@@ -1991,8 +1991,8 @@ function cliParseArgs(raw) {
 function cliExecDiskpart(raw) {
   const out   = (s) => cliPrint(s);
   const err   = (s) => cliPrint(`<span class="cli-error">${escHtml(s)}</span>`);
-  const explain = (s) => cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> ${s}</div>`);
-  const errEx = (msg, why) => { err(msg); cliPrint(`<div class="cli-explain-err">⚠️ <strong>Pourquoi :</strong> ${escHtml(why)}</div>`); };
+  const explain = (s) => cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> ${s}</div>`);
+  const errEx = (msg, why) => { err(msg); cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>Pourquoi :</strong> ${escHtml(why)}</div>`); };
 
   const tokens = raw.trim().toLowerCase().replace(/\s+/g,' ').split(' ');
   const cmd    = tokens[0];
@@ -2322,9 +2322,9 @@ function cliExecLinux(cmd, args, raw) {
     }
     case 'ifconfig':
     case 'ip': {
-      const exL = (s) => cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> ${s}</div>`);
+      const exL = (s) => cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> ${s}</div>`);
       const fault = cliState.networkFault;
-      // ip addr add → résout conflit IP
+      // ip addr add Ã¢ÂÂ résout conflit IP
       if (cmd === 'ip' && args[0] === 'addr' && args[1] === 'add') {
         if (fault === 'conflict') {
           cliState.networkFault = null;
@@ -2334,7 +2334,7 @@ function cliExecLinux(cmd, args, raw) {
         }
         break;
       }
-      // ip route add default → résout mauvaise gateway
+      // ip route add default Ã¢ÂÂ résout mauvaise gateway
       if (cmd === 'ip' && args[0] === 'route' && args[1] === 'add' && args[2] === 'default') {
         if (fault === 'gateway') {
           cliState.networkFault = null;
@@ -2353,7 +2353,7 @@ function cliExecLinux(cmd, args, raw) {
     link/ether 08:00:27:ab:cd:ef brd ff:ff:ff:ff:ff:ff
     inet <span style="color:var(--red)">169.254.47.18/16</span> brd 169.254.255.255 scope link dynamic eth0
        valid_lft 2591sec preferred_lft 2591sec`);
-          cliPrint(`<div class="cli-explain-err">⚠️ <strong>169.254.x.x</strong> = adresse APIPA (Auto-IP RFC 3927). Le client DHCP n'a reçu aucune réponse. Causes : serveur DHCP éteint, câble débranché, mauvais VLAN. Corriger : <code>systemctl restart networking</code> puis <code>dhclient eth0</code>.</div>`);
+          cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>169.254.x.x</strong> = adresse APIPA (Auto-IP RFC 3927). Le client DHCP n'a reçu aucune réponse. Causes : serveur DHCP éteint, câble débranché, mauvais VLAN. Corriger : <code>systemctl restart networking</code> puis <code>dhclient eth0</code>.</div>`);
         } else if (fault === 'conflict') {
           out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -2363,7 +2363,7 @@ function cliExecLinux(cmd, args, raw) {
     inet <span style="color:var(--accent)">192.168.1.10/24</span> brd 192.168.1.255 scope global dynamic eth0
        valid_lft 86234sec preferred_lft 86234sec
     <span style="color:var(--red)">RTNETLINK answers: Duplicate address detected (192.168.1.10)</span>`);
-          cliPrint(`<div class="cli-explain-err">⚠️ <strong>Duplicate address detected</strong> — Deux machines réclament 192.168.1.10. Vérifie <code>arp -n</code> pour identifier l'intrus. Solution : changer d'IP avec <code>ip addr add 192.168.1.21/24 dev eth0</code>.</div>`);
+          cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>Duplicate address detected</strong> — Deux machines réclament 192.168.1.10. Vérifie <code>arp -n</code> pour identifier l'intrus. Solution : changer d'IP avec <code>ip addr add 192.168.1.21/24 dev eth0</code>.</div>`);
         } else {
           out(`1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -2377,11 +2377,11 @@ function cliExecLinux(cmd, args, raw) {
       } else if (args[0] === 'r' || args[0] === 'route') {
         if (fault === 'dhcp' || fault === 'renew_needed') {
           out(`192.168.1.0/24 dev eth0 proto kernel scope link src 169.254.47.18`);
-          cliPrint(`<div class="cli-explain-err">⚠️ Pas de route <em>default</em> — sans passerelle par défaut, aucun trafic hors du LAN n'est possible. Le DHCP n'a pas fourni de route. Corriger : redémarrer le service réseau.</div>`);
+          cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Pas de route <em>default</em> — sans passerelle par défaut, aucun trafic hors du LAN n'est possible. Le DHCP n'a pas fourni de route. Corriger : redémarrer le service réseau.</div>`);
         } else if (fault === 'gateway') {
           out(`<span style="color:var(--red)">default via 192.168.99.1</span> dev eth0 proto dhcp src 192.168.1.10 metric 100
 192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10 metric 100`);
-          cliPrint(`<div class="cli-explain-err">⚠️ <strong>Passerelle incorrecte : 192.168.99.1</strong> n'existe pas sur ce réseau (LAN = 192.168.1.0/24). Tout le trafic externe est blackholé. Corriger : <code>ip route del default && ip route add default via 192.168.1.1 dev eth0</code>.</div>`);
+          cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>Passerelle incorrecte : 192.168.99.1</strong> n'existe pas sur ce réseau (LAN = 192.168.1.0/24). Tout le trafic externe est blackholé. Corriger : <code>ip route del default && ip route add default via 192.168.1.1 dev eth0</code>.</div>`);
         } else {
           out(`default via 192.168.1.1 dev eth0 proto dhcp src 192.168.1.10 metric 100
 192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10 metric 100`);
@@ -2409,7 +2409,7 @@ function cliExecLinux(cmd, args, raw) {
       const fault = cliState.networkFault;
       if (!isLocal && (fault === 'dhcp' || fault === 'renew_needed')) {
         out(`ping: connect: Network is unreachable`);
-        cliPrint(`<div class="cli-explain-err">⚠️ <strong>Network is unreachable</strong> — Pas d'adresse IP valide (APIPA active). Impossible d'envoyer des paquets. Corriger d'abord l'adresse IP via DHCP.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>Network is unreachable</strong> — Pas d'adresse IP valide (APIPA active). Impossible d'envoyer des paquets. Corriger d'abord l'adresse IP via DHCP.</div>`);
         break;
       }
       if (!isLocal && fault === 'gateway' && !isLAN) {
@@ -2418,7 +2418,7 @@ function cliExecLinux(cmd, args, raw) {
           lines += `From 192.168.1.10 icmp_seq=${i+1} Destination Net Unreachable\n`;
         lines += `\n--- ${host} ping statistics ---\n${Math.min(count,4)} packets transmitted, 0 received, +${Math.min(count,4)} errors, 100% packet loss`;
         out(escHtml(lines));
-        cliPrint(`<div class="cli-explain-err">⚠️ <strong>100% packet loss</strong> — La passerelle 192.168.99.1 est injoignable (hors du réseau 192.168.1.0/24). Tout trafic externe échoue. Vérifie <code>ip route</code>.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>100% packet loss</strong> — La passerelle 192.168.99.1 est injoignable (hors du réseau 192.168.1.0/24). Tout trafic externe échoue. Vérifie <code>ip route</code>.</div>`);
         break;
       }
       if (!isLocal && fault === 'conflict') {
@@ -2431,7 +2431,7 @@ function cliExecLinux(cmd, args, raw) {
         }
         lines += `\n\n--- ${host} ping statistics ---\n${n} packets transmitted, ${rx} received, ${Math.round((n-rx)/n*100)}% packet loss`;
         out(escHtml(lines));
-        cliPrint(`<div class="cli-explain-err">⚠️ <strong>${Math.round((n-Math.ceil(n/2))/n*100)}% packet loss</strong> — Conflit d'adresse IP : trafic capté alternativement par deux machines. Vérifie <code>arp -n</code> pour identifier l'intrus.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>${Math.round((n-Math.ceil(n/2))/n*100)}% packet loss</strong> — Conflit d'adresse IP : trafic capté alternativement par deux machines. Vérifie <code>arp -n</code> pour identifier l'intrus.</div>`);
         break;
       }
       const ttl = isLocal ? 64 : host === '8.8.8.8' ? 118 : 64;
@@ -2440,7 +2440,7 @@ function cliExecLinux(cmd, args, raw) {
         lines += `\n64 bytes from ${ip}: icmp_seq=${i+1} ttl=${ttl} time=${(Math.random()*2+0.3).toFixed(3)} ms`;
       lines += `\n\n--- ${host} ping statistics ---\n${Math.min(count,4)} packets transmitted, ${Math.min(count,4)} received, 0% packet loss`;
       out(escHtml(lines));
-      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>ping -c ${count}</strong> envoie des paquets ICMP Echo Request. Mesure la latence (RTT). TTL=${ttl} = sauts max avant rejet (décrémenté à chaque routeur). 0% packet loss = OK. Si perte → problème de liaison ou de routage.</div>`);
+      cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> <strong>ping -c ${count}</strong> envoie des paquets ICMP Echo Request. Mesure la latence (RTT). TTL=${ttl} = sauts max avant rejet (décrémenté à chaque routeur). 0% packet loss = OK. Si perte Ã¢ÂÂ problème de liaison ou de routage.</div>`);
       break;
     }
     case 'netstat': {
@@ -2451,7 +2451,7 @@ tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN
 tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN
 tcp6       0      0 :::22                   :::*                    LISTEN
 udp        0      0 0.0.0.0:68              0.0.0.0:*`);
-      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>netstat</strong> liste les connexions et ports en écoute. LISTEN = service attendant des connexions. 127.0.0.1:3306 = MySQL accessible en local uniquement (sécurité). Remplacé par <code>ss</code> sur les systèmes modernes.</div>`);
+      cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> <strong>netstat</strong> liste les connexions et ports en écoute. LISTEN = service attendant des connexions. 127.0.0.1:3306 = MySQL accessible en local uniquement (sécurité). Remplacé par <code>ss</code> sur les systèmes modernes.</div>`);
       break;
     }
     case 'ss': {
@@ -2460,14 +2460,14 @@ tcp    LISTEN  0      128     0.0.0.0:22           0.0.0.0:*      users:(("sshd"
 tcp    LISTEN  0      128     0.0.0.0:80           0.0.0.0:*      users:(("apache2",pid=1021,fd=4))
 tcp    LISTEN  0      70      127.0.0.1:3306       0.0.0.0:*      users:(("mysqld",pid=876,fd=22))
 tcp    ESTAB   0      0       192.168.1.10:22      192.168.1.5:51234`);
-      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>ss -tulnp</strong> — -t=TCP, -u=UDP, -l=LISTEN, -n=numérique, -p=processus. Identifie quel programme occupe chaque port. ESTAB = session active en cours. Plus rapide que netstat.</div>`);
+      cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> <strong>ss -tulnp</strong> — -t=TCP, -u=UDP, -l=LISTEN, -n=numérique, -p=processus. Identifie quel programme occupe chaque port. ESTAB = session active en cours. Plus rapide que netstat.</div>`);
       break;
     }
     case 'nslookup': {
       const domain = args[0] || 'localhost';
       const ip = domain.includes('tssr') ? '192.168.1.10' : domain === 'localhost' ? '127.0.0.1' : '142.250.74.100';
       out(`Server:         192.168.1.10\nAddress:        192.168.1.10#53\n\nName:   ${domain}\nAddress: ${ip}`);
-      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>nslookup</strong> interroge le serveur DNS (192.168.1.10, port 53) pour résoudre un nom en IP. Si la résolution échoue → vérifie /etc/resolv.conf et que le service DNS répond sur port 53/UDP.</div>`);
+      cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> <strong>nslookup</strong> interroge le serveur DNS (192.168.1.10, port 53) pour résoudre un nom en IP. Si la résolution échoue Ã¢ÂÂ vérifie /etc/resolv.conf et que le service DNS répond sur port 53/UDP.</div>`);
       break;
     }
     case 'dig': {
@@ -2480,7 +2480,7 @@ tcp    ESTAB   0      0       192.168.1.10:22      192.168.1.5:51234`);
 ${domain}.              300     IN      A       ${ip}
 ;; Query time: 2 msec
 ;; SERVER: 192.168.1.10#53(192.168.1.10)`);
-      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>dig</strong> est l\'outil DNS avancé. Affiche le type d\'enregistrement (A=IPv4, AAAA=IPv6, MX=mail, CNAME=alias), le TTL cache et le serveur ayant répondu. Indispensable pour déboguer DNS.</div>`);
+      cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> <strong>dig</strong> est l\'outil DNS avancé. Affiche le type d\'enregistrement (A=IPv4, AAAA=IPv6, MX=mail, CNAME=alias), le TTL cache et le serveur ayant répondu. Indispensable pour déboguer DNS.</div>`);
       break;
     }
     case 'traceroute':
@@ -2489,7 +2489,7 @@ ${domain}.              300     IN      A       ${ip}
       const faultTr = cliState.networkFault;
       if (faultTr === 'dhcp' || faultTr === 'renew_needed') {
         out(`traceroute: connect: Network is unreachable`);
-        cliPrint(`<div class="cli-explain-err">⚠️ Pas d'adresse IP valide — traceroute ne peut pas envoyer de paquets. Corriger le DHCP d'abord.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Pas d'adresse IP valide — traceroute ne peut pas envoyer de paquets. Corriger le DHCP d'abord.</div>`);
         break;
       }
       if (faultTr === 'gateway') {
@@ -2498,7 +2498,7 @@ ${domain}.              300     IN      A       ${ip}
  2  * * *
  3  * * *
  4  * * *`);
-        cliPrint(`<div class="cli-explain-err">⚠️ Bloqué au <strong>hop 1</strong> sur 192.168.99.1 — la passerelle configurée n'est pas joignable. Tous les paquets sont blackholés dès la sortie du LAN. Corriger la route par défaut.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Bloqué au <strong>hop 1</strong> sur 192.168.99.1 — la passerelle configurée n'est pas joignable. Tous les paquets sont blackholés dès la sortie du LAN. Corriger la route par défaut.</div>`);
         break;
       }
       out(`traceroute to ${dest} (${dest}), 30 hops max, 60 byte packets
@@ -2506,7 +2506,7 @@ ${domain}.              300     IN      A       ${ip}
  2  10.0.0.1 (10.0.0.1)  3.201 ms  3.145 ms  3.092 ms
  3  72.14.192.45 (72.14.192.45)  8.734 ms  8.691 ms  8.612 ms
  4  ${dest} (${dest})  10.234 ms  10.187 ms  10.104 ms`);
-      cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>traceroute</strong> affiche chaque routeur traversé (hop) avec sa latence. <em>* * *</em> = paquet bloqué par un pare-feu. Utile pour localiser où une connexion échoue sur le chemin réseau.</div>`);
+      cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> <strong>traceroute</strong> affiche chaque routeur traversé (hop) avec sa latence. <em>* * *</em> = paquet bloqué par un pare-feu. Utile pour localiser où une connexion échoue sur le chemin réseau.</div>`);
       break;
     }
     case 'arp': {
@@ -2515,17 +2515,17 @@ ${domain}.              300     IN      A       ${ip}
 192.168.1.1              ether   c8:d3:a3:2f:7e:01   C           eth0
 192.168.1.5              ether   b8:27:eb:12:34:56   C           eth0
 192.168.1.10             ether   08:00:27:ab:cd:ef   C           eth0
-<span style="color:var(--red)">192.168.1.10             ether   b8:27:eb:99:88:77   C           eth0  ← MAC étrangère !</span>`);
-        cliPrint(`<div class="cli-explain-err">⚠️ <strong>Double entrée MAC pour 192.168.1.10</strong> — une autre machine (b8:27:eb:99:88:77) revendique la même IP. Le trafic est capté alternativement par les deux hôtes. Solution : changer d'IP avec <code>ip addr add 192.168.1.21/24 dev eth0</code>.</div>`);
+<span style="color:var(--red)">192.168.1.10             ether   b8:27:eb:99:88:77   C           eth0  Ã¢ÂÂ MAC étrangère !</span>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>Double entrée MAC pour 192.168.1.10</strong> — une autre machine (b8:27:eb:99:88:77) revendique la même IP. Le trafic est capté alternativement par les deux hôtes. Solution : changer d'IP avec <code>ip addr add 192.168.1.21/24 dev eth0</code>.</div>`);
       } else if (cliState.networkFault === 'gateway') {
         out(`Address                  HWtype  HWaddress           Flags Mask  Iface
 192.168.1.5              ether   b8:27:eb:12:34:56   C           eth0`);
-        cliPrint(`<div class="cli-explain-err">⚠️ Pas d'entrée pour <strong>192.168.99.1</strong> — la passerelle configurée n'est pas sur ce LAN (192.168.1.0/24). ARP ne trouve aucune MAC correspondante → trafic impossible vers l'extérieur.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Pas d'entrée pour <strong>192.168.99.1</strong> — la passerelle configurée n'est pas sur ce LAN (192.168.1.0/24). ARP ne trouve aucune MAC correspondante Ã¢ÂÂ trafic impossible vers l'extérieur.</div>`);
       } else {
         out(`Address                  HWtype  HWaddress           Flags Mask  Iface
 192.168.1.1              ether   c8:d3:a3:2f:7e:01   C           eth0
 192.168.1.5              ether   b8:27:eb:12:34:56   C           eth0`);
-        cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> <strong>arp -n</strong> affiche la table ARP : correspondances IP↔MAC sur le LAN. ARP (Couche 2/3) résout les adresses IP en adresses MAC pour la communication Ethernet. C = entrée dynamique apprise automatiquement.</div>`);
+        cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> <strong>arp -n</strong> affiche la table ARP : correspondances IPÃ¢ÂÂMAC sur le LAN. ARP (Couche 2/3) résout les adresses IP en adresses MAC pour la communication Ethernet. C = entrée dynamique apprise automatiquement.</div>`);
       }
       break;
     }
@@ -2537,17 +2537,17 @@ DHCPOFFER from 192.168.1.1
 DHCPREQUEST for 192.168.1.10 on ${iface} to 255.255.255.255 port 67
 <span style="color:var(--accent)">DHCPACK from 192.168.1.1 — bound to 192.168.1.10 — renewal in 43200 seconds.</span>`);
         cliState.networkFault = null;
-        cliPrint(`<div class="cli-explain">💡 <strong>dhclient</strong> force un échange DORA (Discover→Offer→Request→Ack) pour obtenir/renouveler un bail DHCP. L'IP 192.168.1.10 a été réattribuée avec succès.</div>`);
+        cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>dhclient</strong> force un échange DORA (DiscoverÃ¢ÂÂOfferÃ¢ÂÂRequestÃ¢ÂÂAck) pour obtenir/renouveler un bail DHCP. L'IP 192.168.1.10 a été réattribuée avec succès.</div>`);
       } else if (cliState.networkFault === 'dhcp') {
         out(`DHCPDISCOVER on ${iface} to 255.255.255.255 port 67
 <span style="color:var(--red)">DHCPDISCOVER on ${iface} to 255.255.255.255 port 67 interval 4
 DHCPDISCOVER on ${iface} to 255.255.255.255 port 67 interval 8
 No DHCPOFFERS received — timeout.</span>`);
-        cliPrint(`<div class="cli-explain-err">⚠️ Le serveur DHCP ne répond pas. Redémarre d'abord le service réseau : <code>systemctl restart networking</code>.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Le serveur DHCP ne répond pas. Redémarre d'abord le service réseau : <code>systemctl restart networking</code>.</div>`);
       } else {
         out(`DHCPREQUEST for 192.168.1.10 on ${iface}
 <span style="color:var(--accent)">DHCPACK from 192.168.1.1 — bail renouvelé (43200 sec).</span>`);
-        cliPrint(`<div class="cli-explain">💡 <strong>dhclient</strong> a renouvelé le bail DHCP. Aucune modification d'IP nécessaire.</div>`);
+        cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>dhclient</strong> a renouvelé le bail DHCP. Aucune modification d'IP nécessaire.</div>`);
       }
       break;
     }
@@ -2560,26 +2560,26 @@ Jun 07 09:12:09 debian-srv dhclient[312]: DHCPDISCOVER on eth0 to 255.255.255.25
 Jun 07 09:12:13 debian-srv dhclient[312]: No DHCPOFFERS received — timeout
 Jun 07 09:12:17 debian-srv dhclient[312]: No working leases in persistent database — sleeping</span>
 Jun 07 09:12:17 debian-srv kernel: eth0: link-local IPv4 address 169.254.47.18 assigned`);
-        cliPrint(`<div class="cli-explain-err">⚠️ Les logs confirment : <strong>aucun serveur DHCP ne répond</strong> (timeouts répétés). Adresse APIPA 169.254.47.18 assignée en dernier recours.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Les logs confirment : <strong>aucun serveur DHCP ne répond</strong> (timeouts répétés). Adresse APIPA 169.254.47.18 assignée en dernier recours.</div>`);
       } else if (fault === 'conflict') {
         out(`<span style="color:var(--red)">Jun 07 09:45:32 debian-srv kernel: eth0: IPv4 duplicate address 192.168.1.10 detected!
 Jun 07 09:45:32 debian-srv kernel: eth0: ARP reply from b8:27:eb:99:88:77 for 192.168.1.10
 Jun 07 09:45:34 debian-srv kernel: eth0: duplicate address 192.168.1.10 conflicts with local</span>
 Jun 07 09:45:35 debian-srv dhclient[312]: DHCPACK from 192.168.1.1 for 192.168.1.10
 Jun 07 09:45:35 debian-srv kernel: eth0: ARP probe: conflict detected with b8:27:eb:99:88:77`);
-        cliPrint(`<div class="cli-explain-err">⚠️ Le kernel a détecté un <strong>conflit ARP</strong> : la MAC b8:27:eb:99:88:77 répond aussi pour 192.168.1.10. Changer d'adresse IP est la solution immédiate.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Le kernel a détecté un <strong>conflit ARP</strong> : la MAC b8:27:eb:99:88:77 répond aussi pour 192.168.1.10. Changer d'adresse IP est la solution immédiate.</div>`);
       } else if (fault === 'gateway') {
         out(`Jun 07 09:30:01 debian-srv dhclient[312]: DHCPACK from 192.168.1.1
 Jun 07 09:30:01 debian-srv dhclient[312]: bound to 192.168.1.10
 <span style="color:var(--red)">Jun 07 09:30:05 debian-srv kernel: eth0: default route via 192.168.99.1 — host unreachable
 Jun 07 09:30:22 debian-srv dhclient[312]: route add default gw 192.168.99.1 failed: Network unreachable</span>`);
-        cliPrint(`<div class="cli-explain-err">⚠️ Route par défaut vers <strong>192.168.99.1</strong> en échec — pas de réponse ARP pour cette adresse. Corriger manuellement avec <code>ip route add default via 192.168.1.1</code>.</div>`);
+        cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Route par défaut vers <strong>192.168.99.1</strong> en échec — pas de réponse ARP pour cette adresse. Corriger manuellement avec <code>ip route add default via 192.168.1.1</code>.</div>`);
       } else {
         out(`Jun 07 10:00:01 debian-srv systemd[1]: Starting network service...
 Jun 07 10:00:01 debian-srv dhclient[312]: DHCPACK from 192.168.1.1
 Jun 07 10:00:01 debian-srv dhclient[312]: bound to 192.168.1.10 — renewal in 43200 seconds
 Jun 07 10:00:02 debian-srv sshd[420]: Server listening on 0.0.0.0 port 22`);
-        cliPrint(`<div class="cli-explain">💡 <strong>journalctl</strong> affiche les logs systemd. Flags utiles : <code>-u networking</code> (service spécifique), <code>-f</code> (suivi temps réel), <code>--since "1 hour ago"</code> (filtrage temporel).</div>`);
+        cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>journalctl</strong> affiche les logs systemd. Flags utiles : <code>-u networking</code> (service spécifique), <code>-f</code> (suivi temps réel), <code>--since "1 hour ago"</code> (filtrage temporel).</div>`);
       }
       break;
     }
@@ -2624,22 +2624,22 @@ Jun 07 10:00:02 debian-srv sshd[420]: Server listening on 0.0.0.0 port 22`);
         if (!validServices.includes(service)) { err(`Échec de l'unité ${service}.service : non trouvée.`); break; }
         if (service === 'networking' && (action === 'start' || action === 'restart') && cliState.networkFault === 'dhcp') {
           cliState.networkFault = 'renew_needed';
-          out(`● networking.service — redémarré
+          out(`Ã¢ÂÂ networking.service — redémarré
 <span style="color:var(--accent)">Service réseau relancé. Lance maintenant : dhclient eth0</span>`);
           break;
         }
-        out(`● ${service}.service — ${action === 'start' ? 'démarré' : action === 'stop' ? 'arrêté' : action}`);
+        out(`Ã¢ÂÂ ${service}.service — ${action === 'start' ? 'démarré' : action === 'stop' ? 'arrêté' : action}`);
       } else if (action === 'status') {
         const svc = service || 'ssh';
         if (svc === 'networking' && (cliState.networkFault === 'dhcp' || cliState.networkFault === 'renew_needed')) {
-          out(`● networking.service - Raise network interfaces
+          out(`Ã¢ÂÂ networking.service - Raise network interfaces
    Loaded: loaded (/lib/systemd/system/networking.service; enabled)
    Active: <span style="color:var(--red)">failed (Result: exit-code)</span> since Jun 07 09:12:17 CEST
   Process: ExecStart=/sbin/ifup -a (code=exited, status=1/FAILURE)
 <span style="color:var(--red)">Jun 07 09:12:17 debian-srv ifup[312]: dhclient: No DHCPOFFERS received</span>`);
-          cliPrint(`<div class="cli-explain-err">⚠️ Le service networking est en <strong>failed</strong> — le client DHCP n'a reçu aucune offre. Relancer : <code>systemctl restart networking</code>.</div>`);
+          cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â Le service networking est en <strong>failed</strong> — le client DHCP n'a reçu aucune offre. Relancer : <code>systemctl restart networking</code>.</div>`);
         } else {
-          out(`● ${svc}.service - OpenBSD Secure Shell server
+          out(`Ã¢ÂÂ ${svc}.service - OpenBSD Secure Shell server
    Loaded: loaded (/lib/systemd/system/${svc}.service; enabled)
    Active: <span style="color:var(--accent)">active (running)</span> since Thu 2025-06-04 10:00:00 CEST
   Process: 420 ExecStart=/usr/sbin/sshd -D
@@ -2735,7 +2735,7 @@ networking.service      loaded active exited  Raise network interfaces`);
              <span style="color:var(--accent)">nslookup</span>  <span style="color:var(--accent)">dig</span>  <span style="color:var(--accent)">traceroute</span>  <span style="color:var(--accent)">arp -n</span>  <span style="color:var(--accent)">dhclient</span>  <span style="color:var(--accent)">journalctl</span>
 <span style="color:var(--text2)">Système :</span>     whoami  hostname  uname [-a]
 <span style="color:var(--text2)">Divers :</span>      history  clear  help  <span style="color:var(--accent)">tp</span> TP guidés
-<span style="color:var(--text3)">↑/↓ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
+<span style="color:var(--text3)">Ã¢ÂÂ/Ã¢ÂÂ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
       break;
     default:
       err(`bash: ${escHtml(cmd)}: commande introuvable`);
@@ -2761,8 +2761,8 @@ function cliExecWindows(cmd, args, raw) {
   const fs = cliState.fs;
   const out  = (s) => cliPrint(s);
   const err  = (s) => cliPrint(`<span class="cli-err">${escHtml(s)}</span>`);
-  const explain  = (s) => cliPrint(`<div class="cli-explain">💡 <strong>Rôle :</strong> ${s}</div>`);
-  const errEx = (msg, why) => { err(msg); cliPrint(`<div class="cli-explain-err">⚠️ <strong>Pourquoi :</strong> ${escHtml(why)}</div>`); };
+  const explain  = (s) => cliPrint(`<div class="cli-explain">Ã°ÂÂÂ¡ <strong>Rôle :</strong> ${s}</div>`);
+  const errEx = (msg, why) => { err(msg); cliPrint(`<div class="cli-explain-err">Ã¢ÂÂ Ã¯Â¸Â <strong>Pourquoi :</strong> ${escHtml(why)}</div>`); };
   const sep = '\\';
 
   // Alias courants
@@ -2973,7 +2973,7 @@ function cliExecWindows(cmd, args, raw) {
    Adresse de configuration automatique IPv4 . : <span style="color:var(--red)">169.254.47.18</span>
    Masque de sous-réseau . . . . . . .: 255.255.0.0
    Passerelle par défaut . . . . . . .:`);
-        explain('⚠️ Adresse <strong>APIPA</strong> (169.254.x.x) détectée. Windows s\'est auto-attribué cette adresse car il n\'a pas pu joindre le serveur DHCP. Cela signifie que le service <strong>DHCP Client</strong> est peut-être arrêté, ou que le serveur DHCP est inaccessible.');
+        explain('Ã¢ÂÂ Ã¯Â¸Â Adresse <strong>APIPA</strong> (169.254.x.x) détectée. Windows s\'est auto-attribué cette adresse car il n\'a pas pu joindre le serveur DHCP. Cela signifie que le service <strong>DHCP Client</strong> est peut-être arrêté, ou que le serveur DHCP est inaccessible.');
         break;
       }
       if (cliState.networkFault === 'gateway') {
@@ -2983,7 +2983,7 @@ function cliExecWindows(cmd, args, raw) {
    Masque de sous-réseau . . . . . . .: 255.255.255.0
    Passerelle par défaut . . . . . . .: <span style="color:var(--red)">192.168.99.1</span>`);
         if (all) out(`   Serveur DHCP . . . . . . . . . . . : (statique)\n   Serveurs DNS. . . . . . . . . . . .: 192.168.1.20`);
-        explain('⚠️ La <strong>passerelle par défaut 192.168.99.1</strong> n\'appartient pas au réseau local (192.168.1.0/24). Tout le trafic sortant (Internet, autres sous-réseaux) est envoyé vers une gateway inexistante et sera perdu. Le réseau local /24 reste accessible car il ne passe pas par la gateway.');
+        explain('Ã¢ÂÂ Ã¯Â¸Â La <strong>passerelle par défaut 192.168.99.1</strong> n\'appartient pas au réseau local (192.168.1.0/24). Tout le trafic sortant (Internet, autres sous-réseaux) est envoyé vers une gateway inexistante et sera perdu. Le réseau local /24 reste accessible car il ne passe pas par la gateway.');
         break;
       }
       if (cliState.networkFault === 'conflict') {
@@ -2994,13 +2994,13 @@ function cliExecWindows(cmd, args, raw) {
    Passerelle par défaut . . . . . . .: 192.168.1.1`);
         if (all) out(`   Serveur DHCP . . . . . . . . . . . : 192.168.1.1\n   Serveurs DNS. . . . . . . . . . . .: 192.168.1.20`);
         out(`\n<span style="color:var(--red)">Windows a détecté un conflit d\'adresse IP avec un autre ordinateur du réseau et a désactivé l\'adresse IPv4 192.168.1.20 sur l\'adaptateur Ethernet.</span>`);
-        explain('⚠️ <strong>Conflit d\'adresse IP</strong> : une autre machine du réseau utilise également 192.168.1.20. Windows a détecté un ARP Gratuit en provenance d\'une autre adresse MAC avec la même IP. La connectivité est intermittente car les trames Ethernet arrivent aléatoirement sur l\'une ou l\'autre machine.');
+        explain('Ã¢ÂÂ Ã¯Â¸Â <strong>Conflit d\'adresse IP</strong> : une autre machine du réseau utilise également 192.168.1.20. Windows a détecté un ARP Gratuit en provenance d\'une autre adresse MAC avec la même IP. La connectivité est intermittente car les trames Ethernet arrivent aléatoirement sur l\'une ou l\'autre machine.');
         break;
       }
       if (all) {
         out(`   Nom de l'hôte. . . . . . . . . . . : ${cliState.host}
    Suffixe DNS principal  . . . . . . : tssr.local
-   Type de nœud . . . . . . . . . . . : Hybride
+   Type de nÃÂud . . . . . . . . . . . : Hybride
    Routage IP activé. . . . . . . . . : Non`);
       }
       out(`Carte Ethernet Ethernet :
@@ -3058,7 +3058,7 @@ function cliExecWindows(cmd, args, raw) {
         break;
       }
       out(`Serveur :   ${cliState.host}\nAddress:    192.168.1.20\n\nNom :   ${domain}\nAddress: ${ip}`);
-      explain(`<strong>nslookup</strong> interroge le serveur DNS (192.168.1.20) pour résoudre un nom en IP. Si le DNS échoue → vérifie /flushdns, le service DNS Server et l'enregistrement A dans le serveur DNS.`);
+      explain(`<strong>nslookup</strong> interroge le serveur DNS (192.168.1.20) pour résoudre un nom en IP. Si le DNS échoue Ã¢ÂÂ vérifie /flushdns, le service DNS Server et l'enregistrement A dans le serveur DNS.`);
       break;
     }
     case 'tracert': {
@@ -3070,7 +3070,7 @@ function cliExecWindows(cmd, args, raw) {
   3     *        *        *     Délai d\'attente de la demande dépassé.
 
 Itinéraire terminé.`);
-        explain(`<strong>tracert bloqué dès le hop 1</strong> : le premier routeur devrait être la gateway (192.168.99.1) mais elle n\'existe pas sur ce réseau. Tous les paquets vers l\'extérieur sont envoyés vers une adresse ARP non résolue → perdus immédiatement. C\'est la signature d\'une <strong>mauvaise gateway</strong>.`);
+        explain(`<strong>tracert bloqué dès le hop 1</strong> : le premier routeur devrait être la gateway (192.168.99.1) mais elle n\'existe pas sur ce réseau. Tous les paquets vers l\'extérieur sont envoyés vers une adresse ARP non résolue Ã¢ÂÂ perdus immédiatement. C\'est la signature d\'une <strong>mauvaise gateway</strong>.`);
         break;
       }
       out(`\nDétermination de l\'itinéraire vers ${dest}\navec un maximum de 30 sauts :\n
@@ -3080,7 +3080,7 @@ Itinéraire terminé.`);
   4   10 ms   10 ms   10 ms  ${dest}
 
 Itinéraire terminé.`);
-      explain(`<strong>tracert</strong> affiche chaque routeur (hop) jusqu\'à la destination. <em>* * *</em> = routeur bloquant ICMP (pare-feu). Le hop 1 = ta gateway locale. Si le hop 1 est déjà en timeout → problème de gateway ou de couche réseau local.`);
+      explain(`<strong>tracert</strong> affiche chaque routeur (hop) jusqu\'à la destination. <em>* * *</em> = routeur bloquant ICMP (pare-feu). Le hop 1 = ta gateway locale. Si le hop 1 est déjà en timeout Ã¢ÂÂ problème de gateway ou de couche réseau local.`);
       break;
     }
     case 'arp': {
@@ -3099,7 +3099,7 @@ Itinéraire terminé.`);
   <span style="color:var(--red)">192.168.1.20          b8-27-eb-99-88-77     dynamique   &lt;-- MAC inconnue !</span>
   192.168.1.5           b8-27-eb-12-34-56     dynamique
   192.168.1.255         ff-ff-ff-ff-ff-ff     statique`);
-        explain(`🔴 <strong>MAC étrangère sur 192.168.1.20</strong> : notre propre IP est associée à la MAC <em>b8-27-eb-99-88-77</em> (différente de notre carte 08-00-27-ab-cd-ef). Cela signifie qu\'une autre machine a répondu à un <strong>ARP Gratuit</strong> pour 192.168.1.20, écrasant notre entrée dans la table ARP des autres hôtes. C\'est la preuve irréfutable d\'un <strong>conflit d\'adresse IP</strong>.`);
+        explain(`Ã°ÂÂÂ´ <strong>MAC étrangère sur 192.168.1.20</strong> : notre propre IP est associée à la MAC <em>b8-27-eb-99-88-77</em> (différente de notre carte 08-00-27-ab-cd-ef). Cela signifie qu\'une autre machine a répondu à un <strong>ARP Gratuit</strong> pour 192.168.1.20, écrasant notre entrée dans la table ARP des autres hôtes. C\'est la preuve irréfutable d\'un <strong>conflit d\'adresse IP</strong>.`);
         break;
       }
       out(`\nInterface : 192.168.1.20 --- 0x2
@@ -3107,7 +3107,7 @@ Itinéraire terminé.`);
   192.168.1.1           c8-d3-a3-2f-7e-01     dynamique
   192.168.1.5           b8-27-eb-12-34-56     dynamique
   192.168.1.255         ff-ff-ff-ff-ff-ff     statique`);
-      explain(`<strong>arp -a</strong> affiche la table ARP : correspondances IP↔MAC connues. La gateway (192.168.1.1) doit toujours être présente. Une MAC inconnue sur une IP connue → conflit ou ARP spoofing.`);
+      explain(`<strong>arp -a</strong> affiche la table ARP : correspondances IPÃ¢ÂÂMAC connues. La gateway (192.168.1.1) doit toujours être présente. Une MAC inconnue sur une IP connue Ã¢ÂÂ conflit ou ARP spoofing.`);
       break;
     }
     case 'route': {
@@ -3152,7 +3152,7 @@ Network Destination        Netmask          Gateway       Interface  Metric
         if (cliState.networkFault) { cliState.networkFault = null; }
         const newGw = args.find(a => /^192\.\d+\.\d+\.\d+$/.test(a) && a !== '192.168.1.20' && a !== '192.168.1.21' && a !== '255.255.255.0') || '192.168.1.1';
         out(`\nOK.`);
-        explain(`<strong>netsh interface ip set address</strong> configure une adresse IP statique sur une interface réseau. Paramètres : interface, adresse IP, masque, passerelle par défaut. La nouvelle gateway (${newGw}) appartient au réseau 192.168.1.0/24 → accessible par ARP → le routage peut reprendre normalement.`);
+        explain(`<strong>netsh interface ip set address</strong> configure une adresse IP statique sur une interface réseau. Paramètres : interface, adresse IP, masque, passerelle par défaut. La nouvelle gateway (${newGw}) appartient au réseau 192.168.1.0/24 Ã¢ÂÂ accessible par ARP Ã¢ÂÂ le routage peut reprendre normalement.`);
       } else if (subA === 'interface' && subB === 'ip' && subC === 'set' && args[3] === 'dns') {
         out(`\nOK.`);
         explain(`<strong>netsh interface ip set dns</strong> configure le serveur DNS d\'une interface. Utile quand la résolution de noms échoue malgré une connectivité réseau normale.`);
@@ -3237,7 +3237,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
       }
       break;
     }
-    // ── DISKPART ──
+    // Ã¢ÂÂÃ¢ÂÂ DISKPART Ã¢ÂÂÃ¢ÂÂ
     case 'diskpart': {
       cliState.diskpartMode = true;
       cliState.dpSel = { disk: null, partition: null };
@@ -3247,7 +3247,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
       break;
     }
 
-    // ── NET USER / LOCALGROUP ──
+    // Ã¢ÂÂÃ¢ÂÂ NET USER / LOCALGROUP Ã¢ÂÂÃ¢ÂÂ
     case 'net': {
       const sub = (args[0]||'').toLowerCase();
       if (sub === 'user') {
@@ -3322,7 +3322,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
       break;
     }
 
-    // ── ICACLS ──
+    // Ã¢ÂÂÃ¢ÂÂ ICACLS Ã¢ÂÂÃ¢ÂÂ
     case 'icacls': {
       const path = args[0];
       if (!path) { errEx('icacls : argument manquant.', 'icacls attend un chemin en premier argument. Ex : icacls "C:\\Shares\\Direction"'); break; }
@@ -3370,7 +3370,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
       break;
     }
 
-    // ── MANAGE-BDE (BitLocker) ──
+    // Ã¢ÂÂÃ¢ÂÂ MANAGE-BDE (BitLocker) Ã¢ÂÂÃ¢ÂÂ
     case 'manage-bde': {
       const bdeCmd = (args[0]||'').toLowerCase();
       const drive  = args[1] || 'C:';
@@ -3395,7 +3395,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
       break;
     }
 
-    // ── FIREWALL ──
+    // Ã¢ÂÂÃ¢ÂÂ FIREWALL Ã¢ÂÂÃ¢ÂÂ
     case 'new-netfirewallrule': {
       const nameIdx    = args.findIndex(a=>a.toLowerCase()==='-name');
       const displayIdx = args.findIndex(a=>a.toLowerCase()==='-displayname');
@@ -3437,7 +3437,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
       break;
     }
 
-    // ── ANTIVIRUS ──
+    // Ã¢ÂÂÃ¢ÂÂ ANTIVIRUS Ã¢ÂÂÃ¢ÂÂ
     case 'update-mpsignature': {
       out(`Mise à jour des signatures Windows Defender en cours...\nDernière version : 1.411.3.0 — Mise à jour réussie.`);
       explain(`<strong>Update-MpSignature</strong> force la mise à jour immédiate des définitions de virus de Windows Defender, sans attendre la planification automatique. Indispensable après un déploiement ou en cas de suspicion d'infection.`);
@@ -3472,7 +3472,7 @@ ${cliState.host.padEnd(14)}${host.padEnd(16)}192.168.1.1      32       ${Math.ro
 <span style="color:var(--text2)">Stockage :</span>     <span style="color:var(--blue)">diskpart</span> (mode interactif)
 <span style="color:var(--text2)">Système :</span>      whoami  hostname  Get-ComputerInfo  Get-EventLog  Get-ADUser
 <span style="color:var(--text2)">Divers :</span>       cls  help  <span style="color:var(--blue)">tp</span> [list | start diskpart|sam|ntfs|panne|route|conflit | quit]
-<span style="color:var(--text3)">↑/↓ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
+<span style="color:var(--text3)">Ã¢ÂÂ/Ã¢ÂÂ historique · Tab autocomplétion · Ctrl+L effacer · Ctrl+C annuler</span>`);
       break;
     default:
       err(`${escHtml(raw.split(' ')[0])} : Le terme '${escHtml(raw.split(' ')[0])}' n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme exécutable.`);
@@ -3488,7 +3488,7 @@ const CLI_CARDS = [
     id: 'windows',
     label: 'PowerShell',
     sublabel: 'Windows Server 2022',
-    icon: '🪟',
+    icon: 'Ã°ÂÂªÂ',
     color: '#3b82f6',
     colorDim: 'rgba(59,130,246,0.08)',
     colorBorder: 'rgba(59,130,246,0.25)',
@@ -3501,11 +3501,11 @@ const CLI_CARDS = [
 ];
 
 const TERMINAL_META = {
-  linux:     { icon: '🐧', label: 'Terminal Linux',         sublabel: 'Debian GNU/Linux',           color: '#00e5a0', cls: 'tfs-linux' },
-  windows:   { icon: '💻', label: 'Terminal PowerShell',    sublabel: 'Windows Server 2022',         color: '#3b82f6', cls: 'tfs-windows' },
-  cmd:       { icon: '🖥️', label: 'Terminal Windows (CMD)', sublabel: 'cmd.exe — Windows 10/Server', color: '#9ca3af', cls: 'tfs-cmd' },
-  gameshell: { icon: '🎮', label: 'GameShell',              sublabel: '30 missions Linux',           color: '#00e5a0', cls: 'tfs-linux' },
-  netrunner: { icon: '🚀', label: 'NetRunner',              sublabel: 'Jeu PowerShell/CMD',          color: '#0ea5e9', cls: 'tfs-netrunner' },
+  linux:     { icon: 'Ã°ÂÂÂ§', label: 'Terminal Linux',         sublabel: 'Debian GNU/Linux',           color: '#00e5a0', cls: 'tfs-linux' },
+  windows:   { icon: 'Ã°ÂÂÂ»', label: 'Terminal PowerShell',    sublabel: 'Windows Server 2022',         color: '#3b82f6', cls: 'tfs-windows' },
+  cmd:       { icon: 'Ã°ÂÂÂ¥Ã¯Â¸Â', label: 'Terminal Windows (CMD)', sublabel: 'cmd.exe — Windows 10/Server', color: '#9ca3af', cls: 'tfs-cmd' },
+  gameshell: { icon: 'Ã°ÂÂÂ®', label: 'GameShell',              sublabel: '30 missions Linux',           color: '#00e5a0', cls: 'tfs-linux' },
+  netrunner: { icon: 'Ã°ÂÂÂ', label: 'NetRunner',              sublabel: 'Jeu PowerShell/CMD',          color: '#0ea5e9', cls: 'tfs-netrunner' },
 };
 
 function openTerminalFullscreen(type) {
@@ -3531,7 +3531,7 @@ function openTerminalFullscreen(type) {
         </div>
       </div>
       ${type !== 'gameshell' && type !== 'netrunner' ? `<div class="tfs-hints">
-        <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}">↑↓ historique</span>
+        <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}">Ã¢ÂÂÃ¢ÂÂ historique</span>
         <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}">Tab complétion</span>
         <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}"><code>tp</code> pour les TP</span>
         ${type === 'linux' ? `<span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}"><code>vim fichier</code></span>` : `<span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}"><code>help</code></span>`}
@@ -3636,7 +3636,7 @@ function openTerminalFS(type) {
       </div>
       <div class="tfs-hints">
         <span class="tfs-hint" style="border-color:${card.colorBorder};color:${card.color}">
-          ↑↓ historique
+          Ã¢ÂÂÃ¢ÂÂ historique
         </span>
         <span class="tfs-hint" style="border-color:${card.colorBorder};color:${card.color}">
           Tab complétion

@@ -1,63 +1,78 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0a0e1a">
-<title>TSSR — Base de connaissances</title>
-<link rel="manifest" href="manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090d18">
+  <title>TSSR — Base de connaissances</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
+
+  <!-- SIDEBAR -->
   <aside id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo" onclick="goHome()" style="cursor:pointer">
+    <div class="sidebar-header" onclick="goHome()" role="button" tabindex="0" title="Retour à l'accueil">
+      <div class="logo">
         <span class="logo-bracket">[</span>
-        <span class="logo-text">TSSR</span>
+        <span class="logo-text"> TSSR </span>
         <span class="logo-bracket">]</span>
       </div>
       <p class="logo-sub">Base de connaissances</p>
     </div>
+
     <div class="sidebar-search">
       <div class="sidebar-search-wrap">
-        <svg class="sidebar-search-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <svg class="search-icon" viewBox="0 0 16 16" fill="none">
           <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.4"/>
           <path d="M10 10L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
         </svg>
-        <input type="search" id="sidebar-search-input" placeholder="Rechercher un module..." autocomplete="off" aria-label="Rechercher un module" spellcheck="false">
+        <input type="search" id="sidebar-search-input"
+               placeholder="Rechercher un module..."
+               autocomplete="off" spellcheck="false"
+               aria-label="Rechercher un module">
       </div>
     </div>
-    <nav id="module-nav">
-      <p class="nav-section-label">Modules</p>
-    </nav>
+
+    <nav id="module-nav" aria-label="Navigation des modules"></nav>
   </aside>
+
+  <!-- OVERLAY MOBILE -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- HEADER MOBILE -->
   <div id="mobile-header">
-    <button id="menu-toggle" aria-label="Ouvrir le menu">
+    <button id="menu-toggle" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
     <span class="mobile-title">TSSR</span>
-    <span class="mobile-module-name" id="mobile-module-name"></span>
+    <span id="mobile-module-name"></span>
   </div>
+
+  <!-- CONTENU PRINCIPAL -->
   <main id="content">
+
+    <!-- ÉCRAN ACCUEIL -->
     <div id="home-screen" class="screen active">
       <div class="home-hero">
-        <div class="home-title-wrap">
-          <h1 class="home-title">Base de<br>connaissances</h1>
-          <p class="home-sub">TSSR · Technicien Supérieur Systèmes et Réseaux</p>
-        </div>
-        <div class="home-stats" id="home-stats"></div>
+        <h1 class="home-title">Base de<br>connaissances</h1>
+        <p class="home-sub">TSSR · Technicien Supérieur Systèmes et Réseaux</p>
       </div>
       <div class="module-grid" id="module-grid"></div>
     </div>
+
+    <!-- ÉCRAN MODULE -->
     <div id="module-screen" class="screen">
       <div class="module-header">
         <button class="back-btn" id="back-btn" aria-label="Retour à l'accueil">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L4 8L10 13" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
           Retour
         </button>
         <div class="module-meta" id="module-meta"></div>
@@ -66,16 +81,17 @@
       <div id="tab-content" role="tabpanel"></div>
     </div>
 
+    <!-- ÉCRAN TERMINAL -->
     <div id="terminal-fs-screen" class="screen">
       <div id="terminal-fs-header" class="terminal-fs-header"></div>
       <div id="terminal-fs-content"></div>
     </div>
+
   </main>
 </div>
-<div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+
 <script src="data.js"></script>
 <script src="vim.js"></script>
-<script src="scenarios.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

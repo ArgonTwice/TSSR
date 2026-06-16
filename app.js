@@ -34,19 +34,28 @@ function escHtml(s) {
 function sanitizeText(str) {
   if (!str) return '';
   return str
-    .replace(/─/g, '-')
-    .replace(/│/g, '|')
-    .replace(/┌/g, '+').replace(/┐/g, '+').replace(/└/g, '+').replace(/┘/g, '+')
-    .replace(/├/g, '+').replace(/┤/g, '+').replace(/┬/g, '+').replace(/┴/g, '+').replace(/┼/g, '+')
-    .replace(/═/g, '=')
-    .replace(/[║-╬]/g, '+')
-    .replace(/→/g, '->').replace(/←/g, '<-').replace(/⇒/g, '=>')
-    .replace(/—/g, '--').replace(/–/g, '-').replace(/…/g, '...')
-    .replace(/²/g, '^2').replace(/³/g, '^3').replace(/¹/g, '^1')
-    .replace(/⁰/g, '^0').replace(/⁴/g, '^4').replace(/⁵/g, '^5')
-    .replace(/⁶/g, '^6').replace(/⁷/g, '^7').replace(/⁸/g, '^8').replace(/⁹/g, '^9')
-    .replace(/✓/g, '[OK]').replace(/✗/g, '[X]').replace(/•/g, '*')
-    .replace(/«/g, '"').replace(/»/g, '"');
+    .replace(/\u2500/g, '-').replace(/\u2501/g, '-')
+    .replace(/\u2502/g, '|').replace(/\u2503/g, '|')
+    .replace(/\u250C/g, '+').replace(/\u2510/g, '+').replace(/\u2514/g, '+').replace(/\u2518/g, '+')
+    .replace(/\u251C/g, '+').replace(/\u2524/g, '+').replace(/\u252C/g, '+').replace(/\u2534/g, '+').replace(/\u253C/g, '+')
+    .replace(/\u2550/g, '=').replace(/\u2551/g, '|')
+    .replace(/\u2554/g, '+').replace(/\u2557/g, '+').replace(/\u255A/g, '+').replace(/\u255D/g, '+')
+    .replace(/\u2560/g, '+').replace(/\u2563/g, '+').replace(/\u2566/g, '+').replace(/\u2569/g, '+').replace(/\u256C/g, '+')
+    .replace(/\u2192/g, '->').replace(/\u2190/g, '<-').replace(/\u2191/g, '^').replace(/\u2193/g, 'v')
+    .replace(/\u21D2/g, '=>').replace(/\u21D0/g, '<=').replace(/\u2194/g, '<->')
+    .replace(/\u2014/g, '--').replace(/\u2013/g, '-').replace(/\u2026/g, '...')
+    .replace(/\u00B2/g, '^2').replace(/\u00B3/g, '^3').replace(/\u00B9/g, '^1')
+    .replace(/\u2070/g, '^0').replace(/\u2074/g, '^4').replace(/\u2075/g, '^5')
+    .replace(/\u2076/g, '^6').replace(/\u2077/g, '^7').replace(/\u2078/g, '^8').replace(/\u2079/g, '^9')
+    .replace(/\u2713/g, '[OK]').replace(/\u2717/g, '[X]').replace(/\u2718/g, '[X]')
+    .replace(/\u2022/g, '*').replace(/\u00B7/g, '.')
+    .replace(/\u00AB/g, '"').replace(/\u00BB/g, '"')
+    .replace(/\u2018/g, "'").replace(/\u2019/g, "'")
+    .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
+    .replace(/\u2020/g, '+').replace(/\u2021/g, '++')
+    .replace(/\u25BA/g, '>').replace(/\u25C4/g, '<')
+    .replace(/\u2248/g, '~=').replace(/\u2260/g, '!=')
+    .replace(/\u2264/g, '<=').replace(/\u2265/g, '>=');
 }
 function getProgress(moduleId) {
   return store.get('progress_' + moduleId) || { pct: 0, qcm_best: 0, fc_mastered: 0 };
@@ -460,7 +469,7 @@ function renderCoursDetail(m, cours, idx, el) {
   bcMod.textContent = m.label;
   const bcSep = document.createElement('span');
   bcSep.className = 'bc-sep';
-  bcSep.textContent = '›';
+  bcSep.textContent = '\u203A';
   const bcTitle = document.createElement('span');
   bcTitle.textContent = sanitizeText(cours.titre);
   breadcrumb.appendChild(bcMod);

@@ -451,7 +451,7 @@ function renderCoursDetail(m, cours, idx, el) {
 
   const content = document.createElement('div');
   content.className = 'cours-content';
-  content.innerHTML = renderCoursContent(cours.sections);
+  (cours.sections || []).forEach(s => content.appendChild(renderSection(s)));
   article.appendChild(content);
 
   const breadcrumb = document.createElement('nav');
@@ -564,6 +564,174 @@ function renderTable(s) {
   const thead = s.headers.map(h=>`<th>${sanitizeText(h)}</th>`).join('');
   const tbody = s.rows.map(r=>`<tr>${r.map(c=>`<td>${sanitizeText(String(c))}</td>`).join('')}</tr>`).join('');
   return `<table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`;
+}
+
+// ===== RENDER SECTION (DOM-based, textContent pour code/schema) =====
+function renderSection(section) {
+  const wrap = document.createElement('div');
+
+  if (typeof section === 'string') {
+    const p = document.createElement('p');
+    p.innerHTML = sanitizeText(section);
+    wrap.appendChild(p);
+    return wrap;
+  }
+
+  switch (section.type) {
+    case 'h2': {
+      const h = document.createElement('h2');
+      h.textContent = sanitizeText(section.content);
+      wrap.appendChild(h); break;
+    }
+    case 'h3': {
+      const h = document.createElement('h3');
+      h.textContent = sanitizeText(section.content);
+      wrap.appendChild(h); break;
+    }
+    case 'p': {
+      const p = document.createElement('p');
+      p.innerHTML = sanitizeText(section.content);
+      wrap.appendChild(p); break;
+    }
+    case 'code': {
+      const pre = document.createElement('pre');
+      pre.className = 'code-block';
+      pre.textContent = section.content;
+      wrap.appendChild(pre); break;
+    }
+    case 'schema': {
+      const pre = document.createElement('pre');
+      pre.className = 'schema-block';
+      pre.textContent = section.content;
+      wrap.appendChild(pre); break;
+    }
+    case 'info': {
+      const div = document.createElement('div');
+      div.className = 'info-box';
+      div.innerHTML = sanitizeText(section.content);
+      wrap.appendChild(div); break;
+    }
+    case 'warn': {
+      const div = document.createElement('div');
+      div.className = 'warn-box';
+      div.innerHTML = sanitizeText(section.content);
+      wrap.appendChild(div); break;
+    }
+    case 'ul': {
+      const ul = document.createElement('ul');
+      (section.items || []).forEach(i => {
+        const li = document.createElement('li');
+        li.innerHTML = sanitizeText(i);
+        ul.appendChild(li);
+      });
+      wrap.appendChild(ul); break;
+    }
+    case 'ol': {
+      const ol = document.createElement('ol');
+      (section.items || []).forEach(i => {
+        const li = document.createElement('li');
+        li.innerHTML = sanitizeText(i);
+        ol.appendChild(li);
+      });
+      wrap.appendChild(ol); break;
+    }
+    case 'table': {
+      const tbl = document.createElement('table');
+      const thead = document.createElement('thead');
+      const hr = document.createElement('tr');
+      (section.headers || []).forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = sanitizeText(h);
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      tbl.appendChild(thead);
+      const tbody = document.createElement('tbody');
+      (section.rows || []).forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.innerHTML = sanitizeText(String(cell));
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody);
+      wrap.appendChild(tbl); break;
+    }
+    case 'steps': {
+      (section.items || []).forEach(step => {
+        const stepEl = document.createElement('div');
+        stepEl.className = 'cours-step';
+        const numEl = document.createElement('div');
+        numEl.className = 'cours-step-num';
+        numEl.textContent = step.num || '';
+        const bodyEl = document.createElement('div');
+        bodyEl.className = 'cours-step-body';
+        const titleEl = document.createElement('div');
+        titleEl.className = 'cours-step-title';
+        titleEl.textContent = sanitizeText(step.title || '');
+        bodyEl.appendChild(titleEl);
+        if (step.content) {
+          const cEl = document.createElement('div');
+          cEl.className = 'cours-step-content';
+          cEl.innerHTML = sanitizeText(step.content);
+          bodyEl.appendChild(cEl);
+        }
+        if (step.code) {
+          const pre = document.createElement('pre');
+          pre.className = 'code-block';
+          pre.style.marginTop = '10px';
+          pre.textContent = step.code;
+          bodyEl.appendChild(pre);
+        }
+        if (step.why) {
+          const wEl = document.createElement('div');
+          wEl.className = 'step-why-block';
+          wEl.innerHTML = sanitizeText(step.why);
+          bodyEl.appendChild(wEl);
+        }
+        stepEl.appendChild(numEl);
+        stepEl.appendChild(bodyEl);
+        wrap.appendChild(stepEl);
+      });
+      break;
+    }
+    case 'html': {
+      let c = section.content || '';
+      c = c.replace(/<head[\s\S]*?<\/head>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
+      c = c.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<\/?html[^>]*>/gi, '');
+      c = c.replace(/<\/?body[^>]*>/gi, '').replace(/\s*style="[^"]*"/gi, '');
+      c = c.replace(/\s*class="[^"]*"/gi, '');
+      const div = document.createElement('div');
+      div.className = 'cours-html-block';
+      div.innerHTML = c;
+      wrap.appendChild(div); break;
+    }
+    case 'html-file': {
+      const uid = 'hf-' + Math.random().toString(36).slice(2, 9);
+      const div = document.createElement('div');
+      div.className = 'cours-html-block';
+      div.id = uid;
+      setTimeout(() => {
+        const target = document.getElementById(uid);
+        if (!target) return;
+        fetch(section.src)
+          .then(r => r.text())
+          .then(html => {
+            html = html.replace(/<head[\s\S]*?<\/head>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
+            html = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<\/?html[^>]*>/gi, '');
+            html = html.replace(/<\/?body[^>]*>/gi, '').replace(/\s*style="[^"]*"/gi, '');
+            html = html.replace(/\s*class="[^"]*"/gi, '');
+            target.innerHTML = html;
+          })
+          .catch(() => { target.innerHTML = '<div class="warn-box">Erreur de chargement.</div>'; });
+      }, 0);
+      wrap.appendChild(div); break;
+    }
+  }
+
+  return wrap;
 }
 
 // ===== OUTILS =====

@@ -2474,6 +2474,24 @@ body {
   border-color: #00ff88;
   transform: translateY(-2px);
 }
+.btn-open-claude {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #00ff88, #3b82f6);
+  border-radius: 10px;
+  color: #0a0e1a;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(0,255,136,0.25);
+}
+.btn-open-claude:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,255,136,0.4);
+}
 .ai-overlay {
   position: fixed;
   inset: 0;

@@ -498,59 +498,52 @@ function openAIExplainer(titre, sections) {
     .filter(s => s.type === 'p' || s.type === 'h2')
     .map(s => s.content)
     .join('\n')
-    .slice(0, 2000);
+    .slice(0, 800);
+
+  const prompt = `Je révise pour mon BTS TSSR. Explique-moi "${titre}" de manière simple et visuelle :
+1. Une analogie du quotidien
+2. Les 3-5 points clés à retenir
+3. Un exemple concret
+4. Une astuce mémo
+
+Contexte : ${contexte}`;
+
+  const encoded = encodeURIComponent(prompt);
+  const claudeUrl = `https://claude.ai/new?q=${encoded}`;
 
   const overlay = document.createElement('div');
   overlay.className = 'ai-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   overlay.innerHTML = `
     <div class="ai-modal">
       <div class="ai-modal-header">
-        <span class="ai-modal-title">&#x2728; ${titre}</span>
+        <span class="ai-modal-title">&#x2728; Explication IA — ${titre}</span>
         <button class="ai-modal-close" onclick="this.closest('.ai-overlay').remove()">&#x2715;</button>
       </div>
-      <div class="ai-modal-body">
-        <div class="ai-loading">
-          <div class="ai-spinner"></div>
-          <span>Génération en cours...</span>
-        </div>
-        <div class="ai-result" style="display:none"></div>
+      <div class="ai-modal-body" style="text-align:center;padding:2rem">
+        <p style="color:#94a3b8;margin-bottom:1.5rem;line-height:1.6">
+          Clique sur le bouton ci-dessous pour obtenir une explication
+          personnalisée de <strong style="color:#e2e8f0">${titre}</strong>
+          générée par Claude AI.
+        </p>
+        <a href="${claudeUrl}" target="_blank" rel="noopener"
+           class="btn-open-claude"
+           onclick="this.closest('.ai-overlay').remove()">
+          &#x2728; Ouvrir dans Claude AI
+        </a>
+        <p style="color:#475569;font-size:0.78rem;margin-top:1.5rem">
+          S’ouvre dans un nouvel onglet · Nécessite un compte Claude gratuit
+        </p>
+        <details style="margin-top:1.5rem;text-align:left">
+          <summary style="color:#64748b;font-size:0.82rem;cursor:pointer">
+            Voir la question préparée
+          </summary>
+          <pre style="background:#0d1117;border:1px solid #1e293b;border-radius:8px;padding:1rem;margin-top:0.75rem;font-size:0.78rem;color:#94a3b8;white-space:pre-wrap;word-break:break-word">${prompt}</pre>
+        </details>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
-
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-      'x-api-key': (window.ANTHROPIC_KEY || ''),
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1000,
-      messages: [{
-        role: 'user',
-        content: `Tu es un formateur TSSR. Explique le concept "${titre}" de manière très simple et visuelle.\n\nContexte du cours :\n${contexte}\n\nFournis :\n1. Une analogie du quotidien simple (2-3 phrases)\n2. Les points clés à retenir (3-5 bullet points courts)\n3. Un exemple concret en 2-3 phrases\n4. Une astuce mémo pour retenir\n\nRéponds en français, de manière concise et pédagogique. Utilise des emojis.`
-      }]
-    })
-  })
-  .then(r => r.json())
-  .then(data => {
-    const text = data.content?.[0]?.text || 'Erreur de génération.';
-    const body = overlay.querySelector('.ai-modal-body');
-    body.querySelector('.ai-loading').style.display = 'none';
-    const result = body.querySelector('.ai-result');
-    result.style.display = 'block';
-    result.innerHTML = '<p>' + text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
-  })
-  .catch(() => {
-    overlay.querySelector('.ai-loading').style.display = 'none';
-    const result = overlay.querySelector('.ai-result');
-    result.style.display = 'block';
-    result.textContent = 'Erreur de connexion. Vérifiez votre connexion Internet et votre clé API (window.ANTHROPIC_KEY).';
-  });
 }
 function openCours(coursId) {
   const m = state.currentModule;

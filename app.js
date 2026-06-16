@@ -172,7 +172,7 @@ function renderNav() {
       const _iconEl = document.createElement('span');
       _iconEl.className = 'nav-item-icon';
       _iconEl.style.cssText = `background:${m.color}22;color:${m.color}`;
-      _iconEl.textContent = m.icon;
+      _iconEl.textContent = (m.icon && m.icon.length <= 2) ? m.icon : m.label.slice(0, 2).toUpperCase();
       const _labelEl = document.createElement('span');
       _labelEl.textContent = m.label;
       btn.appendChild(_iconEl);
@@ -304,14 +304,23 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
   meta.appendChild(_mTitle);
   meta.appendChild(_mBadge);
 
+  const TABS_ICONS = {
+    cours:       '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><line x1="3.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="7" x2="10.5" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="9.5" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+    outils:      '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 2.5L11.5 5.5L5.5 11.5L2 12L2.5 8.5L8.5 2.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M7 4L10 7" stroke="currentColor" stroke-width="1.3"/></svg>',
+    notes:       '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v10H2z" stroke="currentColor" stroke-width="1.3"/><line x1="4" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="4" y1="7.5" x2="10" y2="7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="4" y1="10" x2="7" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+    linux_cli:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5L6 7L3.5 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="9" x2="10.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+    windows_cli: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 5.5L5.5 7.5L3 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.5" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+    gameshell:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5L6 7L3.5 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="9" x2="10.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+    netrunner:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 5.5L5.5 7.5L3 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.5" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  };
   const tabs = [];
-  if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',        icon: 'Ã°ÂÂÂ', cli: false });
-  if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',     icon: 'Ã°ÂÂÂ§', cli: true,  color: '#00e5a0' });
-  if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',   icon: 'Ã°ÂÂªÂ', cli: true,  color: '#3b82f6' });
-  if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'Pratique',      icon: 'Ã°ÂÂÂ®', cli: true, color: '#00e5a0' });
-  if (m.id === 'windows' && m.netrunner) tabs.push({ id: 'netrunner',  label: 'Jeu PowerShell', icon: 'Ã°ÂÂÂ®', cli: true, color: '#0ea5e9' });
-  if (m.outils) tabs.push({ id: 'outils', label: 'Outils', icon: 'Ã°ÂÂÂ§', cli: false });
-  tabs.push({ id: 'notes', label: 'Notes', icon: 'Ã°ÂÂÂ', cli: false });
+  if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',          cli: false });
+  if (m.linux_cli)          tabs.push({ id: 'linux_cli',   label: 'Terminal',       cli: true,  color: '#00e5a0' });
+  if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',     cli: true,  color: '#3b82f6' });
+  if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'Pratique',       cli: true, color: '#00e5a0' });
+  if (m.id === 'windows' && m.netrunner) tabs.push({ id: 'netrunner',  label: 'Jeu PowerShell', cli: true, color: '#0ea5e9' });
+  if (m.outils) tabs.push({ id: 'outils', label: 'Outils', cli: false });
+  tabs.push({ id: 'notes', label: 'Notes', cli: false });
 
   const tabBar = document.getElementById('tab-bar');
   tabBar.innerHTML = '';
@@ -333,9 +342,10 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
     btn.setAttribute('aria-selected', 'false');
     btn.setAttribute('aria-controls', 'tab-content');
     btn.dataset.tab = t.id;
+    const _tabIcon = TABS_ICONS[t.id] || '';
     btn.innerHTML = t.cli
-      ? `<span class="tab-btn-cli-icon">${t.icon}</span><span>${t.label}</span><span class="tab-btn-cli-dot"></span>`
-      : `<span class="tab-btn-icon">${t.icon}</span>${t.label}`;
+      ? `<span class="tab-btn-cli-icon">${_tabIcon}</span><span>${t.label}</span><span class="tab-btn-cli-dot"></span>`
+      : `<span class="tab-btn-icon">${_tabIcon}</span>${t.label}`;
     btn.addEventListener('click', () => switchTab(t.id));
     tabBar.appendChild(btn);
   });
@@ -373,7 +383,7 @@ function renderTabContent(tabId) {
   const el = document.getElementById('tab-content');
   const m = state.currentModule;
   if (tabId === 'empty' || !m) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">Ã°ÂÂÂ§</span><h3>Contenu à venir</h3><p>Ce module sera alimenté prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{1F527}</span><h3>Contenu à venir</h3><p>Ce module sera alimenté prochainement.</p></div>`;
     return;
   }
   if (tabId === 'cours')       renderCours(m, el);
@@ -412,7 +422,7 @@ function renderNetrunner(el) {
 // ===== COURS =====
 function renderCours(m, el) {
   if (!m.cours.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">Ã°ÂÂÂ</span><h3>Cours à venir</h3><p>Les cours seront ajoutés prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{1F527}</span><h3>Cours à venir</h3><p>Les cours seront ajoutés prochainement.</p></div>`;
     return;
   }
   if (m.cours.length === 1) {
@@ -845,7 +855,7 @@ function renderNotes(m, el) {
       }).filter(Boolean).join('');
       area.innerHTML = entries ||
         `<div class="empty-state" style="padding:60px 0">
-          <span class="empty-state-icon">Ã°ÂÂÂ</span>
+          <span class="empty-state-icon">\u{1F4DD}</span>
           <h3>Aucune note pour l'instant</h3>
           <p>Les notes de chaque membre apparaîtront ici.</p>
         </div>`;
@@ -881,7 +891,7 @@ function renderNotes(m, el) {
 // ===== FLASHCARDS =====
 function renderFlashcards(m, el) {
   if (!m.flashcards.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">Ã°ÂÂÂ</span><h3>Cartes à venir</h3><p>Les cartes seront ajoutées prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{1F4CB}</span><h3>Cartes à venir</h3><p>Les cartes seront ajoutées prochainement.</p></div>`;
     return;
   }
   state.fc = { cards: shuffle(m.flashcards), idx: 0, flipped: false, session: { easy:0, medium:0, hard:0 } };
@@ -963,7 +973,7 @@ function fcRate(rating) {
 // ===== QCM =====
 function renderQCM(m, el) {
   if (!m.qcm.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">Ã¢ÂÂ</span><h3>QCM à venir</h3><p>Les questions seront ajoutées prochainement.</p></div>`;
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{2753}</span><h3>QCM à venir</h3><p>Les questions seront ajoutées prochainement.</p></div>`;
     return;
   }
   state.qcm = {

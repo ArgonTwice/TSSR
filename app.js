@@ -1,5 +1,9 @@
 // app.js — TSSR Study App
 
+if (typeof chrome !== 'undefined' && chrome.runtime) {
+  chrome.runtime.onMessage?.addListener(() => true);
+}
+
 // ===== STORAGE =====
 const store = {
   get: k => { try { return JSON.parse(localStorage.getItem('tssr_' + k)); } catch { return null; } },
@@ -234,14 +238,15 @@ function goHome() {
   renderHome();
 }
 function renderHome() {
+  const grid = document.getElementById('module-grid');
+  if (!grid) return;
   history.replaceState({ screen: 'home' }, '', '#');
   state.currentModule = null;
   state.currentTerminal = null;
   state.currentScreen = 'home';
-  document.getElementById('mobile-module-name').textContent = '';
+  const mname = document.getElementById('mobile-module-name');
+  if (mname) mname.textContent = '';
   renderNav();
-  document.getElementById('home-stats').innerHTML = '';
-  const grid = document.getElementById('module-grid');
   grid.innerHTML = '';
   MODULES.forEach((m, i) => {
     const card = document.createElement('div');

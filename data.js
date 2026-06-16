@@ -11,10 +11,9 @@ const MODULES = [
     outils: 'modules/numerisation/outils.html',
     cours: [
       {
-        id: 'numerisation-complet',
-        titre: 'Numération, Encodage & Logique Booléenne',
+        id: 'num-binaire-decimal',
+        titre: 'Numération Binaire & Décimal',
         sections: [
-
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           // PARTIE 1 -- POURQUOI LES ORDINATEURS UTILISENT LE BINAIRE
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -74,7 +73,12 @@ const MODULES = [
             ['255.255.255.252', '11111111.11111111.11111111.11111100', '/30', '30', '2'],
           ]},
           { type: 'warn', content: '<strong>Règle d\'or :</strong> Un masque valide n\'a JAMAIS de 0 avant un 1. 11111100 est valide. 10101010 ne l\'est PAS. C\'est pourquoi 255.255.255.253 n\'est PAS un masque valide.' },
-
+        ],
+      },
+      {
+        id: 'num-hex-octal',
+        titre: 'Hexadécimal & Octal',
+        sections: [
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           // PARTIE 3 -- HEXADÃ‰CIMAL
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -116,7 +120,31 @@ const MODULES = [
           { type: 'h3', content: '3.4 Exercices pratiques -- Adresses MAC' },
           { type: 'p', content: 'Les adresses MAC (Media Access Control) sont toujours écrites en hexadécimal. Elles font 6 octets = 48 bits = 12 chiffres hex.' },
           { type: 'code', content: 'Adresse MAC : 08:00:27:AB:CD:EF\n\nDécryptage :\n08:00:27 = OUI (Organizationally Unique Identifier) â†’ fabricant\nAB:CD:EF = NIC (Network Interface Controller) â†’ numéro unique\n\nDétail de 08:00:27 :\n08 = 00001000 â†’ bit 1 (bit moins significatif de l\'octet 1)\n     â†’ 0 = adresse unicast (pas de diffusion)\n     â†’ bit 2 = 0 = adresse globale (non locale)\n00 = 00000000\n27 = 00100111\n\n08:00:27 est l\'OUI de CADMUS COMPUTER SYSTEMS\n(utilisé par VirtualBox pour ses VMs !)\n\nâ†’ Sur Linux : ip link show | grep ether\nâ†’ Sur Windows : ipconfig /all â†’ Adresse physique' },
-
+          // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          // PARTIE 6 -- OCTAL
+          // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          { type: 'h2', content: '6. Numération Octale -- Base 8' },
+          { type: 'p', content: 'La base 8 utilise les chiffres 0 à 7. Elle est moins courante que l\'hex mais apparaît dans les permissions Linux (chmod) et certaines architectures.' },
+          { type: 'p', content: '<strong>1 chiffre octal = exactement 3 bits</strong>.' },
+          { type: 'table', headers: ['Octal', 'Binaire (3 bits)', 'Décimal'], rows: [
+            ['0', '000', '0'],
+            ['1', '001', '1'],
+            ['2', '010', '2'],
+            ['3', '011', '3'],
+            ['4', '100', '4'],
+            ['5', '101', '5'],
+            ['6', '110', '6'],
+            ['7', '111', '7'],
+          ]},
+          { type: 'h3', content: '6.1 Permissions Linux en octal' },
+          { type: 'p', content: 'Les permissions Unix (r=4, w=2, x=1) sont en réalité des bits dans un octet. chmod 755 manipule directement ces bits.' },
+          { type: 'code', content: 'Permission rwxr-xr-x (chmod 755) :\n\nProprietaire : rwx = 4+2+1 = 7 = 111 (binaire)\nGroupe       : r-x = 4+0+1 = 5 = 101 (binaire)\nAutres       : r-x = 4+0+1 = 5 = 101 (binaire)\n\nEn binaire complet : 111 101 101\nEn octal           : 7   5   5  â†’ chmod 755\n\nâ"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€\n\nPermission rw-r--r-- (chmod 644) :\n\nProprietaire : rw- = 4+2+0 = 6 = 110\nGroupe       : r-- = 4+0+0 = 4 = 100\nAutres       : r-- = 4+0+0 = 4 = 100\n\nEn binaire : 110 100 100\nEn octal   : 6   4   4  â†’ chmod 644\n\nâ"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€\n\nTableau de référence rapide :\n0 = --- = aucun droit\n1 = --x = exécution seule\n2 = -w- = écriture seule\n3 = -wx = écriture + exécution\n4 = r-- = lecture seule\n5 = r-x = lecture + exécution\n6 = rw- = lecture + écriture\n7 = rwx = tous les droits\n\nConventions courantes :\nchmod 644 = fichier texte (rw-r--r--)\nchmod 755 = script/répertoire (rwxr-xr-x)\nchmod 600 = clé SSH privée (rw-------)\nchmod 700 = répertoire privé (rwx------)\nchmod 777 = DANGER (tous droits pour tout le monde)' },
+        ],
+      },
+      {
+        id: 'num-ascii-unicode',
+        titre: 'ASCII, Unicode & Encodages',
+        sections: [
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           // PARTIE 4 -- ASCII ET ENCODAGES
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -173,7 +201,34 @@ const MODULES = [
           ]},
           { type: 'code', content: 'Encodage UTF-8 du caractère "é" (U+00E9) :\n\nCode Unicode : U+00E9 = 233 en décimal\nEn binaire   : 11101001\n\nRègle UTF-8 pour plage U+0080-U+07FF (2 octets) :\nFormat : 110xxxxx 10xxxxxx\nBits   : 11 100011 = 110 00011 10 101001\nOctets : 11000011 10101001\nHex    : C3       A9\n\nâ†’ Le caractère "é" occupe 2 octets en UTF-8 : 0xC3 0xA9\n\nComparaison :\nASCII   : "e" = 1 octet (0x65)\nISO-8859-1 : "é" = 1 octet (0xE9)\nUTF-8   : "é" = 2 octets (0xC3 0xA9)\n\nC\'est pourquoi les chaînes UTF-8 ont un len() différent\ndu nombre de caractères affichés !' },
           { type: 'info', content: '<strong>BOM (Byte Order Mark) :</strong> Certains éditeurs Windows ajoutent les octets 0xEF 0xBB 0xBF au début d\'un fichier UTF-8. C\'est le BOM. Il peut causer des problèmes sous Linux (bash ne reconnaît pas le shebang). Pour le supprimer : <code>sed -i \'1s/^\\xEF\\xBB\\xBF//\' fichier.sh</code>' },
+          // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          // PARTIE 7 -- BCD ET AUTRES CODES
+          // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          { type: 'h2', content: '7. Codes Spéciaux -- BCD, EBCDIC, Unicode' },
 
+          { type: 'h3', content: '7.1 BCD -- Binary Coded Decimal' },
+          { type: 'p', content: 'Le BCD encode chaque chiffre décimal (0-9) sur 4 bits. Il est utilisé dans les afficheurs, les horloges temps réel (RTC) et les systèmes financiers où la précision décimale est cruciale.' },
+          { type: 'code', content: 'Encodage BCD du nombre 2024 :\n\n2 â†’ 0010\n0 â†’ 0000\n2 â†’ 0010\n4 â†’ 0100\n\nBCD(2024) = 0010 0000 0010 0100\n           = 4 octets (2 chiffres par octet)\n\nComparaison :\n2024 en binaire pur = 11111101000 = 11 bits\n2024 en BCD         = 0010 0000 0010 0100 = 16 bits\nâ†’ BCD est moins compact mais évite les erreurs\n  d\'arrondi float en comptabilité\n\nRTC (Real Time Clock) :\nLes puces RTC DS1307 stockent l\'heure en BCD\n10h30m45s â†’ 0x10 0x30 0x45\nPas 0x0A 0x1E 0x2D (hex pur)' },
+
+          { type: 'h3', content: '7.2 EBCDIC -- IBM et les mainframes' },
+          { type: 'p', content: 'L\'EBCDIC (Extended Binary Coded Decimal Interchange Code) est le standard d\'encodage IBM pour mainframes. Incompatible avec ASCII -- la lettre A est 0xC1 en EBCDIC au lieu de 0x41 en ASCII.' },
+          { type: 'warn', content: '<strong>Piège en production :</strong> Si tu transfères un fichier entre un mainframe IBM (AS/400, z/OS) et un serveur Linux, les caractères seront illisibles sans conversion. Outil : <code>iconv -f EBCDIC-US -t UTF-8 fichier_ibm.txt</code>' },
+
+          { type: 'h3', content: '7.3 Unicode -- L\'encodage universel' },
+          { type: 'p', content: 'Unicode est un standard qui attribue un point de code unique à chaque caractère de toutes les langues humaines. Ce n\'est pas un encodage -- c\'est un répertoire. UTF-8, UTF-16, UTF-32 sont des encodages de ce répertoire.' },
+          { type: 'table', headers: ['Encodage', 'Taille', 'BOM', 'Usage'], rows: [
+            ['UTF-8', '1 à 4 octets', 'Optionnel (EF BB BF)', 'Web Linux emails -- LE STANDARD'],
+            ['UTF-16 LE', '2 ou 4 octets', 'FF FE', 'Windows internes Java .NET'],
+            ['UTF-16 BE', '2 ou 4 octets', 'FE FF', 'Réseau protocoles'],
+            ['UTF-32', '4 octets fixes', '00 00 FE FF', 'Traitement interne (mémoire)'],
+          ]},
+          { type: 'code', content: 'Quelques points de code Unicode importants :\n\nU+0041 = A (Latin Capital Letter A)\nU+00E9 = é (Latin Small Letter E with Acute)\nU+20AC = â‚¬ (Euro Sign)\nU+2603 = â˜ƒ (Snowman)\nU+1F600 = ðŸ˜€ (Grinning Face Emoji)\nU+1F4BB = ðŸ’" (Personal Computer Emoji)\n\nDétection de l\'encodage d\'un fichier :\nfile fichier.txt\nâ†’ UTF-8 Unicode text\nâ†’ ISO-8859 text\nâ†’ ASCII text\n\nConversion avec iconv :\niconv -f ISO-8859-1 -t UTF-8 ancien.txt > nouveau.txt\niconv -l    # lister tous les encodages supportés' },
+        ],
+      },
+      {
+        id: 'num-boole-pratique',
+        titre: 'Logique Booléenne & Cas Pratiques',
+        sections: [
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           // PARTIE 5 -- ALGÃˆBRE DE BOOLE
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -212,50 +267,6 @@ const MODULES = [
           { type: 'h3', content: '5.6 XOR et cryptographie basique' },
           { type: 'p', content: 'XOR est aussi utilisé dans le chiffrement. Un message XOR avec une clé donne un cryptogramme. Le même XOR avec la même clé redonne le message original.' },
           { type: 'code', content: 'Chiffrement XOR simple (one-time pad) :\n\nMessage   "A"  = 65  = 01000001\nClé       0x3F = 63  = 00111111\nChiffré        = XOR = 01111110 = 126 = "~"\n\nDéchiffrement :\nChiffré   "~"  = 126 = 01111110\nClé       0x3F = 63  = 00111111\nOriginal       = XOR = 01000001 = 65 = "A" âœ"\n\nâ†’ C\'est le principe de base de nombreux algorithmes\n  de chiffrement (AES, ChaCha20, RC4).' },
-
-          // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-          // PARTIE 6 -- OCTAL
-          // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-          { type: 'h2', content: '6. Numération Octale -- Base 8' },
-          { type: 'p', content: 'La base 8 utilise les chiffres 0 à 7. Elle est moins courante que l\'hex mais apparaît dans les permissions Linux (chmod) et certaines architectures.' },
-          { type: 'p', content: '<strong>1 chiffre octal = exactement 3 bits</strong>.' },
-          { type: 'table', headers: ['Octal', 'Binaire (3 bits)', 'Décimal'], rows: [
-            ['0', '000', '0'],
-            ['1', '001', '1'],
-            ['2', '010', '2'],
-            ['3', '011', '3'],
-            ['4', '100', '4'],
-            ['5', '101', '5'],
-            ['6', '110', '6'],
-            ['7', '111', '7'],
-          ]},
-          { type: 'h3', content: '6.1 Permissions Linux en octal' },
-          { type: 'p', content: 'Les permissions Unix (r=4, w=2, x=1) sont en réalité des bits dans un octet. chmod 755 manipule directement ces bits.' },
-          { type: 'code', content: 'Permission rwxr-xr-x (chmod 755) :\n\nProprietaire : rwx = 4+2+1 = 7 = 111 (binaire)\nGroupe       : r-x = 4+0+1 = 5 = 101 (binaire)\nAutres       : r-x = 4+0+1 = 5 = 101 (binaire)\n\nEn binaire complet : 111 101 101\nEn octal           : 7   5   5  â†’ chmod 755\n\nâ"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€\n\nPermission rw-r--r-- (chmod 644) :\n\nProprietaire : rw- = 4+2+0 = 6 = 110\nGroupe       : r-- = 4+0+0 = 4 = 100\nAutres       : r-- = 4+0+0 = 4 = 100\n\nEn binaire : 110 100 100\nEn octal   : 6   4   4  â†’ chmod 644\n\nâ"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€\n\nTableau de référence rapide :\n0 = --- = aucun droit\n1 = --x = exécution seule\n2 = -w- = écriture seule\n3 = -wx = écriture + exécution\n4 = r-- = lecture seule\n5 = r-x = lecture + exécution\n6 = rw- = lecture + écriture\n7 = rwx = tous les droits\n\nConventions courantes :\nchmod 644 = fichier texte (rw-r--r--)\nchmod 755 = script/répertoire (rwxr-xr-x)\nchmod 600 = clé SSH privée (rw-------)\nchmod 700 = répertoire privé (rwx------)\nchmod 777 = DANGER (tous droits pour tout le monde)' },
-
-          // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-          // PARTIE 7 -- BCD ET AUTRES CODES
-          // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-          { type: 'h2', content: '7. Codes Spéciaux -- BCD, EBCDIC, Unicode' },
-
-          { type: 'h3', content: '7.1 BCD -- Binary Coded Decimal' },
-          { type: 'p', content: 'Le BCD encode chaque chiffre décimal (0-9) sur 4 bits. Il est utilisé dans les afficheurs, les horloges temps réel (RTC) et les systèmes financiers où la précision décimale est cruciale.' },
-          { type: 'code', content: 'Encodage BCD du nombre 2024 :\n\n2 â†’ 0010\n0 â†’ 0000\n2 â†’ 0010\n4 â†’ 0100\n\nBCD(2024) = 0010 0000 0010 0100\n           = 4 octets (2 chiffres par octet)\n\nComparaison :\n2024 en binaire pur = 11111101000 = 11 bits\n2024 en BCD         = 0010 0000 0010 0100 = 16 bits\nâ†’ BCD est moins compact mais évite les erreurs\n  d\'arrondi float en comptabilité\n\nRTC (Real Time Clock) :\nLes puces RTC DS1307 stockent l\'heure en BCD\n10h30m45s â†’ 0x10 0x30 0x45\nPas 0x0A 0x1E 0x2D (hex pur)' },
-
-          { type: 'h3', content: '7.2 EBCDIC -- IBM et les mainframes' },
-          { type: 'p', content: 'L\'EBCDIC (Extended Binary Coded Decimal Interchange Code) est le standard d\'encodage IBM pour mainframes. Incompatible avec ASCII -- la lettre A est 0xC1 en EBCDIC au lieu de 0x41 en ASCII.' },
-          { type: 'warn', content: '<strong>Piège en production :</strong> Si tu transfères un fichier entre un mainframe IBM (AS/400, z/OS) et un serveur Linux, les caractères seront illisibles sans conversion. Outil : <code>iconv -f EBCDIC-US -t UTF-8 fichier_ibm.txt</code>' },
-
-          { type: 'h3', content: '7.3 Unicode -- L\'encodage universel' },
-          { type: 'p', content: 'Unicode est un standard qui attribue un point de code unique à chaque caractère de toutes les langues humaines. Ce n\'est pas un encodage -- c\'est un répertoire. UTF-8, UTF-16, UTF-32 sont des encodages de ce répertoire.' },
-          { type: 'table', headers: ['Encodage', 'Taille', 'BOM', 'Usage'], rows: [
-            ['UTF-8', '1 à 4 octets', 'Optionnel (EF BB BF)', 'Web Linux emails -- LE STANDARD'],
-            ['UTF-16 LE', '2 ou 4 octets', 'FF FE', 'Windows internes Java .NET'],
-            ['UTF-16 BE', '2 ou 4 octets', 'FE FF', 'Réseau protocoles'],
-            ['UTF-32', '4 octets fixes', '00 00 FE FF', 'Traitement interne (mémoire)'],
-          ]},
-          { type: 'code', content: 'Quelques points de code Unicode importants :\n\nU+0041 = A (Latin Capital Letter A)\nU+00E9 = é (Latin Small Letter E with Acute)\nU+20AC = â‚¬ (Euro Sign)\nU+2603 = â˜ƒ (Snowman)\nU+1F600 = ðŸ˜€ (Grinning Face Emoji)\nU+1F4BB = ðŸ’" (Personal Computer Emoji)\n\nDétection de l\'encodage d\'un fichier :\nfile fichier.txt\nâ†’ UTF-8 Unicode text\nâ†’ ISO-8859 text\nâ†’ ASCII text\n\nConversion avec iconv :\niconv -f ISO-8859-1 -t UTF-8 ancien.txt > nouveau.txt\niconv -l    # lister tous les encodages supportés' },
-
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           // PARTIE 8 -- CAS PRATIQUES RÃ‰ELS
           // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -273,7 +284,6 @@ const MODULES = [
 
           { type: 'h3', content: '8.4 Vérifier l\'encodage d\'un fichier de configuration' },
           { type: 'code', content: '# Problème courant : script bash avec BOM UTF-8\n# Symptôme : "bash: ./script.sh: /usr/bin/bash^M: bad interpreter"\n\n# Diagnostic\nfile script.sh\nâ†’ "UTF-8 Unicode (with BOM) text, with CRLF line terminators"\n\n# Deux problèmes :\n# 1. BOM (EF BB BF) avant le shebang\n# 2. Fins de ligne Windows (CRLF au lieu de LF)\n\n# Vérification en hex\nhexdump -C script.sh | head -3\nâ†’ ef bb bf 23 21 2f 75 73 72 2f 62 69 6e 2f 62 61\n  ^BOM^  ^ #  !  /  u  s  r  /  b  i  n  /  b  a\n\n# Correction\ndos2unix script.sh              # Supprimer CR+LF â†’ LF\nsed -i \'1s/^\\xEF\\xBB\\xBF//\' script.sh  # Supprimer BOM\n\n# Vérification finale\nfile script.sh\nâ†’ "Bourne-Again shell script, ASCII text executable"' },
-
         ],
       },
     ],

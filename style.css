@@ -22,7 +22,7 @@
   --red-dim: rgba(239,68,68,0.12);
   --purple: #a78bfa;
   --purple-dim: rgba(167,139,250,0.12);
-  --sidebar-w: 260px;
+  --sidebar-w: 240px;
   --mobile-header-h: 56px;
   --font-ui: 'Syne', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -51,8 +51,8 @@ body {
 #sidebar {
   width: var(--sidebar-w);
   flex-shrink: 0;
-  background: var(--bg2);
-  border-right: 1px solid var(--border);
+  background: #0d1117;
+  border-right: 1px solid #1e293b;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -73,7 +73,7 @@ body {
   line-height: 1;
 }
 
-.logo-bracket { color: var(--accent); }
+.logo-bracket { color: #00ff88; }
 .logo-text { color: var(--text); margin: 0 2px; }
 
 .logo-sub {
@@ -107,7 +107,7 @@ body {
 
 #sidebar-search-input {
   width: 100%;
-  background: var(--bg3);
+  background: #111827;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 7px 10px 7px 30px;
@@ -142,7 +142,7 @@ body {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #475569;
+  color: #334155;
   padding: 0 12px 6px;
   margin-top: 18px;
   font-weight: 700;
@@ -155,7 +155,7 @@ body {
   padding: 9px 12px;
   border-radius: var(--radius);
   cursor: pointer;
-  color: var(--text2);
+  color: #64748b;
   font-size: 13.5px;
   font-weight: 600;
   transition: background var(--transition), color var(--transition);
@@ -166,8 +166,8 @@ body {
   text-align: left;
 }
 
-.nav-item:hover { background: var(--bg4); color: var(--text); }
-.nav-item.active { background: rgba(0,255,136,0.12); color: var(--accent); }
+.nav-item:hover { background: var(--bg4); color: #e2e8f0; }
+.nav-item.active { background: rgba(0,255,136,0.1); color: var(--accent); }
 
 .nav-item-icon {
   width: 28px;
@@ -227,10 +227,10 @@ body {
   text-align: left;
   background: none;
   border: none;
-  border-left: 3px solid transparent;
+  border-left: 2px solid transparent;
   padding: 6px 12px 6px 40px;
-  font-size: 0.88rem;
-  color: #94a3b8;
+  font-size: 0.82rem;
+  color: #475569;
   cursor: pointer;
   font-family: var(--font-ui);
   font-weight: 500;
@@ -242,7 +242,7 @@ body {
   background: rgba(255,255,255,0.05);
 }
 .nav-cours-item.active {
-  color: #fff;
+  color: #00ff88;
   border-left-color: #00ff88;
   background: rgba(0,255,136,0.08);
   font-weight: 600;
@@ -439,13 +439,13 @@ body {
 }
 
 .module-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
+  background: #111827;
+  border: 1px solid #1e293b;
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   min-height: 200px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -466,16 +466,16 @@ body {
   border-color: rgba(0,255,136,0.4);
   background: var(--bg3);
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,255,136,0.12);
 }
 
 .module-card:hover::before { opacity: 1; }
 
 .module-card-icon-box {
-  width: 40px;
-  height: 40px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -490,14 +490,14 @@ body {
 .module-card-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: #f1f5f9;
   margin-top: 1rem;
   margin-bottom: 0.4rem;
 }
 
 .module-card-desc {
   font-size: 0.83rem;
-  color: #94a3b8;
+  color: #64748b;
   line-height: 1.5;
   margin-bottom: 1rem;
   flex: 1;
@@ -526,8 +526,9 @@ body {
 }
 
 .tag.has-content {
-  background: rgba(0,255,136,0.15);
+  background: rgba(0,255,136,0.12);
   color: #00ff88;
+  border: 1px solid rgba(0,255,136,0.3);
 }
 
 /* Empty state sur module card */
@@ -557,8 +558,8 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: none;
-  border: 1px solid var(--border);
+  background: #1e293b;
+  border: 1px solid transparent;
   color: var(--text2);
   font-family: var(--font-ui);
   font-size: 13px;
@@ -595,12 +596,13 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  background: #1e293b;
 }
 
 /* ===== TAB BAR ===== */
 .tab-bar {
   display: flex;
-  gap: 4px;
+  gap: 0.5rem;
   padding: 20px 48px 0;
   border-bottom: 1px solid var(--border);
   margin-bottom: 0;
@@ -610,12 +612,12 @@ body {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 9px 16px;
+  padding: 0.75rem 1rem;
   border: none;
   background: none;
   color: var(--text3);
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -1957,7 +1959,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: #475569;
   padding: 20px 48px 0;
   font-weight: 500;
@@ -1970,7 +1972,7 @@ body {
 
 .cours-index-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
 }
 
@@ -2008,13 +2010,14 @@ body {
 
 .cours-card-num {
   font-family: var(--font-mono);
-  font-size: 22px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--accent);
-  opacity: 0.4;
-  line-height: 1;
+  color: #00ff88;
+  background: rgba(0,255,136,0.1);
+  border-radius: 6px;
+  padding: 4px 8px;
   flex-shrink: 0;
-  padding-top: 2px;
+  align-self: flex-start;
 }
 
 .cours-card-body { flex: 1; min-width: 0; }
@@ -2081,7 +2084,7 @@ body {
   letter-spacing: 0.05em;
 }
 .cours-article-title {
-  font-size: 22px !important;
+  font-size: 1.6rem !important;
   font-weight: 800 !important;
   color: var(--text) !important;
   letter-spacing: -0.01em;
@@ -2112,20 +2115,11 @@ body {
   color: var(--text) !important;
   margin: 32px 0 14px !important;
   padding-bottom: 10px !important;
+  padding-left: 12px !important;
   border-bottom: 1px solid var(--border) !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
+  border-left: 3px solid #00ff88 !important;
 }
-.cours-content h2::before {
-  content: '';
-  display: inline-block;
-  width: 3px;
-  height: 16px;
-  background: #00ff88;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
+.cours-content h2::before { content: none; }
 .cours-content h2:first-child { margin-top: 0 !important; }
 
 .cours-content h3 {
@@ -2138,9 +2132,9 @@ body {
 }
 
 .cours-content p {
-  color: var(--text2);
+  color: #94a3b8;
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.75;
   margin-bottom: 14px;
 }
 .cours-content p strong { color: var(--text); }
@@ -2172,14 +2166,14 @@ body {
 }
 
 .cours-content .code-block {
-  background: #07090f;
+  background: #0d1117;
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
   padding: 16px 20px;
   font-family: var(--font-mono);
   font-size: 12.5px;
-  color: #b8c4a8;
+  color: #a3e635;
   line-height: 1.75;
   overflow-x: auto;
   margin: 14px 0;
@@ -2227,7 +2221,7 @@ body {
   margin: 16px 0;
   border-radius: var(--radius);
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid #1e293b;
 }
 .cours-content th {
   background: var(--bg3);
@@ -2238,13 +2232,13 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-bottom: 1px solid var(--border2);
+  border-bottom: 1px solid #1e293b;
   font-family: var(--font-mono);
 }
 .cours-content td {
   padding: 10px 14px;
   color: var(--text2);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #1e293b;
   line-height: 1.5;
   vertical-align: top;
 }
@@ -2261,7 +2255,7 @@ body {
 .cours-content tr:hover td { background: rgba(255,255,255,0.02); }
 
 .cours-content .schema-block {
-  background: #07090f;
+  background: #0d1117;
   border: 1px solid var(--border);
   border-left: 3px solid var(--blue);
   border-radius: var(--radius);
@@ -2377,14 +2371,14 @@ body {
   color: var(--accent);
 }
 .cours-html-block pre {
-  background: #07090f !important;
+  background: #0d1117 !important;
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
   padding: 16px 20px;
   font-family: var(--font-mono);
   font-size: 12.5px;
-  color: #b8c4a8;
+  color: #a3e635;
   line-height: 1.75;
   overflow-x: auto;
   margin: 14px 0;

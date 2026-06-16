@@ -4,7 +4,7 @@ const MODULES = [
   {
     id: 'numerisation',
     label: 'Numération',
-    icon: 'ðŸ”¢',
+    icon: '\u{1F522}',
     color: '#00ff88',
     desc: 'Systèmes de numération : binaire, octal, hexadécimal, conversions...',
     topics: [],
@@ -283,7 +283,7 @@ const MODULES = [
   {
     id: 'reseaux',
     label: 'Réseaux',
-    icon: 'ðŸŒ',
+    icon: '\u{1F310}',
     color: '#3b82f6',
     desc: 'Modèle OSI, TCP/IP, adressage IP, sous-réseaux, services réseau...',
     topics: ['OSI', 'TCP/IP', 'VLAN', 'Routage', 'DNS', 'DHCP', 'WiFi', 'Wireshark'],
@@ -538,7 +538,7 @@ const MODULES = [
   {
     id: 'linux',
     label: 'Linux',
-    icon: 'ðŸ§',
+    icon: '\u{1F427}',
     color: '#00ff88',
     desc: 'Commandes, droits, services, filtrage, gestion de paquets...',
     topics: ['Système de fichiers', 'VIM', 'Droits', 'Processus', 'APT', 'Redirections'],
@@ -682,7 +682,7 @@ const MODULES = [
   {
     id: 'linux-server',
     label: 'Serveur Linux',
-    icon: 'ðŸ§',
+    icon: '\u{1F427}',
     color: '#00e5a0',
     desc: 'Administration serveur Debian/Ubuntu, Apache, SSH, Samba, pare-feu...',
     topics: ['SSH', 'Apache', 'Samba', 'UFW', 'Cron', 'Logs'],
@@ -750,7 +750,7 @@ const MODULES = [
   {
     id: 'windows',
     label: 'Windows',
-    icon: 'ðŸªŸ',
+    icon: '\u{1FA9F}',
     color: '#0ea5e9',
     desc: 'Gestion des disques, SAM, droits NTFS, pare-feu, BitLocker...',
     topics: ['Diskpart', 'SAM', 'NTFS', 'icacls', 'BitLocker', 'Pare-feu'],
@@ -940,7 +940,7 @@ const MODULES = [
   {
     id: 'windows-server',
     label: 'Windows Server 2025',
-    icon: 'ðŸ–¥ï¸',
+    icon: '\u{1F5A5}️',
     color: '#0ea5e9',
     desc: 'Installation, configuration, Active Directory, GPO, DNS, DHCP...',
     topics: ['Installation', 'AD DS', 'GPO', 'DNS', 'DHCP', 'IIS', 'RDS'],
@@ -1072,7 +1072,7 @@ const MODULES = [
   {
     id: 'virtualisation',
     label: 'Virtualisation',
-    icon: 'ðŸ“¦',
+    icon: '\u{1F4E6}',
     color: '#8b5cf6',
     desc: 'Concepts, VMware Workstation, Hyper-V, VirtualBox â€” création et gestion de VMs',
     topics: ['Hyperviseur', 'VMware', 'Hyper-V', 'VirtualBox', 'Snapshots', 'Réseaux VM'],
@@ -1216,7 +1216,7 @@ const MODULES = [
   {
     id: 'securite',
     label: 'Sécurité',
-    icon: 'ðŸ”',
+    icon: '\u{1F510}',
     color: '#ef4444',
     desc: 'PKI, certificats SSL/TLS, pare-feu, VPN, VLAN, CIA Triad...',
     topics: ['PKI', 'SSL/TLS', 'Pare-feu', 'iptables', 'VPN', 'VLAN'],
@@ -1360,7 +1360,7 @@ const MODULES = [
   {
     id: 'cisco',
     label: 'Cisco / Réseaux',
-    icon: 'ðŸ”Œ',
+    icon: '\u{1F50C}',
     color: '#e84040',
     desc: 'IOS Cisco, routage, switching, VLAN, ACL, Packet Tracer...',
     topics: ['IOS', 'VLAN', 'Routage', 'ACL', 'STP', 'Packet Tracer'],
@@ -1454,7 +1454,7 @@ const MODULES = [
   {
     id: 'supervision',
     label: 'Supervision',
-    icon: 'ðŸ“Š',
+    icon: '\u{1F4CA}',
     color: '#06b6d4',
     desc: 'Zabbix, SNMP, ITIL, tickets et syslog...',
     topics: ['Zabbix', 'SNMP', 'ITIL', 'GLPI', 'Syslog', 'SLA'],
@@ -1664,7 +1664,7 @@ const MODULES = [
   {
     id: 'stockage',
     label: 'Stockage & Sauvegarde',
-    icon: 'ðŸ’¾',
+    icon: '\u{1F4BE}',
     color: '#f59e0b',
     desc: 'RAID, SAN, NAS, iSCSI, stratégies de sauvegarde...',
     topics: ['RAID', 'SAN', 'NAS', 'iSCSI', 'Veeam', 'Sauvegarde'],
@@ -1767,7 +1767,7 @@ const MODULES = [
   {
     id: 'cloud',
     label: 'Cloud & Azure',
-    icon: 'â˜ï¸',
+    icon: '☁️',
     color: '#0ea5e9',
     desc: 'Azure, AWS, IaaS PaaS SaaS, Azure AD, VMs réseau cloud...',
     topics: ['Azure', 'AWS', 'IaaS', 'PaaS', 'SaaS', 'Azure AD'],
@@ -1924,7 +1924,7 @@ const MODULES = [
   {
     id: 'messagerie',
     label: 'Messagerie',
-    icon: 'ðŸ“§',
+    icon: '\u{1F4E7}',
     color: '#6366f1',
     desc: 'Exchange Server, Postfix, protocoles SMTP IMAP POP3, antispam...',
     topics: ['Exchange', 'Postfix', 'SMTP', 'IMAP', 'Antispam', 'DKIM'],
@@ -2035,7 +2035,7 @@ const MODULES = [
   {
     id: 'scripting-avance',
     label: 'Scripting & BDD',
-    icon: 'ðŸ',
+    icon: '\u{1F40D}',
     color: '#10b981',
     desc: 'Python administration, Regex, SQL, MySQL, PowerShell avancé...',
     topics: ['Python', 'Regex', 'SQL', 'MySQL', 'PowerShell', 'API REST'],
@@ -2158,7 +2158,7 @@ const MODULES = [
   {
     id: 'ad-avance',
     label: 'AD Avancé',
-    icon: 'ðŸ›ï¸',
+    icon: '\u{1F3DB}️',
     color: '#8b5cf6',
     desc: 'Délégation, approbations, sites AD, réplication, ADFS, tiering...',
     topics: ['Délégation', 'Trusts', 'Sites AD', 'Réplication', 'ADFS', 'Tiering'],
@@ -2262,7 +2262,7 @@ const MODULES = [
   {
     id: 'documentation',
     label: 'Projet & Documentation',
-    icon: 'ðŸ“‹',
+    icon: '\u{1F4CB}',
     color: '#64748b',
     desc: 'Schémas réseau, PRA/PCA, procédures exploitation, gestion de projet...',
     topics: ['Visio', 'PRA', 'PCA', 'ITIL', 'Agile', 'Documentation'],

@@ -183,11 +183,7 @@ function renderHome() {
   state.currentScreen = 'home';
   document.getElementById('mobile-module-name').textContent = '';
   renderNav();
-  const stats = document.getElementById('home-stats');
-  const totalCours = MODULES.reduce((a, m) => a + m.cours.length, 0);
-  stats.innerHTML = `
-    <div class="stat-card"><span class="stat-num">${MODULES.length}</span><span class="stat-lbl">Modules</span></div>
-    <div class="stat-card"><span class="stat-num">${totalCours}</span><span class="stat-lbl">Cours</span></div>`;
+  document.getElementById('home-stats').innerHTML = '';
   const grid = document.getElementById('module-grid');
   grid.innerHTML = '';
   MODULES.forEach((m, i) => {
@@ -197,19 +193,15 @@ function renderHome() {
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', `Module ${m.label}`);
-    const tags = [];
-    if (m.cours.length)  tags.push(`<span class="tag has-content">cours (${m.cours.length})</span>`);
-    if (m.linux_cli)     tags.push('<span class="tag cli-tag">CLI Linux</span>');
-    if (m.windows_cli)   tags.push('<span class="tag cli-tag-win">CLI Windows</span>');
-    if (m.gameshell)     tags.push('<span class="tag cli-tag">GameShell</span>');
-    if (m.netrunner)     tags.push('<span class="tag cli-tag-win">NetRunner</span>');
-    if (!tags.length)    tags.push('<span class="tag">À venir</span>');
+    const tag = m.cours.length
+      ? `<span class="tag has-content">cours (${m.cours.length})</span>`
+      : '<span class="tag">À venir</span>';
     card.innerHTML = `
-      ${!m.cours.length && !m.linux_cli && !m.windows_cli ? '<span class="module-empty-badge">À venir</span>' : ''}
+      ${!m.cours.length ? '<span class="module-empty-badge">À venir</span>' : ''}
       <span class="module-card-icon">${m.icon}</span>
       <div class="module-card-title">${m.label}</div>
       <div class="module-card-desc">${m.desc}</div>
-      <div class="module-card-tags">${tags.join('')}</div>`;
+      <div class="module-card-tags">${tag}</div>`;
     card.addEventListener('click', () => openModule(m.id));
     card.addEventListener('keydown', e => e.key === 'Enter' && openModule(m.id));
     grid.appendChild(card);
@@ -390,8 +382,12 @@ function renderCoursDetail(m, cours, idx, el) {
   content.className = 'cours-content';
   content.innerHTML = renderCoursContent(cours.sections);
   article.appendChild(content);
+  const breadcrumb = document.createElement('nav');
+  breadcrumb.className = 'cours-breadcrumb';
+  breadcrumb.innerHTML = `<span>${escHtml(m.label)}</span><span class="bc-sep">›</span><span>${escHtml(cours.titre)}</span>`;
   const wrap = document.createElement('div');
   wrap.className = 'cours-container';
+  wrap.appendChild(breadcrumb);
   wrap.appendChild(article);
   el.innerHTML = '';
   el.appendChild(wrap);

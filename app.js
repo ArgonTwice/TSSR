@@ -40,6 +40,21 @@ function setProgress(moduleId, data) {
   renderNav();
 }
 
+// ===== SIDEBAR SEARCH =====
+let sidebarSearchQuery = '';
+
+function initSidebarSearch() {
+  const input = document.getElementById('sidebar-search-input');
+  if (!input) return;
+  input.addEventListener('input', () => {
+    sidebarSearchQuery = input.value.toLowerCase().trim();
+    renderNav();
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { input.value = ''; sidebarSearchQuery = ''; renderNav(); }
+  });
+}
+
 // ===== RENDER NAV =====
 const MODULE_GROUPS = [
   { label: 'Fondamentaux',  ids: ['numerisation', 'reseaux', 'securite'] },
@@ -62,44 +77,50 @@ function renderNav() {
     { label: 'Projet',              modules: ['documentation'] },
   ];
 
+  const sq = sidebarSearchQuery;
   const isTermActive = state.currentScreen === 'terminal-fs';
   const isTermOpen   = state.openAccordion === 'terminals';
+  const termKeywords = ['terminaux','terminal','linux','powershell','cmd','gameshell','netrunner'];
+  const termVisible  = !sq || termKeywords.some(k => k.includes(sq));
 
-  const termBtn = document.createElement('button');
-  termBtn.className = 'nav-item nav-item-terminals' + (isTermActive ? ' active' : '');
-  termBtn.setAttribute('aria-label', 'Terminaux');
-  termBtn.setAttribute('aria-expanded', String(isTermOpen));
-  termBtn.dataset.moduleId = 'terminals';
-  termBtn.innerHTML = `
-    <span class="nav-item-icon" style="background:rgba(0,229,160,0.1);color:var(--accent)">💻</span>
-    <span>Terminaux</span>
-    <span class="nav-chevron${isTermOpen ? ' open' : ''}">›</span>`;
-  termBtn.addEventListener('click', () => toggleAccordion('terminals'));
-  nav.appendChild(termBtn);
+  if (termVisible) {
+    const termBtn = document.createElement('button');
+    termBtn.className = 'nav-item nav-item-terminals' + (isTermActive ? ' active' : '');
+    termBtn.setAttribute('aria-label', 'Terminaux');
+    termBtn.setAttribute('aria-expanded', String(isTermOpen));
+    termBtn.dataset.moduleId = 'terminals';
+    termBtn.innerHTML = `
+      <span class="nav-item-icon" style="background:rgba(0,229,160,0.1);color:var(--accent)">💻</span>
+      <span>Terminaux</span>
+      <span class="nav-chevron${isTermOpen ? ' open' : ''}">›</span>`;
+    termBtn.addEventListener('click', () => toggleAccordion('terminals'));
+    nav.appendChild(termBtn);
 
-  const TERM_ITEMS = [
-    { id: 'linux',     label: '🐧 Terminal Linux' },
-    { id: 'windows',   label: '💻 Terminal PowerShell' },
-    { id: 'cmd',       label: '🖥️ Terminal Windows (CMD)' },
-    { id: 'gameshell', label: '🎮 GameShell' },
-    { id: 'netrunner', label: '🚀 NetRunner' },
-  ];
-  const termPanel = document.createElement('div');
-  termPanel.className = 'nav-accordion' + (isTermOpen ? ' open' : '');
-  termPanel.id = 'nav-acc-terminals';
-  TERM_ITEMS.forEach(item => {
-    const iBtn = document.createElement('button');
-    iBtn.className = 'nav-cours-item' + (isTermActive && state.currentTerminal === item.id ? ' active' : '');
-    iBtn.textContent = item.label;
-    iBtn.addEventListener('click', () => { openTerminalFullscreen(item.id); closeSidebar(); });
-    termPanel.appendChild(iBtn);
-  });
-  nav.appendChild(termPanel);
+    const TERM_ITEMS = [
+      { id: 'linux',     label: '🐧 Terminal Linux' },
+      { id: 'windows',   label: '💻 Terminal PowerShell' },
+      { id: 'cmd',       label: '🖥️ Terminal Windows (CMD)' },
+      { id: 'gameshell', label: '🎮 GameShell' },
+      { id: 'netrunner', label: '🚀 NetRunner' },
+    ];
+    const termPanel = document.createElement('div');
+    termPanel.className = 'nav-accordion' + (isTermOpen ? ' open' : '');
+    termPanel.id = 'nav-acc-terminals';
+    TERM_ITEMS.forEach(item => {
+      const iBtn = document.createElement('button');
+      iBtn.className = 'nav-cours-item' + (isTermActive && state.currentTerminal === item.id ? ' active' : '');
+      iBtn.textContent = item.label;
+      iBtn.addEventListener('click', () => { openTerminalFullscreen(item.id); closeSidebar(); });
+      termPanel.appendChild(iBtn);
+    });
+    nav.appendChild(termPanel);
+  }
 
   GROUPES.forEach(groupe => {
     const modulesGroupe = groupe.modules
       .map(id => MODULES.find(m => m.id === id))
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter(m => !sq || m.label.toLowerCase().includes(sq) || m.id.toLowerCase().includes(sq));
     if (!modulesGroupe.length) return;
 
     const label = document.createElement('p');
@@ -3461,6 +3482,7 @@ window.addEventListener('popstate', (e) => {
 });
 
 state.openAccordion = store.get('sidebar_open') || null;
+initSidebarSearch();
 const _hash = location.hash.replace('#', '');
 const _moduleMatch = _hash.match(/^module-([^/]+)(?:\/([^/]+)(?:\/(.+))?)?$/);
 if (_moduleMatch) {

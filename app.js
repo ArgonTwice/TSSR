@@ -31,6 +31,23 @@ function shuffle(arr) {
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function sanitizeText(str) {
+  if (!str) return '';
+  return str
+    .replace(/─/g, '-')
+    .replace(/│/g, '|')
+    .replace(/┌/g, '+').replace(/┐/g, '+').replace(/└/g, '+').replace(/┘/g, '+')
+    .replace(/├/g, '+').replace(/┤/g, '+').replace(/┬/g, '+').replace(/┴/g, '+').replace(/┼/g, '+')
+    .replace(/═/g, '=')
+    .replace(/[║-╬]/g, '+')
+    .replace(/→/g, '->').replace(/←/g, '<-').replace(/⇒/g, '=>')
+    .replace(/—/g, '--').replace(/–/g, '-').replace(/…/g, '...')
+    .replace(/²/g, '^2').replace(/³/g, '^3').replace(/¹/g, '^1')
+    .replace(/⁰/g, '^0').replace(/⁴/g, '^4').replace(/⁵/g, '^5')
+    .replace(/⁶/g, '^6').replace(/⁷/g, '^7').replace(/⁸/g, '^8').replace(/⁹/g, '^9')
+    .replace(/✓/g, '[OK]').replace(/✗/g, '[X]').replace(/•/g, '*')
+    .replace(/«/g, '"').replace(/»/g, '"');
+}
 function getProgress(moduleId) {
   return store.get('progress_' + moduleId) || { pct: 0, qcm_best: 0, fc_mastered: 0 };
 }
@@ -174,7 +191,7 @@ function renderNav() {
           const isCoursActive = isActive && state.currentCours === c.id;
           const cBtn = document.createElement('button');
           cBtn.className = 'nav-cours-item' + (isCoursActive ? ' active' : '');
-          cBtn.textContent = c.titre;
+          cBtn.textContent = sanitizeText(c.titre);
           cBtn.addEventListener('click', () => {
             openModule(m.id, false, c.id);
             closeSidebar();
@@ -401,7 +418,7 @@ function renderCoursIndex(m, el) {
          onkeydown="if(event.key==='Enter')openCours('${c.id}')">
       <div class="cours-card-num">${String(i + 1).padStart(2, '0')}</div>
       <div class="cours-card-body">
-        <div class="cours-card-title">${c.titre}</div>
+        <div class="cours-card-title">${sanitizeText(c.titre)}</div>
         ${c.badge ? `<span class="cours-badge cours-badge-${c.badge}">${c.badge.toUpperCase()}</span>` : ''}
       </div>
     </div>`).join('');
@@ -420,7 +437,7 @@ function renderCoursDetail(m, cours, idx, el) {
   const titleWrap = document.createElement('div');
   const h2 = document.createElement('h2');
   h2.className = 'cours-article-title';
-  h2.textContent = cours.titre;
+  h2.textContent = sanitizeText(cours.titre);
   titleWrap.appendChild(h2);
   if (cours.badge) {
     const badge = document.createElement('span');
@@ -445,7 +462,7 @@ function renderCoursDetail(m, cours, idx, el) {
   bcSep.className = 'bc-sep';
   bcSep.textContent = '›';
   const bcTitle = document.createElement('span');
-  bcTitle.textContent = cours.titre;
+  bcTitle.textContent = sanitizeText(cours.titre);
   breadcrumb.appendChild(bcMod);
   breadcrumb.appendChild(bcSep);
   breadcrumb.appendChild(bcTitle);
@@ -477,8 +494,8 @@ function openCours(coursId) {
 function renderCoursContent(sections) {
   if (!sections) return '';
   return sections.map(s => {
-    if (typeof s === 'string') return `<p>${s}</p>`;
-    if (s.type === 'p')     return `<p>${s.content}</p>`;
+    if (typeof s === 'string') return `<p>${sanitizeText(s)}</p>`;
+    if (s.type === 'p')     return `<p>${sanitizeText(s.content)}</p>`;
     if (s.type === 'html') {
       let content = s.content;
       content = content.replace(/<head[\s\S]*?<\/head>/gi, '');
@@ -491,14 +508,14 @@ function renderCoursContent(sections) {
       content = content.replace(/\s*class="[^"]*"/gi, '');
       return `<div class="cours-html-block">${content}</div>`;
     }
-    if (s.type === 'code')  return `<pre class="code-block">${escHtml(s.content)}</pre>`;
-    if (s.type === 'info')  return `<div class="info-box">${s.content}</div>`;
-    if (s.type === 'warn')  return `<div class="warn-box">${s.content}</div>`;
-    if (s.type === 'ul')    return `<ul>${s.items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
-    if (s.type === 'ol')    return `<ol>${s.items.map(i=>`<li>${i}</li>`).join('')}</ol>`;
+    if (s.type === 'code')  return `<pre class="code-block">${escHtml(sanitizeText(s.content))}</pre>`;
+    if (s.type === 'info')  return `<div class="info-box">${sanitizeText(s.content)}</div>`;
+    if (s.type === 'warn')  return `<div class="warn-box">${sanitizeText(s.content)}</div>`;
+    if (s.type === 'ul')    return `<ul>${s.items.map(i=>`<li>${sanitizeText(i)}</li>`).join('')}</ul>`;
+    if (s.type === 'ol')    return `<ol>${s.items.map(i=>`<li>${sanitizeText(i)}</li>`).join('')}</ol>`;
     if (s.type === 'table') return renderTable(s);
-    if (s.type === 'h2')    return `<h2>${s.content}</h2>`;
-    if (s.type === 'h3')    return `<h3>${s.content}</h3>`;
+    if (s.type === 'h2')    return `<h2>${sanitizeText(s.content)}</h2>`;
+    if (s.type === 'h3')    return `<h3>${sanitizeText(s.content)}</h3>`;
     if (s.type === 'schema') return renderSchema(s.content);
     if (s.type === 'steps')  return renderSteps(s.items);
     if (s.type === 'html-file') {
@@ -526,17 +543,17 @@ function renderCoursContent(sections) {
   }).join('');
 }
 function renderSchema(txt) {
-  return `<pre class="schema-block">${escHtml(txt)}</pre>`;
+  return `<pre class="schema-block">${escHtml(sanitizeText(txt))}</pre>`;
 }
 function renderSteps(items) {
   return items.map(step => {
-    const codeBlock = step.code ? `<pre class="code-block" style="margin-top:10px">${escHtml(step.code)}</pre>` : '';
-    const whyBlock = step.why ? `<div class="step-why-block">${step.why}</div>` : '';
+    const codeBlock = step.code ? `<pre class="code-block" style="margin-top:10px">${escHtml(sanitizeText(step.code))}</pre>` : '';
+    const whyBlock = step.why ? `<div class="step-why-block">${sanitizeText(step.why)}</div>` : '';
     return `<div class="cours-step">
       <div class="cours-step-num">${escHtml(step.num)}</div>
       <div class="cours-step-body">
-        <div class="cours-step-title">${step.title}</div>
-        ${step.content ? `<div class="cours-step-content">${step.content}</div>` : ''}
+        <div class="cours-step-title">${sanitizeText(step.title)}</div>
+        ${step.content ? `<div class="cours-step-content">${sanitizeText(step.content)}</div>` : ''}
         ${codeBlock}
         ${whyBlock}
       </div>
@@ -544,8 +561,8 @@ function renderSteps(items) {
   }).join('');
 }
 function renderTable(s) {
-  const thead = s.headers.map(h=>`<th>${h}</th>`).join('');
-  const tbody = s.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+  const thead = s.headers.map(h=>`<th>${sanitizeText(h)}</th>`).join('');
+  const tbody = s.rows.map(r=>`<tr>${r.map(c=>`<td>${sanitizeText(String(c))}</td>`).join('')}</tr>`).join('');
   return `<table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`;
 }
 

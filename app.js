@@ -172,7 +172,7 @@ function renderNav() {
       const _iconEl = document.createElement('span');
       _iconEl.className = 'nav-item-icon';
       _iconEl.style.cssText = `background:${m.color}22;color:${m.color}`;
-      _iconEl.textContent = (m.icon && m.icon.length <= 2) ? m.icon : m.label.slice(0, 2).toUpperCase();
+      _iconEl.textContent = (m.icon && [...m.icon].length <= 2) ? m.icon : m.label.slice(0, 2).toUpperCase();
       const _labelEl = document.createElement('span');
       _labelEl.textContent = m.label;
       btn.appendChild(_iconEl);

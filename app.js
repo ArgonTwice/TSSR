@@ -852,12 +852,29 @@ function renderNotes(m, el) {
         if (!txt) return '';
         return `<div class="notes-entry"><div class="notes-entry-name">${p}</div><div class="notes-entry-text">${escHtml(txt)}</div></div>`;
       }).filter(Boolean).join('');
-      area.innerHTML = entries ||
-        `<div class="empty-state" style="padding:60px 0">
+      const emptyLocal = `
+        <div class="empty-state" style="padding:40px 0">
           <span class="empty-state-icon">\u{1F4DD}</span>
-          <h3>Aucune note pour l'instant</h3>
+          <h3>Aucune note locale pour l'instant</h3>
           <p>Les notes de chaque membre apparaîtront ici.</p>
         </div>`;
+      area.innerHTML = `
+        <div class="shared-resume-section">
+          <div class="shared-resume-header">
+            <span class="shared-resume-title">Résumé collectif IA</span>
+            <span class="shared-resume-meta" id="shared-resume-meta-${m.id}"></span>
+            <button class="shared-resume-regen" id="shared-resume-regen-${m.id}">Régénérer</button>
+          </div>
+          <div class="shared-resume-content" id="shared-resume-content-${m.id}">
+            <em style="color:var(--text3)">En attente du premier contenu importé...</em>
+          </div>
+          <p class="shared-resume-hint">Généré automatiquement à partir de tous les fichiers et notes importés dans ce module.</p>
+        </div>
+        <div class="notes-local-section">${entries || emptyLocal}</div>`;
+      initCollectiveSummaryListener(m.id);
+      document.getElementById('shared-resume-regen-' + m.id)?.addEventListener('click', () => {
+        regenerateAutoSummary(m.id);
+      });
     } else {
       area.innerHTML = `
         <div class="notes-editor">
@@ -872,7 +889,11 @@ function renderNotes(m, el) {
       ta.addEventListener('input', () => {
         document.getElementById('ns-status').textContent = '…';
         clearTimeout(t);
-        t = setTimeout(() => { saveNote(person, ta.value); document.getElementById('ns-status').textContent = '✓ Sauvegardé'; }, 600);
+        t = setTimeout(() => {
+          saveNote(person, ta.value);
+          document.getElementById('ns-status').textContent = '✓ Sauvegardé';
+          trackTextNotes(ta.value, m.id).catch(() => {});
+        }, 600);
       });
       ta.focus();
     }
@@ -984,6 +1005,9 @@ function setupFileUpload(moduleId) {
         const content = await extractFileContent(file);
         statusEl.style.color = 'var(--accent)';
         statusEl.textContent = `Extrait — ${content.length} caractères`;
+        trackFileUpload(file, content, moduleId).then(() => {
+          statusEl.textContent = `Extrait — ${content.length} car. · Sync collectif OK`;
+        }).catch(() => {});
 
         previewEl.textContent = content.substring(0, 300) + (content.length > 300 ? '…' : '');
         previewEl.style.display = 'block';
@@ -1120,6 +1144,100 @@ function formatFileSize(bytes) {
   if (!bytes) return '0 B';
   const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3);
   return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
+}
+
+// ===== FIREBASE — SYNC COLLECTIF =====
+
+async function trackFileUpload(file, content, moduleId) {
+  const { db, doc, updateDoc, setDoc, arrayUnion, serverTimestamp } = await import('./firebase.js');
+  const ref = doc(db, 'course-content', moduleId);
+  const entry = {
+    userId: store.get('tssr_pseudo') || 'Anonyme',
+    type: 'file',
+    content: content.substring(0, 3000),
+    filename: file.name,
+    uploadedAt: new Date().toISOString(),
+  };
+  try {
+    await updateDoc(ref, { contentSources: arrayUnion(entry), lastUpdatedAt: serverTimestamp() });
+  } catch (_) {
+    await setDoc(ref, { contentSources: [entry], lastUpdatedAt: serverTimestamp() }, { merge: true });
+  }
+  await regenerateAutoSummary(moduleId);
+}
+
+async function trackTextNotes(noteText, moduleId) {
+  if (!noteText.trim()) return;
+  const { db, doc, updateDoc, setDoc, arrayUnion, serverTimestamp } = await import('./firebase.js');
+  const ref = doc(db, 'course-content', moduleId);
+  const entry = {
+    userId: store.get('tssr_pseudo') || 'Anonyme',
+    type: 'text',
+    content: noteText.substring(0, 2000),
+    uploadedAt: new Date().toISOString(),
+  };
+  try {
+    await updateDoc(ref, { contentSources: arrayUnion(entry), lastUpdatedAt: serverTimestamp() });
+  } catch (_) {
+    await setDoc(ref, { contentSources: [entry], lastUpdatedAt: serverTimestamp() }, { merge: true });
+  }
+  await regenerateAutoSummary(moduleId);
+}
+
+async function regenerateAutoSummary(moduleId) {
+  const { db, doc, getDoc, setDoc, serverTimestamp } = await import('./firebase.js');
+  const ref = doc(db, 'course-content', moduleId);
+  const snap = await getDoc(ref);
+  const data = snap.data() || {};
+  const sources = data.contentSources || [];
+  if (!sources.length) return;
+
+  let aggregated = `Notes et fichiers de ${new Set(sources.map(s => s.userId)).size} collègue(s) :\n\n`;
+  sources.forEach((src, i) => {
+    aggregated += `[Source ${i + 1} — ${src.userId}]\nType : ${src.type}${src.filename ? ' / ' + src.filename : ''}\n${src.content}\n\n`;
+  });
+
+  const prompt = `Tu es un expert pédagogique TSSR. Synthétise en 5-8 points clés, organisés et lisibles pour un technicien en formation :\n\n${aggregated.substring(0, 5000)}`;
+
+  try {
+    const resp = await fetch('/api/auto-summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: aggregated.substring(0, 5000), sourceCount: sources.length }),
+    });
+    if (!resp.ok) throw new Error('no-backend');
+    const { summary } = await resp.json();
+    await setDoc(ref, { summaryAuto: summary, summaryAutoUpdatedAt: serverTimestamp(), contentSources: sources }, { merge: true });
+  } catch (_) {
+    const fallback = `[${sources.length} source(s) agrégée(s) — résumé IA non disponible sans backend]\n\nPrompt prêt à coller dans Claude.ai :\n${prompt.substring(0, 300)}…`;
+    await setDoc(ref, { summaryAuto: fallback, summaryAutoUpdatedAt: serverTimestamp(), contentSources: sources }, { merge: true });
+  }
+}
+
+async function initCollectiveSummaryListener(moduleId) {
+  try {
+    const { db, doc, onSnapshot } = await import('./firebase.js');
+    if (window._firestoreUnsub) { window._firestoreUnsub(); window._firestoreUnsub = null; }
+    const ref = doc(db, 'course-content', moduleId);
+    window._firestoreUnsub = onSnapshot(ref, snap => {
+      const data = snap.data() || {};
+      const contentEl = document.getElementById('shared-resume-content-' + moduleId);
+      const metaEl    = document.getElementById('shared-resume-meta-'    + moduleId);
+      if (!contentEl) return;
+      if (data.summaryAuto) {
+        contentEl.innerHTML = escHtml(data.summaryAuto).replace(/\n/g, '<br>');
+      }
+      if (metaEl && data.summaryAutoUpdatedAt?.toDate) {
+        metaEl.textContent = data.summaryAutoUpdatedAt.toDate().toLocaleString('fr-FR');
+      }
+    }, () => {
+      const contentEl = document.getElementById('shared-resume-content-' + moduleId);
+      if (contentEl) contentEl.innerHTML = '<em style="color:var(--text3)">Firebase non configuré — remplir firebase.js</em>';
+    });
+  } catch (_) {
+    const contentEl = document.getElementById('shared-resume-content-' + moduleId);
+    if (contentEl) contentEl.innerHTML = '<em style="color:var(--text3)">Firebase non configuré — remplir firebase.js</em>';
+  }
 }
 
 // ===== FLASHCARDS =====

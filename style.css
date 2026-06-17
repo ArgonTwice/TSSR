@@ -2251,6 +2251,59 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 }
 .ai-btn-open:hover { background: rgba(59,130,246,0.15); border-color: var(--blue); }
 
+/* ===== NOTES — RÉSUMÉ COLLECTIF ===== */
+.shared-resume-section {
+  background: rgba(0,229,160,0.04);
+  border: 1px solid rgba(0,229,160,0.18);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px 14px;
+  margin-bottom: 20px;
+}
+.shared-resume-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.shared-resume-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.shared-resume-meta {
+  font-size: 11px;
+  color: var(--text3);
+  flex: 1;
+}
+.shared-resume-regen {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(0,229,160,0.08);
+  border: 1px solid rgba(0,229,160,0.25);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.shared-resume-regen:hover { background: rgba(0,229,160,0.15); border-color: var(--accent); }
+.shared-resume-content {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text2);
+  max-height: 320px;
+  overflow-y: auto;
+}
+.shared-resume-hint {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text3);
+  padding-left: 10px;
+  border-left: 2px solid rgba(0,229,160,0.3);
+}
+.notes-local-section { margin-top: 8px; }
+
 /* ===== COURS — REFONTE COMPLÈTE ===== */
 
 .cours-container {

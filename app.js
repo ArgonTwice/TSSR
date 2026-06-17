@@ -872,11 +872,16 @@ async function renderNotes(m, cours, el) {
   });
 
   let currentMembersCache = {};
+  let myDraft = { text: null, files: null };
 
   function renderMemberCards(moduleId, coursId, members) {
     const container = document.getElementById('members-cards');
     if (!container) return;
     const myCurrentPseudo = localStorage.getItem('tssr_pseudo') || '';
+
+    const prevTextarea = container.querySelector('.member-text-input');
+    if (prevTextarea) myDraft.text = prevTextarea.value;
+
     const names = [...new Set([...KNOWN_MEMBERS, ...Object.keys(members)])];
 
     container.innerHTML = names.map(name => {
@@ -915,13 +920,19 @@ async function renderNotes(m, cours, el) {
     }).join('');
 
     const myCard = container.querySelector(`details[data-member="${myCurrentPseudo}"]`);
-    if (myCard) attachMyCardListeners(myCard, moduleId, coursId, myCurrentPseudo, updatedData => {
-      currentMembersCache[myCurrentPseudo] = updatedData;
-    });
+    if (myCard) {
+      attachMyCardListeners(myCard, moduleId, coursId, myCurrentPseudo, updatedData => {
+        currentMembersCache[myCurrentPseudo] = updatedData;
+      });
+      const newTextarea = myCard.querySelector('.member-text-input');
+      if (newTextarea && myDraft.text !== null) newTextarea.value = myDraft.text;
+    }
   }
 
   function attachMyCardListeners(card, moduleId, coursId, pseudo, onLocalUpdate) {
-    let pendingFiles = [...(currentMembersCache[pseudo]?.files || [])];
+    let pendingFiles = myDraft.files !== null
+      ? [...myDraft.files]
+      : [...(currentMembersCache[pseudo]?.files || [])];
 
     const uploadZone  = card.querySelector('.member-upload-zone');
     const fileInput   = card.querySelector('.member-file-input');
@@ -940,6 +951,8 @@ async function renderNotes(m, cours, el) {
     });
     fileInput?.addEventListener('change', e => { handleNewFiles(e.target.files); fileInput.value = ''; });
 
+    textArea?.addEventListener('input', () => { myDraft.text = textArea.value; });
+
     async function handleNewFiles(fileList) {
       for (const file of fileList) {
         try {
@@ -949,6 +962,7 @@ async function renderNotes(m, cours, el) {
             content: content.substring(0, 5000),
             uploadedAt: new Date().toISOString(),
           });
+          myDraft.files = [...pendingFiles];
           renderFilesChips();
         } catch (err) {
           alert('Erreur lecture ' + file.name + ': ' + err.message);
@@ -965,6 +979,7 @@ async function renderNotes(m, cours, el) {
       filesListEl.querySelectorAll('.file-chip-remove').forEach(btn => {
         btn.addEventListener('click', () => {
           pendingFiles.splice(Number(btn.dataset.idx), 1);
+          myDraft.files = [...pendingFiles];
           renderFilesChips();
         });
       });
@@ -978,6 +993,7 @@ async function renderNotes(m, cours, el) {
         const { FirebaseNotes } = await import('./firebase-notes.js');
         const result = await FirebaseNotes.saveMemberData(moduleId, coursId, pseudo, textArea.value, pendingFiles);
         onLocalUpdate({ text: textArea.value, files: pendingFiles, updatedAt: new Date().toISOString() });
+        myDraft = { text: null, files: null };
         saveBtn.textContent = result.success ? 'Sauvegardé !' : 'Erreur';
       } catch (_) {
         saveBtn.textContent = 'Erreur';

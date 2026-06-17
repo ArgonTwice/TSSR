@@ -1,5 +1,5 @@
 // sw.js — Service Worker TSSR offline-first
-const CACHE = 'tssr-v13';
+const CACHE = 'tssr-v14';
 const ASSETS = [
   './',
   './index.html',
@@ -27,6 +27,10 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (!e.request.url.startsWith('http')) return;
+  // Ne pas intercepter les appels Firebase API (Firestore, Auth)
+  if (e.request.url.includes('googleapis.com') ||
+      e.request.url.includes('firebaseio.com') ||
+      e.request.url.includes('firebaseapp.com')) return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       const net = fetch(e.request).then(res => {

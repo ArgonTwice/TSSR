@@ -904,9 +904,15 @@ function renderNotes(m, el) {
   ).join('') + `<button class="np-btn np-btn-resume${cur==='Résumé'?' active':''}" data-p="Résumé">Résumé</button>`;
 
   const uploadOpen = store.get('notes_upload_' + m.id) === 'open';
+  const pseudo     = localStorage.getItem('tssr_pseudo') || '';
 
   el.innerHTML = `
     <div class="notes-wrap">
+      <div class="notes-pseudo-bar">
+        <span class="notes-pseudo-label">Vous êtes&nbsp;:</span>
+        ${MEMBRES.map(p => `<button class="pseudo-chip${pseudo===p?' active':''}" data-pseudo="${p}">${p}</button>`).join('')}
+        <span class="pseudo-chip-hint" id="pseudo-hint">${pseudo ? '' : 'Sélectionnez votre pseudo'}</span>
+      </div>
       <div class="notes-upload-section">
         <button class="notes-upload-toggle" id="notes-upload-toggle" aria-expanded="${uploadOpen}">
           <span class="notes-upload-label">Importer des fichiers</span>
@@ -936,6 +942,15 @@ function renderNotes(m, el) {
     toggleBtn.setAttribute('aria-expanded', open);
     toggleBtn.querySelector('.notes-upload-chevron').textContent = open ? '▲' : '▼';
     store.set('notes_upload_' + m.id, open ? 'open' : 'closed');
+  });
+
+  el.querySelectorAll('.pseudo-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      localStorage.setItem('tssr_pseudo', btn.dataset.pseudo);
+      el.querySelectorAll('.pseudo-chip').forEach(b => b.classList.toggle('active', b.dataset.pseudo === btn.dataset.pseudo));
+      const hint = document.getElementById('pseudo-hint');
+      if (hint) hint.textContent = '';
+    });
   });
 
   setupFileUpload(m.id);
@@ -1152,7 +1167,7 @@ async function trackFileUpload(file, content, moduleId) {
   const { db, doc, updateDoc, setDoc, arrayUnion, serverTimestamp } = await import('./firebase.js');
   const ref = doc(db, 'course-content', moduleId);
   const entry = {
-    userId: store.get('tssr_pseudo') || 'Anonyme',
+    userId: localStorage.getItem('tssr_pseudo') || 'Anonyme',
     type: 'file',
     content: content.substring(0, 3000),
     filename: file.name,
@@ -1171,7 +1186,7 @@ async function trackTextNotes(noteText, moduleId) {
   const { db, doc, updateDoc, setDoc, arrayUnion, serverTimestamp } = await import('./firebase.js');
   const ref = doc(db, 'course-content', moduleId);
   const entry = {
-    userId: store.get('tssr_pseudo') || 'Anonyme',
+    userId: localStorage.getItem('tssr_pseudo') || 'Anonyme',
     type: 'text',
     content: noteText.substring(0, 2000),
     uploadedAt: new Date().toISOString(),

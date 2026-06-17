@@ -2288,6 +2288,66 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 }
 .ai-btn-open:hover { background: rgba(59,130,246,0.15); border-color: var(--blue); }
 
+/* ===== NOTES — SECTIONS PARTAGÉES / PERSO ===== */
+.notes-shared-section,
+.notes-personal-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+}
+.notes-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.notes-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.notes-sync-status {
+  font-size: 11px;
+  color: var(--accent);
+  margin-left: auto;
+}
+.notes-local-badge {
+  font-size: 11px;
+  color: var(--text3);
+  background: rgba(255,255,255,0.05);
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+.notes-shared-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  gap: 10px;
+}
+.notes-shared-author {
+  font-size: 11px;
+  color: var(--text3);
+  font-style: italic;
+}
+.notes-save-btn {
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(0,229,160,0.1);
+  border: 1px solid rgba(0,229,160,0.3);
+  border-radius: var(--radius);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.notes-save-btn:hover:not(:disabled) { background: rgba(0,229,160,0.18); border-color: var(--accent); }
+.notes-save-btn:disabled { opacity: 0.5; cursor: default; }
+.notes-textarea-sm { min-height: 100px !important; }
+
 /* ===== NOTES — RÉSUMÉ COLLECTIF ===== */
 .shared-resume-section {
   background: rgba(0,229,160,0.04);

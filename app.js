@@ -835,74 +835,12 @@ function renderOutils(m, el) {
 const MEMBRES = ['Esdine','Madjid','Fouad','Ilir','Jores','Ronel','Folly','Mick','Antho','Axel'];
 
 function renderNotes(m, el) {
-  const lastKey = 'notes_last_' + m.id;
-  let cur = store.get(lastKey) || MEMBRES[0];
+  if (window._noteUnsub)    { window._noteUnsub();    window._noteUnsub    = null; }
+  if (window._summaryUnsub) { window._summaryUnsub(); window._summaryUnsub = null; }
 
-  function getNote(p)     { return store.get(`notes_${m.id}_${p}`) || ''; }
-  function saveNote(p, v) { store.set(`notes_${m.id}_${p}`, v); }
-
-  function showPerson(person) {
-    cur = person;
-    store.set(lastKey, person);
-    el.querySelectorAll('.np-btn').forEach(b => b.classList.toggle('active', b.dataset.p === person));
-    const area = el.querySelector('.notes-area');
-    if (person === 'Résumé') {
-      const entries = MEMBRES.map(p => {
-        const txt = getNote(p).trim();
-        if (!txt) return '';
-        return `<div class="notes-entry"><div class="notes-entry-name">${p}</div><div class="notes-entry-text">${escHtml(txt)}</div></div>`;
-      }).filter(Boolean).join('');
-      const emptyLocal = `
-        <div class="empty-state" style="padding:40px 0">
-          <span class="empty-state-icon">\u{1F4DD}</span>
-          <h3>Aucune note locale pour l'instant</h3>
-          <p>Les notes de chaque membre apparaîtront ici.</p>
-        </div>`;
-      area.innerHTML = `
-        <div class="shared-resume-section">
-          <div class="shared-resume-header">
-            <span class="shared-resume-title">Résumé collectif IA</span>
-            <span class="shared-resume-meta" id="shared-resume-meta-${m.id}"></span>
-            <button class="shared-resume-regen" id="shared-resume-regen-${m.id}">Régénérer</button>
-          </div>
-          <div class="shared-resume-content" id="shared-resume-content-${m.id}">
-            <em style="color:var(--text3)">En attente du premier contenu importé...</em>
-          </div>
-          <p class="shared-resume-hint">Généré automatiquement à partir de tous les fichiers et notes importés dans ce module.</p>
-        </div>
-        <div class="notes-local-section">${entries || emptyLocal}</div>`;
-      initCollectiveSummaryListener(m.id);
-      document.getElementById('shared-resume-regen-' + m.id)?.addEventListener('click', () => {
-        regenerateAutoSummary(m.id);
-      });
-    } else {
-      area.innerHTML = `
-        <div class="notes-editor">
-          <div class="notes-editor-header">
-            <span class="notes-editor-who">${person}</span>
-            <span class="notes-save-status" id="ns-status">✓ Sauvegardé</span>
-          </div>
-          <textarea id="notes-ta" class="notes-textarea" placeholder="Notes de ${person} pour ce module…" spellcheck="true">${escHtml(getNote(person))}</textarea>
-        </div>`;
-      const ta = el.querySelector('#notes-ta');
-      let t;
-      ta.addEventListener('input', () => {
-        document.getElementById('ns-status').textContent = '…';
-        clearTimeout(t);
-        t = setTimeout(() => {
-          saveNote(person, ta.value);
-          document.getElementById('ns-status').textContent = '✓ Sauvegardé';
-          trackTextNotes(ta.value, m.id).catch(() => {});
-        }, 600);
-      });
-      ta.focus();
-    }
-  }
-
-  const btns = MEMBRES.map(p =>
-    `<button class="np-btn${p===cur?' active':''}" data-p="${p}">${p}</button>`
-  ).join('') + `<button class="np-btn np-btn-resume${cur==='Résumé'?' active':''}" data-p="Résumé">Résumé</button>`;
-
+  const moduleId   = m.id;
+  const coursId    = 'main';
+  const localKey   = 'tssr_note_local_' + moduleId;
   const uploadOpen = store.get('notes_upload_' + m.id) === 'open';
   const pseudo     = localStorage.getItem('tssr_pseudo') || '';
 
@@ -913,6 +851,7 @@ function renderNotes(m, el) {
         ${MEMBRES.map(p => `<button class="pseudo-chip${pseudo===p?' active':''}" data-pseudo="${p}">${p}</button>`).join('')}
         <span class="pseudo-chip-hint" id="pseudo-hint">${pseudo ? '' : 'Sélectionnez votre pseudo'}</span>
       </div>
+
       <div class="notes-upload-section">
         <button class="notes-upload-toggle" id="notes-upload-toggle" aria-expanded="${uploadOpen}">
           <span class="notes-upload-label">Importer des fichiers</span>
@@ -931,19 +870,41 @@ function renderNotes(m, el) {
           <div class="files-list" id="files-list"></div>
         </div>
       </div>
-      <div class="notes-people">${btns}</div>
-      <div class="notes-area"></div>
+
+      <div class="notes-shared-section">
+        <div class="notes-section-header">
+          <span class="notes-section-title">Notes partagées</span>
+          <span class="notes-sync-status" id="notes-sync-status">Connexion…</span>
+        </div>
+        <textarea id="notes-shared-ta" class="notes-textarea" placeholder="Notes visibles par toute la classe…" spellcheck="true"></textarea>
+        <div class="notes-shared-footer">
+          <span class="notes-shared-author" id="notes-shared-author"></span>
+          <button class="notes-save-btn" id="notes-save-btn">Sauvegarder pour tous</button>
+        </div>
+      </div>
+
+      <div class="notes-personal-section">
+        <div class="notes-section-header">
+          <span class="notes-section-title">Notes personnelles</span>
+          <span class="notes-local-badge">local uniquement</span>
+        </div>
+        <textarea id="notes-local-ta" class="notes-textarea notes-textarea-sm" placeholder="Notes privées (non partagées)…" spellcheck="true">${escHtml(localStorage.getItem(localKey) || '')}</textarea>
+      </div>
+
+      <div class="shared-resume-section">
+        <div class="shared-resume-header">
+          <span class="shared-resume-title">Résumé collectif IA</span>
+          <span class="shared-resume-meta" id="shared-resume-meta-${m.id}"></span>
+          <button class="shared-resume-regen" id="shared-resume-regen-${m.id}">Régénérer</button>
+        </div>
+        <div class="shared-resume-content" id="shared-resume-content-${m.id}">
+          <em style="color:var(--text3)">En attente du premier contenu importé…</em>
+        </div>
+        <p class="shared-resume-hint">Généré automatiquement à partir de tous les fichiers et notes importés dans ce module.</p>
+      </div>
     </div>`;
 
-  const toggleBtn = document.getElementById('notes-upload-toggle');
-  toggleBtn.addEventListener('click', () => {
-    const body = document.getElementById('notes-upload-body');
-    const open = !body.classList.toggle('hidden');
-    toggleBtn.setAttribute('aria-expanded', open);
-    toggleBtn.querySelector('.notes-upload-chevron').textContent = open ? '▲' : '▼';
-    store.set('notes_upload_' + m.id, open ? 'open' : 'closed');
-  });
-
+  // Pseudo chips
   el.querySelectorAll('.pseudo-chip').forEach(btn => {
     btn.addEventListener('click', () => {
       localStorage.setItem('tssr_pseudo', btn.dataset.pseudo);
@@ -953,9 +914,86 @@ function renderNotes(m, el) {
     });
   });
 
-  setupFileUpload(m.id);
-  el.querySelectorAll('.np-btn').forEach(b => b.addEventListener('click', () => showPerson(b.dataset.p)));
-  showPerson(cur);
+  // Upload toggle
+  const toggleBtn = document.getElementById('notes-upload-toggle');
+  toggleBtn.addEventListener('click', () => {
+    const body = document.getElementById('notes-upload-body');
+    const open = !body.classList.toggle('hidden');
+    toggleBtn.setAttribute('aria-expanded', open);
+    toggleBtn.querySelector('.notes-upload-chevron').textContent = open ? '▲' : '▼';
+    store.set('notes_upload_' + m.id, open ? 'open' : 'closed');
+  });
+
+  // File upload
+  setupFileUpload(moduleId, coursId);
+
+  // Personal notes — localStorage auto-save
+  const localTa = el.querySelector('#notes-local-ta');
+  let localTimer;
+  localTa?.addEventListener('input', () => {
+    clearTimeout(localTimer);
+    localTimer = setTimeout(() => localStorage.setItem(localKey, localTa.value), 600);
+  });
+
+  // Firebase — shared notes + summary
+  (async () => {
+    try {
+      const { FirebaseNotes } = await import('./firebase-notes.js');
+      const statusEl = document.getElementById('notes-sync-status');
+
+      window._noteUnsub = FirebaseNotes.listenToSharedNotes(moduleId, coursId, data => {
+        const ta     = document.getElementById('notes-shared-ta');
+        const author = document.getElementById('notes-shared-author');
+        if (ta && ta !== document.activeElement) ta.value = data.content;
+        if (statusEl) statusEl.textContent = data.updatedAt
+          ? 'Sync ' + data.updatedAt.toLocaleTimeString('fr-FR') : 'Prêt';
+        if (author) author.textContent = data.pseudo && data.pseudo !== 'Anonyme'
+          ? 'Dernière modif. : ' + data.pseudo : '';
+      });
+
+      window._summaryUnsub = FirebaseNotes.listenToAutoSummary(moduleId, coursId, data => {
+        const contentEl = document.getElementById('shared-resume-content-' + moduleId);
+        const metaEl    = document.getElementById('shared-resume-meta-'    + moduleId);
+        if (!contentEl) return;
+        if (data.summary) contentEl.innerHTML = escHtml(data.summary).replace(/\n/g, '<br>');
+        if (metaEl) {
+          const parts = [];
+          if (data.sourceCount) parts.push(data.sourceCount + ' source(s)');
+          if (data.updatedAt)   parts.push(data.updatedAt.toLocaleString('fr-FR'));
+          metaEl.textContent = parts.join(' · ');
+        }
+      });
+
+    } catch (_) {
+      const s = document.getElementById('notes-sync-status');
+      if (s) s.textContent = 'Hors ligne';
+    }
+  })();
+
+  // Save shared notes
+  document.getElementById('notes-save-btn')?.addEventListener('click', async () => {
+    const ta  = document.getElementById('notes-shared-ta');
+    const btn = document.getElementById('notes-save-btn');
+    if (!ta || !btn) return;
+    btn.disabled = true;
+    btn.textContent = 'Sauvegarde…';
+    try {
+      const { FirebaseNotes } = await import('./firebase-notes.js');
+      await FirebaseNotes.savePersonalNote(moduleId, coursId, ta.value);
+      await FirebaseNotes.trackTextNotes(moduleId, coursId, ta.value);
+      regenerateAutoSummary(moduleId, coursId).catch(() => {});
+      btn.textContent = '✓ Sauvegardé';
+      setTimeout(() => { btn.disabled = false; btn.textContent = 'Sauvegarder pour tous'; }, 2000);
+    } catch (_) {
+      btn.textContent = '✗ Erreur';
+      setTimeout(() => { btn.disabled = false; btn.textContent = 'Sauvegarder pour tous'; }, 2000);
+    }
+  });
+
+  // Regenerate summary
+  document.getElementById('shared-resume-regen-' + m.id)?.addEventListener('click', () => {
+    regenerateAutoSummary(moduleId, coursId).catch(() => {});
+  });
 }
 
 // ===== NOTES — UPLOAD FICHIERS =====
@@ -977,7 +1015,7 @@ function loadScript(url) {
   });
 }
 
-function setupFileUpload(moduleId) {
+function setupFileUpload(moduleId, coursId) {
   const zone  = document.getElementById('file-upload-zone');
   const input = document.getElementById('file-input');
   const btn   = document.getElementById('upload-btn-trigger');
@@ -1020,7 +1058,10 @@ function setupFileUpload(moduleId) {
         const content = await extractFileContent(file);
         statusEl.style.color = 'var(--accent)';
         statusEl.textContent = `Extrait — ${content.length} caractères`;
-        trackFileUpload(file, content, moduleId).then(() => {
+        import('./firebase-notes.js').then(({ FirebaseNotes }) =>
+          FirebaseNotes.trackFileUpload(moduleId, coursId, file, content)
+            .then(() => regenerateAutoSummary(moduleId, coursId))
+        ).then(() => {
           statusEl.textContent = `Extrait — ${content.length} car. · Sync collectif OK`;
         }).catch(() => {});
 
@@ -1163,56 +1204,15 @@ function formatFileSize(bytes) {
 
 // ===== FIREBASE — SYNC COLLECTIF =====
 
-async function trackFileUpload(file, content, moduleId) {
-  const { db, doc, updateDoc, setDoc, arrayUnion, serverTimestamp } = await import('./firebase.js');
-  const ref = doc(db, 'course-content', moduleId);
-  const entry = {
-    userId: localStorage.getItem('tssr_pseudo') || 'Anonyme',
-    type: 'file',
-    content: content.substring(0, 3000),
-    filename: file.name,
-    uploadedAt: new Date().toISOString(),
-  };
-  try {
-    await updateDoc(ref, { contentSources: arrayUnion(entry), lastUpdatedAt: serverTimestamp() });
-  } catch (_) {
-    await setDoc(ref, { contentSources: [entry], lastUpdatedAt: serverTimestamp() }, { merge: true });
-  }
-  await regenerateAutoSummary(moduleId);
-}
-
-async function trackTextNotes(noteText, moduleId) {
-  if (!noteText.trim()) return;
-  const { db, doc, updateDoc, setDoc, arrayUnion, serverTimestamp } = await import('./firebase.js');
-  const ref = doc(db, 'course-content', moduleId);
-  const entry = {
-    userId: localStorage.getItem('tssr_pseudo') || 'Anonyme',
-    type: 'text',
-    content: noteText.substring(0, 2000),
-    uploadedAt: new Date().toISOString(),
-  };
-  try {
-    await updateDoc(ref, { contentSources: arrayUnion(entry), lastUpdatedAt: serverTimestamp() });
-  } catch (_) {
-    await setDoc(ref, { contentSources: [entry], lastUpdatedAt: serverTimestamp() }, { merge: true });
-  }
-  await regenerateAutoSummary(moduleId);
-}
-
-async function regenerateAutoSummary(moduleId) {
-  const { db, doc, getDoc, setDoc, serverTimestamp } = await import('./firebase.js');
-  const ref = doc(db, 'course-content', moduleId);
-  const snap = await getDoc(ref);
-  const data = snap.data() || {};
-  const sources = data.contentSources || [];
+async function regenerateAutoSummary(moduleId, coursId = 'main') {
+  const { FirebaseNotes } = await import('./firebase-notes.js');
+  const sources = await FirebaseNotes.getAggregatedContent(moduleId, coursId);
   if (!sources.length) return;
 
   let aggregated = `Notes et fichiers de ${new Set(sources.map(s => s.userId)).size} collègue(s) :\n\n`;
   sources.forEach((src, i) => {
     aggregated += `[Source ${i + 1} — ${src.userId}]\nType : ${src.type}${src.filename ? ' / ' + src.filename : ''}\n${src.content}\n\n`;
   });
-
-  const prompt = `Tu es un expert pédagogique TSSR. Synthétise en 5-8 points clés, organisés et lisibles pour un technicien en formation :\n\n${aggregated.substring(0, 5000)}`;
 
   try {
     const resp = await fetch('/api/auto-summarize', {
@@ -1222,36 +1222,11 @@ async function regenerateAutoSummary(moduleId) {
     });
     if (!resp.ok) throw new Error('no-backend');
     const { summary } = await resp.json();
-    await setDoc(ref, { summaryAuto: summary, summaryAutoUpdatedAt: serverTimestamp(), contentSources: sources }, { merge: true });
+    await FirebaseNotes.saveSummary(moduleId, coursId, summary);
   } catch (_) {
-    const fallback = `[${sources.length} source(s) agrégée(s) — résumé IA non disponible sans backend]\n\nPrompt prêt à coller dans Claude.ai :\n${prompt.substring(0, 300)}…`;
-    await setDoc(ref, { summaryAuto: fallback, summaryAutoUpdatedAt: serverTimestamp(), contentSources: sources }, { merge: true });
-  }
-}
-
-async function initCollectiveSummaryListener(moduleId) {
-  try {
-    const { db, doc, onSnapshot } = await import('./firebase.js');
-    if (window._firestoreUnsub) { window._firestoreUnsub(); window._firestoreUnsub = null; }
-    const ref = doc(db, 'course-content', moduleId);
-    window._firestoreUnsub = onSnapshot(ref, snap => {
-      const data = snap.data() || {};
-      const contentEl = document.getElementById('shared-resume-content-' + moduleId);
-      const metaEl    = document.getElementById('shared-resume-meta-'    + moduleId);
-      if (!contentEl) return;
-      if (data.summaryAuto) {
-        contentEl.innerHTML = escHtml(data.summaryAuto).replace(/\n/g, '<br>');
-      }
-      if (metaEl && data.summaryAutoUpdatedAt?.toDate) {
-        metaEl.textContent = data.summaryAutoUpdatedAt.toDate().toLocaleString('fr-FR');
-      }
-    }, () => {
-      const contentEl = document.getElementById('shared-resume-content-' + moduleId);
-      if (contentEl) contentEl.innerHTML = '<em style="color:var(--text3)">Firebase non configuré — remplir firebase.js</em>';
-    });
-  } catch (_) {
-    const contentEl = document.getElementById('shared-resume-content-' + moduleId);
-    if (contentEl) contentEl.innerHTML = '<em style="color:var(--text3)">Firebase non configuré — remplir firebase.js</em>';
+    const users   = [...new Set(sources.map(s => s.userId))].join(', ');
+    const fallback = `[${sources.length} source(s) — ${users}]\n\nFichiers et notes enregistrés. Configurez un backend (/api/auto-summarize) pour générer un résumé IA automatique.`;
+    await FirebaseNotes.saveSummary(moduleId, coursId, fallback);
   }
 }
 

@@ -1,3 +1,30 @@
+## 📋 Récap — 2026-06-17 (session 15)
+
+### Fait :
+- `firebase-notes.js` : réécriture complète — nouvelle structure `members[pseudo]{ text, files[], updatedAt }` — 5 méthodes : `saveMemberData`, `listenToAllMembers`, `getAllMembers`, `saveSummary`, `listenToSummary` — commit `c8d7081`
+- `app.js` : `renderNotes(m, cours, el)` entièrement réécrite — 10 cartes `<details>` repliables (une par collègue KNOWN_MEMBERS), carte "vous" ouverte + textarea + upload drag&drop + chips fichiers supprimables + bouton sauvegarder — commit `c8d7081`
+- `app.js` : fallback résumé — si `/api/auto-summarize` indisponible, affiche textarea éditable + bouton "Sauvegarder manuellement" qui appelle `saveSummary` directement — commit `c8d7081`
+- `app.js` : fix re-render Firestore — `myDraft { text, files }` préserve le contenu textarea + fichiers pending entre chaque `onSnapshot`, reset après sauvegarde réussie — commit `09d1c13`
+- `style.css` : `.members-cards`, `.member-card` (refait pour `<details>`), `.member-card-summary`, `.member-card-body`, `.member-badge-me`, `.member-upload-zone`, `.member-files-list`, `.member-file-chip`, `.file-chip-remove` — commit `c8d7081`
+- Railway CLI : steps de déploiement fournis (npm install -g @railway/cli → login → init → variables → up)
+
+### État :
+PWA déployée. Notes refondues : une carte par collègue (repliable), upload PDF/HTML/TXT/MD par carte, sauvegarde Firestore par membre, résumé avec fallback manuel. Draft textarea préservé au re-render. Backend Railway pas encore déployé (steps prêts).
+
+### À reprendre :
+- [ ] Déployer Railway (`railway login` → `railway init` → `railway variables set ANTHROPIC_API_KEY=...` → `railway up`) puis mettre à jour URL fetch dans app.js
+- [ ] Vérifier règles Firestore console (`allow read, write: if true` sur collection `notes`)
+- [ ] Tester sync temps réel entre 2 ordis (Notes partagées Firebase)
+- [ ] Flashcards OSI (7 couches + rôles) — en attente depuis session 7
+- [ ] NetRunner missions Linux supplémentaires (3 missions : bash, find, chmod)
+- [ ] Leaderboard localStorage NetRunner (meilleur temps par mission)
+- [ ] Refonte `ad-avance` (ADFS SSO trusts réplication schéma)
+
+### Contexte express :
+> Session Notes : refonte complète de l'onglet en cartes nominatives par collègue (`<details>` repliables), chacune avec textarea + upload + chips fichiers. Sauvegarde Firestore par membre (`members[pseudo]`). Fallback résumé manuel si pas de backend. Fix draft preservation au re-render onSnapshot. Steps Railway fournis mais non exécutés.
+
+---
+
 ## 📋 Récap — 2026-06-17 (session 14)
 
 ### Fait :

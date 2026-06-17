@@ -22,7 +22,7 @@ app.post('/api/auto-summarize', async (req, res) => {
       max_tokens: 800,
       messages: [{
         role: 'user',
-        content: `Tu es un expert pédagogique TSSR. Voici les notes et fichiers que ${sourceCount || '?'} collègue(s) ont importés pour ce cours.\n\nGénère un résumé collectif qui :\n1. Synthétise les points clés (5-8 bullets)\n2. Identifie les concepts importants\n3. Reste factuel et concis\n\nDONNÉES :\n${content}`,
+        content: `Tu es un assistant pédagogique. Voici les notes que ${sourceCount || '?'} collègues ont partagées pour un cours TSSR.\n\nGénère un RÉSUMÉ STRUCTURÉ avec ce format exact :\n## Points clés\n(liste des points essentiels, 5-8 items)\n\n## Concepts à retenir\n(définitions ou notions importantes mentionnées)\n\n## Questions ou zones d'incertitude\n(si des collègues ont noté des doutes ou questions)\n\nDONNÉES :\n${content}`,
       }],
     });
 

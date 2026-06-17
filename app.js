@@ -834,166 +834,187 @@ function renderOutils(m, el) {
 // ===== NOTES =====
 const MEMBRES = ['Esdine','Madjid','Fouad','Ilir','Jores','Ronel','Folly','Mick','Antho','Axel'];
 
-function renderNotes(m, el) {
-  if (window._noteUnsub)    { window._noteUnsub();    window._noteUnsub    = null; }
-  if (window._summaryUnsub) { window._summaryUnsub(); window._summaryUnsub = null; }
+async function renderNotes(m, el) {
+  if (window._noteUnsub) { window._noteUnsub(); window._noteUnsub = null; }
 
-  const moduleId   = m.id;
-  const coursId    = 'main';
-  const localKey   = 'tssr_note_local_' + moduleId;
-  const uploadOpen = store.get('notes_upload_' + m.id) === 'open';
-  const pseudo     = localStorage.getItem('tssr_pseudo') || '';
+  const moduleId = m.id;
+  const coursId  = state.currentCours || 'main';
+  const docId    = moduleId + '-' + coursId;
+  const localKey = 'tssr_note_local_' + docId;
+  const myPseudo = localStorage.getItem('tssr_pseudo') || '';
 
   el.innerHTML = `
-    <div class="notes-wrap">
-      <div class="notes-pseudo-bar">
-        <span class="notes-pseudo-label">Vous êtes&nbsp;:</span>
-        ${MEMBRES.map(p => `<button class="pseudo-chip${pseudo===p?' active':''}" data-pseudo="${p}">${p}</button>`).join('')}
-        <span class="pseudo-chip-hint" id="pseudo-hint">${pseudo ? '' : 'Sélectionnez votre pseudo'}</span>
+    <div class="notes-container">
+
+      <div class="notes-section">
+        <h3 class="notes-title">Votre identifiant</h3>
+        <input type="text" id="note-pseudo" class="note-input"
+               placeholder="Votre prénom..." maxlength="20"
+               value="${escHtml(myPseudo)}">
+        <p class="notes-hint">Choisissez un prénom unique pour identifier votre zone de partage.</p>
       </div>
 
-      <div class="notes-upload-section">
-        <button class="notes-upload-toggle" id="notes-upload-toggle" aria-expanded="${uploadOpen}">
-          <span class="notes-upload-label">Importer des fichiers</span>
-          <span class="notes-upload-types">txt · pdf · docx · html</span>
-          <span class="notes-upload-chevron">${uploadOpen ? '▲' : '▼'}</span>
-        </button>
-        <div class="notes-upload-body${uploadOpen ? '' : ' hidden'}" id="notes-upload-body">
-          <div class="file-upload-zone" id="file-upload-zone">
-            <svg class="upload-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M24 8V32M8 24h32M24 8L16 16M24 8L32 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <p class="upload-text">Glissez vos fichiers ici ou</p>
-            <button class="upload-btn" id="upload-btn-trigger">Sélectionner</button>
-            <input type="file" id="file-input" multiple accept=".txt,.pdf,.docx,.html,.md" style="display:none" aria-label="Sélectionner des fichiers">
-          </div>
-          <div class="files-list" id="files-list"></div>
-        </div>
+      <div class="notes-section notes-personal-section">
+        <h3 class="notes-title">Ma zone personnelle <span class="notes-local-badge">local uniquement</span></h3>
+        <textarea id="note-local" class="note-textarea" rows="5"
+                  placeholder="Vos notes privées, visibles seulement par vous..."></textarea>
       </div>
 
-      <div class="notes-shared-section">
-        <div class="notes-section-header">
-          <span class="notes-section-title">Notes partagées</span>
-          <span class="notes-sync-status" id="notes-sync-status">Connexion…</span>
-        </div>
-        <textarea id="notes-shared-ta" class="notes-textarea" placeholder="Notes visibles par toute la classe…" spellcheck="true"></textarea>
-        <div class="notes-shared-footer">
-          <span class="notes-shared-author" id="notes-shared-author"></span>
-          <button class="notes-save-btn" id="notes-save-btn">Sauvegarder pour tous</button>
+      <div class="notes-section notes-my-shared-section">
+        <h3 class="notes-title">Ma zone de partage</h3>
+        <p class="notes-hint">Visible par tous les collègues sur ce cours.</p>
+        <textarea id="note-my-shared" class="note-textarea" rows="6"
+                  placeholder="Partagez vos notes, remarques, points clés..."></textarea>
+        <button class="note-save-btn" id="note-save-my-shared">Sauvegarder mon partage</button>
+      </div>
+
+      <div class="notes-section notes-others-section">
+        <h3 class="notes-title">Partages des collègues</h3>
+        <div id="notes-members-list" class="notes-members-list">
+          <p class="notes-empty">Chargement...</p>
         </div>
       </div>
 
-      <div class="notes-personal-section">
-        <div class="notes-section-header">
-          <span class="notes-section-title">Notes personnelles</span>
-          <span class="notes-local-badge">local uniquement</span>
+      <div class="notes-section notes-summary-section">
+        <div class="notes-summary-header">
+          <h3 class="notes-title">Résumé</h3>
+          <button class="note-generate-btn" id="note-generate-summary">Générer le résumé</button>
         </div>
-        <textarea id="notes-local-ta" class="notes-textarea notes-textarea-sm" placeholder="Notes privées (non partagées)…" spellcheck="true">${escHtml(localStorage.getItem(localKey) || '')}</textarea>
+        <p class="notes-meta" id="summary-meta">Aucun résumé généré</p>
+        <div id="summary-content" class="notes-summary-content">
+          <em>Cliquez sur "Générer le résumé" pour synthétiser les partages de tous les collègues.</em>
+        </div>
       </div>
 
-      <div class="shared-resume-section">
-        <div class="shared-resume-header">
-          <span class="shared-resume-title">Résumé collectif IA</span>
-          <span class="shared-resume-meta" id="shared-resume-meta-${m.id}"></span>
-          <button class="shared-resume-regen" id="shared-resume-regen-${m.id}">Régénérer</button>
-        </div>
-        <div class="shared-resume-content" id="shared-resume-content-${m.id}">
-          <em style="color:var(--text3)">En attente du premier contenu importé…</em>
-        </div>
-        <p class="shared-resume-hint">Généré automatiquement à partir de tous les fichiers et notes importés dans ce module.</p>
-      </div>
     </div>`;
 
-  // Pseudo chips
-  el.querySelectorAll('.pseudo-chip').forEach(btn => {
-    btn.addEventListener('click', () => {
-      localStorage.setItem('tssr_pseudo', btn.dataset.pseudo);
-      el.querySelectorAll('.pseudo-chip').forEach(b => b.classList.toggle('active', b.dataset.pseudo === btn.dataset.pseudo));
-      const hint = document.getElementById('pseudo-hint');
-      if (hint) hint.textContent = '';
+  // Pseudo
+  const pseudoInput = document.getElementById('note-pseudo');
+  pseudoInput?.addEventListener('change', () => {
+    localStorage.setItem('tssr_pseudo', pseudoInput.value.trim());
+  });
+
+  // Notes personnelles (localStorage uniquement)
+  const noteLocal = document.getElementById('note-local');
+  noteLocal.value = localStorage.getItem(localKey) || '';
+  noteLocal?.addEventListener('input', () => {
+    localStorage.setItem(localKey, noteLocal.value);
+  });
+
+  try {
+    const { FirebaseNotes } = await import('./firebase-notes.js');
+
+    // Charger MA zone de partage actuelle si elle existe
+    const allMembers = await FirebaseNotes.getAllSharedContent(moduleId, coursId);
+    const currentPseudo = localStorage.getItem('tssr_pseudo') || '';
+    if (currentPseudo && allMembers[currentPseudo]) {
+      document.getElementById('note-my-shared').value = allMembers[currentPseudo].shared || '';
+    }
+
+    // Sauvegarder MA zone de partage
+    const saveMyBtn = document.getElementById('note-save-my-shared');
+    saveMyBtn?.addEventListener('click', async () => {
+      const pseudo = (localStorage.getItem('tssr_pseudo') || '').trim();
+      if (!pseudo) {
+        alert('Renseignez votre prénom avant de partager.');
+        return;
+      }
+      const content = document.getElementById('note-my-shared').value;
+      saveMyBtn.disabled = true;
+      saveMyBtn.textContent = 'Sauvegarde...';
+      const result = await FirebaseNotes.saveMemberShared(moduleId, coursId, pseudo, content);
+      saveMyBtn.textContent = result.success ? 'Sauvegardé !' : 'Erreur';
+      setTimeout(() => {
+        saveMyBtn.disabled = false;
+        saveMyBtn.textContent = 'Sauvegarder mon partage';
+      }, 1800);
     });
-  });
 
-  // Upload toggle
-  const toggleBtn = document.getElementById('notes-upload-toggle');
-  toggleBtn.addEventListener('click', () => {
-    const body = document.getElementById('notes-upload-body');
-    const open = !body.classList.toggle('hidden');
-    toggleBtn.setAttribute('aria-expanded', open);
-    toggleBtn.querySelector('.notes-upload-chevron').textContent = open ? '▲' : '▼';
-    store.set('notes_upload_' + m.id, open ? 'open' : 'closed');
-  });
+    // Écouter tous les membres en temps réel
+    const unsubMembers = FirebaseNotes.listenToAllMembers(moduleId, coursId, (members) => {
+      const listEl = document.getElementById('notes-members-list');
+      if (!listEl) return;
+      const myCurrentPseudo = localStorage.getItem('tssr_pseudo') || '';
+      const others = Object.entries(members).filter(([name]) => name !== myCurrentPseudo);
 
-  // File upload
-  setupFileUpload(moduleId, coursId);
+      if (!others.length) {
+        listEl.innerHTML = '<p class="notes-empty">Aucun collègue n\'a partagé de notes pour le moment.</p>';
+        return;
+      }
 
-  // Personal notes — localStorage auto-save
-  const localTa = el.querySelector('#notes-local-ta');
-  let localTimer;
-  localTa?.addEventListener('input', () => {
-    clearTimeout(localTimer);
-    localTimer = setTimeout(() => localStorage.setItem(localKey, localTa.value), 600);
-  });
+      listEl.innerHTML = others.map(([name, data]) => {
+        const date    = data.updatedAt ? new Date(data.updatedAt) : null;
+        const dateStr = date ? date.toLocaleString('fr-FR') : '';
+        const content = (data.shared || '').trim();
+        return `
+          <div class="member-card">
+            <div class="member-card-header">
+              <span class="member-name">${escHtml(name)}</span>
+              <span class="member-date">${dateStr}</span>
+            </div>
+            <div class="member-content">${content ? escHtml(content).replace(/\n/g, '<br>') : '<em>Vide</em>'}</div>
+          </div>`;
+      }).join('');
+    });
 
-  // Firebase — shared notes + summary
-  (async () => {
-    try {
-      const { FirebaseNotes } = await import('./firebase-notes.js');
-      const statusEl = document.getElementById('notes-sync-status');
+    // Écouter le résumé en temps réel
+    const unsubSummary = FirebaseNotes.listenToSummary(moduleId, coursId, (data) => {
+      const contentEl = document.getElementById('summary-content');
+      const metaEl    = document.getElementById('summary-meta');
+      if (data.summary) {
+        if (contentEl) contentEl.innerHTML = escHtml(data.summary).replace(/\n/g, '<br>');
+        if (metaEl) metaEl.textContent = data.updatedAt
+          ? 'Généré le ' + data.updatedAt.toLocaleString('fr-FR') : 'Généré';
+      }
+    });
 
-      window._noteUnsub = FirebaseNotes.listenToSharedNotes(moduleId, coursId, data => {
-        const ta     = document.getElementById('notes-shared-ta');
-        const author = document.getElementById('notes-shared-author');
-        if (ta && ta !== document.activeElement) ta.value = data.content;
-        if (statusEl) statusEl.textContent = data.updatedAt
-          ? 'Sync ' + data.updatedAt.toLocaleTimeString('fr-FR') : 'Prêt';
-        if (author) author.textContent = data.pseudo && data.pseudo !== 'Anonyme'
-          ? 'Dernière modif. : ' + data.pseudo : '';
+    window._noteUnsub = () => { unsubMembers(); unsubSummary(); };
+
+    // Bouton générer résumé
+    document.getElementById('note-generate-summary')?.addEventListener('click', async () => {
+      const genBtn = document.getElementById('note-generate-summary');
+      genBtn.disabled = true;
+      genBtn.textContent = 'Génération...';
+
+      const members = await FirebaseNotes.getAllSharedContent(moduleId, coursId);
+      const entries = Object.entries(members).filter(([, d]) => (d.shared || '').trim());
+
+      if (!entries.length) {
+        const c = document.getElementById('summary-content');
+        if (c) c.innerHTML = '<em>Aucun contenu partagé à résumer.</em>';
+        genBtn.disabled = false;
+        genBtn.textContent = 'Générer le résumé';
+        return;
+      }
+
+      let aggregated = '';
+      entries.forEach(([name, data]) => {
+        aggregated += `--- Partage de ${name} ---\n${data.shared}\n\n`;
       });
 
-      window._summaryUnsub = FirebaseNotes.listenToAutoSummary(moduleId, coursId, data => {
-        const contentEl = document.getElementById('shared-resume-content-' + moduleId);
-        const metaEl    = document.getElementById('shared-resume-meta-'    + moduleId);
-        if (!contentEl) return;
-        if (data.summary) contentEl.innerHTML = escHtml(data.summary).replace(/\n/g, '<br>');
-        if (metaEl) {
-          const parts = [];
-          if (data.sourceCount) parts.push(data.sourceCount + ' source(s)');
-          if (data.updatedAt)   parts.push(data.updatedAt.toLocaleString('fr-FR'));
-          metaEl.textContent = parts.join(' · ');
-        }
-      });
+      try {
+        const response = await fetch('/api/auto-summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: aggregated, sourceCount: entries.length }),
+        });
+        if (!response.ok) throw new Error('Erreur API');
+        const { summary } = await response.json();
+        await FirebaseNotes.saveSummary(moduleId, coursId, summary);
+        genBtn.textContent = 'Régénérer le résumé';
+      } catch (_) {
+        const c = document.getElementById('summary-content');
+        if (c) c.innerHTML = '<em>Erreur de génération. Backend /api/auto-summarize indisponible.</em>';
+        genBtn.textContent = 'Générer le résumé';
+      }
+      genBtn.disabled = false;
+    });
 
-    } catch (_) {
-      const s = document.getElementById('notes-sync-status');
-      if (s) s.textContent = 'Hors ligne';
-    }
-  })();
-
-  // Save shared notes
-  document.getElementById('notes-save-btn')?.addEventListener('click', async () => {
-    const ta  = document.getElementById('notes-shared-ta');
-    const btn = document.getElementById('notes-save-btn');
-    if (!ta || !btn) return;
-    btn.disabled = true;
-    btn.textContent = 'Sauvegarde…';
-    try {
-      const { FirebaseNotes } = await import('./firebase-notes.js');
-      await FirebaseNotes.savePersonalNote(moduleId, coursId, ta.value);
-      await FirebaseNotes.trackTextNotes(moduleId, coursId, ta.value);
-      regenerateAutoSummary(moduleId, coursId).catch(() => {});
-      btn.textContent = '✓ Sauvegardé';
-      setTimeout(() => { btn.disabled = false; btn.textContent = 'Sauvegarder pour tous'; }, 2000);
-    } catch (_) {
-      btn.textContent = '✗ Erreur';
-      setTimeout(() => { btn.disabled = false; btn.textContent = 'Sauvegarder pour tous'; }, 2000);
-    }
-  });
-
-  // Regenerate summary
-  document.getElementById('shared-resume-regen-' + m.id)?.addEventListener('click', () => {
-    regenerateAutoSummary(moduleId, coursId).catch(() => {});
-  });
+  } catch (err) {
+    console.warn('Firebase non disponible:', err);
+    const listEl = document.getElementById('notes-members-list');
+    if (listEl) listEl.innerHTML = '<p class="notes-empty">Mode hors-ligne — partage indisponible.</p>';
+  }
 }
 
 // ===== NOTES — UPLOAD FICHIERS =====

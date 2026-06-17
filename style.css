@@ -2401,6 +2401,170 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 }
 .notes-local-section { margin-top: 8px; }
 
+/* ===== NOTES — NOUVELLE STRUCTURE PAR MEMBRE ===== */
+
+.notes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 820px;
+}
+
+.notes-section {
+  background: var(--surface, #1a1d27);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl, 12px);
+  padding: 1.25rem 1.5rem;
+}
+
+.notes-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.note-input {
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 8px);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color .15s;
+}
+.note-input:focus { outline: none; border-color: var(--accent); }
+
+.note-textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 8px);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color .15s;
+}
+.note-textarea:focus { outline: none; border-color: var(--accent); }
+
+.note-save-btn {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.1rem;
+  background: rgba(0,229,160,0.1);
+  border: 1px solid rgba(0,229,160,0.3);
+  border-radius: var(--radius, 8px);
+  color: var(--accent);
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.note-save-btn:hover:not(:disabled) { background: rgba(0,229,160,0.18); }
+.note-save-btn:disabled { opacity: 0.5; cursor: default; }
+
+.notes-meta {
+  font-size: 0.75rem;
+  color: var(--text3);
+  margin: 0 0 0.5rem;
+}
+
+.notes-personal-section { border-color: rgba(245,158,11,0.25); }
+.notes-my-shared-section { border-color: rgba(0,229,160,0.25); }
+
+.notes-hint {
+  font-size: 0.78rem;
+  color: var(--text3);
+  margin: -0.25rem 0 0.75rem;
+}
+
+.notes-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.notes-empty {
+  color: var(--text3);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0;
+}
+
+.member-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 8px);
+  padding: 1rem;
+}
+
+.member-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.member-name {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 0.88rem;
+}
+
+.member-date {
+  font-size: 0.72rem;
+  color: var(--text3);
+}
+
+.member-content {
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.notes-summary-section {
+  background: rgba(0,229,160,0.04);
+  border-color: rgba(0,229,160,0.2);
+}
+
+.notes-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.notes-summary-header .notes-title { margin-bottom: 0; }
+
+.note-generate-btn {
+  padding: 0.45rem 0.9rem;
+  background: rgba(0,229,160,0.1);
+  border: 1px solid rgba(0,229,160,0.3);
+  border-radius: var(--radius, 8px);
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.note-generate-btn:hover:not(:disabled) { background: rgba(0,229,160,0.18); }
+.note-generate-btn:disabled { opacity: 0.5; cursor: default; }
+
+.notes-summary-content {
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.7;
+}
+
 /* ===== COURS — REFONTE COMPLÈTE ===== */
 
 .cours-container {

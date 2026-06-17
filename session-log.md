@@ -1,3 +1,34 @@
+## 📋 Récap — 2026-06-17 (session 14)
+
+### Fait :
+- `app.js` : upload fichiers dans l'onglet Notes (drag & drop, txt/pdf/docx/html, extraction via pdfjs + mammoth CDN, prévisualisation 300 chars, boutons "Ajouter aux notes" + "Résumer avec IA") — commit `2f4a201`
+- `style.css` : CSS upload (.file-upload-zone, .file-item, .ai-modal-overlay) + pseudo-chips + sections notes partagées/perso + résumé collectif
+- `firebase-config.js` : init Firebase 10.7.2 avec config projet `tssr-pwa` — commit `447d715`
+- `firebase-notes.js` : API `FirebaseNotes` — 7 méthodes (savePersonalNote, listenToSharedNotes, trackFileUpload, trackTextNotes, listenToAutoSummary, getAggregatedContent, saveSummary) — commit `5d197be`
+- `app.js` : `renderNotes` entièrement réécrite — pseudo bar (chips MEMBRES), upload section, **Notes partagées** (Firebase onSnapshot temps réel), **Notes personnelles** (localStorage), Résumé collectif IA
+- `app.js` : `setupFileUpload(moduleId, coursId)` — track fichier automatique via FirebaseNotes après extraction
+- `app.js` : `regenerateAutoSummary(moduleId, coursId)` — agrège toutes les sources Firestore, appelle `/api/auto-summarize`, fallback texte si pas de backend
+- `sw.js` : v14 — exclusion googleapis.com/firebaseio.com/firebaseapp.com du cache (fixes Firestore intercepté)
+- `server.js` + `package.json` : backend Node.js référence pour Railway (endpoint `/api/auto-summarize` avec claude-opus-4-6)
+- `index.html` + `404.html` : ajout `<script type="module">` pour firebase-config.js et firebase-notes.js
+
+### État :
+PWA déployée. Firebase Firestore configuré (projet tssr-pwa). Notes partagées temps réel entre tous les ordis. Upload fichiers + tracking Firestore. Résumé collectif IA en attente d'un backend déployé.
+
+### À reprendre :
+- [ ] Vérifier les règles Firestore dans la console (allow read, write: if true)
+- [ ] Tester sync temps réel entre 2 ordis (Notes partagées)
+- [ ] Déployer server.js sur Railway pour activer le résumé Claude
+- [ ] Flashcards OSI (7 couches + rôles) — toujours en attente
+- [ ] NetRunner missions Linux (bash, find, chmod — 3 missions supplémentaires)
+- [ ] Leaderboard localStorage NetRunner (meilleur temps par mission)
+- [ ] Refonte `ad-avance` (ADFS SSO trusts réplication schéma)
+
+### Contexte express :
+> Session Firebase : intégration complète Firestore (notes partagées temps réel + tracking fichiers/notes + résumé collectif auto). `renderNotes` réécrite avec 3 zones distinctes (upload, notes partagées Firebase, notes perso localStorage). SW fixé pour ne pas intercepter les appels Firebase. Backend de référence Railway prêt à déployer.
+
+---
+
 ## 📋 Récap — 2026-06-16 (session 13)
 
 ### Fait :

@@ -838,14 +838,13 @@ function renderNotes(m, el) {
   const lastKey = 'notes_last_' + m.id;
   let cur = store.get(lastKey) || MEMBRES[0];
 
-  function getNote(p)      { return store.get(`notes_${m.id}_${p}`) || ''; }
-  function saveNote(p, v)  { store.set(`notes_${m.id}_${p}`, v); }
+  function getNote(p)     { return store.get(`notes_${m.id}_${p}`) || ''; }
+  function saveNote(p, v) { store.set(`notes_${m.id}_${p}`, v); }
 
   function showPerson(person) {
     cur = person;
     store.set(lastKey, person);
     el.querySelectorAll('.np-btn').forEach(b => b.classList.toggle('active', b.dataset.p === person));
-
     const area = el.querySelector('.notes-area');
     if (person === 'Résumé') {
       const entries = MEMBRES.map(p => {
@@ -881,11 +880,246 @@ function renderNotes(m, el) {
 
   const btns = MEMBRES.map(p =>
     `<button class="np-btn${p===cur?' active':''}" data-p="${p}">${p}</button>`
-  ).join('') + `<button class="np-btn np-btn-resume${cur==='Résumé'?' active':''}" data-p="Résumé"> Résumé</button>`;
+  ).join('') + `<button class="np-btn np-btn-resume${cur==='Résumé'?' active':''}" data-p="Résumé">Résumé</button>`;
 
-  el.innerHTML = `<div class="notes-wrap"><div class="notes-people">${btns}</div><div class="notes-area"></div></div>`;
+  const uploadOpen = store.get('notes_upload_' + m.id) === 'open';
+
+  el.innerHTML = `
+    <div class="notes-wrap">
+      <div class="notes-upload-section">
+        <button class="notes-upload-toggle" id="notes-upload-toggle" aria-expanded="${uploadOpen}">
+          <span class="notes-upload-label">Importer des fichiers</span>
+          <span class="notes-upload-types">txt · pdf · docx · html</span>
+          <span class="notes-upload-chevron">${uploadOpen ? '▲' : '▼'}</span>
+        </button>
+        <div class="notes-upload-body${uploadOpen ? '' : ' hidden'}" id="notes-upload-body">
+          <div class="file-upload-zone" id="file-upload-zone">
+            <svg class="upload-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M24 8V32M8 24h32M24 8L16 16M24 8L32 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="upload-text">Glissez vos fichiers ici ou</p>
+            <button class="upload-btn" id="upload-btn-trigger">Sélectionner</button>
+            <input type="file" id="file-input" multiple accept=".txt,.pdf,.docx,.html,.md" style="display:none" aria-label="Sélectionner des fichiers">
+          </div>
+          <div class="files-list" id="files-list"></div>
+        </div>
+      </div>
+      <div class="notes-people">${btns}</div>
+      <div class="notes-area"></div>
+    </div>`;
+
+  const toggleBtn = document.getElementById('notes-upload-toggle');
+  toggleBtn.addEventListener('click', () => {
+    const body = document.getElementById('notes-upload-body');
+    const open = !body.classList.toggle('hidden');
+    toggleBtn.setAttribute('aria-expanded', open);
+    toggleBtn.querySelector('.notes-upload-chevron').textContent = open ? '▲' : '▼';
+    store.set('notes_upload_' + m.id, open ? 'open' : 'closed');
+  });
+
+  setupFileUpload(m.id);
   el.querySelectorAll('.np-btn').forEach(b => b.addEventListener('click', () => showPerson(b.dataset.p)));
   showPerson(cur);
+}
+
+// ===== NOTES — UPLOAD FICHIERS =====
+
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${url}"]`);
+    if (existing) {
+      if (existing.dataset.ready) { resolve(); return; }
+      existing.addEventListener('load', resolve);
+      existing.addEventListener('error', reject);
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = url;
+    s.onload = () => { s.dataset.ready = '1'; resolve(); };
+    s.onerror = () => reject(new Error('Impossible de charger : ' + url));
+    document.head.appendChild(s);
+  });
+}
+
+function setupFileUpload(moduleId) {
+  const zone  = document.getElementById('file-upload-zone');
+  const input = document.getElementById('file-input');
+  const btn   = document.getElementById('upload-btn-trigger');
+  const list  = document.getElementById('files-list');
+  if (!zone || !input) return;
+
+  btn?.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    processFiles(e.dataTransfer.files);
+  });
+  input.addEventListener('change', e => { processFiles(e.target.files); input.value = ''; });
+
+  async function processFiles(files) {
+    for (const file of files) {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML = `
+        <div class="file-item-header">
+          <span class="file-icon">${getFileIcon(file.type, file.name)}</span>
+          <span class="file-name">${escHtml(file.name)}</span>
+          <span class="file-size">${formatFileSize(file.size)}</span>
+          <button class="file-remove-btn" aria-label="Supprimer">✕</button>
+        </div>
+        <div class="file-item-status">Lecture…</div>
+        <div class="file-item-preview" style="display:none"></div>
+        <div class="file-actions" style="display:none"></div>`;
+      list.appendChild(item);
+
+      const statusEl  = item.querySelector('.file-item-status');
+      const previewEl = item.querySelector('.file-item-preview');
+      const actionsEl = item.querySelector('.file-actions');
+
+      item.querySelector('.file-remove-btn').addEventListener('click', () => item.remove());
+
+      try {
+        const content = await extractFileContent(file);
+        statusEl.style.color = 'var(--accent)';
+        statusEl.textContent = `Extrait — ${content.length} caractères`;
+
+        previewEl.textContent = content.substring(0, 300) + (content.length > 300 ? '…' : '');
+        previewEl.style.display = 'block';
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'file-add-btn';
+        addBtn.textContent = '+ Ajouter aux notes';
+        addBtn.addEventListener('click', () => {
+          const ta = document.getElementById('notes-ta');
+          if (!ta) { alert('Selectionnez d\'abord un membre dans les notes.'); return; }
+          const stamp = new Date().toLocaleString('fr-FR');
+          ta.value += (ta.value ? '\n\n' : '') + `--- ${file.name} (${stamp}) ---\n${content}`;
+          ta.dispatchEvent(new Event('input'));
+          statusEl.textContent = 'Ajouté aux notes ✓';
+        });
+
+        const sumBtn = document.createElement('button');
+        sumBtn.className = 'file-summarize-btn';
+        sumBtn.textContent = 'Résumer avec IA';
+        sumBtn.addEventListener('click', () => generateSummaryFromFile(content, file.name));
+
+        actionsEl.append(addBtn, sumBtn);
+        actionsEl.style.display = 'flex';
+      } catch (err) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = 'Erreur : ' + err.message;
+      }
+    }
+  }
+}
+
+async function extractFileContent(file) {
+  const t = file.type;
+  if (t === 'text/plain' || t === 'text/markdown' || file.name.endsWith('.md')) return file.text();
+  if (t === 'text/html') {
+    const html = await file.text();
+    return new DOMParser().parseFromString(html, 'text/html').body.innerText || '';
+  }
+  if (t === 'application/pdf') return extractPDF(file);
+  if (t === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return extractDOCX(file);
+  try { return await file.text(); } catch (_) { throw new Error('Type non supporté : ' + (t || file.name)); }
+}
+
+async function extractPDF(file) {
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+  const lib = window.pdfjsLib;
+  if (!lib) throw new Error('pdf.js non chargé');
+  lib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise;
+  let text = '';
+  for (let i = 1; i <= Math.min(pdf.numPages, 50); i++) {
+    const tc = await (await pdf.getPage(i)).getTextContent();
+    text += tc.items.map(x => x.str).join(' ') + '\n';
+  }
+  return text.trim();
+}
+
+async function extractDOCX(file) {
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+  const lib = window.mammoth;
+  if (!lib) throw new Error('mammoth.js non chargé');
+  const result = await lib.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+  return result.value;
+}
+
+async function generateSummaryFromFile(content, filename) {
+  const modal = document.createElement('div');
+  modal.className = 'ai-modal-overlay';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.innerHTML = `
+    <div class="ai-modal">
+      <div class="ai-modal-header">
+        <h3 class="ai-modal-title">Résumé — ${escHtml(filename)}</h3>
+        <button class="ai-modal-close" aria-label="Fermer">✕</button>
+      </div>
+      <div class="ai-modal-body">
+        <div class="ai-loading" id="ai-loading">Analyse en cours…</div>
+        <div class="ai-result" id="ai-result"></div>
+      </div>
+      <div class="ai-modal-footer" id="ai-modal-footer"></div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  const closeModal = () => modal.remove();
+  modal.querySelector('.ai-modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  const loadingEl = modal.querySelector('#ai-loading');
+  const resultEl  = modal.querySelector('#ai-result');
+  const footerEl  = modal.querySelector('#ai-modal-footer');
+
+  const prompt = `Tu es un assistant TSSR (Technicien Supérieur Systèmes et Réseaux). Résume ce document en 5-8 points clés, organisés et lisibles pour un technicien en formation :\n\nFichier : ${filename}\n\nContenu :\n${content.substring(0, 4000)}`;
+
+  try {
+    const resp = await fetch('/api/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: content.substring(0, 4000), filename }),
+    });
+    if (!resp.ok) throw new Error('API non disponible (statut ' + resp.status + ')');
+    const { summary } = await resp.json();
+    loadingEl.style.display = 'none';
+    resultEl.innerHTML = escHtml(summary).replace(/\n/g, '<br>');
+    resultEl.classList.add('visible');
+  } catch (_) {
+    loadingEl.style.display = 'none';
+    resultEl.innerHTML = `<p>API non configurée. Copiez ce prompt dans Claude.ai&nbsp;:</p>
+      <pre class="ai-prompt-box">${escHtml(prompt)}</pre>`;
+    resultEl.classList.add('visible');
+    footerEl.innerHTML = `
+      <button class="ai-btn ai-btn-copy" id="ai-copy-btn">Copier le prompt</button>
+      <a class="ai-btn ai-btn-open" href="https://claude.ai/new" target="_blank" rel="noopener">Ouvrir Claude.ai</a>`;
+    footerEl.querySelector('#ai-copy-btn').addEventListener('click', function() {
+      navigator.clipboard.writeText(prompt).then(() => { this.textContent = '✓ Copié !'; });
+    });
+  }
+}
+
+function getFileIcon(mimeType, filename) {
+  const ext = filename ? filename.split('.').pop().toUpperCase() : '';
+  const m = {
+    'text/plain': '[TXT]',
+    'text/markdown': '[MD]',
+    'text/html': '[HTML]',
+    'application/pdf': '[PDF]',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '[DOCX]',
+  };
+  return m[mimeType] || (ext ? '[' + ext + ']' : '[FILE]');
+}
+
+function formatFileSize(bytes) {
+  if (!bytes) return '0 B';
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3);
+  return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
 }
 
 // ===== FLASHCARDS =====

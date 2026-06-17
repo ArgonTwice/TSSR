@@ -1,20 +1,19 @@
 import { db } from './firebase-config.js';
 import {
-  doc, getDoc, setDoc,
-  onSnapshot, serverTimestamp,
+  doc, getDoc, setDoc, onSnapshot, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js';
 
 const FirebaseNotes = {
 
-  saveMemberShared: async (moduleId, coursId, pseudo, content) => {
+  saveMemberData: async (moduleId, coursId, pseudo, text, files) => {
     const docId = moduleId + '-' + coursId;
     try {
       await setDoc(doc(db, 'notes', docId), {
-        moduleId,
-        coursId,
+        moduleId, coursId,
         members: {
           [pseudo]: {
-            shared: content,
+            text: text || '',
+            files: files || [],
             updatedAt: new Date().toISOString(),
           },
         },
@@ -27,34 +26,16 @@ const FirebaseNotes = {
   },
 
   listenToAllMembers: (moduleId, coursId, callback) => {
-    const docRef = doc(db, 'notes', moduleId + '-' + coursId);
-    return onSnapshot(docRef, (snapshot) => {
-      const data = snapshot.data() || {};
-      callback(data.members || {});
-    }, (err) => console.error('Erreur écoute membres:', err));
-  },
-
-  listenToSummary: (moduleId, coursId, callback) => {
-    const docRef = doc(db, 'notes', moduleId + '-' + coursId);
-    return onSnapshot(docRef, (snapshot) => {
-      const data = snapshot.data() || {};
-      callback({
-        summary: data.summaryAuto || '',
-        updatedAt: data.summaryAutoUpdatedAt?.toDate?.() || null,
-      });
-    }, (err) => console.error('Erreur écoute résumé:', err));
-  },
-
-  getAllSharedContent: async (moduleId, coursId) => {
     const docId = moduleId + '-' + coursId;
-    try {
-      const snapshot = await getDoc(doc(db, 'notes', docId));
-      const data = snapshot.data() || {};
-      return data.members || {};
-    } catch (err) {
-      console.error('Erreur récupération:', err);
-      return {};
-    }
+    return onSnapshot(doc(db, 'notes', docId), (snap) => {
+      callback((snap.data() || {}).members || {});
+    }, (err) => console.error('Erreur écoute:', err));
+  },
+
+  getAllMembers: async (moduleId, coursId) => {
+    const docId = moduleId + '-' + coursId;
+    const snap = await getDoc(doc(db, 'notes', docId));
+    return (snap.data() || {}).members || {};
   },
 
   saveSummary: async (moduleId, coursId, summary) => {
@@ -66,9 +47,19 @@ const FirebaseNotes = {
       }, { merge: true });
       return { success: true };
     } catch (err) {
-      console.error('Erreur sauvegarde résumé:', err);
       return { success: false, error: err.message };
     }
+  },
+
+  listenToSummary: (moduleId, coursId, callback) => {
+    const docId = moduleId + '-' + coursId;
+    return onSnapshot(doc(db, 'notes', docId), (snap) => {
+      const data = snap.data() || {};
+      callback({
+        summary: data.summaryAuto || '',
+        updatedAt: data.summaryAutoUpdatedAt?.toDate?.() || null,
+      });
+    }, (err) => console.error('Erreur écoute résumé:', err));
   },
 
 };

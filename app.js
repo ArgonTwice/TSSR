@@ -392,7 +392,7 @@ function renderTabContent(tabId) {
   else if (tabId === 'gameshell')    renderGameshell(el);
   else if (tabId === 'netrunner')    renderNetrunner(el);
   else if (tabId === 'outils')      renderOutils(m, el);
-  else if (tabId === 'notes')       renderNotes(m, el);
+  else if (tabId === 'notes')       renderNotes(m, { id: state.currentCours || 'main' }, el);
 }
 
 // ===== GAMESHELL =====
@@ -832,15 +832,13 @@ function renderOutils(m, el) {
 }
 
 // ===== NOTES =====
-const MEMBRES = ['Esdine','Madjid','Fouad','Ilir','Jores','Ronel','Folly','Mick','Antho','Axel'];
+const KNOWN_MEMBERS = ['Esdine','Madjid','Fouad','Ilir','Jores','Ronel','Folly','Mick','Antho','Axel'];
 
-async function renderNotes(m, el) {
+async function renderNotes(m, cours, el) {
   if (window._noteUnsub) { window._noteUnsub(); window._noteUnsub = null; }
 
   const moduleId = m.id;
-  const coursId  = state.currentCours || 'main';
-  const docId    = moduleId + '-' + coursId;
-  const localKey = 'tssr_note_local_' + docId;
+  const coursId  = cours.id;
   const myPseudo = localStorage.getItem('tssr_pseudo') || '';
 
   el.innerHTML = `
@@ -849,31 +847,10 @@ async function renderNotes(m, el) {
       <div class="notes-section">
         <h3 class="notes-title">Votre identifiant</h3>
         <input type="text" id="note-pseudo" class="note-input"
-               placeholder="Votre prénom..." maxlength="20"
-               value="${escHtml(myPseudo)}">
-        <p class="notes-hint">Choisissez un prénom unique pour identifier votre zone de partage.</p>
+               placeholder="Votre prénom..." maxlength="20" value="${escHtml(myPseudo)}">
       </div>
 
-      <div class="notes-section notes-personal-section">
-        <h3 class="notes-title">Ma zone personnelle <span class="notes-local-badge">local uniquement</span></h3>
-        <textarea id="note-local" class="note-textarea" rows="5"
-                  placeholder="Vos notes privées, visibles seulement par vous..."></textarea>
-      </div>
-
-      <div class="notes-section notes-my-shared-section">
-        <h3 class="notes-title">Ma zone de partage</h3>
-        <p class="notes-hint">Visible par tous les collègues sur ce cours.</p>
-        <textarea id="note-my-shared" class="note-textarea" rows="6"
-                  placeholder="Partagez vos notes, remarques, points clés..."></textarea>
-        <button class="note-save-btn" id="note-save-my-shared">Sauvegarder mon partage</button>
-      </div>
-
-      <div class="notes-section notes-others-section">
-        <h3 class="notes-title">Partages des collègues</h3>
-        <div id="notes-members-list" class="notes-members-list">
-          <p class="notes-empty">Chargement...</p>
-        </div>
-      </div>
+      <div id="members-cards" class="members-cards"></div>
 
       <div class="notes-section notes-summary-section">
         <div class="notes-summary-header">
@@ -888,76 +865,197 @@ async function renderNotes(m, el) {
 
     </div>`;
 
-  // Pseudo
   const pseudoInput = document.getElementById('note-pseudo');
   pseudoInput?.addEventListener('change', () => {
     localStorage.setItem('tssr_pseudo', pseudoInput.value.trim());
+    renderMemberCards(moduleId, coursId, currentMembersCache);
   });
 
-  // Notes personnelles (localStorage uniquement)
-  const noteLocal = document.getElementById('note-local');
-  noteLocal.value = localStorage.getItem(localKey) || '';
-  noteLocal?.addEventListener('input', () => {
-    localStorage.setItem(localKey, noteLocal.value);
-  });
+  let currentMembersCache = {};
+
+  function renderMemberCards(moduleId, coursId, members) {
+    const container = document.getElementById('members-cards');
+    if (!container) return;
+    const myCurrentPseudo = localStorage.getItem('tssr_pseudo') || '';
+    const names = [...new Set([...KNOWN_MEMBERS, ...Object.keys(members)])];
+
+    container.innerHTML = names.map(name => {
+      const data    = members[name] || { text: '', files: [], updatedAt: null };
+      const isMine  = name === myCurrentPseudo;
+      const dateStr = data.updatedAt ? new Date(data.updatedAt).toLocaleString('fr-FR') : '';
+      const filesHtml = (data.files || []).map(f => `
+        <div class="member-file-chip" title="${escHtml(f.filename)}">
+          <span>${escHtml(f.filename)}</span>
+        </div>`).join('');
+
+      return `
+        <details class="member-card" data-member="${escHtml(name)}" ${isMine ? 'open' : ''}>
+          <summary class="member-card-summary">
+            <span class="member-name">${escHtml(name)}</span>
+            ${isMine ? '<span class="member-badge-me">vous</span>' : ''}
+            <span class="member-date">${dateStr}</span>
+          </summary>
+          <div class="member-card-body">
+            ${isMine ? `
+              <textarea class="note-textarea member-text-input" rows="5"
+                placeholder="Vos notes à partager...">${escHtml(data.text || '')}</textarea>
+              <div class="file-upload-zone member-upload-zone" data-member="${escHtml(name)}">
+                <p class="upload-text">Glissez vos fichiers ici ou</p>
+                <button type="button" class="upload-btn member-upload-trigger">Sélectionner un fichier</button>
+                <input type="file" class="member-file-input" multiple accept=".txt,.html,.md,.pdf" style="display:none">
+              </div>
+              <div class="member-files-list"></div>
+              <button class="note-save-btn member-save-btn">Sauvegarder mon partage</button>
+            ` : `
+              <div class="member-content">${data.text ? escHtml(data.text).replace(/\n/g,'<br>') : '<em>Aucune note</em>'}</div>
+              <div class="member-files-list">${filesHtml || '<em class="notes-empty">Aucun fichier</em>'}</div>
+            `}
+          </div>
+        </details>`;
+    }).join('');
+
+    const myCard = container.querySelector(`details[data-member="${myCurrentPseudo}"]`);
+    if (myCard) attachMyCardListeners(myCard, moduleId, coursId, myCurrentPseudo, updatedData => {
+      currentMembersCache[myCurrentPseudo] = updatedData;
+    });
+  }
+
+  function attachMyCardListeners(card, moduleId, coursId, pseudo, onLocalUpdate) {
+    let pendingFiles = [...(currentMembersCache[pseudo]?.files || [])];
+
+    const uploadZone  = card.querySelector('.member-upload-zone');
+    const fileInput   = card.querySelector('.member-file-input');
+    const triggerBtn  = card.querySelector('.member-upload-trigger');
+    const filesListEl = card.querySelector('.member-files-list');
+    const saveBtn     = card.querySelector('.member-save-btn');
+    const textArea    = card.querySelector('.member-text-input');
+
+    triggerBtn?.addEventListener('click', () => fileInput?.click());
+    uploadZone?.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone?.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone?.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+      handleNewFiles(e.dataTransfer.files);
+    });
+    fileInput?.addEventListener('change', e => { handleNewFiles(e.target.files); fileInput.value = ''; });
+
+    async function handleNewFiles(fileList) {
+      for (const file of fileList) {
+        try {
+          const content = await extractFileContent(file);
+          pendingFiles.push({
+            filename: file.name,
+            content: content.substring(0, 5000),
+            uploadedAt: new Date().toISOString(),
+          });
+          renderFilesChips();
+        } catch (err) {
+          alert('Erreur lecture ' + file.name + ': ' + err.message);
+        }
+      }
+    }
+
+    function renderFilesChips() {
+      filesListEl.innerHTML = pendingFiles.map((f, i) => `
+        <div class="member-file-chip">
+          <span>${escHtml(f.filename)}</span>
+          <button type="button" class="file-chip-remove" data-idx="${i}">×</button>
+        </div>`).join('');
+      filesListEl.querySelectorAll('.file-chip-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          pendingFiles.splice(Number(btn.dataset.idx), 1);
+          renderFilesChips();
+        });
+      });
+    }
+    renderFilesChips();
+
+    saveBtn?.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Sauvegarde...';
+      try {
+        const { FirebaseNotes } = await import('./firebase-notes.js');
+        const result = await FirebaseNotes.saveMemberData(moduleId, coursId, pseudo, textArea.value, pendingFiles);
+        onLocalUpdate({ text: textArea.value, files: pendingFiles, updatedAt: new Date().toISOString() });
+        saveBtn.textContent = result.success ? 'Sauvegardé !' : 'Erreur';
+      } catch (_) {
+        saveBtn.textContent = 'Erreur';
+      }
+      setTimeout(() => { saveBtn.disabled = false; saveBtn.textContent = 'Sauvegarder mon partage'; }, 1800);
+    });
+  }
 
   try {
     const { FirebaseNotes } = await import('./firebase-notes.js');
 
-    // Charger MA zone de partage actuelle si elle existe
-    const allMembers = await FirebaseNotes.getAllSharedContent(moduleId, coursId);
-    const currentPseudo = localStorage.getItem('tssr_pseudo') || '';
-    if (currentPseudo && allMembers[currentPseudo]) {
-      document.getElementById('note-my-shared').value = allMembers[currentPseudo].shared || '';
-    }
-
-    // Sauvegarder MA zone de partage
-    const saveMyBtn = document.getElementById('note-save-my-shared');
-    saveMyBtn?.addEventListener('click', async () => {
-      const pseudo = (localStorage.getItem('tssr_pseudo') || '').trim();
-      if (!pseudo) {
-        alert('Renseignez votre prénom avant de partager.');
-        return;
-      }
-      const content = document.getElementById('note-my-shared').value;
-      saveMyBtn.disabled = true;
-      saveMyBtn.textContent = 'Sauvegarde...';
-      const result = await FirebaseNotes.saveMemberShared(moduleId, coursId, pseudo, content);
-      saveMyBtn.textContent = result.success ? 'Sauvegardé !' : 'Erreur';
-      setTimeout(() => {
-        saveMyBtn.disabled = false;
-        saveMyBtn.textContent = 'Sauvegarder mon partage';
-      }, 1800);
-    });
-
-    // Écouter tous les membres en temps réel
     const unsubMembers = FirebaseNotes.listenToAllMembers(moduleId, coursId, (members) => {
-      const listEl = document.getElementById('notes-members-list');
-      if (!listEl) return;
-      const myCurrentPseudo = localStorage.getItem('tssr_pseudo') || '';
-      const others = Object.entries(members).filter(([name]) => name !== myCurrentPseudo);
+      currentMembersCache = members;
+      renderMemberCards(moduleId, coursId, members);
+    });
 
-      if (!others.length) {
-        listEl.innerHTML = '<p class="notes-empty">Aucun collègue n\'a partagé de notes pour le moment.</p>';
+    const genBtn = document.getElementById('note-generate-summary');
+    genBtn?.addEventListener('click', async () => {
+      genBtn.disabled = true;
+      genBtn.textContent = 'Génération...';
+
+      const members = await FirebaseNotes.getAllMembers(moduleId, coursId);
+      const entries = Object.entries(members).filter(([, d]) =>
+        (d.text || '').trim() || (d.files || []).length
+      );
+
+      if (!entries.length) {
+        document.getElementById('summary-content').innerHTML = '<em>Aucun contenu partagé à résumer.</em>';
+        genBtn.disabled = false;
+        genBtn.textContent = 'Générer le résumé';
         return;
       }
 
-      listEl.innerHTML = others.map(([name, data]) => {
-        const date    = data.updatedAt ? new Date(data.updatedAt) : null;
-        const dateStr = date ? date.toLocaleString('fr-FR') : '';
-        const content = (data.shared || '').trim();
-        return `
-          <div class="member-card">
-            <div class="member-card-header">
-              <span class="member-name">${escHtml(name)}</span>
-              <span class="member-date">${dateStr}</span>
-            </div>
-            <div class="member-content">${content ? escHtml(content).replace(/\n/g, '<br>') : '<em>Vide</em>'}</div>
-          </div>`;
-      }).join('');
+      let aggregated = '';
+      entries.forEach(([name, data]) => {
+        aggregated += `--- ${name} ---\n`;
+        if (data.text) aggregated += `Notes: ${data.text}\n`;
+        (data.files || []).forEach(f => {
+          aggregated += `Fichier "${f.filename}":\n${f.content}\n`;
+        });
+        aggregated += '\n';
+      });
+
+      try {
+        const response = await fetch('/api/auto-summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: aggregated, sourceCount: entries.length }),
+        });
+        if (!response.ok) throw new Error('API indisponible');
+        const { summary } = await response.json();
+        await FirebaseNotes.saveSummary(moduleId, coursId, summary);
+        genBtn.disabled = false;
+        genBtn.textContent = 'Régénérer le résumé';
+      } catch (_) {
+        const contentEl = document.getElementById('summary-content');
+        const metaEl    = document.getElementById('summary-meta');
+        if (metaEl) metaEl.textContent = 'Backend indisponible — saisie manuelle';
+        if (contentEl) contentEl.innerHTML = `
+          <p class="notes-hint">Backend /api/auto-summarize indisponible. Collez votre résumé ci-dessous&nbsp;:</p>
+          <textarea class="note-textarea" id="summary-manual" rows="8" placeholder="Collez votre résumé ici..."></textarea>
+          <button class="note-save-btn" id="summary-manual-save">Sauvegarder manuellement</button>`;
+        document.getElementById('summary-manual-save')?.addEventListener('click', async () => {
+          const text = document.getElementById('summary-manual')?.value || '';
+          if (!text.trim()) return;
+          const manBtn = document.getElementById('summary-manual-save');
+          manBtn.disabled = true;
+          manBtn.textContent = 'Sauvegarde...';
+          const { FirebaseNotes: FN } = await import('./firebase-notes.js');
+          const res = await FN.saveSummary(moduleId, coursId, text);
+          manBtn.textContent = res.success ? 'Sauvegardé !' : 'Erreur';
+          setTimeout(() => { manBtn.disabled = false; manBtn.textContent = 'Sauvegarder manuellement'; }, 1800);
+        });
+        genBtn.disabled = false;
+        genBtn.textContent = 'Générer le résumé';
+      }
     });
 
-    // Écouter le résumé en temps réel
     const unsubSummary = FirebaseNotes.listenToSummary(moduleId, coursId, (data) => {
       const contentEl = document.getElementById('summary-content');
       const metaEl    = document.getElementById('summary-meta');
@@ -970,50 +1068,10 @@ async function renderNotes(m, el) {
 
     window._noteUnsub = () => { unsubMembers(); unsubSummary(); };
 
-    // Bouton générer résumé
-    document.getElementById('note-generate-summary')?.addEventListener('click', async () => {
-      const genBtn = document.getElementById('note-generate-summary');
-      genBtn.disabled = true;
-      genBtn.textContent = 'Génération...';
-
-      const members = await FirebaseNotes.getAllSharedContent(moduleId, coursId);
-      const entries = Object.entries(members).filter(([, d]) => (d.shared || '').trim());
-
-      if (!entries.length) {
-        const c = document.getElementById('summary-content');
-        if (c) c.innerHTML = '<em>Aucun contenu partagé à résumer.</em>';
-        genBtn.disabled = false;
-        genBtn.textContent = 'Générer le résumé';
-        return;
-      }
-
-      let aggregated = '';
-      entries.forEach(([name, data]) => {
-        aggregated += `--- Partage de ${name} ---\n${data.shared}\n\n`;
-      });
-
-      try {
-        const response = await fetch('/api/auto-summarize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: aggregated, sourceCount: entries.length }),
-        });
-        if (!response.ok) throw new Error('Erreur API');
-        const { summary } = await response.json();
-        await FirebaseNotes.saveSummary(moduleId, coursId, summary);
-        genBtn.textContent = 'Régénérer le résumé';
-      } catch (_) {
-        const c = document.getElementById('summary-content');
-        if (c) c.innerHTML = '<em>Erreur de génération. Backend /api/auto-summarize indisponible.</em>';
-        genBtn.textContent = 'Générer le résumé';
-      }
-      genBtn.disabled = false;
-    });
-
   } catch (err) {
     console.warn('Firebase non disponible:', err);
-    const listEl = document.getElementById('notes-members-list');
-    if (listEl) listEl.innerHTML = '<p class="notes-empty">Mode hors-ligne — partage indisponible.</p>';
+    const container = document.getElementById('members-cards');
+    if (container) container.innerHTML = '<p class="notes-empty">Mode hors-ligne — partage indisponible.</p>';
   }
 }
 

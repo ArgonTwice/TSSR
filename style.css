@@ -2500,19 +2500,34 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   margin: 0;
 }
 
+.members-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .member-card {
   background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
   border-radius: var(--radius, 8px);
-  padding: 1rem;
+  overflow: hidden;
 }
 
-.member-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+.member-card[open] {
+  border-color: rgba(0,229,160,0.25);
 }
+
+.member-card-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.member-card-summary::-webkit-details-marker { display: none; }
 
 .member-name {
   font-weight: 700;
@@ -2520,9 +2535,26 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   font-size: 0.88rem;
 }
 
+.member-badge-me {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(0,229,160,0.1);
+  color: var(--accent);
+}
+
 .member-date {
+  margin-left: auto;
   font-size: 0.72rem;
   color: var(--text3);
+}
+
+.member-card-body {
+  padding: 0 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .member-content {
@@ -2530,6 +2562,46 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   color: var(--text2);
   line-height: 1.6;
   white-space: pre-wrap;
+}
+
+.member-upload-zone {
+  border: 1.5px dashed rgba(0,229,160,0.3);
+  border-radius: var(--radius, 8px);
+  padding: 1rem;
+  text-align: center;
+}
+
+.member-upload-zone.drag-over {
+  background: rgba(0,229,160,0.05);
+  border-color: var(--accent);
+}
+
+.member-files-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.member-file-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  color: var(--text2);
+}
+
+.file-chip-remove {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0;
 }
 
 .notes-summary-section {

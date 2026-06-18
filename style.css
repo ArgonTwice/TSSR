@@ -2444,13 +2444,39 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 }
 .note-input:focus { outline: none; border-color: var(--accent); }
 select.note-input {
+  width: 100%;
+  background: var(--color-bg-tertiary, #151b2e);
+  border: 1px solid var(--color-border2, rgba(255,255,255,0.12));
+  border-radius: var(--radius, 8px);
+  padding: 0.65rem 2.5rem 0.65rem 1rem;
+  color: var(--color-text-primary, #e2e8f0);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2394a3b8' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2300e5a0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.85rem center;
-  padding-right: 2.2rem;
+  background-position: right 1rem center;
+  transition: border-color 180ms ease;
+}
+select.note-input:hover {
+  border-color: rgba(0,229,160,0.4);
+}
+select.note-input:focus {
+  outline: none;
+  border-color: var(--color-accent, #00e5a0);
+}
+select.note-input option {
+  background: #151b2e;
+  color: #e2e8f0;
+  padding: 0.5rem 1rem;
+}
+select.note-input option:checked,
+select.note-input option:hover {
+  background: #00e5a0;
+  color: #090d18;
 }
 
 .note-textarea {

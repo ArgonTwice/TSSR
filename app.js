@@ -848,12 +848,20 @@ async function renderNotes(m, cours, el) {
 
       <div class="notes-section">
         <h3 class="notes-title">Votre identifiant</h3>
-        <select id="note-pseudo" class="note-input">
-          <option value="">-- Choisir votre prénom --</option>
-          ${KNOWN_MEMBERS.map(name =>
-            `<option value="${name}" ${name === myPseudo ? 'selected' : ''}>${name}</option>`
-          ).join('')}
-        </select>
+        <div class="custom-select" id="pseudo-dropdown">
+          <button type="button" class="custom-select-trigger" id="pseudo-trigger">
+            <span id="pseudo-trigger-label">${myPseudo || '-- Choisir votre prénom --'}</span>
+            <svg class="custom-select-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="custom-select-options" id="pseudo-options">
+            ${KNOWN_MEMBERS.map(name => `
+              <button type="button" class="custom-select-option${name === myPseudo ? ' selected' : ''}" data-value="${name}">
+                ${name}
+              </button>`).join('')}
+          </div>
+        </div>
       </div>
 
       <div id="members-cards" class="members-cards"></div>
@@ -868,11 +876,41 @@ async function renderNotes(m, cours, el) {
 
     </div>`;
 
-  const pseudoInput = document.getElementById('note-pseudo');
-  pseudoInput?.addEventListener('change', () => {
-    localStorage.setItem('tssr_pseudo', pseudoInput.value);
-    renderMemberCards(moduleId, coursId, currentMembersCache || {});
-  });
+  function initPseudoDropdown() {
+    const dropdown = document.getElementById('pseudo-dropdown');
+    const trigger = document.getElementById('pseudo-trigger');
+    const triggerLabel = document.getElementById('pseudo-trigger-label');
+    const optionsPanel = document.getElementById('pseudo-options');
+    if (!dropdown) return;
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('open');
+    });
+
+    optionsPanel.querySelectorAll('.custom-select-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const value = opt.dataset.value;
+        localStorage.setItem('tssr_pseudo', value);
+        triggerLabel.textContent = value;
+        optionsPanel.querySelectorAll('.custom-select-option').forEach(o =>
+          o.classList.toggle('selected', o.dataset.value === value)
+        );
+        dropdown.classList.remove('open');
+        renderMemberCards(moduleId, coursId, currentMembersCache || {});
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') dropdown.classList.remove('open');
+    });
+  }
+
+  initPseudoDropdown();
 
   let currentMembersCache = {};
   let myDraft = { text: null, files: null };

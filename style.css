@@ -2443,40 +2443,88 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   transition: border-color .15s;
 }
 .note-input:focus { outline: none; border-color: var(--accent); }
-select.note-input {
+.custom-select {
+  position: relative;
   width: 100%;
+}
+.custom-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: var(--color-bg-tertiary, #151b2e);
   border: 1px solid var(--color-border2, rgba(255,255,255,0.12));
   border-radius: var(--radius, 8px);
-  padding: 0.65rem 2.5rem 0.65rem 1rem;
+  padding: 0.65rem 1rem;
   color: var(--color-text-primary, #e2e8f0);
   font-family: var(--font-ui);
   font-size: 0.9rem;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2300e5a0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
   transition: border-color 180ms ease;
+  text-align: left;
 }
-select.note-input:hover {
+.custom-select-trigger:hover {
   border-color: rgba(0,229,160,0.4);
 }
-select.note-input:focus {
-  outline: none;
+.custom-select.open .custom-select-trigger {
   border-color: var(--color-accent, #00e5a0);
 }
-select.note-input option {
-  background: #151b2e;
-  color: #e2e8f0;
-  padding: 0.5rem 1rem;
+.custom-select-arrow {
+  flex-shrink: 0;
+  color: var(--color-accent, #00e5a0);
+  transition: transform 180ms ease;
 }
-select.note-input option:checked,
-select.note-input option:hover {
-  background: #00e5a0;
-  color: #090d18;
+.custom-select.open .custom-select-arrow {
+  transform: rotate(180deg);
+}
+.custom-select-options {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #151b2e;
+  border: 1px solid rgba(0,229,160,0.25);
+  border-radius: var(--radius, 8px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all 160ms ease;
+}
+.custom-select.open .custom-select-options {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.custom-select-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.65rem 1rem;
+  color: var(--color-text-secondary, #94a3b8);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.custom-select-option:hover {
+  background: rgba(0,229,160,0.08);
+  color: var(--color-text-primary, #e2e8f0);
+}
+.custom-select-option.selected {
+  background: rgba(0,229,160,0.12);
+  color: var(--color-accent, #00e5a0);
+  font-weight: 600;
+}
+.custom-select-options::-webkit-scrollbar { width: 6px; }
+.custom-select-options::-webkit-scrollbar-thumb {
+  background: rgba(0,229,160,0.3);
+  border-radius: 3px;
 }
 
 .note-textarea {

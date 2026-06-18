@@ -239,7 +239,6 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.35;
-  max-height: calc(1.35em * 2);
   width: 100%;
   text-align: left;
   background: none;

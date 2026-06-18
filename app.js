@@ -204,7 +204,9 @@ function renderNav() {
           const isCoursActive = isActive && state.currentCours === c.id;
           const cBtn = document.createElement('button');
           cBtn.className = 'nav-cours-item' + (isCoursActive ? ' active' : '');
-          cBtn.textContent = sanitizeText(c.titre);
+          const titre = sanitizeText(c.titre);
+          cBtn.textContent = titre.length > 55 ? titre.slice(0, 52) + '...' : titre;
+          cBtn.title = titre;
           cBtn.addEventListener('click', () => {
             openModule(m.id, false, c.id);
             closeSidebar();

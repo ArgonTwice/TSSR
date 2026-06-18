@@ -4113,10 +4113,22 @@ function openTerminalFS(type) {
 
 // ===== SCREENS =====
 function showScreen(id) {
+  const leavingTerminal = state.currentScreen === 'terminal-fs' && id !== 'terminal-fs-screen';
+
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.getElementById('content').scrollTop = 0;
   state.currentScreen = id.replace('-screen','');
+
+  if (leavingTerminal) {
+    const fsContent = document.getElementById('terminal-fs-content');
+    if (fsContent) fsContent.innerHTML = '';
+    const fsHeader = document.getElementById('terminal-fs-header');
+    if (fsHeader) fsHeader.innerHTML = '';
+    state.currentTerminal = null;
+    state.cli = { type: null, history: [], histIdx: -1, cwd: '/', env: {} };
+  }
+
   renderNav();
   const screenName = id.replace('-screen', '');
   if (screenName === 'home') {
@@ -4166,12 +4178,8 @@ window.addEventListener('popstate', (e) => {
   if (!state_nav || state_nav.screen === 'home') {
     state.currentModule = null;
     state.currentCours = null;
-    state.currentScreen = 'home';
     document.getElementById('mobile-module-name').textContent = '';
-    renderNav();
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('home-screen').classList.add('active');
-    document.getElementById('content').scrollTop = 0;
+    showScreen('home-screen');
   } else if (state_nav.screen === 'module' && state_nav.moduleId) {
     if (state.currentModule?.id === state_nav.moduleId && state_nav.tab) {
       switchTab(state_nav.tab, true);

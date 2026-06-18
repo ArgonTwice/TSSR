@@ -2443,6 +2443,15 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   transition: border-color .15s;
 }
 .note-input:focus { outline: none; border-color: var(--accent); }
+select.note-input {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2394a3b8' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  padding-right: 2.2rem;
+}
 
 .note-textarea {
   width: 100%;
@@ -2585,6 +2594,33 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   gap: 0.5rem;
 }
 
+.member-file-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.member-file-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+.member-file-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.member-file-extract {
+  font-size: 0.78rem;
+  color: var(--text2);
+  line-height: 1.55;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 .member-file-chip {
   display: flex;
   align-items: center;

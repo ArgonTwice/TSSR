@@ -848,20 +848,21 @@ async function renderNotes(m, cours, el) {
 
       <div class="notes-section">
         <h3 class="notes-title">Votre identifiant</h3>
-        <input type="text" id="note-pseudo" class="note-input"
-               placeholder="Votre prénom..." maxlength="20" value="${escHtml(myPseudo)}">
+        <select id="note-pseudo" class="note-input">
+          <option value="">-- Choisir votre prénom --</option>
+          ${KNOWN_MEMBERS.map(name =>
+            `<option value="${name}" ${name === myPseudo ? 'selected' : ''}>${name}</option>`
+          ).join('')}
+        </select>
       </div>
 
       <div id="members-cards" class="members-cards"></div>
 
       <div class="notes-section notes-summary-section">
-        <div class="notes-summary-header">
-          <h3 class="notes-title">Résumé</h3>
-          <button class="note-generate-btn" id="note-generate-summary">Générer le résumé</button>
-        </div>
-        <p class="notes-meta" id="summary-meta">Aucun résumé généré</p>
+        <h3 class="notes-title">Résumé</h3>
+        <p class="notes-meta" id="summary-meta">En attente de contenu...</p>
         <div id="summary-content" class="notes-summary-content">
-          <em>Cliquez sur "Générer le résumé" pour synthétiser les partages de tous les collègues.</em>
+          <em>Le résumé se générera automatiquement quand un collègue partagera des notes.</em>
         </div>
       </div>
 
@@ -869,8 +870,8 @@ async function renderNotes(m, cours, el) {
 
   const pseudoInput = document.getElementById('note-pseudo');
   pseudoInput?.addEventListener('change', () => {
-    localStorage.setItem('tssr_pseudo', pseudoInput.value.trim());
-    renderMemberCards(moduleId, coursId, currentMembersCache);
+    localStorage.setItem('tssr_pseudo', pseudoInput.value);
+    renderMemberCards(moduleId, coursId, currentMembersCache || {});
   });
 
   let currentMembersCache = {};
@@ -891,8 +892,11 @@ async function renderNotes(m, cours, el) {
       const isMine  = name === myCurrentPseudo;
       const dateStr = data.updatedAt ? new Date(data.updatedAt).toLocaleString('fr-FR') : '';
       const filesHtml = (data.files || []).map(f => `
-        <div class="member-file-chip" title="${escHtml(f.filename)}">
-          <span>${escHtml(f.filename)}</span>
+        <div class="member-file-block">
+          <div class="member-file-header">
+            <span class="member-file-name">${escHtml(f.filename)}</span>
+          </div>
+          <div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>
         </div>`).join('');
 
       return `
@@ -974,9 +978,12 @@ async function renderNotes(m, cours, el) {
 
     function renderFilesChips() {
       filesListEl.innerHTML = pendingFiles.map((f, i) => `
-        <div class="member-file-chip">
-          <span>${escHtml(f.filename)}</span>
-          <button type="button" class="file-chip-remove" data-idx="${i}">×</button>
+        <div class="member-file-block">
+          <div class="member-file-header">
+            <span class="member-file-name">${escHtml(f.filename)}</span>
+            <button type="button" class="file-chip-remove" data-idx="${i}">Retirer</button>
+          </div>
+          <div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>
         </div>`).join('');
       filesListEl.querySelectorAll('.file-chip-remove').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -997,7 +1004,8 @@ async function renderNotes(m, cours, el) {
         onLocalUpdate({ text: textArea.value, files: pendingFiles, updatedAt: new Date().toISOString() });
         myDraft = { text: null, files: null };
         saveBtn.textContent = result.success ? 'Sauvegardé !' : 'Erreur';
-      } catch (_) {
+        if (result.success) autoGenerateSummary(moduleId, coursId);
+      } catch (err) {
         saveBtn.textContent = 'Erreur';
       }
       setTimeout(() => { saveBtn.disabled = false; saveBtn.textContent = 'Sauvegarder mon partage'; }, 1800);
@@ -1012,68 +1020,6 @@ async function renderNotes(m, cours, el) {
       renderMemberCards(moduleId, coursId, members);
     });
 
-    const genBtn = document.getElementById('note-generate-summary');
-    genBtn?.addEventListener('click', async () => {
-      genBtn.disabled = true;
-      genBtn.textContent = 'Génération...';
-
-      const members = await FirebaseNotes.getAllMembers(moduleId, coursId);
-      const entries = Object.entries(members).filter(([, d]) =>
-        (d.text || '').trim() || (d.files || []).length
-      );
-
-      if (!entries.length) {
-        document.getElementById('summary-content').innerHTML = '<em>Aucun contenu partagé à résumer.</em>';
-        genBtn.disabled = false;
-        genBtn.textContent = 'Générer le résumé';
-        return;
-      }
-
-      let aggregated = '';
-      entries.forEach(([name, data]) => {
-        aggregated += `--- ${name} ---\n`;
-        if (data.text) aggregated += `Notes: ${data.text}\n`;
-        (data.files || []).forEach(f => {
-          aggregated += `Fichier "${f.filename}":\n${f.content}\n`;
-        });
-        aggregated += '\n';
-      });
-
-      try {
-        const response = await fetch('/api/auto-summarize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: aggregated, sourceCount: entries.length }),
-        });
-        if (!response.ok) throw new Error('API indisponible');
-        const { summary } = await response.json();
-        await FirebaseNotes.saveSummary(moduleId, coursId, summary);
-        genBtn.disabled = false;
-        genBtn.textContent = 'Régénérer le résumé';
-      } catch (_) {
-        const contentEl = document.getElementById('summary-content');
-        const metaEl    = document.getElementById('summary-meta');
-        if (metaEl) metaEl.textContent = 'Backend indisponible — saisie manuelle';
-        if (contentEl) contentEl.innerHTML = `
-          <p class="notes-hint">Backend /api/auto-summarize indisponible. Collez votre résumé ci-dessous&nbsp;:</p>
-          <textarea class="note-textarea" id="summary-manual" rows="8" placeholder="Collez votre résumé ici..."></textarea>
-          <button class="note-save-btn" id="summary-manual-save">Sauvegarder manuellement</button>`;
-        document.getElementById('summary-manual-save')?.addEventListener('click', async () => {
-          const text = document.getElementById('summary-manual')?.value || '';
-          if (!text.trim()) return;
-          const manBtn = document.getElementById('summary-manual-save');
-          manBtn.disabled = true;
-          manBtn.textContent = 'Sauvegarde...';
-          const { FirebaseNotes: FN } = await import('./firebase-notes.js');
-          const res = await FN.saveSummary(moduleId, coursId, text);
-          manBtn.textContent = res.success ? 'Sauvegardé !' : 'Erreur';
-          setTimeout(() => { manBtn.disabled = false; manBtn.textContent = 'Sauvegarder manuellement'; }, 1800);
-        });
-        genBtn.disabled = false;
-        genBtn.textContent = 'Générer le résumé';
-      }
-    });
-
     const unsubSummary = FirebaseNotes.listenToSummary(moduleId, coursId, (data) => {
       const contentEl = document.getElementById('summary-content');
       const metaEl    = document.getElementById('summary-meta');
@@ -1084,12 +1030,65 @@ async function renderNotes(m, cours, el) {
       }
     });
 
+    const existingMembers = await FirebaseNotes.getAllMembers(moduleId, coursId);
+    const hasContent = Object.values(existingMembers).some(d =>
+      (d.text || '').trim() || (d.files || []).length
+    );
+    if (hasContent) autoGenerateSummary(moduleId, coursId);
+
     window._noteUnsub = () => { unsubMembers(); unsubSummary(); };
 
   } catch (err) {
     console.warn('Firebase non disponible:', err);
     const container = document.getElementById('members-cards');
     if (container) container.innerHTML = '<p class="notes-empty">Mode hors-ligne — partage indisponible.</p>';
+  }
+}
+
+// ===== NOTES — RESUME AUTOMATIQUE =====
+
+async function autoGenerateSummary(moduleId, coursId) {
+  const metaEl    = document.getElementById('summary-meta');
+  const contentEl = document.getElementById('summary-content');
+  if (metaEl) metaEl.textContent = 'Génération en cours...';
+
+  try {
+    const { FirebaseNotes } = await import('./firebase-notes.js');
+    const members = await FirebaseNotes.getAllMembers(moduleId, coursId);
+    const entries = Object.entries(members).filter(([, d]) =>
+      (d.text || '').trim() || (d.files || []).length
+    );
+
+    if (!entries.length) {
+      if (contentEl) contentEl.innerHTML = '<em>Aucun contenu partagé pour le moment.</em>';
+      if (metaEl) metaEl.textContent = 'En attente de contenu...';
+      return;
+    }
+
+    let aggregated = '';
+    entries.forEach(([name, data]) => {
+      aggregated += `--- ${name} ---\n`;
+      if (data.text) aggregated += `Notes: ${data.text}\n`;
+      (data.files || []).forEach(f => {
+        aggregated += `Fichier "${f.filename}":\n${f.content}\n`;
+      });
+      aggregated += '\n';
+    });
+
+    const response = await fetch('/api/auto-summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: aggregated, sourceCount: entries.length }),
+    });
+    if (!response.ok) throw new Error('API indisponible');
+    const { summary } = await response.json();
+    await FirebaseNotes.saveSummary(moduleId, coursId, summary);
+  } catch (err) {
+    if (contentEl) contentEl.innerHTML =
+      '<em>Génération automatique indisponible (backend non déployé). ' +
+      'Le contenu est bien sauvegardé, mais le résumé IA nécessite un serveur actif.</em>';
+    if (metaEl) metaEl.textContent = 'Résumé indisponible';
+    console.warn('Erreur autoGenerateSummary:', err);
   }
 }
 

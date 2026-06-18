@@ -204,9 +204,12 @@ function renderNav() {
           const isCoursActive = isActive && state.currentCours === c.id;
           const cBtn = document.createElement('button');
           cBtn.className = 'nav-cours-item' + (isCoursActive ? ' active' : '');
-          const titre = sanitizeText(c.titre);
-          cBtn.textContent = titre.length > 55 ? titre.slice(0, 52) + '...' : titre;
-          cBtn.title = titre;
+          const _titreClean = sanitizeText(c.titre);
+          cBtn.textContent = _titreClean.length > 48
+            ? _titreClean.slice(0, 45).trimEnd() + '...'
+            : _titreClean;
+          cBtn.title = _titreClean;
+          cBtn.setAttribute('aria-label', _titreClean);
           cBtn.addEventListener('click', () => {
             openModule(m.id, false, c.id);
             closeSidebar();

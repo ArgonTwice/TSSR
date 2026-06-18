@@ -1,3 +1,34 @@
+## 📋 Récap — 2026-06-18 (session 16)
+
+### Fait :
+- `style.css` : `.nav-cours-item` — suppression `webkit-line-clamp` + `max-height` conflictuel (causait coupure visuelle), remplacement par `white-space: nowrap + text-overflow: ellipsis` — commits `6b0ecac`, `c3e55b7`, `92cac5c`
+- `app.js` : troncature JS fiable des titres sidebar — `_titreClean.slice(0, 45).trimEnd() + '...'` (seuil 48 chars), `title` + `aria-label` pour tooltip — commit `92cac5c`
+- `app.js` : onglet Notes — `<select>` natif → dropdown custom 100% JS/CSS (`.custom-select`, animation opacity+translateY, flèche SVG verte, fermeture clic extérieur + Echap) — commit `c8762dd`
+- `app.js` : onglet Notes — identifiant passé de `<input text>` à `<select>` (étape intermédiaire) puis dropdown custom — commit `3d9d715`
+- `app.js` : onglet Notes — `renderFilesChips()` refait : fichiers uploadés affichés en blocs avec contenu extrait lisible (`.member-file-block` + `.member-file-extract` scrollable 200px) — commit `3d9d715`
+- `app.js` : onglet Notes — résumé automatique sans bouton : `autoGenerateSummary()` appelée après chaque sauvegarde réussie + au chargement si contenu existant — commit `3d9d715`
+- `app.js` : `showScreen()` — ajout nettoyage terminal fullscreen (`fsContent.innerHTML = ''`, reset `state.cli`) à la navigation — commit `91cfe6e`
+- `app.js` : `popstate` home branch — remplacé manipulation DOM manuelle par `showScreen('home-screen')` pour passer par le nettoyage terminal — commit `91cfe6e`
+- `style.css` : `.custom-select`, `.custom-select-trigger`, `.custom-select-options`, `.custom-select-option` + scrollbar verte — commit `c8762dd`
+- `style.css` : `.member-file-block`, `.member-file-header`, `.member-file-name`, `.member-file-extract` — commit `3d9d715`
+
+### État :
+PWA déployée. Sidebar : titres tronqués proprement à 45 chars (plus de ligne coupée). Onglet Notes : dropdown identifiant custom thème sombre, fichiers uploadés affichés en texte lisible, résumé auto sans bouton. Navigation terminal nettoyée.
+
+### À reprendre :
+- [ ] Déployer Railway (`railway login` → `railway init` → `railway variables set ANTHROPIC_API_KEY=...` → `railway up`) puis mettre à jour URL fetch dans app.js
+- [ ] Vérifier règles Firestore console (`allow read, write: if true` sur collection `notes`)
+- [ ] Tester sync temps réel entre 2 ordis (Notes partagées Firebase)
+- [ ] Flashcards OSI (7 couches + rôles) — en attente depuis session 7
+- [ ] NetRunner missions Linux supplémentaires (3 missions : bash, find, chmod)
+- [ ] Leaderboard localStorage NetRunner (meilleur temps par mission)
+- [ ] Refonte `ad-avance` (ADFS SSO trusts réplication schéma)
+
+### Contexte express :
+> Session UI/polish : fix troncature titres sidebar (line-clamp → JS+ellipsis), dropdown identifiant 100% custom dark theme, affichage contenu extrait fichiers en blocs lisibles, résumé Notes auto-généré après chaque save. Nettoyage terminal fullscreen à la navigation (showScreen + popstate). Aucun nouveau module.
+
+---
+
 ## 📋 Récap — 2026-06-17 (session 15)
 
 ### Fait :

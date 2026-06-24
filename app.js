@@ -936,8 +936,12 @@ async function renderNotes(m, cours, el) {
         <div class="member-file-block">
           <div class="member-file-header">
             <span class="member-file-name">${escHtml(f.filename)}</span>
+            ${f.kind === 'html' ? '<span class="member-file-badge">HTML rendu</span>' : ''}
           </div>
-          <div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>
+          ${f.kind === 'html'
+            ? `<div class="member-file-html-render">${f.content}</div>`
+            : `<div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>`
+          }
         </div>`).join('');
 
       return `
@@ -1003,10 +1007,11 @@ async function renderNotes(m, cours, el) {
     async function handleNewFiles(fileList) {
       for (const file of fileList) {
         try {
-          const content = await extractFileContent(file);
+          const extracted = await extractFileContent(file);
           pendingFiles.push({
             filename: file.name,
-            content: content.substring(0, 5000),
+            kind: extracted.kind,
+            content: extracted.raw.substring(0, 8000),
             uploadedAt: new Date().toISOString(),
           });
           myDraft.files = [...pendingFiles];
@@ -1022,9 +1027,13 @@ async function renderNotes(m, cours, el) {
         <div class="member-file-block">
           <div class="member-file-header">
             <span class="member-file-name">${escHtml(f.filename)}</span>
+            ${f.kind === 'html' ? '<span class="member-file-badge">HTML rendu</span>' : ''}
             <button type="button" class="file-chip-remove" data-idx="${i}">Retirer</button>
           </div>
-          <div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>
+          ${f.kind === 'html'
+            ? `<div class="member-file-html-render">${f.content}</div>`
+            : `<div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>`
+          }
         </div>`).join('');
       filesListEl.querySelectorAll('.file-chip-remove').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1233,15 +1242,63 @@ function setupFileUpload(moduleId, coursId) {
 }
 
 async function extractFileContent(file) {
-  const t = file.type;
-  if (t === 'text/plain' || t === 'text/markdown' || file.name.endsWith('.md')) return file.text();
-  if (t === 'text/html') {
-    const html = await file.text();
-    return new DOMParser().parseFromString(html, 'text/html').body.innerText || '';
+  const type = file.type;
+
+  if (type === 'text/plain' || type === 'text/markdown' || !type || file.name.endsWith('.md')) {
+    const text = await file.text();
+    return { kind: 'text', raw: text };
   }
-  if (t === 'application/pdf') return extractPDF(file);
-  if (t === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return extractDOCX(file);
-  try { return await file.text(); } catch (_) { throw new Error('Type non supporté : ' + (t || file.name)); }
+
+  if (type === 'text/html') {
+    const html = await file.text();
+    const sanitized = sanitizeHtmlContent(html);
+    return { kind: 'html', raw: sanitized };
+  }
+
+  if (type === 'application/pdf') {
+    const text = await extractPDF(file);
+    return { kind: 'text', raw: text };
+  }
+
+  if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    const text = await extractDOCX(file);
+    return { kind: 'text', raw: text };
+  }
+
+  try {
+    const text = await file.text();
+    return { kind: 'text', raw: text };
+  } catch (_) {
+    throw new Error('Format non supporte: ' + (type || file.name));
+  }
+}
+
+function sanitizeHtmlContent(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  doc.querySelectorAll('script, iframe, object, embed, link[rel="import"], meta[http-equiv]')
+    .forEach(el => el.remove());
+
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT);
+  let node;
+  const toClean = [];
+  while ((node = walker.nextNode())) toClean.push(node);
+
+  toClean.forEach(el => {
+    [...el.attributes].forEach(attr => {
+      const name = attr.name.toLowerCase();
+      const value = attr.value.toLowerCase();
+      if (name.startsWith('on')) {
+        el.removeAttribute(attr.name);
+      }
+      if ((name === 'href' || name === 'src') && value.startsWith('javascript:')) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+
+  return doc.body.innerHTML;
 }
 
 async function extractPDF(file) {

@@ -2693,6 +2693,42 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   white-space: pre-wrap;
   word-break: break-word;
 }
+.member-file-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(59,130,246,0.15);
+  color: #60a5fa;
+}
+.member-file-html-render {
+  background: #ffffff;
+  color: #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  max-height: 500px;
+  overflow-y: auto;
+  font-family: var(--font-ui);
+  line-height: 1.55;
+}
+.member-file-html-render * {
+  max-width: 100%;
+}
+.member-file-html-render img {
+  max-width: 100%;
+  height: auto;
+}
+.member-file-html-render table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.member-file-html-render table td,
+.member-file-html-render table th {
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+}
 .member-file-chip {
   display: flex;
   align-items: center;

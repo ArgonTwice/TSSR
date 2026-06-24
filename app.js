@@ -940,7 +940,7 @@ async function renderNotes(m, cours, el) {
             ${f.kind === 'html' ? `<button type="button" class="file-open-fullscreen" data-member="${escHtml(name)}" data-fidx="${fi}">Plein ecran</button>` : ''}
           </div>
           ${f.kind === 'html'
-            ? `<iframe class="member-file-iframe" sandbox="allow-same-origin" srcdoc="${escHtml(f.content)}"></iframe>`
+            ? `<iframe class="member-file-iframe" sandbox="allow-scripts" srcdoc="${escHtml(f.content)}"></iframe>`
             : `<div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>`
           }
         </div>`).join('');
@@ -1018,11 +1018,22 @@ async function renderNotes(m, cours, el) {
       for (const file of fileList) {
         try {
           const extracted = await extractFileContent(file);
-          const maxLen = extracted.kind === 'html' ? 15000 : 8000;
+
+          const MAX_SIZE = 900000;
+          if (extracted.raw.length > MAX_SIZE) {
+            alert(
+              'Le fichier "' + file.name + '" est trop volumineux (' +
+              Math.round(extracted.raw.length / 1024) + ' Ko). ' +
+              'Limite : ' + Math.round(MAX_SIZE / 1024) + ' Ko. ' +
+              'Le fichier ne sera pas ajoute en entier -- contactez l\'admin si besoin de stocker des fichiers plus lourds.'
+            );
+            continue;
+          }
+
           pendingFiles.push({
             filename: file.name,
             kind: extracted.kind,
-            content: extracted.raw.substring(0, maxLen),
+            content: extracted.raw,
             uploadedAt: new Date().toISOString(),
           });
           renderFilesChips();
@@ -1044,7 +1055,7 @@ async function renderNotes(m, cours, el) {
             </div>
           </div>
           ${f.kind === 'html'
-            ? `<iframe class="member-file-iframe" sandbox="allow-same-origin" srcdoc="${escHtml(f.content)}"></iframe>`
+            ? `<iframe class="member-file-iframe" sandbox="allow-scripts" srcdoc="${escHtml(f.content)}"></iframe>`
             : `<div class="member-file-extract">${escHtml(f.content).replace(/\n/g,'<br>')}</div>`
           }
         </div>`).join('');
@@ -1275,6 +1286,7 @@ function openFileFullscreen(file) {
   document.body.appendChild(overlay);
 
   const iframe = overlay.querySelector('.file-fullscreen-iframe');
+  iframe.setAttribute('sandbox', 'allow-scripts');
   iframe.srcdoc = file.content;
 
   overlay.querySelector('.file-fullscreen-close').addEventListener('click', () => overlay.remove());
@@ -1320,27 +1332,11 @@ function sanitizeHtmlContent(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  doc.querySelectorAll('script, iframe, object, embed, link[rel="import"], meta[http-equiv]')
+  // Supprimer uniquement les balises a risque de sortie de sandbox
+  doc.querySelectorAll('iframe, object, embed, link[rel="import"], meta[http-equiv="refresh"]')
     .forEach(el => el.remove());
 
-  const walker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT);
-  let node;
-  const toClean = [];
-  while ((node = walker.nextNode())) toClean.push(node);
-
-  toClean.forEach(el => {
-    [...el.attributes].forEach(attr => {
-      const name = attr.name.toLowerCase();
-      const value = attr.value.toLowerCase();
-      if (name.startsWith('on')) {
-        el.removeAttribute(attr.name);
-      }
-      if ((name === 'href' || name === 'src') && value.startsWith('javascript:')) {
-        el.removeAttribute(attr.name);
-      }
-    });
-  });
-
+  // Retourner le document COMPLET (scripts + styles + body) tel quel
   return doc.documentElement.outerHTML;
 }
 

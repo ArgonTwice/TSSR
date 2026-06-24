@@ -7,6 +7,17 @@ const FirebaseNotes = {
 
   saveMemberData: async (moduleId, coursId, pseudo, text, files) => {
     const docId = moduleId + '-' + coursId;
+    const totalSize = JSON.stringify({ text, files }).length;
+
+    if (totalSize > 950000) {
+      return {
+        success: false,
+        error: 'Donnees trop volumineuses (' + Math.round(totalSize / 1024) +
+               ' Ko). Limite Firestore : ~950 Ko par membre/cours. ' +
+               'Retirez un fichier ou reduisez le texte.'
+      };
+    }
+
     try {
       await setDoc(doc(db, 'notes', docId), {
         moduleId, coursId,

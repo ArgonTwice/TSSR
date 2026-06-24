@@ -932,14 +932,15 @@ async function renderNotes(m, cours, el) {
       const data    = members[name] || { text: '', files: [], updatedAt: null };
       const isMine  = name === myCurrentPseudo;
       const dateStr = data.updatedAt ? new Date(data.updatedAt).toLocaleString('fr-FR') : '';
-      const filesHtml = (data.files || []).map(f => `
+      const filesHtml = (data.files || []).map((f, fi) => `
         <div class="member-file-block">
           <div class="member-file-header">
             <span class="member-file-name">${escHtml(f.filename)}</span>
-            ${f.kind === 'html' ? '<span class="member-file-badge">HTML rendu</span>' : ''}
+            ${f.kind === 'html' ? '<span class="member-file-badge">HTML</span>' : ''}
+            ${f.kind === 'html' ? `<button type="button" class="file-open-fullscreen" data-member="${escHtml(name)}" data-fidx="${fi}">Plein ecran</button>` : ''}
           </div>
           ${f.kind === 'html'
-            ? `<div class="member-file-html-render">${f.content}</div>`
+            ? `<iframe class="member-file-iframe" sandbox="allow-same-origin" srcdoc="${escHtml(f.content)}"></iframe>`
             : `<div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>`
           }
         </div>`).join('');
@@ -969,6 +970,15 @@ async function renderNotes(m, cours, el) {
           </div>
         </details>`;
     }).join('');
+
+    container.querySelectorAll('.file-open-fullscreen[data-member]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const memberName = btn.dataset.member;
+        const fileIdx = Number(btn.dataset.fidx);
+        const file = (members[memberName]?.files || [])[fileIdx];
+        if (file) openFileFullscreen(file);
+      });
+    });
 
     const myCard = container.querySelector(`details[data-member="${myCurrentPseudo}"]`);
     if (myCard) {
@@ -1008,13 +1018,13 @@ async function renderNotes(m, cours, el) {
       for (const file of fileList) {
         try {
           const extracted = await extractFileContent(file);
+          const maxLen = extracted.kind === 'html' ? 15000 : 8000;
           pendingFiles.push({
             filename: file.name,
             kind: extracted.kind,
-            content: extracted.raw.substring(0, 8000),
+            content: extracted.raw.substring(0, maxLen),
             uploadedAt: new Date().toISOString(),
           });
-          myDraft.files = [...pendingFiles];
           renderFilesChips();
         } catch (err) {
           alert('Erreur lecture ' + file.name + ': ' + err.message);
@@ -1027,19 +1037,28 @@ async function renderNotes(m, cours, el) {
         <div class="member-file-block">
           <div class="member-file-header">
             <span class="member-file-name">${escHtml(f.filename)}</span>
-            ${f.kind === 'html' ? '<span class="member-file-badge">HTML rendu</span>' : ''}
-            <button type="button" class="file-chip-remove" data-idx="${i}">Retirer</button>
+            ${f.kind === 'html' ? '<span class="member-file-badge">HTML</span>' : ''}
+            <div class="member-file-actions">
+              ${f.kind === 'html' ? `<button type="button" class="file-open-fullscreen" data-idx="${i}">Plein ecran</button>` : ''}
+              <button type="button" class="file-chip-remove" data-idx="${i}">Retirer</button>
+            </div>
           </div>
           ${f.kind === 'html'
-            ? `<div class="member-file-html-render">${f.content}</div>`
-            : `<div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>`
+            ? `<iframe class="member-file-iframe" sandbox="allow-same-origin" srcdoc="${escHtml(f.content)}"></iframe>`
+            : `<div class="member-file-extract">${escHtml(f.content).replace(/\n/g,'<br>')}</div>`
           }
         </div>`).join('');
+
       filesListEl.querySelectorAll('.file-chip-remove').forEach(btn => {
         btn.addEventListener('click', () => {
           pendingFiles.splice(Number(btn.dataset.idx), 1);
-          myDraft.files = [...pendingFiles];
           renderFilesChips();
+        });
+      });
+
+      filesListEl.querySelectorAll('.file-open-fullscreen').forEach(btn => {
+        btn.addEventListener('click', () => {
+          openFileFullscreen(pendingFiles[Number(btn.dataset.idx)]);
         });
       });
     }
@@ -1241,6 +1260,30 @@ function setupFileUpload(moduleId, coursId) {
   }
 }
 
+function openFileFullscreen(file) {
+  const overlay = document.createElement('div');
+  overlay.className = 'file-fullscreen-overlay';
+  overlay.innerHTML = `
+    <div class="file-fullscreen-modal">
+      <div class="file-fullscreen-header">
+        <span class="file-fullscreen-title">${escHtml(file.filename)}</span>
+        <button class="file-fullscreen-close">Fermer</button>
+      </div>
+      <iframe class="file-fullscreen-iframe" sandbox="allow-same-origin"></iframe>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const iframe = overlay.querySelector('.file-fullscreen-iframe');
+  iframe.srcdoc = file.content;
+
+  overlay.querySelector('.file-fullscreen-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.addEventListener('keydown', function escClose(e) {
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escClose); }
+  });
+}
+
 async function extractFileContent(file) {
   const type = file.type;
 
@@ -1280,7 +1323,7 @@ function sanitizeHtmlContent(html) {
   doc.querySelectorAll('script, iframe, object, embed, link[rel="import"], meta[http-equiv]')
     .forEach(el => el.remove());
 
-  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT);
+  const walker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT);
   let node;
   const toClean = [];
   while ((node = walker.nextNode())) toClean.push(node);
@@ -1298,7 +1341,7 @@ function sanitizeHtmlContent(html) {
     });
   });
 
-  return doc.body.innerHTML;
+  return doc.documentElement.outerHTML;
 }
 
 async function extractPDF(file) {

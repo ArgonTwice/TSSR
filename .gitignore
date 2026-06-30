@@ -1,0 +1,6 @@
+# Exports OpenCode (artefacts de session, ne pas commiter)
+export_*.txt
+app_export.txt
+fix-*.ps1
+fix-*.js
+*.tmp

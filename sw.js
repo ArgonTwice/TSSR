@@ -1,11 +1,12 @@
 // sw.js — Service Worker TSSR offline-first
-const CACHE = 'tssr-v15';
+const CACHE = 'tssr-v16';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './data.js',
+  './diagrams.js',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap',
   './favicon.svg',

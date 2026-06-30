@@ -1,3 +1,29 @@
+## 📋 Récap — 2026-06-30 (session 22)
+
+### Fait :
+- `data.js` : 7 erreurs de syntaxe corrigées (patches OpenCode corrompus) — supervision (table sans rows, quotes non échappées snmptrap/mysql), support (header table manquant, quotes GLPI, rows orphelins), telephonie-voip (virgule manquante entre modules, sections dans le mauvais ordre, table objet cassé) — commit `3047d94`
+- `data.js` : `telephonie-voip`, `support-avance`, `iot` — `name:` → `label:` + `sections:[...]` encapsulé dans `cours:[{id, titre, sections}]` (ces 3 modules crashaient silencieusement sur `m.cours.length`) — commit `89cd914`
+- `app.js` : `renderCoursDetail` — fallback `cours.content` ajouté (module `anglais-technique` utilisait du HTML brut, sections non rendues) — commit `89cd914`
+- `app.js` : `renderCoursContent` + `renderSection` — support du type `{ type: 'diagram', module: 'reseaux', index: 0 }` → injecte `MODULE_DIAGRAMS[module][index].build()` — commit `89cd914`
+- `style.css` : `.diagram-wrap` + centrage SVG — commit `89cd914`
+- `sw.js` : bump cache `tssr-v16` → `tssr-v17` — commit `89cd914`
+- App vérifiée live sur GitHub Pages : charge sans erreur (SyntaxError résolue)
+
+### État :
+PWA déployée, app fonctionnelle. 22 modules dont 3 nouvellement réparés (VoIP, Support Avancé, IoT). Module anglais-technique s'affiche. Diagrams.js intégré (OSI, RAID, DMZ, OSPF, AD, FHS, Cloud, Messagerie, Zabbix, PRA, CI/CD) — prêt à l'emploi via `{ type: 'diagram' }` dans sections.
+
+### À reprendre :
+- [ ] Ajouter des entrées `{ type: 'diagram', module: '...', index: 0 }` dans les cours data.js concernés (OSI → reseaux, RAID → stockage, DMZ → securite, etc.)
+- [ ] Déployer Railway (`railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`) + update URL fetch dans app.js
+- [ ] Vérifier règles Firestore (`allow read, write: if true` sur collection `notes`)
+- [ ] Tester sync temps réel Notes entre 2 ordis
+- [ ] Re-uploader les fichiers HTML/PDF uploadés AVANT session 17
+
+### Contexte express :
+> Session debug/fix : correction de 7 erreurs syntaxe data.js (OpenCode patches corrompus), réparation des 3 modules OpenCode (VoIP/IoT/Support-Avancé qui avaient name au lieu de label et sections au mauvais niveau), fallback cours.content pour anglais-technique, intégration diagrams.js via type 'diagram'. SW v17.
+
+---
+
 ## 📋 Récap — 2026-06-30 (session 21)
 
 ### Fait :

@@ -481,7 +481,7 @@ function renderHome() {
       <div class="module-card-tags"></div>`;
     card.querySelector('.module-card-icon').textContent = m.icon;
     card.querySelector('.module-card-title').textContent = m.label;
-    card.querySelector('.module-card-desc').textContent = m.desc;
+    card.querySelector('.module-card-desc').textContent = m.desc || '';
     const tagsEl = card.querySelector('.module-card-tags');
     const tagSpan = document.createElement('span');
     tagSpan.className = m.cours.length ? 'tag has-content' : 'tag';
@@ -517,7 +517,7 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
   const _mBadge = document.createElement('span');
   _mBadge.className = 'module-meta-badge';
   _mBadge.style.cssText = `background:${m.color}22;color:${m.color}`;
-  _mBadge.textContent = m.topics.slice(0,3).join(' · ');
+  _mBadge.textContent = (m.topics||[]).slice(0,3).join(' · ');
   meta.appendChild(_mIcon);
   meta.appendChild(_mTitle);
   meta.appendChild(_mBadge);

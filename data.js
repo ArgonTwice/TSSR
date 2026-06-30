@@ -3779,6 +3779,8 @@ const MODULES = [
   {
     id: 'telephonie-voip',
     label: 'Telephonie & VoIP',
+    desc: 'VoIP, PABX, SIP, ToIP, et convergence telephonie/reseau — maitriser la telephonie d entreprise.',
+    topics: ['VoIP','SIP','ToIP','PABX'],
     color: '#f59e0b',
     icon: '📞',
     cours: [{ id: 'voip-intro', titre: 'Téléphonie & VoIP', sections: [
@@ -3891,6 +3893,8 @@ const MODULES = [
   {
     id: 'support-avance',
     label: 'Support Avance & ITSM',
+    desc: 'ITIL, gestion des incidents, problemes, changements, CMDB et indicateurs ITSM.',
+    topics: ['ITIL','ITSM','CMDB','SLA'],
     color: '#6b7280',
     icon: '🎧',
     cours: [{ id: 'support-avance-intro', titre: 'Support Avancé & ITSM', sections: [
@@ -3979,6 +3983,8 @@ const MODULES = [
   {
     id: 'iot',
     label: 'IoT & Objets Connectes',
+    desc: 'IoT, MQTT, LoRaWAN, capteurs, IIoT, securite des objets connectes et protocoles LPWAN.',
+    topics: ['IoT','MQTT','LoRaWAN','LPWAN'],
     color: '#0ea5e9',
     icon: '🔌',
     cours: [{ id: 'iot-intro', titre: 'IoT & Objets Connectés', sections: [

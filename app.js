@@ -1,4 +1,4 @@
-﻿// app.js — TSSR Study App
+// app.js — TSSR Study App
 
 if (typeof chrome !== 'undefined' && chrome.runtime) {
   chrome.runtime.onMessage?.addListener(() => true);
@@ -61,11 +61,90 @@ const SHORTCUTS = [
   { key: 'Escape', desc: 'Fermer sidebar / retour' },
   { key: '→ / ←', desc: 'Navigation QCM' },
   { key: 'j / k', desc: 'Défiler modules' },
-  { key: 'Ctrl+P', desc: 'Rechercher module' },
+  { key: 'Ctrl+P', desc: 'Rechercher module (sidebar)' },
+  { key: 'Ctrl+K', desc: 'Recherche globale (tout le contenu)' },
+  { key: 'Ctrl+G', desc: 'Glossaire technique TSSR' },
   { key: 'r', desc: 'Révision du jour' },
   { key: 'e', desc: 'Examen blanc' },
 ];
 let sidebarSearchFocused = false;
+
+// ===== GLOSSAIRE TSSR =====
+const GLOSSAIRE = [
+  { t: 'LAN', d: 'Local Area Network — réseau local, zone géographique limitée (bureau, bâtiment)' },
+  { t: 'VLAN', d: 'Virtual LAN — découpage logique d\'un réseau physique en plusieurs réseaux isolés' },
+  { t: 'WAN', d: 'Wide Area Network — réseau étendu, interconnecte plusieurs sites distants' },
+  { t: 'OSI', d: 'Open Systems Interconnection — modèle à 7 couches standardisant les communications réseau' },
+  { t: 'TCP/IP', d: 'Transmission Control Protocol / Internet Protocol — protocole principal d\'Internet, 4 couches' },
+  { t: 'DHCP', d: 'Dynamic Host Configuration Protocol — attribution automatique d\'adresses IP' },
+  { t: 'DNS', d: 'Domain Name System — résolution noms de domaine ↔ adresses IP' },
+  { t: 'NAT', d: 'Network Address Translation — traduction d\'adresses IP privées en IP publique' },
+  { t: 'ACL', d: 'Access Control List — liste de règles de filtrage du trafic réseau' },
+  { t: 'GPO', d: 'Group Policy Object — stratégie de groupe Windows pour centraliser les configurations' },
+  { t: 'AD', d: 'Active Directory — service d\'annuaire Microsoft pour gestion centralisée des utilisateurs/ressources' },
+  { t: 'PKI', d: 'Public Key Infrastructure — infrastructure à clé publique, gestion des certificats numériques' },
+  { t: 'VPN', d: 'Virtual Private Network — tunnel chiffré entre deux réseaux via Internet' },
+  { t: 'RAID', d: 'Redundant Array of Independent Disks — regroupement de disques pour performance ou redondance' },
+  { t: 'NAS', d: 'Network Attached Storage — stockage accessible via le réseau' },
+  { t: 'SAN', d: 'Storage Area Network — réseau dédié au stockage, haut débit' },
+  { t: 'VM', d: 'Machine Virtuelle — émulation d\'un ordinateur dans un environnement isolé' },
+  { t: 'Hyperviseur', d: 'Logiciel de virtualisation gérant les machines virtuelles (ESXi, Hyper-V, KVM)' },
+  { t: 'SLA', d: 'Service Level Agreement — contrat définissant les niveaux de service attendus' },
+  { t: 'MTU', d: 'Maximum Transmission Unit — taille maximale d\'un paquet transmissible sur une interface' },
+  { t: 'ARP', d: 'Address Resolution Protocol — résolution adresse IP ↔ adresse MAC' },
+  { t: 'STP', d: 'Spanning Tree Protocol — protocole évitant les boucles dans un réseau commuté' },
+  { t: 'VLAN Trunk', d: 'Lien réseau transportant plusieurs VLANs, utilise le tagging 802.1Q' },
+  { t: 'LDAP', d: 'Lightweight Directory Access Protocol — protocole d\'accès aux annuaires (utilisé par AD)' },
+  { t: 'RDP', d: 'Remote Desktop Protocol — protocole Microsoft pour bureau à distance' },
+  { t: 'SSH', d: 'Secure Shell — accès à distance sécurisé à un serveur via terminal chiffré' },
+  { t: 'SSL/TLS', d: 'Secure Sockets Layer / Transport Layer Security — protocole de chiffrement des communications web' },
+  { t: 'RAID 5', d: 'Striping + parité distribuée — tolérance 1 disque, N-1 disques utiles' },
+  { t: 'RAID 10', d: 'Mirroring + Striping — performance + redondance, nécessite min 4 disques' },
+  { t: 'Proxy', d: 'Serveur intermédiaire filtrant/redirigeant les requêtes entre clients et Internet' },
+  { t: 'Firewall', d: 'Pare-feu — dispositif filtrant le trafic réseau selon des règles de sécurité' },
+  { t: 'DMZ', d: 'Demilitarized Zone — zone réseau isolée hébergeant des services accessibles depuis l\'extérieur' },
+  { t: 'QoS', d: 'Quality of Service — mécanisme priorisant certains types de trafic réseau' },
+  { t: 'SNMP', d: 'Simple Network Management Protocol — protocole de supervision et gestion d\'équipements réseau' },
+  { t: 'Syslog', d: 'Système de journalisation centralisé des événements (serveurs, routeurs, switchs)' },
+  { t: 'PXE', d: 'Preboot eXecution Environment — démarrage réseau sans disque dur local' },
+  { t: 'UEFI', d: 'Unified Extensible Firmware Interface — successeur moderne du BIOS, interface de démarrage' },
+  { t: 'GPT', d: 'GUID Partition Table — table de partitionnement moderne, remplace MBR pour disques >2To' },
+  { t: 'SMB', d: 'Server Message Block — protocole de partage de fichiers/réseau (Windows)' },
+  { t: 'NFS', d: 'Network File System — protocole de partage de fichiers (Linux/Unix)' },
+];
+function openGlossaire() {
+  const exist = document.getElementById('glossaire-overlay');
+  if (exist) { exist.remove(); return; }
+  const overlay = document.createElement('div');
+  overlay.id = 'glossaire-overlay';
+  overlay.className = 'gs-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div class="gs-modal" style="max-width:520px">
+      <div class="gs-header">
+        <input class="gs-input" id="glossaire-input" type="text" placeholder="Chercher un terme TSSR…" autofocus>
+        <button class="gs-close" onclick="this.closest('#glossaire-overlay').remove()">✕</button>
+      </div>
+      <div class="gs-results" id="glossaire-results" style="padding:8px">
+        ${GLOSSAIRE.map(g => `<div class="glossaire-card"><strong style="color:var(--accent);font-family:var(--font-mono)">${g.t}</strong><span style="color:var(--text2);font-size:13px;margin-top:4px;display:block">${g.d}</span></div>`).join('')}
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const input = document.getElementById('glossaire-input');
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase();
+    const el = document.getElementById('glossaire-results');
+    if (q.length < 1) {
+      el.innerHTML = GLOSSAIRE.map(g => `<div class="glossaire-card"><strong style="color:var(--accent);font-family:var(--font-mono)">${g.t}</strong><span style="color:var(--text2);font-size:13px;margin-top:4px;display:block">${g.d}</span></div>`).join('');
+      return;
+    }
+    const filtered = GLOSSAIRE.filter(g => g.t.toLowerCase().includes(q) || g.d.toLowerCase().includes(q));
+    if (!filtered.length) { el.innerHTML = '<div class="gs-hint">Aucun terme trouvé.</div>'; return; }
+    el.innerHTML = filtered.map(g => `<div class="glossaire-card"><strong style="color:var(--accent);font-family:var(--font-mono)">${g.t}</strong><span style="color:var(--text2);font-size:13px;margin-top:4px;display:block">${g.d}</span></div>`).join('');
+  });
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') overlay.remove(); });
+  setTimeout(() => input.focus(), 50);
+}
 
 // ===== STATE =====
 let state = {
@@ -77,6 +156,9 @@ let state = {
   openAccordion: null,
   qcm: { questions: [], idx: 0, answers: [], locked: false, done: false },
   qcmDifficulty: 'all',
+  qcmTimed: false,
+  qcmTimerInterval: null,
+  qcmTimeLimit: 0,
   fc: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
   rev: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
   examen: { questions: [], idx: 0, answers: [], locked: false, startTime: 0 },
@@ -327,14 +409,47 @@ function renderHome() {
         <span class="home-action-label">Examen blanc</span>
         <span class="home-action-badge">${totalQcm} questions</span>
       </button>
+      <button class="home-action-btn" onclick="startQuickQuiz()">
+        <span class="home-action-icon">⚡</span>
+        <span class="home-action-label">Révision éclair</span>
+        <span class="home-action-badge">5 en 2min</span>
+      </button>
+      <div style="display:flex;gap:4px;align-items:center;margin-left:auto">
+        <button class="font-size-btn" data-size="small" onclick="setFontSize('small')" title="Petite police">A</button>
+        <button class="font-size-btn" data-size="normal" onclick="setFontSize('normal')" title="Police normale">A</button>
+        <button class="font-size-btn" data-size="large" onclick="setFontSize('large')" title="Grande police">A</button>
+      </div>
       <button class="home-action-btn home-action-lb" onclick="openLeaderboard()">
         <span class="home-action-icon">🏆</span>
         <span class="home-action-label">Leaderboard</span>
         <span class="home-action-badge">${getLB().length} entrées</span>
+      </button>
+      <button class="home-action-btn" onclick="renderDashboard()">
+        <span class="home-action-icon">📊</span>
+        <span class="home-action-label">Dashboard</span>
+      </button>
+      <button class="home-action-btn" onclick="openExamHistory()">
+        <span class="home-action-icon">📁</span>
+        <span class="home-action-label">Mes examens</span>
+        <span class="home-action-badge">${getExamHistory().length}</span>
+      </button>
+      <button class="home-action-btn" onclick="exportProgression()">
+        <span class="home-action-icon">💾</span>
+        <span class="home-action-label">Exporter données</span>
+      </button>
+      <button class="home-action-btn" onclick="importProgression()">
+        <span class="home-action-icon">📂</span>
+        <span class="home-action-label">Importer données</span>
       </button>`;
   }
   grid.innerHTML = '';
-  MODULES.forEach((m, i) => {
+  const favs = getFavorites();
+  const sorted = [...MODULES].sort((a, b) => {
+    const af = favs.includes(a.id) ? 0 : 1;
+    const bf = favs.includes(b.id) ? 0 : 1;
+    return af - bf;
+  });
+  sorted.forEach((m, i) => {
     const card = document.createElement('div');
     card.className = 'module-card';
     card.style = `--card-color:${m.color};animation-delay:${i*40}ms`;
@@ -343,6 +458,7 @@ function renderHome() {
     card.setAttribute('aria-label', `Module ${m.label}`);
     card.innerHTML = `
       ${!m.cours.length ? '<span class="module-empty-badge">À venir</span>' : ''}
+      <span class="module-star ${favs.includes(m.id)?'active':''}" data-module-id="${m.id}" onclick="event.stopPropagation();toggleFavorite('${m.id}')">★</span>
       <div class="module-card-icon-box"><span class="module-card-icon"></span></div>
       <div class="module-card-title"></div>
       <div class="module-card-desc"></div>
@@ -400,6 +516,16 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
     <span title="Sessions effectuées">🔄 ${ms.sessions||0}</span>
   `;
   meta.appendChild(statsEl);
+
+  // Diagrams button (show if MODULE_DIAGRAMS has entries for this module)
+  if (window.MODULE_DIAGRAMS && MODULE_DIAGRAMS[m.id]) {
+    var _diagBtn = document.createElement('button');
+    _diagBtn.className = 'btn-secondary';
+    _diagBtn.innerHTML = '&#x1F5DC; Schemas';
+    _diagBtn.style.cssText = 'margin-left:8px;font-size:12px;padding:4px 10px;background:transparent;border:1px solid var(--accint);color:var(--accint);border-radius:6px;cursor:pointer;white-space:nowrap';
+    _diagBtn.onclick = function() { showDiagram(m.id); };
+    meta.appendChild(_diagBtn);
+  }
 
   const TABS_ICONS = {
     cours:       '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><line x1="3.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="7" x2="10.5" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="9.5" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
@@ -601,11 +727,27 @@ function renderCoursDetail(m, cours, idx, el) {
   aiBtn.innerHTML = '&#x2728; Expliquer visuellement ce cours';
   aiBtn.onclick = () => openAIExplainer(cours.titre, cours.sections);
 
+  const printBtn = document.createElement('button');
+  printBtn.className = 'btn-print';
+  printBtn.innerHTML = '🖨️ Imprimer / PDF';
+  printBtn.onclick = () => { window.print(); };
+
+  const readBtn = document.createElement('button');
+  readBtn.id = 'toggle-reading-btn';
+  readBtn.className = 'btn-print';
+  readBtn.innerHTML = '📖 Plein écran';
+  readBtn.onclick = () => toggleReadingMode();
+
   const wrap = document.createElement('div');
   wrap.className = 'cours-container';
   wrap.appendChild(breadcrumb);
   wrap.appendChild(article);
-  wrap.appendChild(aiBtn);
+  const actions = document.createElement('div');
+  actions.className = 'cours-actions';
+  actions.appendChild(aiBtn);
+  actions.appendChild(readBtn);
+  actions.appendChild(printBtn);
+  wrap.appendChild(actions);
   el.innerHTML = '';
   el.appendChild(wrap);
 }
@@ -661,22 +803,258 @@ Contexte : ${contexte}`;
   `;
   document.body.appendChild(overlay);
 }
-function openCours(coursId) {
-  const m = state.currentModule;
-  if (!m) return;
-  const idx = m.cours.findIndex(c => c.id === coursId);
-  if (idx === -1) return;
-  state.currentCours = coursId;
+// ===== GLOBAL SEARCH =====
+function openGlobalSearch() {
+  const exist = document.getElementById('global-search-overlay');
+  if (exist) { exist.remove(); return; }
+  const overlay = document.createElement('div');
+  overlay.id = 'global-search-overlay';
+  overlay.className = 'gs-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div class="gs-modal">
+      <div class="gs-header">
+        <input class="gs-input" id="gs-input" type="text" placeholder="Recherche dans tout le contenu…" autofocus>
+        <button class="gs-close" onclick="this.closest('#global-search-overlay').remove()">✕</button>
+      </div>
+      <div class="gs-results" id="gs-results">
+        <div class="gs-hint">Tape au moins 2 caractères. Recherche dans cours, QCM et flashcards.</div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const input = document.getElementById('gs-input');
+  let timer = null;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => doGlobalSearch(input.value.trim()), 200);
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { overlay.remove(); }
+    if (e.key === 'Enter') {
+      const first = document.querySelector('.gs-result');
+      if (first) first.click();
+    }
+  });
+  setTimeout(() => input.focus(), 50);
+}
+function doGlobalSearch(q) {
+  const el = document.getElementById('gs-results');
+  if (!el) return;
+  if (q.length < 2) { el.innerHTML = '<div class="gs-hint">Tape au moins 2 caractères.</div>'; return; }
+  const ql = q.toLowerCase();
+  const results = [];
+  const modules = window.MODULES || window.modulesData;
+  if (!modules) { el.innerHTML = '<div class="gs-hint">Données modules non chargées.</div>'; return; }
+  for (const m of modules) {
+    // Search cours
+    if (m.cours) {
+      for (const c of m.cours) {
+        if (c.titre && c.titre.toLowerCase().includes(ql)) {
+          results.push({ module: m, type: '📖', label: c.titre, sub: m.label, action: () => { openModule(m.id,'cours'); setTimeout(() => openCours(c.id), 100); } });
+        }
+        if (c.sections) {
+          for (const s of c.sections) {
+            if (s.content && s.content.toLowerCase().includes(ql)) {
+              const snippet = s.content.length > 80 ? s.content.substring(0, 80) + '…' : s.content;
+              results.push({ module: m, type: '📄', label: snippet, sub: c.titre + ' — ' + m.label, action: () => { openModule(m.id,'cours'); setTimeout(() => openCours(c.id), 100); } });
+              break; // 1 result per section max
+            }
+          }
+        }
+      }
+    }
+    // Search QCM
+    if (m.qcm) {
+      for (const qcm of m.qcm) {
+        if (qcm.question && qcm.question.toLowerCase().includes(ql)) {
+          results.push({ module: m, type: '❓', label: qcm.question.length > 80 ? qcm.question.substring(0,80)+'…' : qcm.question, sub: m.label, action: () => openModule(m.id,'qcm') });
+          break;
+        }
+      }
+    }
+    // Search flashcards
+    if (m.fc) {
+      for (const fc of m.fc) {
+        if ((fc.front && fc.front.toLowerCase().includes(ql)) || (fc.back && fc.back.toLowerCase().includes(ql))) {
+          results.push({ module: m, type: '🃏', label: (fc.front||'…') + ' → ' + (fc.back||'…'), sub: m.label, action: () => openModule(m.id,'flashcards') });
+          break;
+        }
+      }
+    }
+  }
+  if (!results.length) { el.innerHTML = '<div class="gs-hint">Aucun résultat pour <strong>'+escHtml(q)+'</strong></div>'; return; }
+  el.innerHTML = '';
+  results.slice(0, 30).forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'gs-result';
+    div.innerHTML = '<span class="gs-type">'+r.type+'</span><div class="gs-body"><span class="gs-label">'+escHtml(r.label)+'</span><span class="gs-sub">'+escHtml(r.sub)+'</span></div>';
+    div.addEventListener('click', () => {
+      const ov = document.getElementById('global-search-overlay');
+      if (ov) ov.remove();
+      r.action();
+    });
+    el.appendChild(div);
+  });
+}
+// ===== READING MODE =====
+let readingModeActive = false;
+function toggleReadingMode() {
+  readingModeActive = !readingModeActive;
+  document.body.classList.toggle('reading-mode', readingModeActive);
+  const btn = document.getElementById('toggle-reading-btn');
+  if (btn) btn.innerHTML = readingModeActive ? '📖 Mode normal' : '📖 Plein écran';
+}
+// ===== FAVORIS MODULES =====
+function getFavorites() {
+  try { return JSON.parse(localStorage.getItem('tssr_favorites')) || []; }
+  catch(e) { return []; }
+}
+function toggleFavorite(id) {
+  let fav = getFavorites();
+  const idx = fav.indexOf(id);
+  if (idx > -1) { fav.splice(idx, 1); } else { fav.push(id); }
+  localStorage.setItem('tssr_favorites', JSON.stringify(fav));
+  document.querySelectorAll('.module-star').forEach(el => {
+    const mid = el.dataset.moduleId;
+    if (mid) el.classList.toggle('active', fav.includes(mid));
+  });
+  if (state.currentScreen === 'home') renderHome();
+}
+// ===== DASHBOARD PROGRESSION =====
+function renderDashboard() {
+  const overlay = document.createElement('div');
+  overlay.className = 'gs-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  const totalQcm = MODULES.reduce((s, m) => s + (m.qcm?.length || 0), 0);
+  const totalFc = MODULES.reduce((s, m) => s + (m.fc?.length || 0), 0);
+  // Compute stats from localStorage
+  let qcmDone = 0, qcmCorrect = 0, sessions = 0;
+  const lb = getLB();
+  lb.forEach(e => {
+    if (e.type && e.type.startsWith('QCM')) {
+      qcmDone++;
+      const match = e.score?.match(/(\d+)\/(\d+)/);
+      if (match) qcmCorrect += parseInt(match[1]);
+    }
+    if (e.type === 'session') sessions++;
+  });
+  const qcmPct = qcmDone ? Math.round(qcmCorrect / (qcmDone * 10) * 100) : 0;
+  // Flashcards mastered
+  let fcMastered = 0, fcTotal = 0;
+  MODULES.forEach(m => {
+    if (!m.fc) return;
+    m.fc.forEach((fc, fi) => {
+      fcTotal++;
+      const key = 'tssr_fc_' + m.id + '_' + (fc.id || fi);
+      try {
+        const d = JSON.parse(localStorage.getItem(key));
+        if (d && d.ease && d.ease >= 200) fcMastered++;
+      } catch(e) {}
+    });
+  });
+  // Streak from SM-2 cards
+  let streakBest = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith('tssr_fc_')) {
+      try {
+        const d = JSON.parse(localStorage.getItem(k));
+        if (d && d.streak && d.streak > streakBest) streakBest = d.streak;
+      } catch(e) {}
+    }
+  }
+  overlay.innerHTML = `
+    <div class="gs-modal" style="max-width:500px">
+      <div class="gs-header">
+        <span style="flex:1;font-weight:700;color:var(--text)">📊 Dashboard progression</span>
+        <button class="gs-close" onclick="this.closest('.gs-overlay').remove()">✕</button>
+      </div>
+      <div class="gs-results" style="padding:16px">
+        <div class="dash-grid">
+          <div class="dash-card"><div class="dash-num">${qcmDone}</div><div class="dash-label">QCM complétés</div></div>
+          <div class="dash-card"><div class="dash-num">${qcmPct}%</div><div class="dash-label">Réussite QCM</div></div>
+          <div class="dash-card"><div class="dash-num">${fcMastered}/${fcTotal}</div><div class="dash-label">FC maîtrisées</div></div>
+          <div class="dash-card"><div class="dash-num">${streakBest}</div><div class="dash-label">Meilleure série</div></div>
+          <div class="dash-card"><div class="dash-num">${lb.length}</div><div class="dash-label">Entrées leaderboard</div></div>
+          <div class="dash-card"><div class="dash-num">${sessions}</div><div class="dash-label">Sessions d'étude</div></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-primary" onclick="this.closest('.gs-overlay').remove();openExamenBlanc()" style="flex:1">📝 Nouvel examen</button>
+          <button class="btn-secondary" onclick="this.closest('.gs-overlay').remove();openRevisionDuJour()" style="flex:1">🔁 Révision du jour</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+// ===== EXPORT / BACKUP =====
+function exportProgression() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith('tssr_')) {
+      try { data[key] = JSON.parse(localStorage.getItem(key)); }
+      catch(e) { data[key] = localStorage.getItem(key); }
+    }
+  }
+  data._exportedAt = new Date().toISOString();
+  data._version = '1.0';
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tssr-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importProgression() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        let count = 0;
+        for (const key in data) {
+          if (key === '_exportedAt' || key === '_version') continue;
+          localStorage.setItem(key, JSON.stringify(data[key]));
+          count++;
+        }
+        alert('✅ ' + count + ' données restaurées avec succès !');
+      } catch(err) {
+        alert('❌ Erreur : fichier invalide.');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function openModule(mId, tab) {
+  const mod = MODULES.find(x => x.id === mId);
+  if (!mod) return;
+  state.currentModule = mod;
+  state.currentCours = tab === 'cours' ? (mod.cours?.[0]?.id || null) : null;
+  if (mod.cours.length > 1) { state.openAccordion = mod.id; store.set('sidebar_open', mod.id); }
+  document.getElementById('mobile-module-name').textContent = mod.label;
   renderNav();
-  const el = document.getElementById('tab-content');
-  renderCoursDetail(m, m.cours[idx], idx, el);
-  history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
-  history.pushState(
-    { screen: 'module', moduleId: m.id, tab: 'cours', coursId: coursId, scroll: 0 },
-    '',
-    '#module-' + m.id + '/cours/' + coursId
-  );
   document.getElementById('content').scrollTop = 0;
+  const content = document.getElementById('tab-content');
+  if (tab === 'cours') {
+    renderTab(mod, 'cours', content);
+    history.pushState({ screen:'module', moduleId:mod.id, tab:'cours' }, '', '#module-' + mod.id);
+  } else if (tab === 'qcm') {
+    renderTab(mod, 'qcm', content);
+    history.pushState({ screen:'module', moduleId:mod.id, tab:'qcm' }, '', '#module-' + mod.id + '/qcm');
+  } else if (tab === 'flashcards') {
+    renderTab(mod, 'flashcards', content);
+    history.pushState({ screen:'module', moduleId:mod.id, tab:'flashcards' }, '', '#module-' + mod.id + '/flashcards');
+  } else {
+    openModule(mod.id, false, null);
+  }
 }
 function renderCoursContent(sections) {
   if (!sections) return '';
@@ -1747,9 +2125,26 @@ function revRate(rating) {
   state.rev.session[rating]++;
   if (rating === 'hard') state.rev.cards.push(state.rev.cards[state.rev.idx]);
   const card = state.rev.cards[state.rev.idx];
-  const days = rating === 'easy' ? 4 : rating === 'medium' ? 1 : 0;
+  const saved = store.get(`fc_${card._moduleId}_${card.id}`);
+  const prevEase = saved?.ease || 250;
+  const prevStreak = saved?.streak || 0;
+  let ease = prevEase, streak = 0, days;
+  if (rating === 'easy') {
+    ease = Math.min(350, prevEase + 15);
+    streak = prevStreak + 1;
+    days = streak <= 1 ? 1 : streak <= 2 ? 3 : streak <= 3 ? 7 : streak <= 5 ? 14 : 30;
+  } else if (rating === 'medium') {
+    ease = Math.max(130, prevEase - 5);
+    streak = Math.max(0, prevStreak - 1);
+    days = 1;
+  } else {
+    ease = Math.max(130, prevEase - 20);
+    streak = 0;
+    days = 0;
+  }
+  days = Math.round(days * (ease / 250));
   const next = new Date(); next.setDate(next.getDate() + days);
-  store.set(`fc_${card._moduleId}_${card.id}`, { rating, nextReview: next.toISOString() });
+  store.set(`fc_${card._moduleId}_${card.id}`, { rating, ease, streak, nextReview: next.toISOString() });
   state.rev.idx++;
   renderRevisionView(document.getElementById('examen-content'));
 }
@@ -1767,17 +2162,195 @@ function openExamenBlanc() {
       <h2>Examen blanc</h2>
       <p>${totalQcm} questions · ${nbModules} modules</p>
       <div class="examen-count-btns">
+        <button class="examen-count-btn examen-count-daily" onclick="startDailyChallenge()">🎯 Défi du jour (10)</button>
         <button class="examen-count-btn" onclick="startExamen(20)">20 questions</button>
         <button class="examen-count-btn" onclick="startExamen(40)">40 questions</button>
         <button class="examen-count-btn examen-count-all" onclick="startExamen(${totalQcm})">Tout (${totalQcm})</button>
+        <button class="examen-count-btn" onclick="openCustomExam()">🎯 Personnalisé</button>
       </div>
     </div>`;
 }
 
+// ===== EXAMEN PERSONNALISÉ =====
+function openCustomExam() {
+  const overlay = document.createElement('div');
+  overlay.className = 'gs-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  const modsWithQcm = MODULES.filter(m => m.qcm?.length);
+  const diffOptions = ['all','facile','normal','difficile','troubleshooter'];
+  overlay.innerHTML = `
+    <div class="gs-modal" style="max-width:480px">
+      <div class="gs-header"><span style="flex:1;font-weight:700">🎯 Examen personnalisé</span><button class="gs-close" onclick="this.closest('.gs-overlay').remove()">✕</button></div>
+      <div class="gs-results" style="padding:16px">
+        <label style="color:var(--text2);font-size:13px;display:block;margin-bottom:6px">Nombre de questions</label>
+        <div style="display:flex;gap:6px;margin-bottom:14px">
+          ${[5,10,20,50].map(n => `<button class="examen-count-btn" onclick="this.parentElement.querySelectorAll('.examen-count-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');this._cq=${n}" style="flex:1">${n}</button>`).join('')}
+        </div>
+        <label style="color:var(--text2);font-size:13px;display:block;margin-bottom:6px">Modules (défaut = tous)</label>
+        <div style="max-height:160px;overflow-y:auto;margin-bottom:14px;display:flex;flex-direction:column;gap:4px" id="custom-exam-modules">
+          ${modsWithQcm.map(m => `<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer"><input type="checkbox" value="${m.id}" checked> ${m.icon} ${m.label}</label>`).join('')}
+        </div>
+        <label style="color:var(--text2);font-size:13px;display:block;margin-bottom:6px">Difficulté</label>
+        <select id="custom-exam-diff" style="width:100%;background:var(--bg4);color:var(--text);border:1px solid var(--border2);padding:8px;border-radius:8px;margin-bottom:16px">
+          ${diffOptions.map(d => `<option value="${d}">${d==='all'?'Toutes':{facile:'Facile',normal:'Normal',difficile:'Difficile',troubleshooter:'Troubleshooter'}[d]||d}</option>`).join('')}
+        </select>
+        <button class="btn-primary" style="width:100%" id="custom-exam-start">Lancer l'examen</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('custom-exam-start').addEventListener('click', () => {
+    const activeBtn = overlay.querySelector('.examen-count-btn.active');
+    const count = activeBtn ? (parseInt(activeBtn._cq) || 10) : 10;
+    const checked = [...overlay.querySelectorAll('#custom-exam-modules input:checked')].map(c => c.value);
+    const diff = document.getElementById('custom-exam-diff').value;
+    overlay.remove();
+    startCustomExam(count, checked, diff);
+  });
+}
+function startCustomExam(count, moduleIds, diff) {
+  let pool = MODULES.flatMap(m => (moduleIds.includes(m.id) && m.qcm ? m.qcm.map(q => ({ ...q, _moduleLabel: m.label })) : []));
+  if (diff !== 'all') pool = pool.filter(q => q.difficulty === diff);
+  const questions = shuffle(pool).slice(0, count).map(q => ({ ...q, options: shuffle(q.options) }));
+  if (!questions.length) { alert('Aucune question avec ces critères.'); return; }
+  state.examen = { questions, idx: 0, answers: [], locked: false, startTime: Date.now() };
+  if (examenTimerInterval) clearInterval(examenTimerInterval);
+  examenTimerInterval = setInterval(() => {
+    const el = document.getElementById('examen-timer');
+    if (!el || state.examen.idx >= state.examen.questions.length) { clearInterval(examenTimerInterval); return; }
+    const elapsed = Math.round((Date.now() - state.examen.startTime) / 1000);
+    el.textContent = '⏱ ' + String(Math.floor(elapsed/60)).padStart(2,'0') + ':' + String(elapsed%60).padStart(2,'0');
+  }, 1000);
+  document.getElementById('examen-meta').textContent = 'Examen personnalisé';
+  showScreen('examen-screen');
+  renderExamenQuestion(document.getElementById('examen-content'));
+}
+// ===== RÉVISION ÉCLAIR =====
+function startQuickQuiz() {
+  const allQcm = MODULES.flatMap(m => (m.qcm || []).map(q => ({ ...q, _moduleLabel: m.label })));
+  if (!allQcm.length) { alert('Aucune question disponible.'); return; }
+  const questions = shuffle(allQcm).slice(0, 5).map(q => ({ ...q, options: shuffle(q.options) }));
+  state.examen = { questions, idx: 0, answers: [], locked: false, startTime: Date.now() };
+  if (examenTimerInterval) clearInterval(examenTimerInterval);
+  const endTime = Date.now() + 120000;
+  examenTimerInterval = setInterval(() => {
+    const el = document.getElementById('examen-timer');
+    if (!el || state.examen.idx >= state.examen.questions.length) { clearInterval(examenTimerInterval); return; }
+    const left = Math.max(0, Math.round((endTime - Date.now()) / 1000));
+    el.textContent = '⚡ ' + String(Math.floor(left/60)).padStart(2,'0') + ':' + String(left%60).padStart(2,'0');
+    if (left <= 10) el.style.color = 'var(--red)';
+    if (left <= 0) {
+      clearInterval(examenTimerInterval);
+      state.examen.idx = state.examen.questions.length;
+      renderExamenResults(document.getElementById('examen-content'));
+    }
+  }, 1000);
+  document.getElementById('examen-meta').textContent = '⚡ Révision éclair (2 min)';
+  showScreen('examen-screen');
+  renderExamenQuestion(document.getElementById('examen-content'));
+}
+// ===== TAILLE POLICE =====
+function setFontSize(level) {
+  const sizes = { small: '14px', normal: '16px', large: '20px' };
+  document.documentElement.style.setProperty('--content-font-size', sizes[level] || '16px');
+  localStorage.setItem('tssr_font_size', level);
+  document.querySelectorAll('.font-size-btn').forEach(b => b.classList.toggle('active', b.dataset.size === level));
+}
+function initFontSize() {
+  const saved = localStorage.getItem('tssr_font_size') || 'normal';
+  setFontSize(saved);
+}
+
+// ===== EXAMENS PASSÉS =====
+function getExamHistory() {
+  try { return JSON.parse(localStorage.getItem('tssr_exam_history')) || []; }
+  catch(e) { return []; }
+}
+function saveExamenAttempt(data) {
+  const history = getExamHistory();
+  history.unshift({ ...data, date: new Date().toISOString(), id: Date.now() });
+  if (history.length > 50) history.length = 50; // keep last 50
+  localStorage.setItem('tssr_exam_history', JSON.stringify(history));
+}
+function openExamHistory() {
+  const overlay = document.createElement('div');
+  overlay.className = 'gs-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  const history = getExamHistory();
+  overlay.innerHTML = `
+    <div class="gs-modal" style="max-width:520px">
+      <div class="gs-header">
+        <span style="flex:1;font-weight:700">📁 Mes examens passés</span>
+        <button class="gs-close" onclick="this.closest('.gs-overlay').remove()">✕</button>
+      </div>
+      <div class="gs-results" style="padding:12px">
+        ${!history.length ? '<div class="gs-hint">Aucun examen passé pour le moment.</div>' :
+          history.map(h => {
+            const d = new Date(h.date);
+            const color = h.pct >= 80 ? 'var(--accent)' : h.pct >= 60 ? 'var(--amber)' : 'var(--red)';
+            return `<div class="exam-history-card" onclick="this.closest('.gs-overlay').remove();openExamenDetail(${h.id})">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-weight:600;color:var(--text);font-size:14px">${h.meta || 'Examen'}</div>
+                  <div style="font-size:12px;color:var(--text3)">${d.toLocaleDateString()} à ${d.toLocaleTimeString().slice(0,5)} · ${h.total} questions · ${h.mm}:${h.ss}</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:22px;font-weight:800;color:${color}">${h.pct}%</div>
+                  <div style="font-size:11px;color:var(--text3)">${h.score}/${h.total}</div>
+                </div>
+              </div>
+              ${h.errors ? `<div style="margin-top:6px;font-size:12px;color:var(--red)">${h.errors} erreur${h.errors>1?'s':''}</div>` : ''}
+            </div>`;
+          }).join('')
+        }
+        ${history.length ? '<button class="btn-secondary" style="width:100%;margin-top:12px" onclick="if(confirm(\'Effacer tout l\'historique ?\')){localStorage.removeItem(\'tssr_exam_history\');this.closest(\'.gs-overlay\').remove();}">🗑 Effacer l\'historique</button>' : ''}
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+function openExamenDetail(id) {
+  const history = getExamHistory();
+  const h = history.find(x => x.id === id);
+  if (!h) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'gs-overlay';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  const d = new Date(h.date);
+  const color = h.pct >= 80 ? 'var(--accent)' : h.pct >= 60 ? 'var(--amber)' : 'var(--red)';
+  overlay.innerHTML = `
+    <div class="gs-modal" style="max-width:440px">
+      <div class="gs-header">
+        <span style="flex:1;font-weight:700">📄 ${h.meta || 'Examen'}</span>
+        <button class="gs-close" onclick="this.closest('.gs-overlay').remove()">✕</button>
+      </div>
+      <div class="gs-results" style="padding:16px;text-align:center">
+        <div style="font-size:48px;font-weight:800;color:${color}">${h.pct}%</div>
+        <div style="font-size:16px;color:var(--text2);margin:4px 0 12px">${h.score}/${h.total} bonnes réponses</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+          <div class="dash-card"><div class="dash-num">${h.total}</div><div class="dash-label">Questions</div></div>
+          <div class="dash-card"><div class="dash-num" style="color:var(--red)">${h.errors||0}</div><div class="dash-label">Erreurs</div></div>
+          <div class="dash-card"><div class="dash-num">${h.mm}:${h.ss}</div><div class="dash-label">Temps</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3)">${d.toLocaleDateString()} à ${d.toLocaleTimeString().slice(0,5)}</div>
+        <button class="btn-primary" style="margin-top:16px;width:100%" onclick="this.closest('.gs-overlay').remove();openExamenBlanc()">📝 Nouvel examen</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+let examenTimerInterval = null;
 function startExamen(count) {
   const allQcm = MODULES.flatMap(m => (m.qcm || []).map(q => ({ ...q, _moduleLabel: m.label })));
   const questions = shuffle(allQcm).slice(0, count).map(q => ({ ...q, options: shuffle(q.options) }));
   state.examen = { questions, idx: 0, answers: [], locked: false, startTime: Date.now() };
+  if (examenTimerInterval) clearInterval(examenTimerInterval);
+  examenTimerInterval = setInterval(() => {
+    const el = document.getElementById('examen-timer');
+    if (!el || state.examen.idx >= state.examen.questions.length) { clearInterval(examenTimerInterval); return; }
+    const elapsed = Math.round((Date.now() - state.examen.startTime) / 1000);
+    const mm = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const ss = (elapsed % 60).toString().padStart(2, '0');
+    el.textContent = '⏱ ' + mm + ':' + ss;
+  }, 1000);
   renderExamenQuestion(document.getElementById('examen-content'));
 }
 
@@ -1786,11 +2359,15 @@ function renderExamenQuestion(el) {
   if (idx >= questions.length) { renderExamenResults(el); return; }
   const q = questions[idx];
   const total = questions.length;
+  const elapsed = Math.max(0, Math.round((Date.now() - state.examen.startTime) / 1000));
+  const mm = Math.floor(elapsed / 60).toString().padStart(2, '0');
+  const ss = (elapsed % 60).toString().padStart(2, '0');
   el.innerHTML = `
     <div class="qcm-container">
       <div class="qcm-progress">
         <div class="progress-bar-wrap" style="flex:1"><div class="progress-bar-fill" style="width:${Math.round((idx/total)*100)}%"></div></div>
         <span class="qcm-counter">${idx+1} / ${total}</span>
+        <span class="examen-timer" id="examen-timer">⏱ ${mm}:${ss}</span>
       </div>
       <div class="examen-module-tag">${q._moduleLabel || ''}</div>
       <div class="qcm-question-block">
@@ -1849,6 +2426,61 @@ function openLeaderboard() {
   el.innerHTML = `<div class="examen-setup"><div style="font-size:48px;margin-bottom:12px">🏆</div><h2>Leaderboard</h2><div id="lb-content"></div></div>`;
   renderLeaderboard(document.getElementById('lb-content'));
 }
+function copyExamenResults() {
+  const { answers, startTime } = state.examen;
+  const total = answers.length;
+  const score = answers.filter(a => a.correct).length;
+  const pct = Math.round((score / total) * 100);
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const mm = Math.floor(elapsed / 60);
+  const ss = elapsed % 60;
+  const wrongs = answers.filter(a => !a.correct).map(a => `✗ ${a.q.question}\n  Réponse: ${a.q.options[a.selectedIdx]?.text}\n  Correct: ${a.q.options.find(o => o.correct)?.text}`).join('\n\n');
+  const text = `📊 TSSR — Examen blanc\nScore: ${score}/${total} (${pct}%)\nTemps: ${mm}min ${ss}s\n\nErreurs:\n${wrongs || 'Aucune erreur !'}`;
+  navigator.clipboard?.writeText(text).then(() => { const btn = document.querySelector('.copy-btn'); if (btn) { btn.textContent = '✓ Copié !'; setTimeout(() => btn.textContent = '📋 Copier résultats', 2000); } }).catch(() => {});
+}
+function startDailyChallenge() {
+  const count = 10;
+  const allQcm = MODULES.flatMap(m => (m.qcm || []).map(q => ({ ...q, _moduleLabel: m.label })));
+  const questions = shuffle(allQcm).slice(0, count).map(q => ({ ...q, options: shuffle(q.options) }));
+  state.examen = { questions, idx: 0, answers: [], locked: false, startTime: Date.now() };
+  if (examenTimerInterval) clearInterval(examenTimerInterval);
+  examenTimerInterval = setInterval(() => {
+    const el = document.getElementById('examen-timer');
+    if (!el || state.examen.idx >= state.examen.questions.length) { clearInterval(examenTimerInterval); return; }
+    const elapsed = Math.round((Date.now() - state.examen.startTime) / 1000);
+    const mm = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const ss = (elapsed % 60).toString().padStart(2, '0');
+    el.textContent = '⏱ ' + mm + ':' + ss;
+  }, 1000);
+  renderExamenQuestion(document.getElementById('examen-content'));
+}
+// ===== RÉVISION GLOBALE PAR ERREURS =====
+function startGlobalWeakRevision() {
+  const wrongs = store.get('qcm_wrong') || {};
+  const weakQs = [];
+  MODULES.forEach(m => {
+    const modWrongs = wrongs[m.id] || {};
+    (m.qcm || []).forEach(q => {
+      if (modWrongs[q.id] && modWrongs[q.id] >= 1) {
+        weakQs.push({ ...q, _moduleLabel: m.label, _moduleId: m.id });
+      }
+    });
+  });
+  if (!weakQs.length) { alert('✅ Aucune erreur enregistrée ! Continue comme ça.'); return; }
+  const questions = shuffle(weakQs).slice(0, Math.min(weakQs.length, 30)).map(q => ({ ...q, options: shuffle(q.options) }));
+  state.examen = { questions, idx: 0, answers: [], locked: false, startTime: Date.now() };
+  if (examenTimerInterval) clearInterval(examenTimerInterval);
+  examenTimerInterval = setInterval(() => {
+    const el = document.getElementById('examen-timer');
+    if (!el || state.examen.idx >= state.examen.questions.length) { clearInterval(examenTimerInterval); return; }
+    const elapsed = Math.round((Date.now() - state.examen.startTime) / 1000);
+    el.textContent = '⏱ ' + String(Math.floor(elapsed/60)).padStart(2,'0') + ':' + String(elapsed%60).padStart(2,'0');
+  }, 1000);
+  document.getElementById('examen-meta').textContent = '🌍 Révision globale erreurs';
+  showScreen('examen-screen');
+  renderExamenQuestion(document.getElementById('examen-content'));
+}
+
 function renderExamenResults(el) {
   const { answers, startTime } = state.examen;
   const total = answers.length;
@@ -1884,6 +2516,8 @@ function renderExamenResults(el) {
       <div class="qcm-error-correct">✓ ${a.q.options.find(o => o.correct)?.text}</div>
       ${a.q.explication ? `<div style="font-size:12px;color:var(--text3);margin-top:6px">${a.q.explication}</div>` : ''}
     </div>`).join('');
+  // Save attempt automatically
+  saveExamenAttempt({ score, total, pct, elapsed, mm, ss, msg, errors: answers.filter(a => !a.correct).length, meta: document.getElementById('examen-meta')?.textContent || '' });
   el.innerHTML = `
     <div class="qcm-container">
       <div class="qcm-results">
@@ -1893,8 +2527,10 @@ function renderExamenResults(el) {
         </div>
         <h3>${emoji} ${msg}</h3>
         <p>${pct}% · ${mm}:${ss}</p>
-        <div style="display:flex;gap:12px;justify-content:center;margin-bottom:32px">
+        <div style="display:flex;gap:12px;justify-content:center;margin-bottom:32px;flex-wrap:wrap">
           <button class="btn-primary" onclick="openExamenBlanc()">Nouvel examen</button>
+          <button class="btn-secondary copy-btn" onclick="copyExamenResults()">📋 Copier résultats</button>
+          <button class="btn-secondary" onclick="openExamHistory()">📁 Mes examens</button>
           <button class="btn-secondary" onclick="renderHome()">Accueil</button>
         </div>
         ${moduleRows ? `
@@ -2014,6 +2650,29 @@ function renderQCM(m, el) {
     questions: shuffle(pool).map(q => ({ ...q, options: shuffle(q.options) })),
     idx: 0, answers: [], locked: false, done: false, startTime: Date.now(),
   };
+  if (state.qcmTimed) {
+    const secs = state.qcmTimeLimit || 30;
+    state.qcm.timeLeft = secs * state.qcm.questions.length;
+    if (state.qcmTimerInterval) clearInterval(state.qcmTimerInterval);
+    state.qcmTimerInterval = setInterval(() => {
+      if (!state.qcm || state.qcm.done) { clearInterval(state.qcmTimerInterval); return; }
+      state.qcm.timeLeft--;
+      const el = document.getElementById('qcm-timer');
+      if (el) {
+        const m = Math.floor(state.qcm.timeLeft / 60);
+        const s = state.qcm.timeLeft % 60;
+        el.textContent = '⏱ ' + m.toString().padStart(2,'0') + ':' + s.toString().padStart(2,'0');
+        if (state.qcm.timeLeft <= 10) el.style.color = 'var(--red)';
+      }
+      if (state.qcm.timeLeft <= 0) {
+        clearInterval(state.qcmTimerInterval);
+        state.qcm.done = true;
+        renderQCMResults(document.getElementById('tab-content'), state.currentModule);
+      }
+    }, 1000);
+  } else {
+    if (state.qcmTimerInterval) { clearInterval(state.qcmTimerInterval); state.qcmTimerInterval = null; }
+  }
   renderQCMQuestion(el, m);
 }
 function renderQCMQuestion(el, m) {
@@ -2031,10 +2690,13 @@ function renderQCMQuestion(el, m) {
             <button class="qcm-diff-btn${(state.qcmDifficulty||'all')===d?' active':''}" onclick="state.qcmDifficulty='${d}';renderQCM(state.currentModule,document.getElementById('tab-content'))">${d==='all'?'Tout':diffBadges[d]||d}</button>
           `).join('')}
         </div>
+        <button class="qcm-timer-toggle ${state.qcmTimed?'active':''}" onclick="state.qcmTimed=!state.qcmTimed;renderQCM(state.currentModule,document.getElementById('tab-content'))" title="Mode chronométré">⏱</button>
+        <button class="qcm-diff-btn" onclick="startGlobalWeakRevision()" title="Révision globale de TOUTES mes erreurs" style="border-color:var(--red-dim);color:var(--red);font-size:12px">🌍 Erreurs globales</button>
       </div>
       <div class="qcm-progress">
         <div class="progress-bar-wrap" style="flex:1"><div class="progress-bar-fill" style="width:${Math.round((idx/total)*100)}%"></div></div>
         <span class="qcm-counter">${idx+1} / ${total}</span>
+        ${state.qcmTimed ? `<span class="qcm-timer" id="qcm-timer">⏱ ${String(Math.floor((state.qcm.timeLeft||0)/60)).padStart(2,'0')}:${String((state.qcm.timeLeft||0)%60).padStart(2,'0')}</span>` : ''}
       </div>
       <div class="qcm-question-block">
         <div class="qcm-question-num">Question ${idx+1} <span class="qcm-diff-badge diff-${q.difficulty||'normal'}">${diffLabel}</span></div>
@@ -2052,6 +2714,7 @@ function renderQCMQuestion(el, m) {
         <button class="btn-primary" id="qcm-next-btn" style="display:none" onclick="qcmNext()">
           ${idx+1<total?'Question suivante ':'Voir les résultats '}
         </button>
+        <button class="btn-secondary" id="qcm-skip-btn" onclick="qcmSkip()" title="Passer la question, à revoir plus tard">🤷 Je ne sais pas</button>
       </div>
     </div>`;
   document.querySelectorAll('.qcm-option').forEach(opt => {
@@ -2077,6 +2740,20 @@ function qcmSelect(optIdx, q) {
     ? `✓ ${q.explication||'Bonne réponse !'}`
     : `✗ ${q.explication||'Mauvaise réponse. Bonne réponse : '+q.options.find(o=>o.correct)?.text}`;
   document.getElementById('qcm-next-btn').style.display = 'inline-flex';
+}
+function qcmSkip() {
+  if (state.qcm.locked) return;
+  state.qcm.locked = true;
+  const { questions, idx } = state.qcm;
+  const q = questions[idx];
+  state.qcm.answers.push({ q, selectedIdx: -1, correct: false, skipped: true });
+  document.getElementById('qcm-skip-btn').style.display = 'none';
+  const fb = document.getElementById('qcm-feedback');
+  fb.className = 'qcm-feedback show';
+  fb.innerHTML = '🤷 Passée — revue prioritaire dans tes erreurs';
+  document.getElementById('qcm-next-btn').style.display = 'inline-flex';
+  const modId = q._moduleId || state.currentModule?.id;
+  if (modId) trackQCMAnswer({ id: modId }, q, false);
 }
 function qcmNext() {
   state.qcm.idx++; state.qcm.locked = false;
@@ -2377,7 +3054,7 @@ Processeur : Cisco 3925 Series · RAM : 512 MB
     ? `Microsoft Windows [Version 10.0.19045]\n(c) Microsoft Corporation. Tous droits réservés.\n\nTape <span style="color:#aaa">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n`
     : isWin
     ? `<span style="color:var(--blue)">Windows PowerShell</span>\nCopyright (C) Microsoft Corporation.\n\nTape <span style="color:var(--blue)">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n<span style="color:var(--accent)">NetRunner 2.0</span> — 20 missions PowerShell. Tape <strong>tp netrunner</strong> pour commencer.\n`
-    : `<span style="color:var(--accent)">Bienvenue sur ${cliState.host}</span> — Debian GNU/Linux\nConnecté : <span style="color:var(--accent)">${cliState.user}</span>\nTape <span style="color:var(--accent)">help</span> · <span style="color:var(--accent)">tp</span> pour les TP guidés\n <span style="color:var(--accent)">GameShell TSSR</span> — 30 missions pour maîtriser Linux. Tape <strong>tp gameshell</strong> pour commencer.\n`
+    : `<span style="color:var(--accent)">Bienvenue sur ${cliState.host}</span> — Debian GNU/Linux\nConnecté : <span style="color:var(--accent)">${cliState.user}</span>\nTape <span style="color:var(--accent)">help</span> · <span style="color:var(--accent)">tp</span> pour les TP guidés\n <span style="color:var(--accent)">GameShell TSSR</span> — 40 missions pour maîtriser Linux. Tape <strong>tp gameshell</strong> pour commencer.\n`
   );
 
   const input = document.getElementById('cli-input');
@@ -2659,7 +3336,7 @@ const TP_SCENARIOS = {
     {
       id: 'netrunner',
       title: 'NetRunner 2.0 — 20 missions PowerShell',
-      icon: '',
+      icon: '[N]',
       desc: '20 missions PowerShell progressives : fichiers, processus, services, AD, logs, pare-feu.',
       autosave: true,
       levels: [
@@ -2814,8 +3491,8 @@ Bienvenue. Tape tp quit pour abandonner.</span>`);
     {
       id: 'gameshell',
       title: 'GameShell — Missions Linux',
-      icon: '',
-      desc: 'Missions progressives inspirées du vrai GameShell — 30 étapes pour maîtriser le terminal Linux.',
+      icon: '[G]',
+      desc: 'Missions progressives — 40 étapes pour maîtriser le terminal Linux.',
       autosave: true,
       levels: [
         { at: 5,  label: 'Niveau 1 — Découverte',          emoji: '' },
@@ -2823,17 +3500,19 @@ Bienvenue. Tape tp quit pour abandonner.</span>`);
         { at: 15, label: 'Niveau 3 — Exploration',          emoji: '' },
         { at: 20, label: 'Niveau 4 — Permissions',          emoji: '' },
         { at: 25, label: 'Niveau 5 — Processus & Services', emoji: '' },
+        { at: 30, label: 'Niveau 6 — Maitre Linux',         emoji: '' },
+        { at: 35, label: 'Niveau 7 — Expert',               emoji: '' },
       ],
       onStart: () => {
         const saved = store.get('gameshell_progress');
-        if (saved && saved.step > 0 && saved.step < 30) {
+        if (saved && saved.step > 0 && saved.step < 40) {
           scenarioState.step = saved.step;
-          cliPrint(`<span style="color:var(--accent)"> Reprise depuis la mission ${saved.step + 1}/30 — progression restaurée.</span>\n<span style="color:var(--text2)">Tape <strong>tp quit</strong> pour abandonner · <strong>tp gameshell</strong> + suppr local pour tout recommencer.</span>`);
+          cliPrint(`<span style="color:var(--accent)"> Reprise depuis la mission ${saved.step + 1}/40 — progression restaurée.</span>\n<span style="color:var(--text2)">Tape <strong>tp quit</strong> pour abandonner · <strong>tp gameshell</strong> + suppr local pour tout recommencer.</span>`);
         } else {
           cliPrint(`<div style="color:var(--accent);font-family:monospace;white-space:pre;line-height:1.5">
 
     G A M E S H E L L   T S S R                    
-      30 missions pour maîtriser Linux                
+       40 missions pour maîtriser Linux                
 
   Niv.1 Découverte    · missions  1-5                 
   Niv.2 Fichiers      · missions  6-10                
@@ -2841,6 +3520,7 @@ Bienvenue. Tape tp quit pour abandonner.</span>`);
   Niv.4 Permissions   · missions 16-20                
   Niv.5 Processus     · missions 21-25                
   Niv.6 Maître        · missions 26-30                
+  Niv.7 Expert        · missions 31-40                
 </div>
 <span style="color:var(--text2)">Bienvenue, technicien. Ton terminal est ton arme.
 Suis les missions dans le panneau à droite.
@@ -2851,190 +3531,201 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
       steps: [
         //  NIVEAU 1 — Découverte 
         {
-          instr: ' Niv.1 Mission 1/30 — Affiche ton répertoire courant.',
+          instr: ' Niv.1 Mission 1/40 — Affiche ton répertoire courant.',
           hint: 'pwd',
           check: c => /^pwd$/i.test(c.trim()),
           successMsg: 'pwd = Print Working Directory. Affiche le chemin absolu où tu te trouves.',
         },
         {
-          instr: 'Mission 2/30 — Liste le contenu du répertoire courant.',
+          instr: 'Mission 2/40 — Liste le contenu du répertoire courant.',
           hint: 'ls',
           check: c => /^ls(\s|$)/i.test(c.trim()),
           successMsg: 'ls liste les fichiers et dossiers. -l = détails, -a = fichiers cachés, -h = tailles lisibles.',
         },
         {
-          instr: 'Mission 3/30 — Déplace-toi dans /etc.',
+          instr: 'Mission 3/40 — Déplace-toi dans /etc.',
           hint: 'cd /etc',
           check: c => /^cd\s+\/etc(\/|$|\s|)$/.test(c.trim()),
           successMsg: '/etc contient les fichiers de configuration système. Le répertoire le plus important pour un admin.',
         },
         {
-          instr: 'Mission 4/30 — Reviens dans ton home avec le raccourci ~.',
+          instr: 'Mission 4/40 — Reviens dans ton home avec le raccourci ~.',
           hint: 'cd ~',
           check: c => /^cd\s*(~|\/home\/)/.test(c.trim()),
           successMsg: '~ est un alias vers /home/tssr. cd sans argument fait la même chose.',
         },
         {
-          instr: 'Mission 5/30 — Liste TOUS les fichiers, y compris les cachés (commençant par .).',
+          instr: 'Mission 5/40 — Liste TOUS les fichiers, y compris les cachés (commençant par .).',
           hint: 'ls -a',
           check: c => /^ls\b.*-[a-zA-Z]*a/.test(c.trim()),
           successMsg: 'Les fichiers cachés commencent par un point : .bashrc, .profile, .ssh — invisibles avec ls normal.',
         },
         //  NIVEAU 2 — Fichiers 
         {
-          instr: ' Niv.2 Mission 6/30 — Crée un dossier nommé "mission".',
+          instr: ' Niv.2 Mission 6/40 — Crée un dossier nommé "mission".',
           hint: 'mkdir mission',
           check: c => /^mkdir\s+mission$/.test(c.trim()),
           successMsg: 'mkdir = Make Directory. mkdir -p a/b/c crée toute l\'arborescence d\'un coup.',
         },
         {
-          instr: 'Mission 7/30 — Entre dans le dossier "mission".',
+          instr: 'Mission 7/40 — Entre dans le dossier "mission".',
           hint: 'cd mission',
           check: c => /^cd\s+mission$/.test(c.trim()),
           successMsg: 'Tu es dans /home/tssr/mission. Tape pwd pour confirmer ta position.',
         },
         {
-          instr: 'Mission 8/30 — Crée un fichier vide nommé "objectif.txt".',
+          instr: 'Mission 8/40 — Crée un fichier vide nommé "objectif.txt".',
           hint: 'touch objectif.txt',
           check: c => /^touch\s+objectif\.txt$/.test(c.trim()),
           successMsg: 'touch crée un fichier vide ou met à jour la date d\'un fichier existant.',
         },
         {
-          instr: 'Mission 9/30 — Écris "GameShell" dans objectif.txt avec echo et la redirection >.',
+          instr: 'Mission 9/40 — Écris "GameShell" dans objectif.txt avec echo et la redirection >.',
           hint: 'echo "GameShell" > objectif.txt',
           check: c => /^echo\b/.test(c.trim()) && c.includes('>') && /objectif\.txt/.test(c),
           successMsg: '> redirige stdout vers un fichier (écrase le contenu). >> ajoute sans écraser.',
         },
         {
-          instr: 'Mission 10/30 — Affiche le contenu de objectif.txt avec cat.',
+          instr: 'Mission 10/40 — Affiche le contenu de objectif.txt avec cat.',
           hint: 'cat objectif.txt',
           check: c => /^cat\s+objectif\.txt/.test(c.trim()),
           successMsg: 'cat = concatenate. Pour les gros fichiers, préfère less (pagination avec q pour quitter).',
         },
         //  NIVEAU 3 — Exploration 
         {
-          instr: ' Niv.3 Mission 11/30 — Affiche le nom de cette machine via /etc/hostname.',
+          instr: ' Niv.3 Mission 11/40 — Affiche le nom de cette machine via /etc/hostname.',
           hint: 'cat /etc/hostname',
           check: c => /^cat\b/.test(c.trim()) && /hostname/.test(c),
           successMsg: '/etc/hostname contient le nom court de la machine. Modifiable avec hostnamectl.',
         },
         {
-          instr: 'Mission 12/30 — Cherche "tssr" dans /etc/passwd avec grep.',
+          instr: 'Mission 12/40 — Cherche "tssr" dans /etc/passwd avec grep.',
           hint: 'grep "tssr" /etc/passwd',
           check: c => /^grep\b/.test(c.trim()) && /\/etc\/passwd/.test(c),
           successMsg: '/etc/passwd : login:x:UID:GID:gecos:home:shell. Pas de mot de passe en clair — ils sont dans /etc/shadow.',
         },
         {
-          instr: 'Mission 13/30 — Compte les lignes de /etc/passwd avec wc -l.',
+          instr: 'Mission 13/40 — Compte les lignes de /etc/passwd avec wc -l.',
           hint: 'wc -l /etc/passwd',
           check: c => /^wc\b/.test(c.trim()) && c.includes('/etc/passwd'),
           successMsg: 'wc = word count. -l lignes, -w mots, -c octets. Chaque ligne = un compte utilisateur.',
         },
         {
-          instr: 'Mission 14/30 — Affiche les 3 premières lignes de /etc/passwd avec head.',
+          instr: 'Mission 14/40 — Affiche les 3 premières lignes de /etc/passwd avec head.',
           hint: 'head -3 /etc/passwd',
           check: c => /^head\b/.test(c.trim()) && c.includes('/etc/passwd'),
           successMsg: 'head affiche le début d\'un fichier. tail fait l\'inverse. tail -f suit un fichier en temps réel.',
         },
         {
-          instr: 'Mission 15/30 — Copie objectif.txt en sauvegarde.txt avec cp.',
+          instr: 'Mission 15/40 — Copie objectif.txt en sauvegarde.txt avec cp.',
           hint: 'cp objectif.txt sauvegarde.txt',
           check: c => /^cp\s+objectif\.txt\s+sauvegarde\.txt/.test(c.trim()),
           successMsg: 'cp copie un fichier. cp -r pour les répertoires. L\'original est conservé.',
         },
         //  NIVEAU 4 — Permissions 
         {
-          instr: ' Niv.4 Mission 16/30 — Affiche les permissions des fichiers avec ls -l.',
+          instr: ' Niv.4 Mission 16/40 — Affiche les permissions des fichiers avec ls -l.',
           hint: 'ls -l',
           check: c => /^ls\b.*-[a-zA-Z]*l/.test(c.trim()),
           successMsg: 'Format : -rw-r--r-- 1 user group size date nom. Les 3 triplets rwx = propriétaire, groupe, autres.',
         },
         {
-          instr: 'Mission 17/30 — Rends objectif.txt exécutable avec chmod +x.',
+          instr: 'Mission 17/40 — Rends objectif.txt exécutable avec chmod +x.',
           hint: 'chmod +x objectif.txt',
           check: c => /^chmod\b/.test(c.trim()) && /\+x/.test(c) && /objectif\.txt/.test(c),
           successMsg: '+x ajoute l\'exécution pour tous. u+x = propriétaire seulement. r=4, w=2, x=1.',
         },
         {
-          instr: 'Mission 18/30 — Mets les permissions 644 (rw-r--r--) sur sauvegarde.txt.',
+          instr: 'Mission 18/40 — Mets les permissions 644 (rw-r--r--) sur sauvegarde.txt.',
           hint: 'chmod 644 sauvegarde.txt',
           check: c => /^chmod\s+644\s+sauvegarde\.txt/.test(c.trim()),
           successMsg: '644 = rw-r--r-- : propriétaire lit+écrit, groupe et autres lisent. Standard pour un fichier de config.',
         },
         {
-          instr: 'Mission 19/30 — Affiche permissions ET fichiers cachés avec ls -la.',
+          instr: 'Mission 19/40 — Affiche permissions ET fichiers cachés avec ls -la.',
           hint: 'ls -la',
           check: c => /^ls\b/.test(c.trim()) && /-[a-zA-Z]*l/.test(c) && /-[a-zA-Z]*a/.test(c) || /^ls\s+-(la|al)$/.test(c.trim()),
           successMsg: '-l + -a ensemble : tout voir. Les fichiers . (répertoire courant) et .. (parent) sont toujours là.',
         },
         {
-          instr: 'Mission 20/30 — Crée un lien symbolique "lien.txt" vers objectif.txt avec ln -s.',
+          instr: 'Mission 20/40 — Crée un lien symbolique "lien.txt" vers objectif.txt avec ln -s.',
           hint: 'ln -s objectif.txt lien.txt',
           check: c => /^ln\s+-s\b/.test(c.trim()) && /objectif\.txt/.test(c),
           successMsg: 'Un lien symbolique est un raccourci. ls -l affiche -> objectif.txt. Supprimer le lien ne touche pas la cible.',
         },
         //  NIVEAU 5 — Processus & Services 
         {
-          instr: ' Niv.5 Mission 21/30 — Affiche tous les processus en cours avec ps aux.',
+          instr: ' Niv.5 Mission 21/40 — Affiche tous les processus en cours avec ps aux.',
           hint: 'ps aux',
           check: c => /^ps\b/.test(c.trim()) && /aux/.test(c),
           successMsg: 'a = tous utilisateurs, u = format lisible, x = inclure sans terminal. PID = identifiant unique du processus.',
         },
         {
-          instr: 'Mission 22/30 — Filtre les processus bash avec un pipe : ps aux | grep bash.',
+          instr: 'Mission 22/40 — Filtre les processus bash avec un pipe : ps aux | grep bash.',
           hint: 'ps aux | grep bash',
           check: c => /^ps\b/.test(c.trim()) && /\|\s*grep\b/.test(c) && /bash/.test(c),
           successMsg: 'Le pipe | enchaîne les commandes : stdout de gauche  stdin de droite. Fondement du shell Unix.',
         },
         {
-          instr: 'Mission 23/30 — Vérifie l\'état du service SSH avec systemctl status.',
+          instr: 'Mission 23/40 — Vérifie l\'état du service SSH avec systemctl status.',
           hint: 'systemctl status ssh',
           check: c => /^(sudo\s+)?systemctl\s+status\s+(ssh|sshd)/i.test(c.trim()),
           successMsg: 'systemd gère les services. "Active: running" = opérationnel. "enabled" = démarrage auto au boot.',
         },
         {
-          instr: 'Mission 24/30 — Affiche les ports ouverts avec netstat ou ss.',
+          instr: 'Mission 24/40 — Affiche les ports ouverts avec netstat ou ss.',
           hint: 'netstat -tlnp',
           check: c => /^netstat\b/.test(c.trim()) || /^ss\b/.test(c.trim()),
           successMsg: '-t TCP, -l listening, -n numérique, -p processus. Port 22 = SSH, 80 = HTTP, 443 = HTTPS.',
         },
         {
-          instr: 'Mission 25/30 — Affiche la configuration réseau avec ip a.',
+          instr: 'Mission 25/40 — Affiche la configuration réseau avec ip a.',
           hint: 'ip a',
           check: c => /^ip\s+(a|addr)\b/i.test(c.trim()) || /^ifconfig\b/i.test(c.trim()),
           successMsg: 'ip addr remplace l\'ancien ifconfig. lo = loopback 127.0.0.1, eth0 = carte réseau principale.',
         },
         //  NIVEAU 6 — Maître du terminal 
         {
-          instr: ' Niv.6 Mission 26/30 — Lance "ls /root 2>/dev/null" pour supprimer silencieusement les erreurs.',
+          instr: ' Niv.6 Mission 26/40 — Lance "ls /root 2>/dev/null" pour supprimer silencieusement les erreurs.',
           hint: 'ls /root 2>/dev/null',
           check: c => /2>\s*\/dev\/null/.test(c),
           successMsg: '2>/dev/null envoie stderr dans le néant. Utile dans les scripts pour ignorer les erreurs non critiques.',
         },
         {
-          instr: 'Mission 27/30 — Trouve tous les fichiers .txt avec find, en supprimant les erreurs de permission.',
+          instr: 'Mission 27/40 — Trouve tous les fichiers .txt avec find, en supprimant les erreurs de permission.',
           hint: 'find / -name "*.txt" 2>/dev/null',
           check: c => /^find\b/.test(c.trim()) && /-name\b/.test(c) && /\.txt/.test(c),
           successMsg: 'find parcourt l\'arborescence récursivement. -type f fichiers, -mtime +7 modifiés >7 jours, -size +1M >1 Mo.',
         },
         {
-          instr: 'Mission 28/30 — Trie le contenu de /etc/passwd alphabétiquement avec sort.',
+          instr: 'Mission 28/40 — Trie le contenu de /etc/passwd alphabétiquement avec sort.',
           hint: 'sort /etc/passwd',
           check: c => /^sort\b/.test(c.trim()),
           successMsg: 'sort trie les lignes. -r = ordre inverse, -n = numérique, -t: -k3 = tri sur le 3ème champ séparé par :.',
         },
         {
-          instr: 'Mission 29/30 — Combine sort et uniq pour trier et supprimer les doublons.',
+          instr: 'Mission 29/40 — Combine sort et uniq pour trier et supprimer les doublons.',
           hint: 'sort /etc/passwd | uniq',
           check: c => /^sort\b/.test(c.trim()) && /\|\s*uniq\b/.test(c),
           successMsg: 'uniq supprime les lignes consécutives identiques — toujours précédé de sort. uniq -c compte les occurrences.',
         },
         {
-          instr: 'Mission 30/30  — Pipe ultime : extrait les users bash  cat /etc/passwd | grep bash | cut -d: -f1 | sort',
+          instr: 'Mission 30/40  — Pipe ultime : extrait les users bash  cat /etc/passwd | grep bash | cut -d: -f1 | sort',
           hint: 'cat /etc/passwd | grep bash | cut -d: -f1 | sort',
           check: c => /grep\b/.test(c) && /cut\b/.test(c) && /sort\b/.test(c) && (c.match(/\|/g)||[]).length >= 2,
-          successMsg: ' MISSION ACCOMPLIE ! grep filtre, cut extrait une colonne, sort trie. Ce pipe est utilisé quotidiennement par les admins sys.',
+          successMsg: ' MISSION ACCOMPLIE ! grep filtre, cut extrait une colonne, sort trie.',
         },
+        // Niveau 7 — Expert
+        { instr: ' Niv.7 Mission 31/40 — Affiche la quantité de RAM libre avec free -h.', hint: 'free -h', check: c => /^free\b/.test(c.trim()), successMsg: 'free -h = RAM totale/used/free. free -m en Mo. watch -n1 free surveille en continu.' },
+        { instr: 'Mission 32/40 — Affiche l\'espace disque de toutes les partitions.', hint: 'df -h', check: c => /^df\b/.test(c.trim()), successMsg: 'df -h = disque lisible. df -i = inodes. du -sh dossier/ = taille dossier.' },
+        { instr: 'Mission 33/40 — Affiche la table de routage IP complète.', hint: 'ip route', check: c => /^ip\s+(r|route)\b/.test(c.trim()), successMsg: 'ip route = table de routage. route -n aussi. defaut via 192.168.1.1 = passerelle.' },
+        { instr: 'Mission 34/40 — Vérifie la connectivité à 8.8.8.8 avec ping (4 paquets).', hint: 'ping -c 4 8.8.8.8', check: c => /^ping\b.*-c\s*\d/.test(c.trim()), successMsg: 'ping -c 4 = 4 echo-requests. ping -c 1 = 1 paquet. ping -s 1472 = MTU test.' },
+        { instr: 'Mission 35/40 — Trouve les 5 plus gros fichiers dans /var/log avec du et sort.', hint: 'du -sh /var/log/* | sort -rh | head -5', check: c => /du\b.*sort\b.*head\b/.test(c), successMsg: 'du -sh taille, sort -rh tri reverse humain, head -5 top 5. find + du = audit disque.' },
+        { instr: 'Mission 36/40 — Cherche les lignes contenant "error" dans syslog avec grep -i (insensible casse).', hint: 'grep -i "error" /var/log/syslog 2>/dev/null', check: c => /^grep\b.*-i/.test(c.trim()), successMsg: 'grep -i = ignore casse. grep -v = inverse. grep -c = compte. grep -r = recursif.' },
+        { instr: 'Mission 37/40 — Surveille les processus en temps réel avec les options de ps.', hint: 'ps aux | head -10', check: c => /ps\s+aux\b/.test(c.trim()), successMsg: 'ps aux = tous processus. ps -ef = format standard. top/htop interactif.' },
+        { instr: 'Mission 38/40 — Affiche les connexions réseau actives TCP avec ss.', hint: 'ss -t', check: c => /^ss\b/.test(c.trim()), successMsg: 'ss -t = TCP. ss -u = UDP. ss -l = listening. ss -tuln = tout. netstat -tan aussi.' },
+        { instr: 'Mission 39/40 — Trouve combien de coeurs CPU avec nproc et l\'utilisation CPU avec mpstat.', hint: 'nproc', check: c => /^nproc$/i.test(c.trim()), successMsg: 'nproc = nb coeurs. lscpu = détails. mpstat -P ALL = par coeur. uptime = load avg.' },
+        { instr: 'Mission 40/40  — FINAL : exécute un diagnostic réseau complet : ping + ip route + ss -t + free -h + df -h en une commande composée.', hint: 'ping -c 1 8.8.8.8; ip route; ss -t; free -h; df -h', check: c => (c.match(/ping|ip route|ss|free|df/g)||[]).length >= 3, successMsg: ' MISSION ACCOMPLIE ! 40/40 — Tu maîtrises le terminal Linux. Tu as les compétences d\'un admin système.' },
       ],
     },
   ],
@@ -5617,7 +6308,7 @@ const TERMINAL_META = {
   linux:     { icon: '>_', label: 'Terminal Linux',         sublabel: 'Debian GNU/Linux',           color: '#00e5a0', cls: 'tfs-linux' },
   windows:   { icon: 'PS', label: 'Terminal PowerShell',    sublabel: 'Windows Server 2022',         color: '#3b82f6', cls: 'tfs-windows' },
   cmd:       { icon: 'CMD', label: 'Terminal Windows (CMD)', sublabel: 'cmd.exe — Windows 10/Server', color: '#9ca3af', cls: 'tfs-cmd' },
-  gameshell: { icon: '[>]', label: 'GameShell',              sublabel: '30 missions Linux',           color: '#00e5a0', cls: 'tfs-linux' },
+  gameshell: { icon: '[>]', label: 'GameShell',              sublabel: '40 missions Linux',           color: '#00e5a0', cls: 'tfs-linux' },
   netrunner: { icon: 'NR', label: 'NetRunner',              sublabel: 'Jeu PowerShell/CMD',          color: '#0ea5e9', cls: 'tfs-netrunner' },
 };
 
@@ -5872,6 +6563,8 @@ document.addEventListener('keydown', e => {
   const t = e.target;
   const isInput = t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable;
   if (e.ctrlKey && e.key === 'p') { e.preventDefault(); document.getElementById('sidebar-search-input')?.focus(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openGlobalSearch(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'g') { e.preventDefault(); openGlossaire(); return; }
   if (isInput && e.key !== 'Escape' && e.key !== 'Enter') return;
   const screen = state.currentScreen;
   const s = state;
@@ -5926,3 +6619,24 @@ if (_moduleMatch) {
   history.replaceState({ screen: 'home' }, '', '#');
   renderHome();
 }
+
+// ===== DIAGRAMS VIEWER =====
+function showDiagram(moduleId) {
+  var md = window.MODULE_DIAGRAMS && MODULE_DIAGRAMS[moduleId];
+  if (!md || !md.length) { alert("Aucun schema disponible pour ce module."); return; }
+  var ov = document.createElement("div");
+  ov.className = "gs-overlay";
+  ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+  ov.innerHTML = '<div class="gs-modal" style="max-width:650px"><div class="gs-header"><span style="flex:1;font-weight:700;color:var(--text)"> Schemas</span><button class="gs-close" onclick="this.closest(\'.gs-overlay\').remove()">X</button></div><div class="gs-results" id="diagram-container" style="padding:12px;text-align:center"></div></div>';
+  document.body.appendChild(ov);
+  var c = document.getElementById("diagram-container");
+  for (var i = 0; i < md.length; i++) {
+    var t = document.createElement("h3");
+    t.style.cssText = "color:var(--accint);margin:0 0 8px;font-size:15px";
+    t.textContent = md[i].title;
+    c.appendChild(t);
+    try { c.appendChild(md[i].build()); } catch(e) { c.appendChild(Object.assign(document.createElement("p"), {style:"color:var(--red);font-size:13px",textContent:"Erreur de generation du schema"})); }
+    if (i < md.length - 1) { var s = document.createElement("hr"); s.style.cssText = "border:none;border-top:1px solid var(--border);margin:16px 0"; c.appendChild(s); }
+  }
+}
+initFontSize();

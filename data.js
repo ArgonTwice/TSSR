@@ -335,6 +335,7 @@ const MODULES = [
         titre: 'Modèle OSI & TCP/IP - Les 7 Couches',
         sections: [
 
+          { type: 'diagram', module: 'reseaux', index: 0 },
           { type: 'h2', content: '1. Pourquoi un modèle en couches ?' },
           { type: 'p', content: 'Avant les années 80, chaque constructeur (IBM, DEC, HP) avait son propre protocole réseau incompatible avec les autres. L\'ISO a créé le modèle OSI en 1984 pour standardiser les communications. L\'idée : découper la communication en 7 couches indépendantes, chaque couche ne parlant qu\'avec sa voisine directe.' },
           { type: 'info', content: '<strong>Analogie :</strong> Envoyer un colis par La Poste. Tu écris une lettre (couche 7), tu la mets dans une enveloppe avec l\'adresse (couche 3), le facteur la porte physiquement (couche 1). Chaque "service" fait son job sans connaître les autres.' },
@@ -348,6 +349,7 @@ const MODULES = [
             ['3', 'Réseau', 'Adressage IP routage inter-réseaux', 'IP ICMP ARP OSPF BGP', 'Paquet'],
             ['2', 'Liaison', 'Adresses MAC trames accès médium', 'Ethernet Wi-Fi PPP VLAN 802.1Q', 'Trame'],
             ['1', 'Physique', 'Bits sur le support physique', 'RJ45 Fibre Coaxial Hertzien DSL', 'Bit'],
+          ]},
           { type: "h2", content: "6. Modele hybride OSI/TCP et IPv6" },
           { type: "p", content: "Le modele OSI (7 couches) est le modele de reference academique. TCP/IP (4 couches) est le modele pratique. En realite on utilise un modele hybride a 5 couches." },
           { type: "table", headers: ["Couche","OSI","TCP/IP","Hybride","Exemple"], rows: [
@@ -372,8 +374,6 @@ const MODULES = [
           { type: "h2", content: "8. VLANs et reseaux logiques" },
           { type: "p", content: "Un VLAN decoupe logiquement un reseau physique en segments independants. Essentiel en entreprise." },
           { type: "code", content: "# Cisco VLAN config:\n# conf t\n# vlan 10\n#  name Admin\n# int g0/1-5\n#  switchport access vlan 10" },
-
-          ]},
           { type: 'info', content: '<strong>Mnémotechniques :</strong><br>1->7 : <em>Philippe Laisse Rentrer Tous Ses Petits Amis</em> (Physique Liaison Réseau Transport Session Présentation Application)<br>7->1 : <em>Alex Pète Sa Tête Rarement Le Premier</em> (Application Présentation Session Transport Réseau Liaison Physique)' },
 
           { type: 'h2', content: '3. Détail de chaque couche' },
@@ -677,6 +677,7 @@ const MODULES = [
         titre: 'Linux - Fondamentaux et Philosophie',
         sections: [
 
+          { type: 'diagram', module: 'linux', index: 0 },
           { type: 'h2', content: '1. Qu\'est-ce que Linux ?' },
           { type: 'p', content: 'Linux est un <strong>noyau</strong> (kernel) créé par Linus Torvalds en 1991. Ce que l\'on appelle communément "Linux" est en réalité un assemblage : <strong>Noyau Linux + Outils GNU + Environnement</strong>. C\'est pourquoi on devrait dire GNU/Linux.' },
           { type: 'table', headers: ['Composant', 'Rôle', 'Exemple'], rows: [
@@ -686,6 +687,7 @@ const MODULES = [
             ['Gestionnaire de paquets', 'Installe/met à jour les logiciels', 'apt (Debian) yum (RHEL)'],
             ['Init système', 'Premier processus (PID 1), démarre les services', 'systemd (moderne)'],
             ['Bibliothèques système', 'Code partagé entre les programmes', 'glibc'],
+          ]},
           { type: "h2", content: "6. Commandes modernes (remplacements 2025)" },
           { type: "p", content: "Les commandes historiques (ifconfig, netstat, iptables) sont depreciees. Les replacements modernes offrent plus de fonctionnalites." },
           { type: "table", headers: ["Ancienne","Nouvelle","Raison"], rows: [
@@ -707,8 +709,6 @@ const MODULES = [
           ]},
           { type: "code", content: "# Creer un service systemd personnalise:\n# /etc/systemd/system/monscript.service\n# [Unit]\n# Description=Mon script\n# After=network.target\n# [Service]\n# ExecStart=/usr/local/bin/monscript.sh\n# Restart=on-failure\n# [Install]\n# WantedBy=multi-user.target\n# sudo systemctl daemon-reload\n# sudo systemctl enable --now monscript.service" },
           { type: "info", content: "Timers systemd remplacent cron: plus d options (monotonie, aleatoire, dependances). Voir systemctl list-timers." },
-
-          ]},
 
           { type: 'h2', content: '2. Les distributions Linux' },
           { type: 'table', headers: ['Distribution', 'Base', 'Gestionnaire paquets', 'Usage', 'Certifications'], rows: [
@@ -1218,6 +1218,7 @@ const MODULES = [
         ['Storage Replica amélioré', 'Réplication stockage bi-directionnelle', 'DR et HA simplifiés'],
         ['NUMA-aware improvements', 'Meilleure gestion mémoire NUMA', 'Performances HPC'],
         ['AD amélioré', 'Nouveau niveau fonctionnel forêt/domaine', 'Fonctionnalités AD étendues'],
+      ]},
           { type: "h2", content: "6. Bonnes pratiques GPO" },
           { type: "p", content: "Les GPO sont le coeur de la configuration centralisee sous Active Directory. De mauvaises pratiques rendent le domaine ingerable." },
           { type: "table", headers: ["Mauvaise pratique","Probleme","Solution"], rows: [
@@ -1238,8 +1239,6 @@ const MODULES = [
             ["Kerberoasting","Forcage hash compte service","Mots de passe >25 car"],
           ]},
           { type: "info", content: "Modele T0/T1/T2: T0=DC (acces restreint), T1=Serveurs, T2=Postes. LAPS gere les mots de passe admin locaux." },
-
-      ]},
 
       { type: 'h2', content: '2. Éditions et licencing' },
       { type: 'table', headers: ['Édition', 'VMs incluses', 'Cœurs min', 'Usage', 'Prix approx.'], rows: [
@@ -1469,6 +1468,7 @@ const MODULES = [
         titre: 'Virtualisation - Concepts et Hyperviseurs',
         sections: [
 
+          { type: 'diagram', module: 'virtualisation', index: 0 },
           { type: 'h2', content: '1. Qu\'est-ce que la virtualisation ?' },
           { type: 'p', content: 'La virtualisation permet d\'exécuter plusieurs systèmes d\'exploitation indépendants sur un seul serveur physique. Un logiciel appelé <strong>hyperviseur</strong> abstrait le matériel physique et le partage entre plusieurs machines virtuelles (VMs).' },
           { type: 'table', headers: ['Avant virtualisation', 'Après virtualisation'], rows: [
@@ -1478,6 +1478,7 @@ const MODULES = [
             ['Isolation : zéro (bug = serveur planté)', 'Isolation : totale (bug VM = VM planté)'],
             ['Reprise après panne : reconstruction manuelle', 'Reprise : restaurer un snapshot en minutes'],
             ['Coût : élevé (un serveur par service)', 'Coût : réduit (consolidation)'],
+          ]},
           { type: "h2", content: "6. Marche virtualisation 2025" },
           { type: "p", content: "Le marche a ete bouleverse par le rachat de VMware par Broadcom en 2024 (licences x3). Proxmox VE monte en puissance comme alternative open-source." },
           { type: "table", headers: ["Solution","Type","Licence","Atout"], rows: [
@@ -1499,8 +1500,6 @@ const MODULES = [
           ]},
           { type: "h2", content: "8. Docker essentiel pour TSSR" },
           { type: "code", content: "# Commandes Docker de base:\ndocker ps                          # Conteneurs actifs\ndocker ps -a                       # Tous les conteneurs\ndocker images                      # Images disponibles\ndocker pull nginx:latest           # Telecharger image\ndocker run -d -p 80:80 nginx       # Lancer conteneur NGINX\ndocker stop ID                     # Arreter\ndocker rm ID                       # Supprimer\ndocker exec -it ID bash            # Shell dans conteneur\ndocker logs ID                     # Logs conteneur\ndocker compose up -d               # Lancer stack multi-conteneurs" },
-
-          ]},
 
           { type: 'h2', content: '2. Hyperviseur Type 1 vs Type 2' },
           { type: 'table', headers: ['Critère', 'Type 1 (Bare-metal)', 'Type 2 (Hosted)'], rows: [
@@ -1678,6 +1677,7 @@ const MODULES = [
         titre: 'Fondamentaux Sécurité - CIA, Menaces et Défense en Profondeur',
         sections: [
 
+          { type: 'diagram', module: 'securite', index: 0 },
           { type: 'h2', content: '1. La triade CIA et ses extensions' },
           { type: 'table', headers: ['Pilier', 'Définition', 'Menaces principales', 'Contre-mesures'], rows: [
             ['Confidentialité', 'Les données ne sont accessibles qu\'aux personnes autorisées', 'Écoute réseau vol de données fuite insider threat', 'Chiffrement TLS VPN RBAC classification des données DLP'],
@@ -1686,6 +1686,7 @@ const MODULES = [
             ['Authenticité', 'L\'identité des parties est vérifiée', 'Usurpation phishing spoofing deepfake', 'MFA certificats PKI biométrie'],
             ['Non-répudiation', 'Les actions ne peuvent pas être niées', 'Falsification de logs modification preuves', 'Journalisation signée horodatage HSM'],
             ['Traçabilité', 'Chaque action est enregistrée et attribuée', 'Effacement logs elevation de privilèges', 'SIEM logs centralisés auditd Windows event logs'],
+          ]},
           { type: "h2", content: "6. Evolution des pare-feu" },
           { type: "p", content: "Le pare-feu a evolue du simple filtrage vers une securite multicouche." },
           { type: "table", headers: ["Gen","Type","Fonctions","Exemple"], rows: [
@@ -1711,8 +1712,6 @@ const MODULES = [
             ["TPM","Module securise hardware","Stockage cle privee"],
           ]},
           { type: "code", content: "# Commandes PKI Windows:\n# certlm.msc (certificats machine)\n# certmgr.msc (certificats utilisateur)\n# certreq -new -attrib \"CertificateTemplate:WebServer\" request.inf request.csr\n# certreq -submit -attrib \"CertificateTemplate:WebServer\" request.csr cert.cer" },
-
-          ]},
 
           { type: 'h2', content: '2. Taxonomie des attaques' },
           { type: 'table', headers: ['Catégorie', 'Attaque', 'Description technique', 'Exemple réel'], rows: [
@@ -1885,6 +1884,7 @@ const MODULES = [
         titre: 'Cisco IOS - Configuration Avancée et Sécurité',
         sections: [
 
+          { type: 'diagram', module: 'cisco', index: 0 },
           { type: 'h2', content: '1. Navigation et modes IOS -- Rappel complet' },
           { type: 'table', headers: ['Mode', 'Prompt', 'Accès', 'Commandes disponibles'], rows: [
             ['EXEC utilisateur', 'Router>', 'Connexion initiale', 'ping traceroute show version (limité)'],
@@ -2014,6 +2014,7 @@ const MODULES = [
         id: 'supervision-concepts',
         titre: 'Supervision - Concepts Fondamentaux et SNMP v3',
         sections: [
+          { type: 'diagram', module: 'supervision', index: 0 },
           { type: 'h2', content: '1. Architecture de supervision' },
           { type: 'table', headers: ['Composant', 'Rôle', 'Protocoles/Outils'], rows: [
             ['Agent', 'Collecte les métriques sur l\'hôte', 'SNMP, Zabbix agent, WMI'],
@@ -2297,12 +2298,14 @@ const MODULES = [
         titre: 'RAID - Niveaux, Configuration et Gestion',
         sections: [
 
+          { type: 'diagram', module: 'stockage', index: 0 },
           { type: 'h2', content: '1. Qu\'est-ce que le RAID ?' },
           { type: 'p', content: 'RAID (Redundant Array of Independent Disks) combine plusieurs disques physiques pour améliorer les performances, la redondance ou les deux. Il en existe deux implémentations : le RAID <strong>matériel</strong> (contrôleur dédié) et le RAID <strong>logiciel</strong> (géré par l\'OS).' },
           { type: 'table', headers: ['Type', 'Avantages', 'Inconvénients', 'Exemples'], rows: [
             ['RAID Matériel', 'Transparent pour l\'OS, performances optimales, batterie de cache', 'Coût élevé, dépendance au contrôleur', 'Dell PERC HP SmartArray LSI MegaRAID'],
             ['RAID Logiciel', 'Gratuit, portable entre serveurs, flexible', 'Utilise CPU et RAM du serveur', 'Linux mdadm Windows Storage Spaces'],
             ['RAID Hybride', 'Contrôleur matériel avec cache logiciel', 'Complexité', 'ZFS avec HBA passthrough'],
+          ]},
           { type: "h2", content: "6. DAS vs NAS vs SAN" },
           { type: "p", content: "Trois grandes familles de stockage: DAS (direct), NAS (fichier), SAN (bloc). Le choix depend des besoins." },
           { type: "table", headers: ["Critere","DAS","NAS","SAN"], rows: [
@@ -2322,8 +2325,6 @@ const MODULES = [
             ["Direct NFS","Via client NFS Veeam","Datastores NFS"],
           ]},
           { type: "code", content: "# Regle 3-2-1 backup:\n# 3 copies des donnees\n# 2 supports differents (disque + bande/cloud)\n# 1 copie hors site\n\n# Veeam best practices:\n# - Utiliser un proxy dedie pour chaque datastore\n# - Activer SureBackup pour tester les sauvegardes\n# - Retention: 7 jours quotidien + 4 semaines + 12 mois" },
-
-          ]},
           { type: 'warn', content: '<strong>RAID â‰  SAUVEGARDE :</strong> Le RAID protège contre la panne d\'un disque physique. Il ne protège PAS contre la suppression accidentelle, un ransomware, une corruption logicielle, un incendie ou le vol. Une sauvegarde externe reste indispensable.' },
 
           { type: 'h2', content: '2. RAID 0 -- Striping (Performance pure)' },
@@ -2458,6 +2459,7 @@ const MODULES = [
         titre: 'Cloud Computing - Concepts et Modèles',
         sections: [
 
+          { type: 'diagram', module: 'cloud', index: 0 },
           { type: 'h2', content: '1. Qu\'est-ce que le Cloud Computing ?' },
           { type: 'p', content: 'Le Cloud Computing est la mise à disposition de ressources informatiques (serveurs, stockage, bases de données, réseaux, logiciels) via Internet, à la demande, avec une facturation à l\'usage. Le NIST (National Institute of Standards and Technology) définit 5 caractéristiques essentielles.' },
           { type: 'table', headers: ['Caractéristique NIST', 'Description', 'Exemple'], rows: [
@@ -2466,6 +2468,7 @@ const MODULES = [
             ['Mutualisation des ressources', 'Ressources partagées entre plusieurs clients (multi-tenant)', 'Plusieurs entreprises sur le même hyperviseur physique'],
             ['Élasticité rapide', 'Augmenter/réduire les ressources selon les besoins', 'Scale up pendant Black Friday scale down après'],
             ['Service mesuré', 'Facturation à l\'usage (pay-as-you-go)', 'Payer seulement les heures de VM utilisées'],
+          ]},
           { type: "h2", content: "6. AWS vs Azure vs GCP (2025)" },
           { type: "p", content: "Le cloud est devenu le standard. AWS (31%) et Azure (23%) dominent. GCP (13%) croit le plus vite. 87% des entreprises sont multi-cloud." },
           { type: "table", headers: ["Service","AWS","Azure","GCP"], rows: [
@@ -2488,8 +2491,6 @@ const MODULES = [
             ["Datadog","Tiers multi-cloud","Dashboards unifies"],
             ["Grafana + Prometheus","Open source","Metriques conteneurs K8s"],
             ["Elastic Stack","Open source","Logs centralises (ELK)"],
-          ]},
-
           ]},
 
           { type: 'h2', content: '2. Les modèles de service' },
@@ -2677,6 +2678,7 @@ const MODULES = [
         titre: 'Protocoles de Messagerie - SMTP, IMAP, POP3',
         sections: [
 
+          { type: 'diagram', module: 'messagerie', index: 0 },
           { type: 'h2', content: '1. Architecture d\'un système de messagerie' },
           { type: 'p', content: 'Un email traverse plusieurs composants logiciels avant d\'arriver à destination. Comprendre cette architecture est essentiel pour administrer et dépanner un système de messagerie.' },
           { type: 'table', headers: ['Composant', 'Acronyme', 'Rôle', 'Exemples'], rows: [
@@ -2687,6 +2689,7 @@ const MODULES = [
             ['Mail Retrieval Agent', 'MRA', 'Récupère les emails depuis le serveur vers le client', 'fetchmail getmail'],
             ['Spam Filter', '--', 'Filtre les emails non sollicités', 'SpamAssassin Rspamd'],
             ['Antivirus', '--', 'Analyse les pièces jointes', 'ClamAV'],
+          ]},
           { type: "h2", content: "6. SPF, DKIM et DMARC" },
           { type: "p", content: "Protocoles d authentification des emails pour lutter contre le spoofing et le phishing." },
           { type: "table", headers: ["Protocole","Action","Enregistrement DNS"], rows: [
@@ -2704,8 +2707,6 @@ const MODULES = [
             ["Utiliser MFA","Double authentification OWA/ECP"],
             ["Application virtuelle du pool d applications","IIS: Application Pool Identity"],
             ["Audit regulier","Health Checker + logs"],
-          ]},
-
           ]},
           { type: 'code', content: '# Flux complet d\'un email : jean@tssr.local -> marie@afpa.fr\n\n# â"Œ-------------------------------------------------------------â"\n# | 1. Jean compose dans Outlook (MUA)                          |\n# |    Vers : marie@afpa.fr                                     |\n# |    Sujet : Rapport mensuel                                  |\n# +----------------------+--------------------------------------â"˜\n#                        | SMTP port 587 + STARTTLS\n#                        â-¼\n# â"Œ-------------------------------------------------------------â"\n# | 2. MTA tssr.local reçoit le mail (MSA)                     |\n# |    Vérifie l\'authentification SASL de Jean                  |\n# |    Vérifie SPF/DKIM du domaine expéditeur                   |\n# +----------------------+--------------------------------------â"˜\n#                        | DNS : nslookup -type=MX afpa.fr\n#                        | -> mail.afpa.fr (priorité 10)\n#                        | SMTP port 25\n#                        â-¼\n# â"Œ-------------------------------------------------------------â"\n# | 3. MTA mail.afpa.fr reçoit le mail                         |\n# |    Vérifie SPF : IP source dans tssr.local autorisée ?      |\n# |    Vérifie DKIM : signature valide ?                        |\n# |    Vérifie DMARC : politique du domaine ?                   |\n# |    Passe dans SpamAssassin + ClamAV                         |\n# +----------------------+--------------------------------------â"˜\n#                        | Dépôt dans boîte de Marie\n#                        â-¼\n# â"Œ-------------------------------------------------------------â"\n# | 4. Marie consulte depuis Thunderbird (MUA)                  |\n# |    Connexion IMAP port 993 SSL vers mail.afpa.fr            |\n# |    Télécharge le mail depuis Dovecot (MDA)                  |\n# +-------------------------------------------------------------â"˜' },
 
@@ -2851,6 +2852,7 @@ const MODULES = [
             ['Rapport espace disque', 'df sur chaque serveur', 'psutil -> rapport HTML/PDF automatique'],
             ['Interaction API Azure AWS', 'CLI complexe', 'SDK azure boto3 intuitif'],
             ['Parsing de logs', 'grep/awk limités', 'Regex Python + pandas pour analyse'],
+          ]},
           { type: "h2", content: "6. PowerShell 7+ nouvelles fonctionnalites" },
           { type: "p", content: "PowerShell 7 est cross-platform (Windows, Linux, macOS). Base sur .NET Core, il offre des performances accrues et des modules tiers." },
           { type: "table", headers: ["Feature","PowerShell 5.1","PowerShell 7+"], rows: [
@@ -2881,8 +2883,6 @@ const MODULES = [
             ["Pipe","ls -la | grep .txt","Get-ChildItem | Where-Object {$_.Extension -eq '.txt'}"],
           ]},
           { type: "info", content: "Le TSSR doit maitriser les 2 environnements. PowerShell pour Windows/AD/Exchange. Bash pour Linux/Reseau/Conteneurs." },
-
-          ]},
 
           { type: 'h2', content: '2. Bases Python pour l\'administration' },
           { type: 'code', content: '# ============================================================\n# TYPES DE DONNÉES ESSENTIELS\n# ============================================================\n\nhostname = "srv-web-01"\nip = "192.168.1.10"\nmessage = f"Le serveur {hostname} a l\'IP {ip}"\nprint(message)\n\n# Méthodes string utiles :\nip.split(".")               # [\'192\', \'168\', \'1\', \'10\']\nhostname.upper()            # \'SRV-WEB-01\'\nhostname.replace("-", "_")  # \'srv_web_01\'\nhostname.startswith("srv")  # True\n"  espace  ".strip()        # \'espace\'\n\n# Listes\nserveurs = ["srv-web-01", "srv-web-02", "srv-db-01"]\nserveurs.append("srv-mail-01")\nserveurs.remove("srv-db-01")\nlen(serveurs)              # 3\nserveurs[0]                # \'srv-web-01\'\nserveurs[-1]               # \'srv-mail-01\' (dernier)\n\n# Dictionnaires\nserveur = {\n    "hostname": "srv-web-01",\n    "ip": "192.168.1.10",\n    "role": "web",\n    "port": 80,\n    "actif": True\n}\nserveur["ip"]                    # \'192.168.1.10\'\nserveur.get("cpu", "N/A")        # \'N/A\' (valeur par défaut)\nserveur["ssl"] = True            # Ajouter une clé\n"hostname" in serveur            # True\n\n# ============================================================\n# STRUCTURES DE CONTRÃ"LE\n# ============================================================\n\ncpu_percent = 87\n\nif cpu_percent >= 90:\n    niveau = "CRITIQUE"\nelif cpu_percent >= 70:\n    niveau = "WARNING"\nelse:\n    niveau = "OK"\nprint(f"CPU: {cpu_percent}% -> {niveau}")\n\n# Boucles\nfor i, srv in enumerate(serveurs):\n    print(f"{i+1}/{len(serveurs)} : {srv}")\n\n# List comprehension\nips = ["192.168.1." + str(i) for i in range(1, 11)]\nserveurs_web = [s for s in serveurs if s.startswith("srv-web")]\n\n# ============================================================\n# FONCTIONS\n# ============================================================\n\ndef verifier_port(host, port, timeout=3):\n    """Vérifie si un port TCP est ouvert sur un hôte."""\n    import socket\n    try:\n        with socket.create_connection((host, port), timeout=timeout):\n            return True\n    except (socket.timeout, ConnectionRefusedError, OSError):\n        return False\n\n# Vérifier plusieurs services\nservices = [\n    ("srv-web-01", 80, "HTTP"),\n    ("srv-web-01", 443, "HTTPS"),\n    ("srv-mail-01", 25, "SMTP"),\n    ("srv-mail-01", 993, "IMAPS"),\n    ("srv-db-01", 3306, "MySQL"),\n]\n\nfor host, port, service in services:\n    statut = "+ OK" if verifier_port(host, port) else "[X] KO"\n    print(f"{statut} {host}:{port} ({service})")' },
@@ -3220,6 +3220,7 @@ const MODULES = [
         id: 'schemas-documentation',
         titre: 'Schémas Réseau et Documentation Technique',
         sections: [
+          { type: 'diagram', module: 'documentation', index: 0 },
           { type: 'h2', content: 'Normes de schématisation réseau' },
           { type: 'table', headers: ['Outil', 'Type', 'Avantages', 'Usage'], rows: [
             ['Microsoft Visio', 'Commercial', 'Intégration Office nombreux stencils', 'Standard entreprise'],

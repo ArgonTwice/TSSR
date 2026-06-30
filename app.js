@@ -19,9 +19,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime) {
   chrome.runtime.onMessage?.addListener(() => true);
 }
 // Global error capture
+let _errorHandling = false;
 window.addEventListener('error', function(e) {
+  if (_errorHandling) return;
+  _errorHandling = true;
   console.error('GLOBAL ERROR:', e.message, 'at', e.filename, 'line', e.lineno);
-  document.getElementById('content').innerHTML = '<div style="padding:20px;color:red;font-family:monospace;font-size:13px"><h2>ERREUR</h2><pre>' + e.message + '</pre><p style="color:#94a3b8;font-size:12px">' + e.filename + ':' + e.lineno + '</p><button onclick="renderHome()" style="margin-top:12px;padding:8px 16px">Accueil</button></div>';
+  try { document.getElementById('content').innerHTML = '<div style="padding:20px;color:red;font-family:monospace;font-size:13px"><h2>ERREUR</h2><pre>' + (e.message||'') + '</pre><p style="color:#94a3b8;font-size:12px">' + (e.filename||'') + ':' + (e.lineno||'') + '</p><button onclick="renderHome()" style="margin-top:12px;padding:8px 16px">Accueil</button></div>'; } catch(_) {}
+  _errorHandling = false;
 });
 window.addEventListener('unhandledrejection', function(e) {
   console.error('UNHANDLED PROMISE:', e.reason);
@@ -259,6 +263,8 @@ const MODULE_GROUPS = [
 ];
 
 function renderNav() {
+  if (state._navDepth > 5) { console.error('renderNav STACK OVERFLOW'); return; }
+  state._navDepth = (state._navDepth||0) + 1;
   const nav = document.getElementById('module-nav');
   nav.innerHTML = '';
 
@@ -386,6 +392,7 @@ function renderNav() {
       }
     });
   });
+  state._navDepth = (state._navDepth||1) - 1;
 }
 function toggleAccordion(moduleId) {
   const isOpen = state.openAccordion === moduleId;
@@ -504,6 +511,7 @@ function renderHome() {
 
 // ===== OPEN MODULE =====
 function openModule(moduleId, skipHistory = false, directCours = null) {
+  console.trace('openModule called:', moduleId, 'skip:', skipHistory);
   const m = MODULES.find(x => x && x.id === moduleId);
   if (!m) return;
   state.currentModule = m;
@@ -6277,6 +6285,8 @@ function openTerminalFS(type) {
 
 // ===== SCREENS =====
 function showScreen(id) {
+  if (state._screenDepth > 5) { console.error('showScreen STACK OVERFLOW'); return; }
+  state._screenDepth = (state._screenDepth||0) + 1;
   const leavingTerminal = state.currentScreen === 'terminal-fs' && id !== 'terminal-fs-screen';
 
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -6300,6 +6310,7 @@ function showScreen(id) {
   } else if (screenName !== 'module') {
     history.pushState({ screen: screenName }, '', '#' + screenName);
   }
+  state._screenDepth = (state._screenDepth||1) - 1;
 }
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');

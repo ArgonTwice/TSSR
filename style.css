@@ -3594,3 +3594,21 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .ai-result p { color: #cbd5e1; line-height: 1.7; margin-bottom: 0.75rem; font-size: 0.9rem; }
+
+/* Leaderboard */
+.home-action-lb { background:var(--amber-dim);color:var(--amber) }
+.home-action-lb .home-action-badge { background:var(--amber);color:#000 }
+.lb-entry { display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:14px }
+.lb-entry:hover { background:var(--bg3) }
+.lb-score { font-family:var(--font-mono);color:var(--accent);font-weight:700;min-width:80px }
+.lb-detail { flex:1;color:var(--text2) }
+.lb-date { font-size:12px;color:var(--text3);min-width:70px;text-align:right }
+
+/* Module stats */
+.module-meta-stats { display:flex;gap:16px;font-size:12px;color:var(--text3);margin-top:6px }
+.module-meta-stats span { cursor:help }
+.module-meta-stats span:hover { color:var(--text2) }
+
+/* Priorité QCM badge */
+.qcm-diff-btn[onclick*="priorite"] { background:var(--purple-dim);color:var(--purple) }
+.qcm-diff-btn[onclick*="priorite"].active { background:var(--purple);color:#000 }

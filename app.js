@@ -9,6 +9,63 @@ const store = {
   get: k => { try { return JSON.parse(localStorage.getItem('tssr_' + k)); } catch { return null; } },
   set: (k, v) => localStorage.setItem('tssr_' + k, JSON.stringify(v)),
 };
+// ===== LEADERBOARD =====
+function getLB() { return store.get('leaderboard') || []; }
+function addLB(entry) {
+  const lb = getLB();
+  lb.unshift({ ...entry, date: Date.now() });
+  if (lb.length > 100) lb.length = 100;
+  store.set('leaderboard', lb);
+}
+function renderLeaderboard(el) {
+  const lb = getLB();
+  if (!lb.length) { el.innerHTML = '<div class="empty-state"><span class="empty-state-icon">\u{1F3C6}</span><h3>Classement vide</h3><p>Fais un examen ou des missions pour apparaître ici.</p></div>'; return; }
+  const grouped = {};
+  lb.forEach(e => { const k = e.type || 'autre'; if (!grouped[k]) grouped[k] = []; grouped[k].push(e); });
+  let html = '<div style="max-height:400px;overflow-y:auto">';
+  Object.keys(grouped).forEach(type => {
+    html += `<div style="margin-bottom:16px"><h4 style="margin-bottom:8px;color:var(--accent)">${escHtml(type)}</h4>`;
+    grouped[type].slice(0,10).forEach(e => {
+      const d = new Date(e.date);
+      html += `<div class="lb-entry"><span class="lb-score">${e.score}</span><span class="lb-detail">${escHtml(e.detail||'')}</span><span class="lb-date">${d.toLocaleDateString()}</span></div>`;
+    });
+    html += '</div>';
+  });
+  html += '</div><button class="btn-secondary" onclick="if(confirm('+"'Effacer le leaderboard ?')){store.set('leaderboard',[]);renderLeaderboard(document.getElementById('lb-content'));}"+`">Effacer l'historique</button>`;
+  el.innerHTML = html;
+}
+// ===== STATS MODULE =====
+function getModStats(id) { return store.get('modstats_' + id) || { qcm_best: 0, qcm_total: 0, qcm_correct: 0, fc_mastered: 0, sessions: 0 }; }
+function setModStats(id, upd) {
+  const s = getModStats(id); Object.assign(s, upd); s.sessions = (s.sessions||0) + 1;
+  store.set('modstats_' + id, s);
+}
+function getQCMWeak(m) {
+  const wrongs = store.get('qcm_wrong') || {};
+  const modWrongs = wrongs[m.id] || {};
+  return (m.qcm||[]).filter(q => modWrongs[q.id] && modWrongs[q.id] >= 2).sort((a,b) => (modWrongs[b.id]||0) - (modWrongs[a.id]||0));
+}
+function trackQCMAnswer(m, q, correct) {
+  if (!m || !q) return;
+  const key = 'qcm_wrong';
+  const wrongs = store.get(key) || {};
+  if (!wrongs[m.id]) wrongs[m.id] = {};
+  if (!correct) { wrongs[m.id][q.id] = (wrongs[m.id][q.id]||0) + 1; }
+  else { wrongs[m.id][q.id] = Math.max(0, (wrongs[m.id][q.id]||0) - 1); }
+  store.set(key, wrongs);
+}
+// ===== KEYBOARD SHORTCUTS =====
+const SHORTCUTS = [
+  { key: '?', desc: 'Aide raccourcis' },
+  { key: 'h', desc: 'Accueil' },
+  { key: 'Escape', desc: 'Fermer sidebar / retour' },
+  { key: '→ / ←', desc: 'Navigation QCM' },
+  { key: 'j / k', desc: 'Défiler modules' },
+  { key: 'Ctrl+P', desc: 'Rechercher module' },
+  { key: 'r', desc: 'Révision du jour' },
+  { key: 'e', desc: 'Examen blanc' },
+];
+let sidebarSearchFocused = false;
 
 // ===== STATE =====
 let state = {
@@ -269,6 +326,11 @@ function renderHome() {
         <span class="home-action-icon">📝</span>
         <span class="home-action-label">Examen blanc</span>
         <span class="home-action-badge">${totalQcm} questions</span>
+      </button>
+      <button class="home-action-btn home-action-lb" onclick="openLeaderboard()">
+        <span class="home-action-icon">🏆</span>
+        <span class="home-action-label">Leaderboard</span>
+        <span class="home-action-badge">${getLB().length} entrées</span>
       </button>`;
   }
   grid.innerHTML = '';
@@ -327,6 +389,17 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
   meta.appendChild(_mIcon);
   meta.appendChild(_mTitle);
   meta.appendChild(_mBadge);
+  // Module stats
+  const ms = getModStats(m.id);
+  const statsEl = document.createElement('div');
+  statsEl.className = 'module-meta-stats';
+  const fcStats = m.flashcards?.length ? Math.round((ms.fc_mastered||0)/m.flashcards.length*100) : 0;
+  statsEl.innerHTML = `
+    <span title="Meilleur score QCM">📊 ${ms.qcm_best||0}%</span>
+    <span title="Flashcards maîtrisées">🃏 ${Math.min(ms.fc_mastered||0, m.flashcards?.length||0)}/${m.flashcards?.length||0}</span>
+    <span title="Sessions effectuées">🔄 ${ms.sessions||0}</span>
+  `;
+  meta.appendChild(statsEl);
 
   const TABS_ICONS = {
     cours:       '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><line x1="3.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="7" x2="10.5" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="9.5" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
@@ -440,16 +513,11 @@ function renderGameshell(el) {
 function renderNetrunner(el) {
   el.innerHTML = `
   <div style="padding:0 0 16px">
-    <div class="info-box" style="margin-bottom:16px">Jeu d'entraînement PowerShell/CMD — 3 missions progressives. Tape <strong>help</strong> dans le terminal pour les indices.</div>
-    <table><thead><tr><th>Mission</th><th>Objectif</th><th>Commandes clés</th></tr></thead><tbody>
-      <tr><td>1 — Infiltration Initiale</td><td>Tuer un processus et récupérer un flag</td><td><code>taskkill</code> · <code>dir</code> · <code>type</code></td></tr>
-      <tr><td>2 — Extraction de Données</td><td>Localiser des credentials cachés</td><td><code>tasklist</code> · <code>taskkill</code> · <code>dir</code> · <code>type</code></td></tr>
-      <tr><td>3 — Nettoyage des Traces</td><td>Effacer les logs avant détection IDS</td><td><code>wevtutil el</code> · <code>wevtutil cl</code> · <code>wevtutil qe</code></td></tr>
-    </tbody></table>
+    <div class="info-box" style="margin-bottom:16px">NetRunner 2.0 — 20 missions PowerShell progressives. Lance le terminal et tape <strong>tp netrunner</strong> pour commencer.</div>
   </div>
   <div style="width:100%;height:calc(100vh - 420px);min-height:460px;">
     <iframe src="netrunner.html" style="width:100%;height:100%;border:none;border-radius:8px;" title="NetRunner — Jeu PowerShell"></iframe>
-  </div>`;
+  </div>`;  
 }
 
 // ===== COURS =====
@@ -1774,11 +1842,19 @@ function examenNext() {
   renderExamenQuestion(document.getElementById('examen-content'));
 }
 
+function openLeaderboard() {
+  showScreen('examen-screen');
+  const el = document.getElementById('examen-content');
+  document.getElementById('examen-meta').textContent = '🏆 Leaderboard';
+  el.innerHTML = `<div class="examen-setup"><div style="font-size:48px;margin-bottom:12px">🏆</div><h2>Leaderboard</h2><div id="lb-content"></div></div>`;
+  renderLeaderboard(document.getElementById('lb-content'));
+}
 function renderExamenResults(el) {
   const { answers, startTime } = state.examen;
   const total = answers.length;
   const score = answers.filter(a => a.correct).length;
   const pct = Math.round((score / total) * 100);
+  addLB({ type: 'Examen blanc', score: `${score}/${total} (${pct}%)`, detail: `${total} questions · ${Math.floor((Date.now()-startTime)/60000)}min` });
   const elapsed = Math.round((Date.now() - startTime) / 1000);
   const mm = Math.floor(elapsed / 60).toString().padStart(2, '0');
   const ss = (elapsed % 60).toString().padStart(2, '0');
@@ -1924,7 +2000,12 @@ function renderQCM(m, el) {
   }
   const diff = state.qcmDifficulty || 'all';
   let pool = m.qcm;
-  if (diff !== 'all') pool = pool.filter(q => q.difficulty === diff);
+  if (diff === 'priorite') {
+    pool = getQCMWeak(m);
+    if (!pool.length) { pool = m.qcm; }
+  } else if (diff !== 'all') {
+    pool = pool.filter(q => q.difficulty === diff);
+  }
   if (!pool.length) {
     el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{2699}\u{FE0F}</span><h3>Aucune question ${diff}</h3><p>Ce module n'a pas de questions de difficulté "${diff}". Essaie un autre mode.</p><button class="btn-primary" style="margin-top:16px" onclick="state.qcmDifficulty='all';renderQCM(state.currentModule,document.getElementById('tab-content'))">Toutes les questions</button></div>`;
     return;
@@ -1940,13 +2021,13 @@ function renderQCMQuestion(el, m) {
   if (idx >= questions.length) { renderQCMResults(el, m); return; }
   const q = questions[idx];
   const total = questions.length;
-  const diffBadges = { facile:'Facile', normal:'Normal', difficile:'Difficile', troubleshooter:'Troubleshooter' };
+  const diffBadges = { facile:'Facile', normal:'Normal', difficile:'Difficile', troubleshooter:'Troubleshooter', priorite:'Priorité' };
   const diffLabel = diffBadges[q.difficulty] || 'Normal';
   el.innerHTML = `
     <div class="qcm-container">
       <div class="qcm-diff-bar">
         <div class="qcm-diff-select">
-          ${['all','facile','normal','difficile','troubleshooter'].map(d=>`
+          ${['all','facile','normal','difficile','troubleshooter','priorite'].map(d=>`
             <button class="qcm-diff-btn${(state.qcmDifficulty||'all')===d?' active':''}" onclick="state.qcmDifficulty='${d}';renderQCM(state.currentModule,document.getElementById('tab-content'))">${d==='all'?'Tout':diffBadges[d]||d}</button>
           `).join('')}
         </div>
@@ -2010,9 +2091,12 @@ function renderQCMResults(el, m) {
   const mm = Math.floor(elapsed/60).toString().padStart(2,'0');
   const ss = (elapsed%60).toString().padStart(2,'0');
   setProgress(m.id, { pct: Math.max(getProgress(m.id).pct||0, pct>=70?100:66), qcm_best: Math.max(getProgress(m.id).qcm_best||0, pct) });
+  answers.forEach(a => trackQCMAnswer(m, a.q, a.correct));
+  const wrongCount = answers.filter(a=>!a.correct).length;
+  addLB({ type: `QCM: ${m.label}`, score: `${score}/${total} (${pct}%)`, detail: `${state.qcmDifficulty==='all'?'Tous niveaux':state.qcmDifficulty} · ${mm}:${ss}` });
   const emoji = pct>=80?'[+]':pct>=60?'[~]':'[-]';
   const msg = pct>=80?'Excellent !':pct>=60?'Pas mal, continue !':'À retravailler...';
-  const diffLabel = state.qcmDifficulty==='all'?'Toutes difficultés':{facile:'Facile',normal:'Normal',difficile:'Difficile',troubleshooter:'Troubleshooter'}[state.qcmDifficulty]||'Toutes';
+  const diffLabel = state.qcmDifficulty==='all'?'Toutes difficultés':{facile:'Facile',normal:'Normal',difficile:'Difficile',troubleshooter:'Troubleshooter',priorite:'Priorité'}[state.qcmDifficulty]||'Toutes';
   const errorsHtml = answers.filter(a=>!a.correct).map(a=>`
     <div class="qcm-error-item">
       <div class="qcm-error-q">${a.q.question}</div>
@@ -2292,7 +2376,7 @@ Processeur : Cisco 3925 Series · RAM : 512 MB
     : isCmd
     ? `Microsoft Windows [Version 10.0.19045]\n(c) Microsoft Corporation. Tous droits réservés.\n\nTape <span style="color:#aaa">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n`
     : isWin
-    ? `<span style="color:var(--blue)">Windows PowerShell</span>\nCopyright (C) Microsoft Corporation.\n\nTape <span style="color:var(--blue)">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n`
+    ? `<span style="color:var(--blue)">Windows PowerShell</span>\nCopyright (C) Microsoft Corporation.\n\nTape <span style="color:var(--blue)">help</span> · <span style="color:var(--blue)">tp</span> pour les TP guidés\n<span style="color:var(--accent)">NetRunner 2.0</span> — 20 missions PowerShell. Tape <strong>tp netrunner</strong> pour commencer.\n`
     : `<span style="color:var(--accent)">Bienvenue sur ${cliState.host}</span> — Debian GNU/Linux\nConnecté : <span style="color:var(--accent)">${cliState.user}</span>\nTape <span style="color:var(--accent)">help</span> · <span style="color:var(--accent)">tp</span> pour les TP guidés\n <span style="color:var(--accent)">GameShell TSSR</span> — 30 missions pour maîtriser Linux. Tape <strong>tp gameshell</strong> pour commencer.\n`
   );
 
@@ -2569,6 +2653,70 @@ const TP_SCENARIOS = {
         { instr: '50% de perte  trafic capté aléatoirement par l\'autre machine. Solution : changer notre IP. Attribue 192.168.1.21.', hint: 'netsh interface ip set address "Ethernet" static 192.168.1.21 255.255.255.0 192.168.1.1', check: c => /^netsh\b/i.test(c.trim()) },
         { instr: 'Configuration appliquée. Vérifie la nouvelle IP.', hint: 'ipconfig', check: c => /^ipconfig(\b|$)/i.test(c.trim()) },
         { instr: 'IP changée en 192.168.1.21. Plus de conflit. Confirme la stabilité réseau.', hint: 'ping 192.168.1.1', check: c => /^ping\b.*192\.168\.1/i.test(c.trim()) },
+      ],
+    },
+    // ===== NETRUNNER 2.0 — 20 missions PowerShell =====
+    {
+      id: 'netrunner',
+      title: 'NetRunner 2.0 — 20 missions PowerShell',
+      icon: '',
+      desc: '20 missions PowerShell progressives : fichiers, processus, services, AD, logs, pare-feu.',
+      autosave: true,
+      levels: [
+        { at: 4,  label: 'Niveau 1 — Découverte',   emoji: '' },
+        { at: 8,  label: 'Niveau 2 — Fichiers',      emoji: '' },
+        { at: 12, label: 'Niveau 3 — Services',      emoji: '' },
+        { at: 16, label: 'Niveau 4 — Sécurité',      emoji: '' },
+      ],
+      onStart: () => {
+        const saved = store.get('netrunner_progress');
+        if (saved && saved.step > 0 && saved.step < 20) {
+          scenarioState.step = saved.step;
+          cliPrint(`<span style="color:var(--blue)"> Reprise NetRunner depuis la mission ${saved.step + 1}/20.</span>`);
+        } else {
+          cliPrint(`<div style="color:var(--blue);font-family:monospace;white-space:pre;line-height:1.5">
+  N E T R U N N E R   2 . 0
+  20 missions PowerShell
+
+  Niv.1 Découverte   · missions  1-4
+  Niv.2 Fichiers     · missions  5-8
+  Niv.3 Services     · missions  9-12
+  Niv.4 Sécurité     · missions 13-16
+  Niv.5 Expert       · missions 17-20
+</div>
+Bienvenue. Tape tp quit pour abandonner.</span>`);
+        }
+      },
+      onEnd: () => {
+        store.set('netrunner_progress', null);
+        addLB({ type: 'NetRunner', score: '20/20', detail: '20 missions PowerShell complétées' });
+      },
+      steps: [
+        // Niveau 1 — Découverte
+        { instr: ' Niv.1 Mission 1/20 — Affiche ton répertoire courant.', hint: 'Get-Location', check: c => /^get-location$/i.test(c.trim()) || /^gl$/i.test(c.trim()) || /^pwd$/i.test(c.trim()) },
+        { instr: 'Mission 2/20 — Liste les fichiers du répertoire courant.', hint: 'Get-ChildItem', check: c => /^get-childitem/i.test(c.trim()) || /^gci$/i.test(c.trim()) || /^ls$/i.test(c.trim()) || /^dir$/i.test(c.trim()) },
+        { instr: 'Mission 3/20 — Crée un dossier nommé "Mission".', hint: 'New-Item -ItemType Directory -Name Mission', check: c => /^new-item\b.*Directory.*Mission/i.test(c.trim()) || /^ni\b.*Mission/i.test(c.trim()) || /^mkdir\s+Mission$/i.test(c.trim()) },
+        { instr: 'Mission 4/20 — Crée un fichier "note.txt" avec le texte "NetRunner".', hint: 'Set-Content -Path note.txt -Value "NetRunner"', check: c => /set-content.*note\.txt/i.test(c.trim()) || /echo.*>.*note\.txt/i.test(c.trim()) },
+        // Niveau 2 — Fichiers
+        { instr: ' Niv.2 Mission 5/20 — Affiche le contenu de note.txt.', hint: 'Get-Content note.txt', check: c => /^get-content\b.*note\.txt/i.test(c.trim()) || /^gc\b.*note\.txt/i.test(c.trim()) || /^cat\b.*note\.txt/i.test(c.trim()) || /^type\b.*note\.txt/i.test(c.trim()) },
+        { instr: 'Mission 6/20 — Copie note.txt dans Mission/.', hint: 'Copy-Item note.txt Mission/', check: c => /^copy-item\b.*note\.txt.*Mission/i.test(c.trim()) || /^cp\b.*note\.txt.*Mission/i.test(c.trim()) || /^copy\b.*note\.txt.*Mission/i.test(c.trim()) },
+        { instr: 'Mission 7/20 — Liste les processus en cours (tous).', hint: 'Get-Process', check: c => /^get-process/i.test(c.trim()) || /^gps$/i.test(c.trim()) || /^ps$/i.test(c.trim()) },
+        { instr: 'Mission 8/20 — Trouve le processus "notepad" et arrête-le.', hint: 'Stop-Process -Name notepad', check: c => /^stop-process\b.*notepad/i.test(c.trim()) || /^spsv\b.*notepad/i.test(c.trim()) || /^kill\b.*notepad/i.test(c.trim()) || /^taskkill\b.*notepad/i.test(c.trim()) },
+        // Niveau 3 — Services
+        { instr: ' Niv.3 Mission 9/20 — Liste tous les services système.', hint: 'Get-Service', check: c => /^get-service/i.test(c.trim()) || /^gsv$/i.test(c.trim()) },
+        { instr: 'Mission 10/20 — Récupère le statut du service "Spooler".', hint: 'Get-Service spooler', check: c => /^get-service\b.*spooler/i.test(c.trim()) || /^gsv\b.*spooler/i.test(c.trim()) },
+        { instr: 'Mission 11/20 — Redémarre le service "Spooler".', hint: 'Restart-Service spooler', check: c => /^restart-service\b.*spooler/i.test(c.trim()) || /^start-service\b.*spooler/i.test(c.trim()) },
+        { instr: 'Mission 12/20 — Vérifie les 5 dernières entrées du journal système.', hint: 'Get-EventLog -LogName System -Newest 5', check: c => /^get-eventlog\b.*System/i.test(c.trim()) || /^get-winevent\b.*System/i.test(c.trim()) },
+        // Niveau 4 — Sécurité
+        { instr: ' Niv.4 Mission 13/20 — Affiche la config IP de la carte réseau.', hint: 'Get-NetIPConfiguration', check: c => /^get-netip/i.test(c.trim()) || /^ipconfig(\b|$)/i.test(c.trim()) },
+        { instr: 'Mission 14/20 — Affiche la table de routage.', hint: 'Get-NetRoute', check: c => /^get-netroute/i.test(c.trim()) || /^route\s+print/i.test(c.trim()) },
+        { instr: 'Mission 15/20 — Liste les règles du pare-feu Windows.', hint: 'Get-NetFirewallRule', check: c => /^get-netfirewallrule/i.test(c.trim()) },
+        { instr: 'Mission 16/20 — Crée une règle pour ouvrir le port 8080 (TCP).', hint: 'New-NetFirewallRule -DisplayName "WebApp" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow', check: c => /^new-netfirewallrule\b.*8080/i.test(c.trim()) },
+        // Niveau 5 — Expert
+        { instr: ' Niv.5 Mission 17/20 — Affiche les partages SMB du serveur.', hint: 'Get-SmbShare', check: c => /^get-smbshare/i.test(c.trim()) || /^net\s+share/i.test(c.trim()) },
+        { instr: 'Mission 18/20 — Affiche les informations du BIOS.', hint: 'Get-ComputerInfo', check: c => /^get-computerinfo/i.test(c.trim()) || /^gcim\b.*computersystem/i.test(c.trim()) || /^gcim\b.*bios/i.test(c.trim()) },
+        { instr: 'Mission 19/20 — Vérifie l état des mises à jour Windows.', hint: 'Get-WindowsUpdateLog', check: c => /^get-windows/i.test(c.trim()) || /^get-hotfix/i.test(c.trim()) || /^usoclient\b/i.test(c.trim()) },
+        { instr: 'Mission 20/20 — Final : exécute ipconfig /all et vérifie la configuration complète.', hint: 'ipconfig /all', check: c => /^ipconfig\s+\/all/i.test(c.trim()) || /^get-netipconfiguration\s+-detailed/i.test(c.trim()) },
       ],
     },
   ],
@@ -5718,6 +5866,47 @@ window.addEventListener('popstate', (e) => {
 
 state.openAccordion = store.get('sidebar_open') || null;
 initSidebarSearch();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  const isInput = t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable;
+  if (e.ctrlKey && e.key === 'p') { e.preventDefault(); document.getElementById('sidebar-search-input')?.focus(); return; }
+  if (isInput && e.key !== 'Escape' && e.key !== 'Enter') return;
+  const screen = state.currentScreen;
+  const s = state;
+  
+  if (e.key === '?' && !isInput) {
+    e.preventDefault();
+    const exist = document.getElementById('kb-help');
+    if (exist) { exist.remove(); return; }
+    const div = document.createElement('div');
+    div.id = 'kb-help';
+    div.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center';
+    div.onclick = e => e.target===div && div.remove();
+    div.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;max-width:400px;width:90%;max-height:80vh;overflow-y:auto">
+      <h3 style="margin-bottom:16px;color:var(--accent)">Raccourcis clavier</h3>
+      ${SHORTCUTS.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><kbd style="background:var(--bg4);padding:2px 8px;border-radius:4px;font-family:var(--font-mono);font-size:13px">${s.key}</kbd><span style="color:var(--text2)">${s.desc}</span></div>`).join('')}
+      <button class="btn-primary" style="margin-top:16px;width:100%" onclick="this.closest('#kb-help').remove()">Fermer</button>
+    </div>`;
+    document.body.appendChild(div);
+  }
+  if (e.key === 'Escape') {
+    if (document.getElementById('kb-help')) { document.getElementById('kb-help').remove(); e.preventDefault(); return; }
+    if (document.getElementById('sidebar')?.classList.contains('open')) { closeSidebar(); e.preventDefault(); return; }
+    if (screen === 'module' && s.currentCours !== null) { document.getElementById('back-btn')?.click(); e.preventDefault(); return; }
+    if (screen === 'module' || screen === 'examen') { renderHome(); e.preventDefault(); return; }
+  }
+  if (e.key === 'h' && !isInput && !e.ctrlKey && !e.metaKey) { e.preventDefault(); renderHome(); }
+  if (e.key === 'r' && !isInput && !e.ctrlKey) { e.preventDefault(); openRevisionDuJour(); }
+  if (e.key === 'e' && !isInput && !e.ctrlKey) { e.preventDefault(); openExamenBlanc(); }
+  if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && screen === 'module' && !state.qcm.locked) {
+    const btn = document.getElementById('qcm-next-btn');
+    if (btn && btn.style.display !== 'none') { e.preventDefault(); qcmNext(); }
+  }
+  if (e.key === 'j' && !isInput) { e.preventDefault(); const el = document.querySelector('.module-card:not(.filtered)'); el?.focus(); }
+  if (e.key === 'k' && !isInput && screen === 'home') { e.preventDefault(); document.querySelector('#sidebar-search-input')?.focus(); }
+});
 const _hash = location.hash.replace('#', '');
 const _moduleMatch = _hash.match(/^module-([^/]+)(?:\/([^/]+)(?:\/(.+))?)?$/);
 if (_moduleMatch) {

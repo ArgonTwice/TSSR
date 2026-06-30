@@ -317,6 +317,8 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
     windows_cli: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 5.5L5.5 7.5L3 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.5" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
     gameshell:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5L6 7L3.5 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="9" x2="10.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
     netrunner:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 5.5L5.5 7.5L3 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.5" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+    flashcards:  '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="3" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="var(--bg)"/><line x1="5" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="5" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+    qcm:         '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 5.5C5.5 4.7 6.1 4 7 4s1.5.7 1.5 1.5c0 .7-.4 1.1-1 1.4C7 7.2 7 7.5 7 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="10" r=".6" fill="currentColor"/></svg>',
   };
   const tabs = [];
   if (m.cours.length)       tabs.push({ id: 'cours',       label: 'Cours',          cli: false });
@@ -324,6 +326,8 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
   if (m.windows_cli)        tabs.push({ id: 'windows_cli', label: 'PowerShell',     cli: true,  color: '#3b82f6' });
   if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'Pratique',       cli: true, color: '#00e5a0' });
   if (m.id === 'windows' && m.netrunner) tabs.push({ id: 'netrunner',  label: 'Jeu PowerShell', cli: true, color: '#0ea5e9' });
+  if (m.flashcards && m.flashcards.length) tabs.push({ id: 'flashcards', label: 'Cartes',   cli: false });
+  if (m.qcm && m.qcm.length)              tabs.push({ id: 'qcm',        label: 'QCM',      cli: false });
   if (m.outils) tabs.push({ id: 'outils', label: 'Outils', cli: false });
   tabs.push({ id: 'notes', label: 'Notes', cli: false });
 
@@ -396,6 +400,8 @@ function renderTabContent(tabId) {
   else if (tabId === 'windows_cli') renderCLI('windows', m, el);
   else if (tabId === 'gameshell')    renderGameshell(el);
   else if (tabId === 'netrunner')    renderNetrunner(el);
+  else if (tabId === 'flashcards')  renderFlashcards(m, el);
+  else if (tabId === 'qcm')         renderQCM(m, el);
   else if (tabId === 'outils')      renderOutils(m, el);
   else if (tabId === 'notes')       renderNotes(m, { id: state.currentCours || 'main' }, el);
 }

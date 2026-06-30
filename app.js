@@ -18,6 +18,14 @@ if ('serviceWorker' in navigator) {
 if (typeof chrome !== 'undefined' && chrome.runtime) {
   chrome.runtime.onMessage?.addListener(() => true);
 }
+// Global error capture
+window.addEventListener('error', function(e) {
+  console.error('GLOBAL ERROR:', e.message, 'at', e.filename, 'line', e.lineno);
+  document.getElementById('content').innerHTML = '<div style="padding:20px;color:red;font-family:monospace;font-size:13px"><h2>ERREUR</h2><pre>' + e.message + '</pre><p style="color:#94a3b8;font-size:12px">' + e.filename + ':' + e.lineno + '</p><button onclick="renderHome()" style="margin-top:12px;padding:8px 16px">Accueil</button></div>';
+});
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('UNHANDLED PROMISE:', e.reason);
+});
 
 // ===== STORAGE =====
 const store = {
@@ -487,7 +495,7 @@ function renderHome() {
     tagSpan.className = m.cours.length ? 'tag has-content' : 'tag';
     tagSpan.textContent = m.cours.length ? `cours (${m.cours.length})` : 'À venir';
     tagsEl.appendChild(tagSpan);
-    card.addEventListener('click', () => openModule(m.id));
+    card.addEventListener('click', () => { try { openModule(m.id); } catch(e) { console.error('CARD CLICK:',e); alert('Erreur: '+e.message); } });
     card.addEventListener('keydown', e => e.key === 'Enter' && openModule(m.id));
     grid.appendChild(card);
   });

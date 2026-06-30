@@ -1108,6 +1108,8 @@ function openModule(mId, tab) {
     renderTabContent('cours');
     history.pushState({ screen:'module', moduleId:mod.id, tab:'cours' }, '', '#module-' + mod.id);
   }
+  showScreen('module-screen');
+  closeSidebar();
 }
 function renderCoursContent(sections) {
   if (!sections) return '';

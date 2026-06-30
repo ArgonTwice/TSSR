@@ -624,7 +624,7 @@ function renderTabContent(tabId) {
   else if (tabId === 'flashcards')  renderFlashcards(m, el);
   else if (tabId === 'qcm')         renderQCM(m, el);
   else if (tabId === 'outils')      renderOutils(m, el);
-  else if (tabId === 'notes')       renderNotes(m, { id: state.currentCours || 'main' }, el);
+  else if (tabId === 'notes')       renderNotes(m, el);
 }
 
 // ===== GAMESHELL =====
@@ -678,6 +678,23 @@ function renderCoursIndex(m, el) {
       </div>
     </div>`).join('');
   el.innerHTML = `<div class="cours-index"><div class="cours-index-grid">${grid}</div></div>`;
+}
+function openCours(coursId) {
+  const m = state.currentModule;
+  if (!m) return;
+  const idx = m.cours.findIndex(c => c.id === coursId);
+  if (idx === -1) return;
+  state.currentCours = coursId;
+  renderNav();
+  const el = document.getElementById('tab-content');
+  renderCoursDetail(m, m.cours[idx], idx, el);
+  history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
+  history.pushState(
+    { screen: 'module', moduleId: m.id, tab: 'cours', coursId: coursId, scroll: 0 },
+    '',
+    '#module-' + m.id + '/cours/' + coursId
+  );
+  document.getElementById('content').scrollTop = 0;
 }
 function renderCoursDetail(m, cours, idx, el) {
   const article = document.createElement('article');
@@ -1313,309 +1330,53 @@ function renderOutils(m, el) {
 // ===== NOTES =====
 const KNOWN_MEMBERS = ['Esdine','Madjid','Fouad','Ilir','Jores','Ronel','Folly','Mick','Antho','Axel'];
 
-async function renderNotes(m, cours, el) {
+function renderNotes(m, el) {
   if (window._noteUnsub) { window._noteUnsub(); window._noteUnsub = null; }
+  const lastKey = 'notes_last_' + m.id;
+  let cur = store.get(lastKey) || KNOWN_MEMBERS[0];
 
-  const moduleId = m.id;
-  const coursId  = cours.id;
-  const myPseudo = localStorage.getItem('tssr_pseudo') || '';
+  function getNote(p)     { return store.get(`notes_${m.id}_${p}`) || ''; }
+  function saveNote(p, v) { store.set(`notes_${m.id}_${p}`, v); }
 
-  el.innerHTML = `
-    <div class="notes-container">
-
-      <div class="notes-section">
-        <h3 class="notes-title">Votre identifiant</h3>
-        <div class="custom-select" id="pseudo-dropdown">
-          <button type="button" class="custom-select-trigger" id="pseudo-trigger">
-            <span id="pseudo-trigger-label">${myPseudo || '-- Choisir votre prénom --'}</span>
-            <svg class="custom-select-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
-              <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <div class="custom-select-options" id="pseudo-options">
-            ${KNOWN_MEMBERS.map(name => `
-              <button type="button" class="custom-select-option${name === myPseudo ? ' selected' : ''}" data-value="${name}">
-                ${name}
-              </button>`).join('')}
+  function showPerson(person) {
+    cur = person;
+    store.set(lastKey, person);
+    el.querySelectorAll('.np-btn').forEach(b => b.classList.toggle('active', b.dataset.p === person));
+    const area = el.querySelector('.notes-area');
+    if (person === 'Résumé') {
+      const entries = KNOWN_MEMBERS.map(p => {
+        const txt = getNote(p).trim();
+        if (!txt) return '';
+        return `<div class="notes-entry"><div class="notes-entry-name">${p}</div><div class="notes-entry-text">${escHtml(txt)}</div></div>`;
+      }).filter(Boolean).join('');
+      area.innerHTML = entries || `<div class="empty-state" style="padding:60px 0"><span class="empty-state-icon">📝</span><h3>Aucune note pour l'instant</h3><p>Les notes de chaque membre apparaîtront ici.</p></div>`;
+    } else {
+      area.innerHTML = `
+        <div class="notes-editor">
+          <div class="notes-editor-header">
+            <span class="notes-editor-who">${person}</span>
+            <span class="notes-save-status" id="ns-status">✓ Sauvegardé</span>
           </div>
-        </div>
-      </div>
-
-      <div id="members-cards" class="members-cards"></div>
-
-      <div class="notes-section notes-summary-section">
-        <h3 class="notes-title">Résumé</h3>
-        <p class="notes-meta" id="summary-meta">En attente de contenu...</p>
-        <div id="summary-content" class="notes-summary-content">
-          <em>Le résumé se générera automatiquement quand un collègue partagera des notes.</em>
-        </div>
-      </div>
-
-    </div>`;
-
-  function initPseudoDropdown() {
-    const dropdown = document.getElementById('pseudo-dropdown');
-    const trigger = document.getElementById('pseudo-trigger');
-    const triggerLabel = document.getElementById('pseudo-trigger-label');
-    const optionsPanel = document.getElementById('pseudo-options');
-    if (!dropdown) return;
-
-    trigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdown.classList.toggle('open');
-    });
-
-    optionsPanel.querySelectorAll('.custom-select-option').forEach(opt => {
-      opt.addEventListener('click', () => {
-        const value = opt.dataset.value;
-        localStorage.setItem('tssr_pseudo', value);
-        triggerLabel.textContent = value;
-        optionsPanel.querySelectorAll('.custom-select-option').forEach(o =>
-          o.classList.toggle('selected', o.dataset.value === value)
-        );
-        dropdown.classList.remove('open');
-        renderMemberCards(moduleId, coursId, currentMembersCache || {});
+          <textarea id="notes-ta" class="notes-textarea" placeholder="Notes de ${person} pour ce module…" spellcheck="true">${escHtml(getNote(person))}</textarea>
+        </div>`;
+      const ta = el.querySelector('#notes-ta');
+      let t;
+      ta.addEventListener('input', () => {
+        document.getElementById('ns-status').textContent = '…';
+        clearTimeout(t);
+        t = setTimeout(() => { saveNote(person, ta.value); document.getElementById('ns-status').textContent = '✓ Sauvegardé'; }, 600);
       });
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') dropdown.classList.remove('open');
-    });
-  }
-
-  initPseudoDropdown();
-
-  let currentMembersCache = {};
-  let myDraft = { text: null, files: null };
-
-  function renderMemberCards(moduleId, coursId, members) {
-    const container = document.getElementById('members-cards');
-    if (!container) return;
-    const myCurrentPseudo = localStorage.getItem('tssr_pseudo') || '';
-
-    const prevTextarea = container.querySelector('.member-text-input');
-    if (prevTextarea) myDraft.text = prevTextarea.value;
-
-    const names = [...new Set([...KNOWN_MEMBERS, ...Object.keys(members)])];
-
-    container.innerHTML = names.map(name => {
-      const data    = members[name] || { text: '', files: [], updatedAt: null };
-      const isMine  = name === myCurrentPseudo;
-      const dateStr = data.updatedAt ? new Date(data.updatedAt).toLocaleString('fr-FR') : '';
-      const filesHtml = (data.files || []).map((f, fi) => `
-        <div class="member-file-block">
-          <div class="member-file-header">
-            <span class="member-file-name">${escHtml(f.filename)}</span>
-            ${f.kind === 'html' ? '<span class="member-file-badge">HTML</span>' : ''}
-            ${(f.kind==='pdf'||f.kind==='pdf-idb') ? `<span class="member-file-badge member-file-badge-pdf">${f.kind==='pdf-idb'?'PDF LOCAL':'PDF'}</span>` : ''}
-            ${(f.kind==='html'||f.kind==='pdf'||f.kind==='pdf-idb') ? `<button type="button" class="file-open-fullscreen" data-member="${escHtml(name)}" data-fidx="${fi}">Plein écran</button>` : ''}
-          </div>
-          ${f.kind === 'html'
-            ? `<iframe class="member-file-iframe" sandbox="allow-scripts" srcdoc="${escHtml(f.content)}"></iframe>`
-            : (f.kind === 'pdf' || f.kind === 'pdf-idb')
-            ? `<div class="pdf-slot" data-member="${escHtml(name)}" data-fidx="${fi}"></div>`
-            : `<div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>`
-          }
-        </div>`).join('');
-
-      return `
-        <details class="member-card" data-member="${escHtml(name)}" ${isMine ? 'open' : ''}>
-          <summary class="member-card-summary">
-            <span class="member-name">${escHtml(name)}</span>
-            ${isMine ? '<span class="member-badge-me">vous</span>' : ''}
-            <span class="member-date">${dateStr}</span>
-          </summary>
-          <div class="member-card-body">
-            ${isMine ? `
-              <textarea class="note-textarea member-text-input" rows="5"
-                placeholder="Vos notes à partager...">${escHtml(data.text || '')}</textarea>
-              <div class="file-upload-zone member-upload-zone" data-member="${escHtml(name)}">
-                <p class="upload-text">Glissez vos fichiers ici ou</p>
-                <button type="button" class="upload-btn member-upload-trigger">Sélectionner un fichier</button>
-                <input type="file" class="member-file-input" multiple accept=".txt,.html,.md,.pdf" style="display:none">
-              </div>
-              <div class="member-files-list"></div>
-              <button class="note-save-btn member-save-btn">Sauvegarder mon partage</button>
-            ` : `
-              <div class="member-content">${data.text ? escHtml(data.text).replace(/\n/g,'<br>') : '<em>Aucune note</em>'}</div>
-              <div class="member-files-list">${filesHtml || '<em class="notes-empty">Aucun fichier</em>'}</div>
-            `}
-          </div>
-        </details>`;
-    }).join('');
-
-    // Lancer viewer PDF.js sur chaque slot PDF (async)
-    container.querySelectorAll('.pdf-slot').forEach(slot => {
-      const memberName = slot.dataset.member;
-      const fileIdx    = Number(slot.dataset.fidx);
-      const f = (members[memberName]?.files || [])[fileIdx];
-      if (!f || (f.kind !== 'pdf' && f.kind !== 'pdf-idb')) return;
-      renderPdfViewer(slot, f);
-    });
-
-    container.querySelectorAll('.file-open-fullscreen[data-member]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const memberName = btn.dataset.member;
-        const fileIdx = Number(btn.dataset.fidx);
-        const file = (members[memberName]?.files || [])[fileIdx];
-        if (file) openFileFullscreen(file);
-      });
-    });
-
-    const myCard = container.querySelector(`details[data-member="${myCurrentPseudo}"]`);
-    if (myCard) {
-      attachMyCardListeners(myCard, moduleId, coursId, myCurrentPseudo, updatedData => {
-        currentMembersCache[myCurrentPseudo] = updatedData;
-      });
-      const newTextarea = myCard.querySelector('.member-text-input');
-      if (newTextarea && myDraft.text !== null) newTextarea.value = myDraft.text;
+      ta.focus();
     }
   }
 
-  function attachMyCardListeners(card, moduleId, coursId, pseudo, onLocalUpdate) {
-    let pendingFiles = myDraft.files !== null
-      ? [...myDraft.files]
-      : [...(currentMembersCache[pseudo]?.files || [])];
+  const btns = KNOWN_MEMBERS.map(p =>
+    `<button class="np-btn${p === cur ? ' active' : ''}" data-p="${p}">${p}</button>`
+  ).join('') + `<button class="np-btn np-btn-resume${cur === 'Résumé' ? ' active' : ''}" data-p="Résumé">📋 Résumé</button>`;
 
-    const uploadZone  = card.querySelector('.member-upload-zone');
-    const fileInput   = card.querySelector('.member-file-input');
-    const triggerBtn  = card.querySelector('.member-upload-trigger');
-    const filesListEl = card.querySelector('.member-files-list');
-    const saveBtn     = card.querySelector('.member-save-btn');
-    const textArea    = card.querySelector('.member-text-input');
-
-    triggerBtn?.addEventListener('click', () => fileInput?.click());
-    uploadZone?.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-    uploadZone?.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-    uploadZone?.addEventListener('drop', e => {
-      e.preventDefault();
-      uploadZone.classList.remove('drag-over');
-      handleNewFiles(e.dataTransfer.files);
-    });
-    fileInput?.addEventListener('change', e => { handleNewFiles(e.target.files); fileInput.value = ''; });
-
-    textArea?.addEventListener('input', () => { myDraft.text = textArea.value; });
-
-    async function handleNewFiles(fileList) {
-      for (const file of fileList) {
-        try {
-          const extracted = await extractFileContent(file);
-
-          // pdf-idb est dans IndexedDB — pas de limite Firestore
-          if (extracted.kind !== 'pdf-idb') {
-            const MAX_SIZE = 900000;
-            if (extracted.raw.length > MAX_SIZE) {
-              alert(`"${file.name}" trop volumineux (${Math.round(file.size/1024)} Ko).\nLimite inline : ~500 Ko pour PDF, ~675 Ko pour HTML/texte.\nUtilise un fichier plus léger.`);
-              continue;
-            }
-          }
-
-          pendingFiles.push({
-            filename: file.name,
-            kind: extracted.kind,
-            content: extracted.raw,
-            uploadedAt: new Date().toISOString(),
-          });
-          renderFilesChips();
-        } catch (err) {
-          alert('Erreur lecture ' + file.name + ': ' + err.message);
-        }
-      }
-    }
-
-    function renderFilesChips() {
-      filesListEl.innerHTML = pendingFiles.map((f, i) => `
-        <div class="member-file-block">
-          <div class="member-file-header">
-            <span class="member-file-name">${escHtml(f.filename)}</span>
-            ${f.kind === 'html' ? '<span class="member-file-badge">HTML</span>' : ''}
-            ${(f.kind === 'pdf'||f.kind==='pdf-idb') ? `<span class="member-file-badge member-file-badge-pdf">${f.kind==='pdf-idb'?'PDF LOCAL':'PDF'}</span>` : ''}
-            <div class="member-file-actions">
-              ${(f.kind === 'html' || f.kind === 'pdf' || f.kind === 'pdf-idb') ? `<button type="button" class="file-open-fullscreen" data-idx="${i}">Plein écran</button>` : ''}
-              <button type="button" class="file-chip-remove" data-idx="${i}">Retirer</button>
-            </div>
-          </div>
-          ${f.kind === 'html'
-            ? `<iframe class="member-file-iframe" sandbox="allow-scripts" srcdoc="${escHtml(f.content)}"></iframe>`
-            : (f.kind === 'pdf' || f.kind === 'pdf-idb')
-            ? `<div class="pdf-viewer-slot" data-pending-idx="${i}"></div>`
-            : `<div class="member-file-extract">${escHtml(f.content).replace(/\n/g,'<br>')}</div>`
-          }
-        </div>`).join('');
-
-      // Lance les viewers PDF.js (async)
-      filesListEl.querySelectorAll('.pdf-viewer-slot[data-pending-idx]').forEach(slot => {
-        const f = pendingFiles[Number(slot.dataset.pendingIdx)];
-        if (f) renderPdfViewer(slot, f);
-      });
-
-      filesListEl.querySelectorAll('.file-chip-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-          pendingFiles.splice(Number(btn.dataset.idx), 1);
-          renderFilesChips();
-        });
-      });
-
-      filesListEl.querySelectorAll('.file-open-fullscreen').forEach(btn => {
-        btn.addEventListener('click', () => {
-          openFileFullscreen(pendingFiles[Number(btn.dataset.idx)]);
-        });
-      });
-    }
-    renderFilesChips();
-
-    saveBtn?.addEventListener('click', async () => {
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Sauvegarde...';
-      try {
-        const { FirebaseNotes } = await import('./firebase-notes.js');
-        const result = await FirebaseNotes.saveMemberData(moduleId, coursId, pseudo, textArea.value, pendingFiles);
-        onLocalUpdate({ text: textArea.value, files: pendingFiles, updatedAt: new Date().toISOString() });
-        myDraft = { text: null, files: null };
-        saveBtn.textContent = result.success ? 'Sauvegardé !' : 'Erreur';
-        if (result.success) autoGenerateSummary(moduleId, coursId);
-      } catch (err) {
-        saveBtn.textContent = 'Erreur';
-      }
-      setTimeout(() => { saveBtn.disabled = false; saveBtn.textContent = 'Sauvegarder mon partage'; }, 1800);
-    });
-  }
-
-  try {
-    const { FirebaseNotes } = await import('./firebase-notes.js');
-
-    const unsubMembers = FirebaseNotes.listenToAllMembers(moduleId, coursId, (members) => {
-      currentMembersCache = members;
-      renderMemberCards(moduleId, coursId, members);
-    });
-
-    const unsubSummary = FirebaseNotes.listenToSummary(moduleId, coursId, (data) => {
-      const contentEl = document.getElementById('summary-content');
-      const metaEl    = document.getElementById('summary-meta');
-      if (data.summary) {
-        if (contentEl) contentEl.innerHTML = escHtml(data.summary).replace(/\n/g, '<br>');
-        if (metaEl) metaEl.textContent = data.updatedAt
-          ? 'Généré le ' + data.updatedAt.toLocaleString('fr-FR') : 'Généré';
-      }
-    });
-
-    const existingMembers = await FirebaseNotes.getAllMembers(moduleId, coursId);
-    const hasContent = Object.values(existingMembers).some(d =>
-      (d.text || '').trim() || (d.files || []).length
-    );
-    if (hasContent) autoGenerateSummary(moduleId, coursId);
-
-    window._noteUnsub = () => { unsubMembers(); unsubSummary(); };
-
-  } catch (err) {
-    console.warn('Firebase non disponible:', err);
-    const container = document.getElementById('members-cards');
-    if (container) container.innerHTML = '<p class="notes-empty">Mode hors-ligne — partage indisponible.</p>';
-  }
+  el.innerHTML = `<div class="notes-wrap"><div class="notes-people">${btns}</div><div class="notes-area"></div></div>`;
+  el.querySelectorAll('.np-btn').forEach(b => b.addEventListener('click', () => showPerson(b.dataset.p)));
+  showPerson(cur);
 }
 
 // ===== NOTES — RESUME AUTOMATIQUE =====

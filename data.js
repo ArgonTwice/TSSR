@@ -620,6 +620,12 @@ const MODULES = [
       { id: 'res_f7', recto: 'Qu\'est-ce qu\'un VLAN ?', verso: 'LAN virtuel : segmentation logique d\'un réseau sur un switch, isolement du broadcast' },
       { id: 'res_f8', recto: 'Rôle du protocole ARP', verso: 'Résout une adresse IP en adresse MAC sur le réseau local' },
       { id: 'res_f9', recto: 'Adresse de loopback IPv4', verso: '127.0.0.1 (trafic local, jamais envoyé sur le réseau)' },
+      { id: 'osi_f15', recto: 'PDU (Protocol Data Unit) par couche', verso: 'C1: Bits · C2: Trame (Frame) · C3: Paquet (Packet) · C4: Segment (TCP) / Datagramme (UDP) · C5-7: Données (Data)' },
+      { id: 'osi_f16', recto: 'Protocoles de la couche Transport', verso: 'TCP (connexion, fiable, stream) · UDP (sans connexion, rapide, datagramme) · SCTP (téléphonie, multi-stream)' },
+      { id: 'osi_f17', recto: 'Protocoles de la couche Application', verso: 'HTTP, FTP, SMTP, DNS, DHCP, SSH, SNMP, Telnet, LDAP, POP3, IMAP, RDP' },
+      { id: 'osi_f18', recto: 'Switch vs Hub', verso: 'Hub (C1) : répète tout le trafic sur tous les ports. Switch (C2) : commutation sélective par MAC table. Switch L3 (C3) : routage inter-VLAN.' },
+      { id: 'osi_f19', recto: 'Modèle TCP/IP vs OSI', verso: 'TCP/IP a 4 couches : Accès Réseau (C1+C2) → Internet (C3) → Transport (C4) → Application (C5-7). OSI a 7 couches, plus détaillé.' },
+      { id: 'osi_f20', recto: 'MTU et fragmentation', verso: 'MTU (Maximum Transmission Unit) = taille max d\'un paquet sur un support. Ethernet = 1500 B. Si > MTU, fragmentation (C3) ou refus (C4 TCP).' },
     ],
     qcm: [
       { id: 'res_q1', difficulty: 'facile', question: 'Quelle couche OSI gère l\'adressage MAC ?', options: [{ text: 'Couche 1 – Physique', correct: false }, { text: 'Couche 2 – Liaison', correct: true }, { text: 'Couche 3 – Réseau', correct: false }, { text: 'Couche 4 – Transport', correct: false }], explication: 'La couche 2 (Liaison de données) utilise les adresses MAC pour identifier les machines sur un LAN.' },

@@ -3779,6 +3779,7 @@ const MODULES = [
   {
     id: 'telephonie-voip',
     label: 'Telephonie & VoIP',
+    color: '#f59e0b',
     icon: '📞',
     cours: [{ id: 'voip-intro', titre: 'Téléphonie & VoIP', sections: [
           { type: 'h2', content: '1. De la Telephonie Analogique a la VoIP' },
@@ -3890,6 +3891,7 @@ const MODULES = [
   {
     id: 'support-avance',
     label: 'Support Avance & ITSM',
+    color: '#6b7280',
     icon: '🎧',
     cours: [{ id: 'support-avance-intro', titre: 'Support Avancé & ITSM', sections: [
           { type: 'h2', content: '1. ITIL et la gestion de services' },
@@ -3977,6 +3979,7 @@ const MODULES = [
   {
     id: 'iot',
     label: 'IoT & Objets Connectes',
+    color: '#0ea5e9',
     icon: '🔌',
     cours: [{ id: 'iot-intro', titre: 'IoT & Objets Connectés', sections: [
           { type: 'h2', content: '1. Internet des Objets (IoT) - Introduction' },

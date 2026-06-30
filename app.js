@@ -19,6 +19,7 @@ let state = {
   currentTerminal: null,  // 'linux' | 'windows' | 'cmd' | 'gameshell' | 'netrunner'
   openAccordion: null,
   qcm: { questions: [], idx: 0, answers: [], locked: false, done: false },
+  qcmDifficulty: 'all',
   fc: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
   rev: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
   examen: { questions: [], idx: 0, answers: [], locked: false, startTime: 0 },
@@ -89,10 +90,10 @@ function initSidebarSearch() {
 
 // ===== RENDER NAV =====
 const MODULE_GROUPS = [
-  { label: 'Fondamentaux',  ids: ['numerisation', 'reseaux', 'securite'] },
-  { label: 'Linux',          ids: ['linux', 'linux-server'] },
-  { label: 'Windows',        ids: ['windows', 'windows-server'] },
-  { label: 'Infrastructure', ids: ['virtualisation', 'cisco', 'supervision'] },
+  { label: 'Fondamentaux',    ids: ['numerisation', 'reseaux', 'securite'] },
+  { label: 'Linux',            ids: ['linux', 'linux-server'] },
+  { label: 'Windows',          ids: ['windows', 'windows-server'] },
+  { label: 'Infrastructure',   ids: ['virtualisation', 'cisco', 'supervision', 'stockage', 'cloud', 'telephonie-voip', 'iot'] },
 ];
 
 function renderNav() {
@@ -103,10 +104,10 @@ function renderNav() {
     { label: 'Réseaux',             modules: ['reseaux', 'cisco'] },
     { label: 'Systèmes Windows',    modules: ['windows', 'windows-server', 'ad-avance', 'messagerie'] },
     { label: 'Systèmes Linux',      modules: ['linux', 'linux-server'] },
-    { label: 'Infrastructure',      modules: ['stockage', 'virtualisation', 'supervision', 'cloud'] },
-    { label: 'Développement & BDD', modules: ['scripting-avance'] },
-    { label: 'Fondamentaux',        modules: ['numerisation', 'securite'] },
-    { label: 'Projet',              modules: ['documentation'] },
+    { label: 'Développement & BDD', modules: ['scripting-avance', 'git'] },
+    { label: 'Fondamentaux',        modules: ['numerisation', 'securite', 'anglais-technique'] },
+    { label: 'Infrastructure',      modules: ['stockage', 'virtualisation', 'supervision', 'cloud', 'telephonie-voip', 'iot'] },
+    { label: 'Support & Projet',    modules: ['support', 'support-avance', 'documentation'] },
   ];
 
   const sq = sidebarSearchQuery;
@@ -1921,8 +1922,15 @@ function renderQCM(m, el) {
     el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{2753}</span><h3>QCM à venir</h3><p>Les questions seront ajoutées prochainement.</p></div>`;
     return;
   }
+  const diff = state.qcmDifficulty || 'all';
+  let pool = m.qcm;
+  if (diff !== 'all') pool = pool.filter(q => q.difficulty === diff);
+  if (!pool.length) {
+    el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{2699}\u{FE0F}</span><h3>Aucune question ${diff}</h3><p>Ce module n'a pas de questions de difficulté "${diff}". Essaie un autre mode.</p><button class="btn-primary" style="margin-top:16px" onclick="state.qcmDifficulty='all';renderQCM(state.currentModule,document.getElementById('tab-content'))">Toutes les questions</button></div>`;
+    return;
+  }
   state.qcm = {
-    questions: shuffle(m.qcm).map(q => ({ ...q, options: shuffle(q.options) })),
+    questions: shuffle(pool).map(q => ({ ...q, options: shuffle(q.options) })),
     idx: 0, answers: [], locked: false, done: false, startTime: Date.now(),
   };
   renderQCMQuestion(el, m);
@@ -1932,14 +1940,23 @@ function renderQCMQuestion(el, m) {
   if (idx >= questions.length) { renderQCMResults(el, m); return; }
   const q = questions[idx];
   const total = questions.length;
+  const diffBadges = { facile:'Facile', normal:'Normal', difficile:'Difficile', troubleshooter:'Troubleshooter' };
+  const diffLabel = diffBadges[q.difficulty] || 'Normal';
   el.innerHTML = `
     <div class="qcm-container">
+      <div class="qcm-diff-bar">
+        <div class="qcm-diff-select">
+          ${['all','facile','normal','difficile','troubleshooter'].map(d=>`
+            <button class="qcm-diff-btn${(state.qcmDifficulty||'all')===d?' active':''}" onclick="state.qcmDifficulty='${d}';renderQCM(state.currentModule,document.getElementById('tab-content'))">${d==='all'?'Tout':diffBadges[d]||d}</button>
+          `).join('')}
+        </div>
+      </div>
       <div class="qcm-progress">
         <div class="progress-bar-wrap" style="flex:1"><div class="progress-bar-fill" style="width:${Math.round((idx/total)*100)}%"></div></div>
         <span class="qcm-counter">${idx+1} / ${total}</span>
       </div>
       <div class="qcm-question-block">
-        <div class="qcm-question-num">Question ${idx+1}</div>
+        <div class="qcm-question-num">Question ${idx+1} <span class="qcm-diff-badge diff-${q.difficulty||'normal'}">${diffLabel}</span></div>
         <div class="qcm-question-text">${q.question}</div>
         <div class="qcm-options" role="radiogroup" id="qcm-opts">
           ${q.options.map((opt,i)=>`
@@ -1995,6 +2012,7 @@ function renderQCMResults(el, m) {
   setProgress(m.id, { pct: Math.max(getProgress(m.id).pct||0, pct>=70?100:66), qcm_best: Math.max(getProgress(m.id).qcm_best||0, pct) });
   const emoji = pct>=80?'[+]':pct>=60?'[~]':'[-]';
   const msg = pct>=80?'Excellent !':pct>=60?'Pas mal, continue !':'À retravailler...';
+  const diffLabel = state.qcmDifficulty==='all'?'Toutes difficultés':{facile:'Facile',normal:'Normal',difficile:'Difficile',troubleshooter:'Troubleshooter'}[state.qcmDifficulty]||'Toutes';
   const errorsHtml = answers.filter(a=>!a.correct).map(a=>`
     <div class="qcm-error-item">
       <div class="qcm-error-q">${a.q.question}</div>
@@ -2010,7 +2028,7 @@ function renderQCMResults(el, m) {
           <span class="qcm-score-denom">/ ${total}</span>
         </div>
         <h3>${emoji} ${msg}</h3>
-        <p>${pct}% · ${mm}:${ss}</p>
+        <p>${pct}% · ${mm}:${ss} · Mode : ${diffLabel}</p>
         <div style="display:flex;gap:12px;justify-content:center">
           <button class="btn-primary" onclick="renderQCM(state.currentModule,document.getElementById('tab-content'))">Recommencer</button>
         </div>

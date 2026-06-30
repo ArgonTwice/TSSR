@@ -1,3 +1,69 @@
+## 📋 Récap — 2026-06-30 (session 20)
+
+### Fait :
+- **Data learning web massif** : 8 recherches deep sur reseaux, Windows, Linux, securite, stockage, cloud, scripting, messagerie, virtualisation, GLPI, supervision, VoIP
+- `data.js` : 9 patches inseres (reseaux, windows, linux, securite, stockage, cloud, scripting, messagerie, virtualisation) — sections 6-8 enrichies
+- `data.js` : **3 nouveaux modules** : telephonie-voip, support-avance, iot (cours + 20 FC + 20 QCM chacun)
+- `data.js` : 3324 → 3788 lignes, 22 → **94 modules** (+72 modules fondamentaux existants reorganises)
+- `app.js` : MODULE_GROUPS + GROUPES mis a jour avec les nouveaux modules
+- Fichiers patches generes dans `C:\Users\Agnol\AppData\Local\Temp\opencode\`
+
+### À reprendre :
+- [ ] NetRunner missions Linux supplémentaires
+- [ ] Leaderboard localStorage
+- [ ] Re-uploader fichiers HTML uploadés AVANT session 17
+- [ ] Verifier que tous les modules 94 sont bien visibles dans l app
+- [ ] Module supervision & support deja existants avec +40 sections — verifier coherence
+
+### Contexte express :
+> Session data learning #3 : 9 patches enrichment + 3 nouveaux modules (VoIP, Support Avance, IoT). 94 modules couverts.
+
+---
+
+## 📋 Récap — 2026-06-30 (session 18)
+- [ ] Vérifier règles Firestore (`allow read, write: if true` sur collection `notes`)
+- [ ] Tester sync temps réel Notes entre 2 ordis
+- [ ] Flashcards OSI (7 couches + rôles)
+- [ ] NetRunner missions Linux supplémentaires (bash, find, chmod)
+- [ ] Leaderboard localStorage NetRunner
+- [ ] Refonte `ad-avance` (ADFS SSO trusts réplication schéma)
+
+### Contexte express :
+> Session data learning : ajout de 2 modules manquants au référentiel TSSR (Support & Helpdesk avec GLPI/ticketing/ITIL/diagnostic, Anglais Technique avec vocabulaire réseau/certifications). 18 modules maintenant. 227 lignes ajoutées dans data.js.
+
+---
+
+## 📋 Récap — 2026-06-24 (session 17)
+
+### Fait :
+- `data.js` : module **Windows Server** — ajout cours `deploiement-windows` (Sysprep + options /generalize /oobe /shutdown, DISM capture/apply/mount, unattend.xml, WDS PXE, MDT Task Sequences + CustomSettings.ini, 7 bonnes pratiques) — commit `d8ada1f`
+- `app.js` : `extractFileContent()` refaite — retourne `{ kind, raw }` au lieu d'une string brute ; branche HTML appelle `sanitizeHtmlContent()` ; DOCX préservé
+- `app.js` : `sanitizeHtmlContent()` ajoutée — v1 (body seul) → v2 (documentElement.outerHTML avec styles head) → v3 finale (supprime seulement iframe/object/embed/meta[refresh], conserve `<script>`) — commit `d5006a1`
+- `app.js` : `handleNewFiles()` — plus de troncature agressive ; alerte claire si > 900 Ko ; contenu complet envoyé
+- `app.js` : `renderFilesChips()` — iframe `sandbox="allow-scripts"` + badge HTML + bouton "Plein ecran" + `.member-file-actions`
+- `app.js` : `renderMemberCards()` — même rendu iframe en lecture, bouton plein écran avec `data-member`/`data-fidx`, listeners attachés après `container.innerHTML`
+- `app.js` : `openFileFullscreen()` — modal overlay, iframe `sandbox="allow-scripts"`, Fermer + Echap + clic extérieur
+- `firebase-notes.js` : `saveMemberData()` — vérif `totalSize > 950 Ko` avant `setDoc`, retourne erreur explicite au lieu d'échec silencieux
+- `style.css` : `.member-file-badge`, `.member-file-html-render`, `.member-file-iframe` (480px), `.member-file-actions`, `.file-open-fullscreen`, `.file-fullscreen-overlay/modal/header/title/close/iframe` — commits `c2f54db`, `cca997d`, `d5006a1`
+
+### État :
+PWA déployée. Onglet Notes : fichiers HTML uploadés rendus via iframe sandboxée (JS interne actif — onglets/accordéons fonctionnels), plein écran disponible. Troncature supprimée (900 Ko max avec alerte). Firestore protégé contre dépassement 1 Mo. Module Windows Server passe à 5 cours.
+
+### À reprendre :
+- [ ] Re-uploader les fichiers HTML uploadés AVANT session 17 (stockés avec l'ancien format, pas de rendu iframe)
+- [ ] Déployer Railway (`railway login` → `init` → `variables set ANTHROPIC_API_KEY=...` → `up`) + update URL fetch dans `app.js`
+- [ ] Vérifier règles Firestore (`allow read, write: if true` sur collection `notes`)
+- [ ] Tester sync temps réel Notes entre 2 ordis
+- [ ] Flashcards OSI (7 couches + rôles)
+- [ ] NetRunner missions Linux supplémentaires (bash, find, chmod)
+- [ ] Leaderboard localStorage NetRunner
+- [ ] Refonte `ad-avance` (ADFS SSO trusts réplication schéma)
+
+### Contexte express :
+> Session Notes/HTML : 3 itérations pour arriver au bon rendu — d'abord div inline (styles head ignorés), puis iframe allow-same-origin (scripts bloqués), enfin iframe allow-scripts sans allow-same-origin (JS interne actif, DOM parent protégé). Plus troncature supprimée + garde-fous Firestore. Nouveau cours Déploiement Windows dans windows-server.
+
+---
+
 ## 📋 Récap — 2026-06-18 (session 16)
 
 ### Fait :

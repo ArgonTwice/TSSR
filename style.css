@@ -994,6 +994,18 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 /* ===== QCM TAB ===== */
 .qcm-container { max-width: 680px; }
 
+/* Difficulty filter bar */
+.qcm-diff-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.qcm-diff-select { display: flex; gap: 6px; flex-wrap: wrap; }
+.qcm-diff-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); background: var(--bg2); color: var(--text3); font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all .2s; }
+.qcm-diff-btn:hover { border-color: var(--border); color: var(--text); background: var(--bg3); }
+.qcm-diff-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+.qcm-diff-badge { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-left: 8px; text-transform: uppercase; letter-spacing: .3px; vertical-align: middle; }
+.diff-facile { background: rgba(0,229,160,0.15); color: var(--accent); border: 1px solid rgba(0,229,160,0.3); }
+.diff-normal { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+.diff-difficile { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.diff-troubleshooter { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+
 .qcm-progress {
   display: flex;
   align-items: center;

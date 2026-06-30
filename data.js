@@ -1,4 +1,4 @@
-﻿// data.js -- Structure des modules TSSR
+// data.js -- Structure des modules TSSR
 
 const MODULES = [
   {

@@ -2015,7 +2015,13 @@ const MODULES = [
         titre: 'Supervision - Concepts Fondamentaux et SNMP v3',
         sections: [
           { type: 'h2', content: '1. Architecture de supervision' },
-          { type: 'table', headers: ['Composant', 'Rôle', 'Protocoles/Outils'],
+          { type: 'table', headers: ['Composant', 'Rôle', 'Protocoles/Outils'], rows: [
+            ['Agent', 'Collecte les métriques sur l\'hôte', 'SNMP, Zabbix agent, WMI'],
+            ['Poller', 'Interroge les agents périodiquement', 'Zabbix Server, Nagios'],
+            ['Base de données', 'Stocke l\'historique des métriques', 'MySQL, PostgreSQL, InfluxDB'],
+            ['Interface web', 'Visualise et alerte', 'Zabbix Frontend, Grafana'],
+            ['Trap receiver', 'Reçoit les alertes push', 'SNMP Trap, syslog'],
+          ]},
           { type: "h2", content: "6. SNMP et OID" },
           { type: "p", content: "SNMP (Simple Network Management Protocol) est le protocole standard de supervision. SNMPv3 (crypte) remplace v1/v2c (clair)." },
           { type: "table", headers: ["Concept","Description","Exemple"], rows: [
@@ -2025,7 +2031,7 @@ const MODULES = [
             ["GET","Requete de lecture","Serveur interroge un OID"],
             ["SET","Requete d ecriture","Modification de configuration"],
           ]},
-          { type: "code", content: "# Commandes SNMP:\nsnmpwalk -v2c -c public 192.168.1.1 system   # Parcourir la MIB system\nsnmpget -v3 -l authPriv -u admin -a SHA -A password -x AES -X password 192.168.1.1 sysName.0\nsnmptrap -v2c -c public localhost "" NET-SNMP-EXAMPLES-MIB::example-trap\n# OID CPU: .1.3.6.1.4.1.2021.11.9.0" },
+          { type: "code", content: "# Commandes SNMP:\nsnmpwalk -v2c -c public 192.168.1.1 system   # Parcourir la MIB system\nsnmpget -v3 -l authPriv -u admin -a SHA -A password -x AES -X password 192.168.1.1 sysName.0\nsnmptrap -v2c -c public localhost '' NET-SNMP-EXAMPLES-MIB::example-trap\n# OID CPU: .1.3.6.1.4.1.2021.11.9.0" },
           { type: "h2", content: "7. Solutions de supervision comparaison" },
           { type: "p", content: "Le marche de la supervision offre plusieurs solutions open source et proprietaires. Choisir selon la taille de l infrastructure." },
           { type: "table", headers: ["Solution","Type","Points forts","Limites"], rows: [
@@ -2044,7 +2050,7 @@ const MODULES = [
             ["Service","Disponibilite (ping/tcp)","3 echecs consecutifs"],
           ]},
           { type: "info", content: "Supervision = surveillance + alerte + reporting. Ne pas confondre supervision (proactive) et support (reactif). La supervision permet d anticiper les pannes." },
- rows: [
+          { type: 'table', headers: ['Composant', 'Rôle', 'Exemples'], rows: [
             ['NMS (Network Management System)', 'Collecte centralise stocke les métriques', 'Zabbix Nagios Prometheus PRTG'],
             ['Agent', 'Installé sur les hôtes -- remonte les métriques', 'Zabbix Agent node_exporter SNMP Agent'],
             ['Collecteur passif', 'Écoute les données envoyées par les équipements', 'Syslog Trap SNMP Netflow'],
@@ -3349,7 +3355,12 @@ const MODULES = [
         sections: [
           { type: 'h2', content: '1. Le metier de Technicien Support' },
           { type: 'p', content: 'Le support technique est la premiere ligne de defense du SI. Competences : ecoute active, methode de diagnostic, outils, documentation.' },
-          { type: 'table', headers: ['Competence', 'Description', 'Exemple'],
+          { type: 'table', headers: ['Competence', 'Description', 'Exemple'], rows: [
+            ['Ecoute active', 'Comprendre le problème avant d\'agir', 'Reformuler l\'incident'],
+            ['Diagnostic méthodique', 'Suivre une procédure de résolution', 'OSI du bas vers le haut'],
+            ['Documentation', 'Tracer chaque intervention', 'Ticket GLPI mis à jour'],
+            ['Communication', 'Informer l\'utilisateur de l\'avancement', 'Email de statut ticket'],
+          ]},
           { type: "h2", content: "6. Les niveaux de support ITIL" },
           { type: "p", content: "Le support IT se structure en niveaux (N1/N2/N3) pour repartir les competences et garantir un traitement efficace des incidents." },
           { type: "table", headers: ["Niveau","Acteur","Competences","Action"], rows: [
@@ -3361,7 +3372,7 @@ const MODULES = [
           { type: "info", content: "Le TSSR opere principalement en N1/N2. L escalade N3 est reservee aux cas critiques necessitant l editeur ou un developpement specifique." },
           { type: "h2", content: "7. GLPI - Gestionnaire de parc et ticketing" },
           { type: "p", content: "GLPI (Gestionnaire Libre de Parc Informatique) est la solution ITSM open source la plus utilisee en France. Elle permet la gestion des tickets, des actifs, des contrats et de la base de connaissances." },
-          { type: "code", content: "# Installation GLPI sur Debian 12:\nsudo apt update && sudo apt install apache2 mariadb-server php php-{mysql,mbstring,curl,gd,xml,intl,zip,bz2,ldap,imap}\nsudo wget https://github.com/glpi-project/glpi/releases/download/11.0.7/glpi-11.0.7.tgz\nsudo tar xzf glpi-11.0.7.tgz -C /var/www/html/\nsudo chown -R www-data:www-data /var/www/html/glpi\nsudo mysql -e "CREATE DATABASE glpi; GRANT ALL ON glpi.* TO glpi@localhost IDENTIFIED BY 'password';"\n# Acces web: http://serveur/glpi (admin/glpi)" },
+          { type: "code", content: "# Installation GLPI sur Debian 12:\nsudo apt update && sudo apt install apache2 mariadb-server php php-{mysql,mbstring,curl,gd,xml,intl,zip,bz2,ldap,imap}\nsudo wget https://github.com/glpi-project/glpi/releases/download/11.0.7/glpi-11.0.7.tgz\nsudo tar xzf glpi-11.0.7.tgz -C /var/www/html/\nsudo chown -R www-data:www-data /var/www/html/glpi\nsudo mysql -e \"CREATE DATABASE glpi; GRANT ALL ON glpi.* TO glpi@localhost IDENTIFIED BY 'password';\"\n# Acces web: http://serveur/glpi (admin/glpi)" },
           { type: "table", headers: ["Fonctionnalite","Description","Usage TSSR"], rows: [
             ["Ticketing","Creation et suivi des incidents","Ticket = coeur du support"],
             ["CMDB","Base de gestion des configurations","Lier tickets aux equipements"],
@@ -3372,7 +3383,7 @@ const MODULES = [
           { type: "h2", content: "8. Gestion des incidents - Modele ITIL" },
           { type: "p", content: "Le cycle de vie d un incident ITIL: Identification -> Enregistrement -> Categorisation -> Priorisation -> Diagnostic -> Resolution -> Cloture." },
           { type: "code", content: "# Priorisation ITIL:\n# Urgence (faible/moyenne/haute) x Impact (individu/service/entreprise)\n# \n# Exemple: panne switch coeur = Urgence Haute x Impact Entreprise = Critique\n# Mot de passe oublie = Urgence Faible x Impact Individu = Faible\n# \n# SLA typiques:\n# Critique: reponse < 30min, resolution < 4h\n# Haute: reponse < 2h, resolution < 8h\n# Normale: reponse < 4h, resolution < 48h\n# Faible: reponse < 8h, resolution < 5j" },
- rows: [
+          { type: 'table', headers: ['Compétence', 'Approche', 'Exemple'], rows: [
             ['Ecoute active', 'Comprendre sans prejuger', 'User: pas de reseau -> DNS, DHCP, cable, serveur'],
             ['Methode OSI descendant', 'Isoler couche par couche', 'L1 cable -> L2 switch -> L3 ping -> L4 port -> L7 app'],
             ['Outils diagnostic', 'ping, tracert, nslookup', 'Test-NetConnection, Wireshark, netstat'],
@@ -3764,7 +3775,7 @@ const MODULES = [
       { id: 'git_q21', difficulty: 'difficile', question: 'Commande annulant commits locaux en gardant modifs staging ?', options: [{ text: 'git reset --hard', correct: false }, { text: 'git reset --soft HEAD~1', correct: true }, { text: 'git revert HEAD', correct: false }, { text: 'git checkout .', correct: false }], explication: 'reset --soft: HEAD recule, modifs staging.' },
       { id: 'git_q22', difficulty: 'troubleshooter', question: 'git push rejete: non-fast-forward. Que faire ?', options: [{ text: '--force', correct: false }, { text: 'git pull/rebase d abord', correct: true }, { text: 'Supprimer depot distant', correct: false }, { text: 'Changer branche', correct: false }], explication: '--force peut ecraser. Pull/rebase propre.' }
     ],
-  }
+  },
 
   {
     id: 'telephonie-voip',
@@ -3773,34 +3784,7 @@ const MODULES = [
     sections: [
           { type: 'h2', content: '1. De la Telephonie Analogique a la VoIP' },
           { type: 'p', content: 'La VoIP (Voice over IP) remplace progressivement le RTC (Reseau Telephonique Commute). Les appels sont numerises et transportes en paquets IP.' },
-          { type: 'table', headers: ['Critere','RTC','VoIP'],
-          { type: "h2", content: "6. SIP Trunking" },
-          { type: "p", content: "Le trunk SIP remplace les lignes RTC/Numeris. Une seule liaison IP pour tous les canaux vocaux. Protocole SIP (port 5060) pour l etablissement des sessions." },
-          { type: "table", headers: ["Technologie","Ancien (RTC)","Nouveau (SIP)"], rows: [
-            ["Support","Cuivre (ligne physique)","IP (reseau existant)"],
-            ["Canaux","Fixes (2, 10, 30)","Elastiques (illimite theorique)"],
-            ["Cout","Eleve (ligne + consommation)","Faible (forfait illimite)"],
-            ["Evolution","Changement materiel","Ajout canaux logiciel"],
-            ["Fonctionnalites","Voix seule","Voix + video + messagerie + CTI"],
-          ]},
-          { type: "h2", content: "7. Securite VoIP" },
-          { type: "p", content: "La VoIP est vulnerable: ecoute, spoofing, deni de service. Appliquer ces mesures:" },
-          { type: "table", headers: ["Protection","Action","Protocole"], rows: [
-            ["Chiffrement voix","Cryptage flux RTP","SRTP (AES)"],
-            ["Chiffrement signalisation","Authentification SIP","TLS sur port 5061"],
-            ["VLAN voix","Isolement reseau","802.1Q VLAN dedie"],
-            ["SBC","Session Border Controller","Filtrage, NAT traversal"],
-            ["QoS","Priorisation paquets voix","DSCP EF (46) pour RTP"],
-          ]},
-          { type: "code", content: "# Configuration QoS Cisco pour VoIP:\nclass-map match-any VOIP\n match ip dscp ef\n match ip dscp af41\n!\npolicy-map QOS-VOIP\n class VOIP\n  priority percent 30\n!\ninterface GigabitEthernet0/1\n service-policy output QOS-VOIP\n\n# Ports VoIP:\n# SIP: 5060 (UDP/TCP), 5061 (TLS)\n# RTP: 16384-32767 (UDP)\n# Skinny (Cisco): 2000 (TCP)" },
-          { type: "h2", content: "8. Sinologie - Codecs audio" },
-          { type: "table", headers: ["Codec","Debit","Qualite","Usage"], rows: [
-            ["G.711 (PCM)","64 kbps","Tres bonne","Reseau local (LAN)"],
-            ["G.729","8 kbps","Bonne","Lien WAN bas debit"],
-            ["G.722","48-64 kbps","Haute definition","HD Voice"],
-            ["Opus","6-510 kbps","Variable","VoIP moderne, Teams"],
-          ]},
- rows: [
+          { type: 'table', headers: ['Critere','RTC','VoIP'], rows: [
             ['Support','Cuivre','IP'],
             ['Commutation','Circuit','Paquets'],
             ['Cout','Eleve','Faible'],
@@ -3826,6 +3810,32 @@ const MODULES = [
             ['Spoofing','TLS + certificats'],
             ['Deni de service','SBC, rate limiting'],
             ['Vishing','Sensibilisation'],
+          ]},
+          { type: "h2", content: "6. SIP Trunking" },
+          { type: "p", content: "Le trunk SIP remplace les lignes RTC/Numeris. Une seule liaison IP pour tous les canaux vocaux. Protocole SIP (port 5060) pour l etablissement des sessions." },
+          { type: "table", headers: ["Technologie","Ancien (RTC)","Nouveau (SIP)"], rows: [
+            ["Support","Cuivre (ligne physique)","IP (reseau existant)"],
+            ["Canaux","Fixes (2, 10, 30)","Elastiques (illimite theorique)"],
+            ["Cout","Eleve (ligne + consommation)","Faible (forfait illimite)"],
+            ["Evolution","Changement materiel","Ajout canaux logiciel"],
+            ["Fonctionnalites","Voix seule","Voix + video + messagerie + CTI"],
+          ]},
+          { type: "h2", content: "7. Securite VoIP avancee" },
+          { type: "p", content: "La VoIP est vulnerable: ecoute, spoofing, deni de service. Appliquer ces mesures:" },
+          { type: "table", headers: ["Protection","Action","Protocole"], rows: [
+            ["Chiffrement voix","Cryptage flux RTP","SRTP (AES)"],
+            ["Chiffrement signalisation","Authentification SIP","TLS sur port 5061"],
+            ["VLAN voix","Isolement reseau","802.1Q VLAN dedie"],
+            ["SBC","Session Border Controller","Filtrage, NAT traversal"],
+            ["QoS","Priorisation paquets voix","DSCP EF (46) pour RTP"],
+          ]},
+          { type: "code", content: "# Configuration QoS Cisco pour VoIP:\nclass-map match-any VOIP\n match ip dscp ef\n match ip dscp af41\n!\npolicy-map QOS-VOIP\n class VOIP\n  priority percent 30\n!\ninterface GigabitEthernet0/1\n service-policy output QOS-VOIP\n\n# Ports VoIP:\n# SIP: 5060 (UDP/TCP), 5061 (TLS)\n# RTP: 16384-32767 (UDP)\n# Skinny (Cisco): 2000 (TCP)" },
+          { type: "h2", content: "8. Codecs audio" },
+          { type: "table", headers: ["Codec","Debit","Qualite","Usage"], rows: [
+            ["G.711 (PCM)","64 kbps","Tres bonne","Reseau local (LAN)"],
+            ["G.729","8 kbps","Bonne","Lien WAN bas debit"],
+            ["G.722","48-64 kbps","Haute definition","HD Voice"],
+            ["Opus","6-510 kbps","Variable","VoIP moderne, Teams"],
           ]},
     ],
     flashcards: [

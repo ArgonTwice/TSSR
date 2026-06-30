@@ -2108,6 +2108,7 @@ function renderCLI(type, m, el) {
                  <code>sh run</code><code>sh ip int br</code><code>sh ip route</code><code>sh vlan br</code><code>sh ip ospf nei</code>
                  &nbsp;·&nbsp;<span>Config :</span>
                  <code>hostname</code><code>interface</code><code>ip address</code><code>no shutdown</code><code>ip route</code><code>vlan</code>
+                 &nbsp;·&nbsp;<code style="color:#e84040">tp</code> TPs guidés &nbsp;·&nbsp;<code style="color:#e84040">device switch</code> Switch L2
                  &nbsp;·&nbsp;<code>?</code> aide`
               : isCmd
               ? `<span>Cmds :</span>
@@ -2156,7 +2157,11 @@ function renderCLI(type, m, el) {
     ? `<span style="color:#e84040;font-weight:700">Cisco IOS Simulator — ${cliState.hostname}</span>
 Router R1 — IOS Version 15.4(3)M2
 Processeur : Cisco 3925 Series · RAM : 512 MB
-Tapez <span style="color:#e84040">?</span> pour l'aide · <span style="color:#e84040">enable</span> pour le mode privilégié
+
+<span style="color:#e84040">tp</span>             → TPs guidés (config-base / ospf / vlan / acl)
+<span style="color:#e84040">device switch</span>  → Passe en switch Catalyst 2960 (L2)
+<span style="color:#e84040">?</span>              → Aide commandes
+<span style="color:#e84040">enable</span>         → Mode privilégié (mdp: cisco)
 
 <span style="color:#888">Routeur configuré : 4 interfaces · OSPF actif · route statique par défaut</span>`
     : isCmd
@@ -2760,6 +2765,75 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
       ],
     },
   ],
+  cisco: [
+    {
+      id: 'config-base',
+      title: 'Configuration de base IOS',
+      desc: 'Sécurise un routeur vierge : hostname, enable secret, banner, sauvegarde.',
+      steps: [
+        { instr: 'Entre en mode privilégié.',                                      hint: 'enable',                           check: c => /^en(able)?$/i.test(c.trim()) },
+        { instr: 'Entre en mode de configuration globale.',                        hint: 'configure terminal',               check: c => /^(conf(igure)?\s+t(erminal)?|conf\s*t)$/i.test(c.trim()) },
+        { instr: 'Change le hostname en "R-TSSR".',                                hint: 'hostname R-TSSR',                  check: c => /^hostname\s+\S+/i.test(c.trim()) },
+        { instr: 'Configure un enable secret "Admin123".',                         hint: 'enable secret Admin123',           check: c => /^enable\s+secret\s+\S+/i.test(c.trim()) },
+        { instr: 'Active le chiffrement des mots de passe.',                       hint: 'service password-encryption',      check: c => /^service\s+password-encryption/i.test(c.trim()) },
+        { instr: 'Configure une bannière MOTD (délimiteur #).',                    hint: 'banner motd # Acces autorise uniquement #', check: c => /^banner\s+motd\b/i.test(c.trim()) },
+        { instr: 'Quitte le mode de configuration (retour au mode privilégié).',   hint: 'end',                              check: c => /^end$/i.test(c.trim()) },
+        { instr: 'Sauvegarde la configuration en NVRAM.',                          hint: 'write memory',                     check: c => /^(write(\s+memory)?|wr|copy\s+run\S*\s+start\S*)$/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'ospf',
+      title: 'Configuration OSPF',
+      desc: 'Active OSPF sur R1 : processus 1, router-id 1.1.1.1, annonce les réseaux LAN et WAN.',
+      steps: [
+        { instr: 'Entre en mode privilégié.',                                      hint: 'enable',                           check: c => /^en(able)?$/i.test(c.trim()) },
+        { instr: 'Entre en mode de configuration globale.',                        hint: 'configure terminal',               check: c => /^(conf(igure)?\s+t(erminal)?|conf\s*t)$/i.test(c.trim()) },
+        { instr: 'Lance le processus OSPF 1.',                                     hint: 'router ospf 1',                    check: c => /^router\s+ospf\s+\d+/i.test(c.trim()) },
+        { instr: 'Définis le router-id 1.1.1.1.',                                  hint: 'router-id 1.1.1.1',                check: c => /^router-id\s+[\d.]+/i.test(c.trim()) },
+        { instr: 'Annonce le réseau LAN 192.168.1.0/24 en area 0.',                hint: 'network 192.168.1.0 0.0.0.255 area 0', check: c => /^network\s+192\.168\.1\.\d\s+\S+\s+area\s+0/i.test(c.trim()) },
+        { instr: 'Annonce le réseau WAN 10.0.0.0/30 en area 0.',                   hint: 'network 10.0.0.0 0.0.0.3 area 0', check: c => /^network\s+10\.\d+\.\d+\.\d\s+\S+\s+area\s+0/i.test(c.trim()) },
+        { instr: 'Annonce le Loopback0 (1.1.1.1/32) en area 0.',                   hint: 'network 1.1.1.1 0.0.0.0 area 0',  check: c => /^network\s+1\.1\.1\.1\s+\S+\s+area\s+0/i.test(c.trim()) },
+        { instr: 'Quitte le mode router OSPF.',                                    hint: 'exit',                             check: c => /^exit$/i.test(c.trim()) },
+        { instr: 'Vérifie les voisins OSPF.',                                      hint: 'show ip ospf neighbor',            check: c => /^sh(ow)?\s+ip\s+ospf\s+(nei|neighbor)/i.test(c.trim()) },
+        { instr: 'Sauvegarde la configuration.',                                   hint: 'write memory',                     check: c => /^(wr(ite)?(\s+memory)?|copy\s+run\S*\s+start\S*)$/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'vlan',
+      title: 'Configuration VLAN',
+      desc: 'Crée VLAN 10 (Informatique) et VLAN 20 (Direction), configure un port en access et un port en trunk.',
+      steps: [
+        { instr: 'Entre en mode privilégié.',                                      hint: 'enable',                           check: c => /^en(able)?$/i.test(c.trim()) },
+        { instr: 'Entre en mode de configuration globale.',                        hint: 'configure terminal',               check: c => /^(conf(igure)?\s+t(erminal)?|conf\s*t)$/i.test(c.trim()) },
+        { instr: 'Crée le VLAN 10.',                                               hint: 'vlan 10',                          check: c => /^vlan\s+10$/i.test(c.trim()) },
+        { instr: 'Nomme-le "Informatique".',                                       hint: 'name Informatique',                check: c => /^name\s+\S+/i.test(c.trim()) },
+        { instr: 'Crée le VLAN 20.',                                               hint: 'vlan 20',                          check: c => /^vlan\s+20$/i.test(c.trim()) },
+        { instr: 'Nomme-le "Direction".',                                          hint: 'name Direction',                   check: c => /^name\s+\S+/i.test(c.trim()) },
+        { instr: 'Quitte et va sur l\'interface GigabitEthernet0/0.',              hint: 'interface GigabitEthernet0/0',     check: c => /^(interface|int)\s+(gi|g)?[a-z]*0?[\/.]?0/i.test(c.trim()) },
+        { instr: 'Passe le port en mode access.',                                  hint: 'switchport mode access',           check: c => /^switchport\s+mode\s+access/i.test(c.trim()) },
+        { instr: 'Affecte ce port au VLAN 10.',                                    hint: 'switchport access vlan 10',        check: c => /^switchport\s+access\s+vlan\s+10/i.test(c.trim()) },
+        { instr: 'Va sur l\'interface GigabitEthernet0/1.',                        hint: 'interface GigabitEthernet0/1',     check: c => /^(interface|int)\s+(gi|g)?[a-z]*0?[\/.]?1/i.test(c.trim()) },
+        { instr: 'Passe le port en mode trunk.',                                   hint: 'switchport mode trunk',            check: c => /^switchport\s+mode\s+trunk/i.test(c.trim()) },
+        { instr: 'Quitte et vérifie les VLANs.',                                   hint: 'show vlan brief',                  check: c => /^sh(ow)?\s+vlan\s+(br|brief)/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'acl',
+      title: 'ACL Standard — Filtrage réseau',
+      desc: 'Crée une ACL standard 10 : autorise le LAN 192.168.1.0/24, refuse tout le reste. Applique-la sur Gi0/1 sortant.',
+      steps: [
+        { instr: 'Entre en mode privilégié.',                                      hint: 'enable',                           check: c => /^en(able)?$/i.test(c.trim()) },
+        { instr: 'Entre en mode de configuration globale.',                        hint: 'configure terminal',               check: c => /^(conf(igure)?\s+t(erminal)?|conf\s*t)$/i.test(c.trim()) },
+        { instr: 'Permets le réseau 192.168.1.0/24 dans la liste 10 (wildcard 0.0.0.255).',  hint: 'access-list 10 permit 192.168.1.0 0.0.0.255', check: c => /^access-list\s+10\s+permit\s+192\.168\.1/i.test(c.trim()) },
+        { instr: 'Refuse explicitement tout le reste.',                             hint: 'access-list 10 deny any',          check: c => /^access-list\s+10\s+deny\s+any/i.test(c.trim()) },
+        { instr: 'Va sur l\'interface WAN GigabitEthernet0/1.',                    hint: 'interface GigabitEthernet0/1',     check: c => /^(interface|int)\s+(gi|g)?[a-z]*0?[\/.]?1/i.test(c.trim()) },
+        { instr: 'Applique l\'ACL 10 en sortie (out).',                            hint: 'ip access-group 10 out',           check: c => /^ip\s+access-group\s+10\s+out/i.test(c.trim()) },
+        { instr: 'Retourne au mode privilégié.',                                   hint: 'end',                              check: c => /^end$/i.test(c.trim()) },
+        { instr: 'Vérifie les access-lists configurées.',                          hint: 'show access-lists',                check: c => /^sh(ow)?\s+(ip\s+)?access-list/i.test(c.trim()) },
+        { instr: 'Sauvegarde la configuration.',                                   hint: 'write memory',                     check: c => /^(wr(ite)?(\s+memory)?|copy\s+run\S*\s+start\S*)$/i.test(c.trim()) },
+      ],
+    },
+  ],
 };
 
 function handleTPCommand(args, type) {
@@ -2904,6 +2978,42 @@ function cliExecCisco(raw) {
   const rest = parts.slice(1).join(' ');
 
   const mode = cs.ciscoMode;
+
+  // -------- TP / device --------
+  if (c0 === 'tp') { handleTPCommand(parts.slice(1), 'cisco'); return; }
+
+  if (c0 === 'device') {
+    const dtype = c1 || '';
+    if (dtype === 'switch' || dtype === 'sw') {
+      cs.hostname = 'SW1';
+      cs.ciscoMode = 'user';
+      cs.ciscoCtx = null;
+      cs.deviceType = 'switch';
+      cs.interfaces = {};
+      for (let i = 1; i <= 24; i++) {
+        cs.interfaces[`FastEthernet0/${i}`] = { desc: '', ip: null, mask: null, adminDown: false, mac: `fa16.3e01.${String(i).padStart(4,'0')}`, swMode: 'access', accessVlan: 1 };
+      }
+      cs.interfaces['GigabitEthernet0/1'] = { desc: 'Uplink vers R1', ip: null, mask: null, adminDown: false, mac: 'fa16.3e01.0101', swMode: 'trunk' };
+      cs.interfaces['GigabitEthernet0/2'] = { desc: 'Uplink vers SW2', ip: null, mask: null, adminDown: false, mac: 'fa16.3e01.0102', swMode: 'trunk' };
+      cs.interfaces['Vlan1'] = { desc: 'Management', ip: '192.168.1.100', mask: '255.255.255.0', adminDown: false, mac: null };
+      cs.routes = [{ proto: 'S*', network: '0.0.0.0', mask: '0.0.0.0', nh: '192.168.1.1', iface: 'Vlan1', ad: 1, metric: 0 }];
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
+      out(`<span style="color:#e84040;font-weight:700">Cisco Catalyst 2960 — SW1</span>
+Switch L2 — IOS Version 12.2(55)SE10
+24 ports FastEthernet + 2 uplinks GigabitEthernet
+Tapez <span style="color:#e84040">tp</span> pour les TP guidés · <span style="color:#e84040">device router</span> pour revenir en routeur`);
+    } else if (dtype === 'router' || dtype === 'r') {
+      const saved = makeCLIState('cisco');
+      Object.assign(cs, saved);
+      cs.ciscoMode = 'user';
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
+      out(`<span style="color:#e84040;font-weight:700">Cisco 3925 — R1</span>
+Routeur restauré — IOS Version 15.4(3)M2`);
+    } else {
+      out(`Usage : <span style="color:#e84040">device switch</span>  — passe en mode switch Catalyst 2960\n        <span style="color:#e84040">device router</span>  — revient en mode routeur R1`);
+    }
+    return;
+  }
 
   // -------- Commands available in ALL modes --------
   if (c0 === '?' || c0 === 'help') {

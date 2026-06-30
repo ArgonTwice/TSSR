@@ -3,7 +3,7 @@
 // Force SW cache refresh for data.js fix (BOM parasites)
 if ('caches' in window) {
   caches.keys().then(keys => {
-    keys.filter(k => k !== 'tssr-v18').forEach(k => {
+    keys.filter(k => k !== 'tssr-v19').forEach(k => {
       caches.delete(k);
       console.log('Old cache deleted:', k);
     });
@@ -513,6 +513,7 @@ function renderHome() {
 function openModule(moduleId, skipHistory = false, directCours = null) {
   const m = MODULES.find(x => x && x.id === moduleId);
   if (!m) return;
+  if (readingModeActive) toggleReadingMode();
   state.currentModule = m;
   state.currentCours = directCours;
   if (m.cours.length > 1) {
@@ -902,13 +903,13 @@ function doGlobalSearch(q) {
     if (m.cours) {
       for (const c of m.cours) {
         if (c.titre && c.titre.toLowerCase().includes(ql)) {
-          results.push({ module: m, type: '📖', label: c.titre, sub: m.label, action: () => { openModule(m.id,'cours'); setTimeout(() => openCours(c.id), 100); } });
+          results.push({ module: m, type: '📖', label: c.titre, sub: m.label, action: () => openModule(m.id, false, c.id) });
         }
         if (c.sections) {
           for (const s of c.sections) {
             if (s.content && s.content.toLowerCase().includes(ql)) {
               const snippet = s.content.length > 80 ? s.content.substring(0, 80) + '…' : s.content;
-              results.push({ module: m, type: '📄', label: snippet, sub: c.titre + ' — ' + m.label, action: () => { openModule(m.id,'cours'); setTimeout(() => openCours(c.id), 100); } });
+              results.push({ module: m, type: '📄', label: snippet, sub: c.titre + ' — ' + m.label, action: () => openModule(m.id, false, c.id) });
               break; // 1 result per section max
             }
           }
@@ -919,7 +920,7 @@ function doGlobalSearch(q) {
     if (m.qcm) {
       for (const qcm of m.qcm) {
         if (qcm.question && qcm.question.toLowerCase().includes(ql)) {
-          results.push({ module: m, type: '❓', label: qcm.question.length > 80 ? qcm.question.substring(0,80)+'…' : qcm.question, sub: m.label, action: () => openModule(m.id,'qcm') });
+          results.push({ module: m, type: '❓', label: qcm.question.length > 80 ? qcm.question.substring(0,80)+'…' : qcm.question, sub: m.label, action: () => { openModule(m.id); switchTab('qcm'); } });
           break;
         }
       }
@@ -928,7 +929,7 @@ function doGlobalSearch(q) {
     if (m.fc) {
       for (const fc of m.fc) {
         if ((fc.front && fc.front.toLowerCase().includes(ql)) || (fc.back && fc.back.toLowerCase().includes(ql))) {
-          results.push({ module: m, type: '🃏', label: (fc.front||'…') + ' → ' + (fc.back||'…'), sub: m.label, action: () => openModule(m.id,'flashcards') });
+          results.push({ module: m, type: '🃏', label: (fc.front||'…') + ' → ' + (fc.back||'…'), sub: m.label, action: () => { openModule(m.id); switchTab('flashcards'); } });
           break;
         }
       }
@@ -1085,33 +1086,6 @@ function importProgression() {
   input.click();
 }
 
-function openModule(mId, tab) {
-  const mod = MODULES.find(x => x && x.id === mId);
-  if (!mod) return;
-  state.currentModule = mod;
-  if (readingModeActive) toggleReadingMode();
-  state.currentCours = tab === 'cours' ? (mod.cours?.[0]?.id || null) : null;
-  if (mod.cours.length > 1) { state.openAccordion = mod.id; store.set('sidebar_open', mod.id); }
-  document.getElementById('mobile-module-name').textContent = mod.label;
-  renderNav();
-  document.getElementById('content').scrollTop = 0;
-  const content = document.getElementById('tab-content');
-  if (tab === 'cours') {
-    renderTabContent('cours');
-    history.pushState({ screen:'module', moduleId:mod.id, tab:'cours' }, '', '#module-' + mod.id);
-  } else if (tab === 'qcm') {
-    renderTabContent('qcm');
-    history.pushState({ screen:'module', moduleId:mod.id, tab:'qcm' }, '', '#module-' + mod.id + '/qcm');
-  } else if (tab === 'flashcards') {
-    renderTabContent('flashcards');
-    history.pushState({ screen:'module', moduleId:mod.id, tab:'flashcards' }, '', '#module-' + mod.id + '/flashcards');
-  } else {
-    renderTabContent('cours');
-    history.pushState({ screen:'module', moduleId:mod.id, tab:'cours' }, '', '#module-' + mod.id);
-  }
-  showScreen('module-screen');
-  closeSidebar();
-}
 function renderCoursContent(sections) {
   if (!sections) return '';
   return sections.map(s => {

@@ -511,7 +511,6 @@ function renderHome() {
 
 // ===== OPEN MODULE =====
 function openModule(moduleId, skipHistory = false, directCours = null) {
-  console.trace('openModule called:', moduleId, 'skip:', skipHistory);
   const m = MODULES.find(x => x && x.id === moduleId);
   if (!m) return;
   state.currentModule = m;
@@ -1097,16 +1096,17 @@ function openModule(mId, tab) {
   document.getElementById('content').scrollTop = 0;
   const content = document.getElementById('tab-content');
   if (tab === 'cours') {
-    renderTab(mod, 'cours', content);
+    renderTabContent('cours');
     history.pushState({ screen:'module', moduleId:mod.id, tab:'cours' }, '', '#module-' + mod.id);
   } else if (tab === 'qcm') {
-    renderTab(mod, 'qcm', content);
+    renderTabContent('qcm');
     history.pushState({ screen:'module', moduleId:mod.id, tab:'qcm' }, '', '#module-' + mod.id + '/qcm');
   } else if (tab === 'flashcards') {
-    renderTab(mod, 'flashcards', content);
+    renderTabContent('flashcards');
     history.pushState({ screen:'module', moduleId:mod.id, tab:'flashcards' }, '', '#module-' + mod.id + '/flashcards');
   } else {
-    openModule(mod.id, 'cours');
+    renderTabContent('cours');
+    history.pushState({ screen:'module', moduleId:mod.id, tab:'cours' }, '', '#module-' + mod.id);
   }
 }
 function renderCoursContent(sections) {

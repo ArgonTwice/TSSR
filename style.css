@@ -1390,6 +1390,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .cli-explain strong, .cli-explain-err strong { font-weight: 700; }
 .cli-file { color: #c8d0bc; }
 .cli-output-text { color: #9dbd8a; }
+.cli-error { color: #ef4444; font-weight: 600; }
 
 /* Prompt Linux */
 .cli-ps-user   { color: #00e5a0; font-weight: 600; }

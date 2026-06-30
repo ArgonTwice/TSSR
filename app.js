@@ -2958,427 +2958,395 @@ function renderScenarioPanel() {
 }
 
 // ===== CISCO IOS CLI =====
+// _ios : true si inp est un préfixe valide de kw (style IOS — n'importe quelle abréviation non ambiguë)
+function _ios(inp, kw) {
+  if (!inp || !kw) return false;
+  return kw.toLowerCase().startsWith(inp.toLowerCase());
+}
+
 function cliExecCisco(raw) {
   const cs = cliState;
-  const out  = html => cliPrint(html);
-  const err  = msg  => cliPrint(`<span style="color:#ef4444">% ${msg}</span>`);
-  const info = msg  => cliPrint(`<span style="color:#888">${msg}</span>`);
-  const ok   = msg  => cliPrint(`<span style="color:#22c55e">${msg}</span>`);
+  const out = html => cliPrint(html);
+  const err = msg  => cliPrint(`<span style="color:#ef4444">% ${msg}</span>`);
+  const ok  = msg  => cliPrint(`<span style="color:#22c55e">${msg}</span>`);
 
-  // IOS abbreviation matching helper
-  function iosMatch(input, ...candidates) {
-    const low = input.toLowerCase();
-    const matched = candidates.filter(c => c.startsWith(low));
-    return matched.length === 1 ? matched[0] : (matched.length > 1 ? null : undefined);
-  }
+  const trimmed = raw.trim();
+  if (!trimmed) return;
 
-  const parts = raw.trim().split(/\s+/);
-  const c0 = (parts[0] || '').toLowerCase();
+  const parts = trimmed.split(/\s+/);
+  const c0 = parts[0].toLowerCase();
   const c1 = (parts[1] || '').toLowerCase();
   const rest = parts.slice(1).join(' ');
-
   const mode = cs.ciscoMode;
 
   // -------- TP / device --------
   if (c0 === 'tp') { handleTPCommand(parts.slice(1), 'cisco'); return; }
 
   if (c0 === 'device') {
-    const dtype = c1 || '';
-    if (dtype === 'switch' || dtype === 'sw') {
-      cs.hostname = 'SW1';
-      cs.ciscoMode = 'user';
-      cs.ciscoCtx = null;
-      cs.deviceType = 'switch';
+    if (_ios(c1, 'switch')) {
+      cs.hostname = 'SW1'; cs.ciscoMode = 'user'; cs.ciscoCtx = null; cs.deviceType = 'switch';
       cs.interfaces = {};
-      for (let i = 1; i <= 24; i++) {
+      for (let i = 1; i <= 24; i++)
         cs.interfaces[`FastEthernet0/${i}`] = { desc: '', ip: null, mask: null, adminDown: false, mac: `fa16.3e01.${String(i).padStart(4,'0')}`, swMode: 'access', accessVlan: 1 };
-      }
-      cs.interfaces['GigabitEthernet0/1'] = { desc: 'Uplink vers R1', ip: null, mask: null, adminDown: false, mac: 'fa16.3e01.0101', swMode: 'trunk' };
+      cs.interfaces['GigabitEthernet0/1'] = { desc: 'Uplink vers R1',  ip: null, mask: null, adminDown: false, mac: 'fa16.3e01.0101', swMode: 'trunk' };
       cs.interfaces['GigabitEthernet0/2'] = { desc: 'Uplink vers SW2', ip: null, mask: null, adminDown: false, mac: 'fa16.3e01.0102', swMode: 'trunk' };
       cs.interfaces['Vlan1'] = { desc: 'Management', ip: '192.168.1.100', mask: '255.255.255.0', adminDown: false, mac: null };
       cs.routes = [{ proto: 'S*', network: '0.0.0.0', mask: '0.0.0.0', nh: '192.168.1.1', iface: 'Vlan1', ad: 1, metric: 0 }];
       document.getElementById('cli-prompt').innerHTML = cliPrompt();
-      out(`<span style="color:#e84040;font-weight:700">Cisco Catalyst 2960 — SW1</span>
-Switch L2 — IOS Version 12.2(55)SE10
-24 ports FastEthernet + 2 uplinks GigabitEthernet
-Tapez <span style="color:#e84040">tp</span> pour les TP guidés · <span style="color:#e84040">device router</span> pour revenir en routeur`);
-    } else if (dtype === 'router' || dtype === 'r') {
-      const saved = makeCLIState('cisco');
-      Object.assign(cs, saved);
-      cs.ciscoMode = 'user';
+      out(`<span style="color:#e84040;font-weight:700">Cisco Catalyst 2960 — SW1</span>\nSwitch L2 — IOS 12.2(55)SE10 — 24×Fa + 2×Gi uplinks\n<span style="color:#888">device router</span> pour revenir sur R1`);
+    } else if (_ios(c1, 'router')) {
+      Object.assign(cs, makeCLIState('cisco')); cs.ciscoMode = 'user';
       document.getElementById('cli-prompt').innerHTML = cliPrompt();
-      out(`<span style="color:#e84040;font-weight:700">Cisco 3925 — R1</span>
-Routeur restauré — IOS Version 15.4(3)M2`);
+      out(`<span style="color:#e84040;font-weight:700">Cisco 3925 — R1</span>\nRouteur restauré — IOS 15.4(3)M2`);
     } else {
-      out(`Usage : <span style="color:#e84040">device switch</span>  — passe en mode switch Catalyst 2960\n        <span style="color:#e84040">device router</span>  — revient en mode routeur R1`);
+      out(`device <span style="color:#e84040">switch</span>  — Catalyst 2960 L2\ndevice <span style="color:#e84040">router</span>  — Routeur R1`);
     }
     return;
   }
 
-  // -------- Commands available in ALL modes --------
-  if (c0 === '?' || c0 === 'help') {
-    const cmds = {
-      user: ['enable', 'ping', 'traceroute', 'show version', 'exit', '?'],
-      priv: ['configure terminal', 'show', 'ping', 'traceroute', 'copy', 'write memory', 'reload', 'erase', 'debug', 'undebug', 'clear', 'disable', 'exit', '?'],
-      config: ['hostname', 'interface', 'ip route', 'no ip route', 'router ospf', 'vlan', 'ip default-gateway', 'enable secret', 'service password-encryption', 'banner motd', 'line', 'access-list', 'spanning-tree', 'no', 'end', 'exit', '?'],
-      'config-if': ['ip address', 'no ip address', 'shutdown', 'no shutdown', 'description', 'duplex', 'speed', 'switchport mode', 'switchport access vlan', 'switchport trunk allowed vlan', 'ip ospf', 'encapsulation dot1Q', 'no', 'end', 'exit', '?'],
-      'config-vlan': ['name', 'state', 'no', 'end', 'exit', '?'],
-      'config-router': ['network', 'router-id', 'passive-interface', 'default-information originate', 'no', 'end', 'exit', '?'],
-      'config-line': ['password', 'login', 'no login', 'exec-timeout', 'logging synchronous', 'end', 'exit', '?'],
+  // -------- ? --------
+  if (c0 === '?') {
+    const help = {
+      user:          ['enable','ping','traceroute','show','exit','?'],
+      priv:          ['configure terminal','show','copy','write','reload','erase','debug','undebug','clear','ping','traceroute','disable','exit','?'],
+      config:        ['hostname','interface','ip route','no','router ospf','vlan','enable secret','service password-encryption','banner motd','line','access-list','spanning-tree','ip routing','ip default-gateway','end','exit','?'],
+      'config-if':   ['ip address','no ip address','shutdown','no shutdown','description','duplex','speed','switchport mode','switchport access vlan','switchport trunk','ip ospf','ip access-group','encapsulation','do','end','exit','?'],
+      'config-vlan': ['name','state','no','do','end','exit','?'],
+      'config-router':['network','router-id','passive-interface','default-information originate','no','do','end','exit','?'],
+      'config-line': ['password','login','exec-timeout','logging synchronous','transport input','no','do','end','exit','?'],
     };
-    const list = cmds[mode] || [];
-    out(`Commandes disponibles (mode ${mode}) :\n${list.map(c => `  <span style="color:#e84040">${c}</span>`).join('\n')}`);
+    out((help[mode]||[]).map(c=>`  <span style="color:#e84040">${c}</span>`).join('\n'));
     return;
   }
 
-  if (c0 === 'cls' || c0 === 'clear terminal' || (c0 === 'clear' && c1 === 'terminal')) { cliClear(); return; }
+  // -------- terminal / cls --------
+  if (_ios(c0,'terminal')) { return; }
+  if (c0 === 'cls') { cliClear(); return; }
 
   // -------- PING --------
-  if (c0 === 'ping') {
+  if (_ios(c0,'ping')) {
     const target = parts[1];
     if (!target) { out(`Type escape sequence to abort.\nSending 5, 100-byte ICMP Echos to ?, timeout is 2 seconds:\n.....`); return; }
-    if (/^(\d{1,3}\.){3}\d{1,3}$/.test(target)) {
-      const known = { '192.168.1.254': true, '10.0.0.2': true, '8.8.8.8': true, '1.1.1.1': true };
-      const success = known[target] || Math.random() > 0.3;
-      out(`Type escape sequence to abort.\nSending 5, 100-byte ICMP Echos to ${target}, timeout is 2 seconds:\n${success ? '!!!!!' : '.....'}\nSuccess rate is ${success?100:0} percent (${success?5:0}/5), round-trip min/avg/max = ${success?'1/2/5':'—'} ms`);
-    } else {
-      err(`Translating "${target}"...domain server (255.255.255.255)\n% Unknown host or address`);
+    if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(target)) { err(`Translating "${target}"...domain server (255.255.255.255)\n% Unknown host or address`); return; }
+    const known = { '192.168.1.254':true,'192.168.1.1':true,'10.0.0.2':true,'8.8.8.8':true,'1.1.1.1':true,'127.0.0.1':true };
+    const success = known[target] || Math.random() > 0.25;
+    const rtt = success ? `${Math.floor(Math.random()*3)+1}/${Math.floor(Math.random()*3)+2}/${Math.floor(Math.random()*5)+3}` : '—';
+    out(`Type escape sequence to abort.\nSending 5, 100-byte ICMP Echos to ${target}, timeout is 2 seconds:\n<span style="color:${success?'#22c55e':'#ef4444'}">${success?'!!!!!':'.....'}
+</span>Success rate is ${success?100:0} percent (${success?5:0}/5), round-trip min/avg/max = ${rtt} ms`);
+    // incrémenter compteurs ACL si une ACL est appliquée sur Gi0/1 out
+    if (success) {
+      Object.values(cs.interfaces).forEach(iface => {
+        if (iface.acl && iface.aclDir === 'out' && cs.acls[iface.acl]) {
+          cs.acls[iface.acl].forEach(e => { if (!e.hits) e.hits = 0; e.hits += 5; });
+        }
+      });
     }
     return;
   }
 
   // -------- TRACEROUTE --------
-  if (c0 === 'traceroute' || c0 === 'trace') {
+  if (_ios(c0,'traceroute') || c0 === 'trace') {
     const target = parts[1] || '8.8.8.8';
-    out(`Tracing the route to ${target}\n  1  10.0.0.2    2 msec  1 msec  1 msec\n  2  172.16.0.1  5 msec  4 msec  5 msec\n  3  ${target}  10 msec  9 msec  11 msec`);
+    out(`Tracing the route to ${target}\n  1  10.0.0.2   <span style="color:#22c55e"> 2 msec  1 msec  1 msec</span>\n  2  172.16.0.1 <span style="color:#22c55e"> 5 msec  4 msec  5 msec</span>\n  3  ${target} <span style="color:#22c55e">10 msec  9 msec 11 msec</span>`);
+    return;
+  }
+
+  // -------- do (exec depuis config mode) --------
+  if (c0 === 'do') {
+    const sub = (parts[1] || '').toLowerCase();
+    if (_ios(sub,'show')) { _ciscoShow(cs, parts.slice(2), out, err); }
+    else if (_ios(sub,'ping')) { cliExecCisco(parts.slice(1).join(' ')); }
+    else if (_ios(sub,'write') || sub === 'wr') { cs.savedConfig = true; cs.configChanged = false; ok(`Building configuration...\n[OK]`); }
+    else { err(`do: commande non supportée en mode config`); }
     return;
   }
 
   // -------- USER EXEC MODE --------
   if (mode === 'user') {
-    if (c0 === 'enable' || c0 === 'en') {
+    if (_ios(c0,'enable')) {
       if (cs.enableSecret) {
         const pwd = prompt('Password:');
-        if (pwd !== cs.enableSecret) { err('Access denied'); return; }
+        if (pwd !== cs.enableSecret) { err('% Access denied'); return; }
       }
       cs.ciscoMode = 'priv';
-      ok(`${cs.hostname}#`);
-    } else if (c0 === 'show' || c0 === 'sh') {
-      if (c1 === 'version' || c1 === 'ver') { _ciscoShowVersion(out); }
-      else { err(`Command not available in user exec mode. Use 'enable' first.`); }
-    } else if (c0 === 'exit' || c0 === 'quit') {
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
+    } else if (_ios(c0,'show')) {
+      if (_ios(c1,'version')) { _ciscoShowVersion(out); }
+      else { err(`% Command authorization failed — tapez enable`); }
+    } else if (_ios(c0,'exit') || _ios(c0,'quit') || _ios(c0,'logout')) {
       out(`[Session terminée — Cisco IOS Simulator]`);
-    } else if (c0 === '') { return; }
-    else { err(`Ambiguous command: "${c0}" — tapez ? pour l'aide`); }
+    } else { err(`% Invalid input detected — tapez ? pour l'aide`); }
     return;
   }
 
   // -------- PRIVILEGED EXEC MODE --------
   if (mode === 'priv') {
-    if (c0 === 'disable') { cs.ciscoMode = 'user'; return; }
-    if (c0 === 'exit' || c0 === 'quit') { cs.ciscoMode = 'user'; return; }
-    if (c0 === 'end') { cs.ciscoMode = 'user'; return; }
+    if (_ios(c0,'disable'))    { cs.ciscoMode = 'user'; document.getElementById('cli-prompt').innerHTML = cliPrompt(); return; }
+    if (_ios(c0,'exit') || _ios(c0,'logout')) { cs.ciscoMode = 'user'; document.getElementById('cli-prompt').innerHTML = cliPrompt(); return; }
+    if (c0 === 'end')          { cs.ciscoMode = 'user'; document.getElementById('cli-prompt').innerHTML = cliPrompt(); return; }
 
-    if (c0 === 'configure' || c0 === 'conf') {
-      if (c1 === 'terminal' || c1 === 't') {
+    if (_ios(c0,'configure')) {
+      if (!c1 || _ios(c1,'terminal')) {
         cs.ciscoMode = 'config';
+        document.getElementById('cli-prompt').innerHTML = cliPrompt();
         out(`Enter configuration commands, one per line.  End with CNTL/Z.`);
-      } else { err('syntax error — use: configure terminal'); }
+      } else { err(`% Invalid input at: "${rest}"`); }
       return;
     }
 
-    if (c0 === 'write' || (c0 === 'copy' && c1 === 'running-config')) {
+    if (_ios(c0,'write') || c0 === 'wr' ||
+        (_ios(c0,'copy') && (_ios(c1,'running-config') || _ios(c1,'run')) )) {
       cs.savedConfig = true; cs.configChanged = false;
       ok(`Building configuration...\n[OK]`);
       return;
     }
-    if (c0 === 'wr') { cs.savedConfig = true; cs.configChanged = false; ok(`Building configuration...\n[OK]`); return; }
 
-    if (c0 === 'erase') {
+    if (_ios(c0,'erase')) {
       out(`Erasing the nvram filesystem will remove all configuration files! Continue? [confirm]`);
-      cs.savedConfig = false;
-      ok(`Erase of nvram: complete`);
+      cs.savedConfig = false; ok(`Erase of nvram: complete`);
       return;
     }
 
-    if (c0 === 'reload') {
+    if (_ios(c0,'reload')) {
       out(`Proceed with reload? [confirm]\nReloading...\n[Simulateur redémarré]`);
-      cliState = makeCLIState('cisco');
-      return;
-    }
-
-    if ((c0 === 'debug') && c1 === 'ip') {
-      out(`IP routing debugging is on for address ${parts[2] || 'all'}`);
-      setTimeout(() => {
-        cliPrint(`*Jun 30 10:12:03: IP: s=192.168.1.10 (GigabitEthernet0/0) d=8.8.8.8 len=60, sending`);
-        cliPrint(`*Jun 30 10:12:03: IP: s=8.8.8.8 (GigabitEthernet0/1) d=192.168.1.10 len=60, rcvd 4`);
-      }, 800);
-      return;
-    }
-    if (c0 === 'undebug' || (c0 === 'no' && c1 === 'debug')) { ok(`All possible debugging has been turned off`); return; }
-
-    if (c0 === 'clear') {
-      if (c1 === 'counters') { ok(`Clear "show interface" counters on all interfaces? [confirm]\n[OK]`); }
-      else if (c1 === 'ip') { out(`[Cleared]`); }
-      else { err(`Unknown clear subcommand`); }
-      return;
-    }
-
-    if (c0 === 'show' || c0 === 'sh') {
-      _ciscoShow(cs, parts.slice(1), out, err); return;
-    }
-
-    err(`Unknown command: "${raw}". Tapez ? pour l'aide.`);
-    return;
-  }
-
-  // -------- GLOBAL CONFIG MODE --------
-  if (mode === 'config') {
-    if (c0 === 'end') { cs.ciscoMode = 'priv'; cs.configChanged = true; return; }
-    if (c0 === 'exit') { cs.ciscoMode = 'priv'; return; }
-
-    if (c0 === 'hostname' || c0 === 'host') {
-      if (!parts[1]) { err('hostname NAME requis'); return; }
-      cs.hostname = parts[1];
-      cs.configChanged = true;
+      const saved = makeCLIState('cisco');
+      Object.assign(cliState, saved);
       document.getElementById('cli-prompt').innerHTML = cliPrompt();
       return;
     }
 
-    if (c0 === 'interface' || c0 === 'int') {
+    if (_ios(c0,'debug')) {
+      out(`*Debug activé — ${rest}`);
+      setTimeout(() => {
+        cliPrint(`*Jun 30 10:12:03.001: IP: s=192.168.1.10 (GigabitEthernet0/0) d=8.8.8.8, len=60, sending`);
+        cliPrint(`*Jun 30 10:12:03.003: IP: s=8.8.8.8 (GigabitEthernet0/1) d=192.168.1.10, len=60, rcvd`);
+        cliPrint(`*Jun 30 10:12:03.005: OSPF: Rcv hello from 2.2.2.2 area 0 from GigabitEthernet0/1`);
+      }, 800);
+      return;
+    }
+    if (_ios(c0,'undebug') || (c0 === 'no' && _ios(c1,'debug'))) { ok(`All possible debugging has been turned off`); return; }
+
+    if (_ios(c0,'clear')) {
+      if (_ios(c1,'counters'))    { ok(`Clear "show interface" counters on all interfaces [confirm]\n[OK]`); }
+      else if (_ios(c1,'ip'))     { ok(`[Cleared]`); }
+      else if (_ios(c1,'arp'))    { ok(`[ARP cache cleared]`); }
+      else if (_ios(c1,'line'))   { ok(`[Line cleared]`); }
+      else if (_ios(c1,'terminal') || !c1) { cliClear(); }
+      else { err(`% Invalid input: clear ${rest}`); }
+      return;
+    }
+
+    if (_ios(c0,'show') || c0 === 'sh') { _ciscoShow(cs, parts.slice(1), out, err); return; }
+
+    err(`% Invalid input detected: "${trimmed}"\nTapez ? pour l'aide ou sh run pour la config`);
+    return;
+  }
+
+  // -------- CONFIG MODES (end / exit / do partagés) --------
+  if (mode.startsWith('config')) {
+    if (c0 === 'end') {
+      cs.ciscoMode = 'priv'; cs.ciscoCtx = null; cs.configChanged = true;
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
+      return;
+    }
+    if (_ios(c0,'exit')) {
+      if (mode === 'config') cs.ciscoMode = 'priv';
+      else cs.ciscoMode = 'config';
+      cs.ciscoCtx = (mode === 'config') ? null : cs.ciscoCtx;
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
+      return;
+    }
+  }
+
+  // -------- GLOBAL CONFIG MODE --------
+  if (mode === 'config') {
+    if (_ios(c0,'hostname')) {
+      if (!parts[1]) { err('hostname NAME'); return; }
+      cs.hostname = parts[1]; cs.configChanged = true;
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
+      return;
+    }
+    if (_ios(c0,'interface')) {
       const ifName = _ciscoNormalizeIf(parts.slice(1).join(' '));
-      if (!ifName) { err(`Interface introuvable : ${rest}`); return; }
-      if (!cs.interfaces[ifName]) cs.interfaces[ifName] = { desc: '', ip: null, mask: null, adminDown: true, mac: null };
-      cs.ciscoCtx = ifName;
-      cs.ciscoMode = 'config-if';
+      if (!ifName) { err(`% Interface introuvable: ${rest}`); return; }
+      if (!cs.interfaces[ifName]) cs.interfaces[ifName] = { desc:'', ip:null, mask:null, adminDown:true, mac:null };
+      cs.ciscoCtx = ifName; cs.ciscoMode = 'config-if';
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
       return;
     }
-
-    if (c0 === 'vlan') {
+    if (_ios(c0,'vlan')) {
       const vid = parseInt(parts[1]);
-      if (isNaN(vid) || vid < 1 || vid > 4094) { err('VLAN ID invalide (1-4094)'); return; }
-      if (!cs.vlans[vid]) cs.vlans[vid] = { name: `VLAN${vid}`, status: 'active' };
-      cs.ciscoCtx = vid;
-      cs.ciscoMode = 'config-vlan';
-      cs.configChanged = true;
+      if (isNaN(vid)||vid<1||vid>4094) { err('% VLAN ID invalide (1-4094)'); return; }
+      if (!cs.vlans[vid]) cs.vlans[vid] = { name:`VLAN${vid}`, status:'active' };
+      cs.ciscoCtx = vid; cs.ciscoMode = 'config-vlan'; cs.configChanged = true;
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
       return;
     }
-
-    if (c0 === 'router' && c1 === 'ospf') {
-      const pid = parseInt(parts[2]) || 1;
-      cs.ospfProcess = pid;
-      cs.ciscoCtx = pid;
+    if (_ios(c0,'router') && _ios(c1,'ospf')) {
+      cs.ospfProcess = parseInt(parts[2])||1; cs.ciscoCtx = cs.ospfProcess;
       cs.ciscoMode = 'config-router';
+      document.getElementById('cli-prompt').innerHTML = cliPrompt();
       return;
     }
-
-    if (c0 === 'ip' && c1 === 'route') {
-      const [, , network, mask, nh] = parts;
-      if (!network || !mask || !nh) { err('ip route NETWORK MASK NEXTHOP'); return; }
-      cs.routes = cs.routes.filter(r => !(r.network === network && r.mask === mask && r.proto === 'S'));
-      cs.routes.push({ proto: 'S', network, mask, nh, iface: null, ad: 1, metric: 0 });
+    if (c0 === 'ip' && _ios(c1,'route')) {
+      const [,,net,mask,nh] = parts;
+      if (!net||!mask||!nh) { err('ip route NETWORK MASK NEXTHOP [AD]'); return; }
+      cs.routes = cs.routes.filter(r=>!(r.network===net&&r.mask===mask&&r.proto.startsWith('S')));
+      cs.routes.push({ proto:'S', network:net, mask, nh, iface:null, ad:parseInt(parts[5])||1, metric:0 });
       cs.configChanged = true;
-      ok(`Static route ${network} ${mask} via ${nh} added`);
+      ok(`Route statique ${net}/${_maskToCidr(mask)} via ${nh} configurée`);
       return;
     }
-
-    if (c0 === 'no' && c1 === 'ip' && (parts[2]||'').toLowerCase() === 'route') {
-      const [, , , network, mask] = parts;
+    if (c0 === 'no' && c1 === 'ip' && _ios((parts[2]||''),'route')) {
+      const [,,,net,mask] = parts;
       const before = cs.routes.length;
-      cs.routes = cs.routes.filter(r => !(r.network === network && r.mask === mask && r.proto === 'S'));
-      if (cs.routes.length < before) { ok(`Route removed`); cs.configChanged = true; }
-      else { err(`No matching static route found`); }
+      cs.routes = cs.routes.filter(r=>!(r.network===net&&r.mask===mask&&r.proto.startsWith('S')));
+      if (cs.routes.length<before) { ok(`Route ${net} supprimée`); cs.configChanged=true; }
+      else err(`% Route introuvable`);
       return;
     }
-
-    if (c0 === 'ip' && (c1 === 'default-gateway' || c1 === 'default')) {
-      cs.defaultGw = parts[2];
-      cs.configChanged = true;
-      ok(`Default gateway set to ${parts[2]}`);
+    if (c0 === 'ip' && _ios(c1,'default-gateway')) {
+      cs.defaultGw = parts[2]; cs.configChanged = true;
+      ok(`Default gateway: ${parts[2]}`);
       return;
     }
-
-    if (c0 === 'enable' && (c1 === 'secret' || c1 === 'password')) {
-      cs.enableSecret = parts[2] || '';
-      cs.configChanged = true;
-      ok(`Enable ${c1} set`);
+    if (c0 === 'ip' && _ios(c1,'routing')) { cs.ipRouting=true; cs.configChanged=true; ok(`IP routing enabled`); return; }
+    if (c0 === 'no' && c1 === 'ip' && _ios((parts[2]||''),'routing')) { cs.ipRouting=false; cs.configChanged=true; ok(`IP routing disabled`); return; }
+    if (_ios(c0,'enable') && (_ios(c1,'secret')||_ios(c1,'password'))) {
+      cs.enableSecret=parts[2]||''; cs.configChanged=true; ok(`Enable ${c1} configured`); return;
+    }
+    if (c0==='no' && _ios(c1,'enable')) { cs.enableSecret=null; cs.configChanged=true; ok(`Enable secret removed`); return; }
+    if (_ios(c0,'service') && _ios(c1,'password-encryption')) { cs.servicePasswordEncryption=true; cs.configChanged=true; return; }
+    if (c0==='no' && _ios(c1,'service')) { cs.servicePasswordEncryption=false; cs.configChanged=true; return; }
+    if (_ios(c0,'banner') && _ios(c1,'motd')) {
+      cs.motd = parts.slice(2).join(' ').replace(/^[^a-zA-Z0-9\s]+|[^a-zA-Z0-9\s]+$/g,'');
+      cs.configChanged=true; ok(`MOTD banner configured`); return;
+    }
+    if (_ios(c0,'line')) { cs.ciscoCtx=rest; cs.ciscoMode='config-line'; cs.configChanged=true; document.getElementById('cli-prompt').innerHTML=cliPrompt(); return; }
+    if (_ios(c0,'access-list')) {
+      const num=parts[1], action=(parts[2]||'').toLowerCase(), src=parts[3]||'any', wildcard=parts[4]||'';
+      if (!num||!action) { err('access-list NUMBER {permit|deny} {host IP | NETWORK WILDCARD | any}'); return; }
+      if (!cs.acls[num]) cs.acls[num]=[];
+      cs.acls[num].push({ action, src, wildcard, hits:0 });
+      cs.configChanged=true;
+      ok(`ACL ${num}: ${action} ${src}${wildcard?' '+wildcard:''}`);
       return;
     }
-
-    if (c0 === 'no' && c1 === 'enable') {
-      cs.enableSecret = null;
-      cs.configChanged = true;
-      ok(`Enable secret removed`);
-      return;
+    if (c0==='no' && _ios(c1,'access-list')) { delete cs.acls[parts[2]]; cs.configChanged=true; ok(`ACL ${parts[2]} supprimée`); return; }
+    if (_ios(c0,'spanning-tree')) { cs.stpMode=rest; cs.configChanged=true; ok(`Spanning-tree: ${rest}`); return; }
+    if (_ios(c0,'username')) {
+      if (!cs.localUsers) cs.localUsers={};
+      cs.localUsers[parts[1]]={ priv:parseInt(parts[3])||1, secret:parts[5]||'' };
+      cs.configChanged=true; ok(`User ${parts[1]} created`); return;
     }
-
-    if (c0 === 'service' && c1 === 'password-encryption') {
-      cs.servicePasswordEncryption = true;
-      cs.configChanged = true;
-      return;
+    if (c0==='no' && _ios(c1,'username')) { if(cs.localUsers) delete cs.localUsers[parts[2]]; cs.configChanged=true; return; }
+    if (_ios(c0,'crypto') && _ios(c1,'key') && _ios((parts[2]||''),'generate')) {
+      ok(`% Generating 2048 bit RSA keys, keys will be non-exportable...\n[OK] (elapsed time was 1 seconds)`); return;
     }
-    if (c0 === 'no' && c1 === 'service') {
-      cs.servicePasswordEncryption = false;
-      cs.configChanged = true;
-      return;
-    }
-
-    if (c0 === 'banner' && c1 === 'motd') {
-      const msg = parts.slice(2).join(' ').replace(/^#|#$/g, '');
-      cs.motd = msg;
-      cs.configChanged = true;
-      return;
-    }
-
-    if (c0 === 'line') {
-      cs.ciscoCtx = rest;
-      cs.ciscoMode = 'config-line';
-      return;
-    }
-
-    if (c0 === 'access-list') {
-      const num = parts[1]; const action = (parts[2]||'').toLowerCase(); const proto = (parts[3]||'').toLowerCase();
-      if (!num || !action) { err('access-list NUMBER permit|deny PROTOCOL ...'); return; }
-      if (!cs.acls[num]) cs.acls[num] = [];
-      cs.acls[num].push({ action, proto, src: parts[4] || 'any', dst: parts[5] || 'any' });
-      cs.configChanged = true;
-      ok(`ACL ${num} entry added`);
-      return;
-    }
-
-    if (c0 === 'no' && c1 === 'access-list') {
-      delete cs.acls[parts[2]];
-      cs.configChanged = true;
-      ok(`ACL ${parts[2]} removed`);
-      return;
-    }
-
-    if (c0 === 'spanning-tree') {
-      cs.stpMode = rest;
-      cs.configChanged = true;
-      ok(`Spanning-tree mode: ${rest}`);
-      return;
-    }
-
-    if (c0 === 'ip' && c1 === 'routing') { cs.ipRouting = true; cs.configChanged = true; ok(`IP routing enabled`); return; }
-    if (c0 === 'no' && c1 === 'ip' && (parts[2]||'') === 'routing') { cs.ipRouting = false; cs.configChanged = true; ok(`IP routing disabled`); return; }
-
-    err(`Invalid input detected at "^" — tapez ? pour l'aide`);
+    if (_ios(c0,'ip') && _ios(c1,'ssh')) { ok(`SSH version configured`); cs.configChanged=true; return; }
+    if (_ios(c0,'aaa')) { ok(`AAA: ${rest}`); cs.configChanged=true; return; }
+    if (_ios(c0,'ntp')) { ok(`NTP: ${rest}`); cs.configChanged=true; return; }
+    if (_ios(c0,'logging')) { ok(`Logging: ${rest}`); cs.configChanged=true; return; }
+    if (_ios(c0,'snmp-server')) { ok(`SNMP: ${rest}`); cs.configChanged=true; return; }
+    if (c0==='no') { ok(`[Supprimé]`); cs.configChanged=true; return; }
+    err(`% Invalid input detected at "^"\n  ${trimmed}\n  ${'~'.repeat(trimmed.length)}`);
     return;
   }
 
   // -------- INTERFACE CONFIG --------
   if (mode === 'config-if') {
-    if (c0 === 'end') { cs.ciscoMode = 'priv'; cs.configChanged = true; return; }
-    if (c0 === 'exit') { cs.ciscoMode = 'config'; return; }
-
-    const iface = cs.interfaces[cs.ciscoCtx];
-    if (!iface) { err(`Interface ${cs.ciscoCtx} non trouvée`); return; }
-
-    if (c0 === 'ip' && c1 === 'address') {
-      const ip = parts[2]; const mask = parts[3];
-      if (!ip || !mask) { err('ip address IP MASK'); return; }
-      iface.ip = ip; iface.mask = mask; cs.configChanged = true;
-      // update connected route
-      const net = ip.split('.').slice(0,3).join('.') + '.0';
-      cs.routes = cs.routes.filter(r => !(r.iface === cs.ciscoCtx && r.proto === 'C'));
-      cs.routes.push({ proto: 'C', network: net, mask, nh: null, iface: cs.ciscoCtx, ad: 0, metric: 0 });
-      ok(`IP address ${ip} ${mask} configured on ${cs.ciscoCtx}`);
+    const iface = cs.interfaces[cs.ciscoCtx] || {};
+    if (c0 === 'ip' && _ios(c1,'address')) {
+      const [,,ip,mask] = parts;
+      if (!ip||!mask) { err('ip address IP MASK'); return; }
+      iface.ip=ip; iface.mask=mask; cs.configChanged=true;
+      const net=ip.split('.').slice(0,3).join('.')+'.0';
+      cs.routes=cs.routes.filter(r=>!(r.iface===cs.ciscoCtx&&r.proto==='C'));
+      cs.routes.push({ proto:'C', network:net, mask, nh:null, iface:cs.ciscoCtx, ad:0, metric:0 });
+      ok(`IP ${ip} ${mask} configurée sur ${cs.ciscoCtx}`);
       return;
     }
-    if (c0 === 'no' && c1 === 'ip' && (parts[2]||'') === 'address') {
-      iface.ip = null; iface.mask = null;
-      cs.routes = cs.routes.filter(r => !(r.iface === cs.ciscoCtx && r.proto === 'C'));
-      cs.configChanged = true;
-      ok(`IP address removed from ${cs.ciscoCtx}`);
-      return;
+    if (c0==='no'&&c1==='ip'&&_ios((parts[2]||''),'address')) {
+      iface.ip=null; iface.mask=null; cs.configChanged=true;
+      cs.routes=cs.routes.filter(r=>!(r.iface===cs.ciscoCtx&&r.proto==='C'));
+      ok(`IP supprimée de ${cs.ciscoCtx}`); return;
     }
-    if ((c0 === 'no' && c1 === 'shutdown') || (c0 === 'no' && c1 === 'shut')) {
-      iface.adminDown = false; cs.configChanged = true;
-      ok(`%LINK-5-CHANGED: Interface ${cs.ciscoCtx}, changed state to up\n%LINEPROTO-5-UPDOWN: Line protocol on Interface ${cs.ciscoCtx}, changed state to up`);
-      return;
+    if (c0==='no'&&_ios(c1,'shutdown')) {
+      iface.adminDown=false; cs.configChanged=true;
+      ok(`%LINK-5-CHANGED: Interface ${cs.ciscoCtx}, changed state to up\n%LINEPROTO-5-UPDOWN: Line protocol on Interface ${cs.ciscoCtx}, changed state to up`); return;
     }
-    if (c0 === 'shutdown' || c0 === 'shut') {
-      iface.adminDown = true; cs.configChanged = true;
-      out(`%LINK-5-CHANGED: Interface ${cs.ciscoCtx}, changed state to administratively down\n%LINEPROTO-5-UPDOWN: Line protocol on Interface ${cs.ciscoCtx}, changed state to down`);
-      return;
+    if (_ios(c0,'shutdown')) {
+      iface.adminDown=true; cs.configChanged=true;
+      out(`%LINK-5-CHANGED: Interface ${cs.ciscoCtx}, changed state to administratively down\n%LINEPROTO-5-UPDOWN: Line protocol on Interface ${cs.ciscoCtx}, changed state to down`); return;
     }
-    if (c0 === 'description' || c0 === 'desc') {
-      iface.desc = rest; cs.configChanged = true;
-      return;
+    if (_ios(c0,'description')) { iface.desc=rest; cs.configChanged=true; return; }
+    if (_ios(c0,'duplex'))      { iface.duplex=parts[1]||'auto'; cs.configChanged=true; return; }
+    if (_ios(c0,'speed'))       { iface.speed=parts[1]||'auto';  cs.configChanged=true; return; }
+    if (_ios(c0,'switchport')) {
+      if (_ios(c1,'mode'))   { iface.swMode=parts[2]; cs.configChanged=true; ok(`Switchport mode ${parts[2]}`); return; }
+      if (_ios(c1,'access')&&_ios((parts[2]||''),'vlan')) { iface.accessVlan=parseInt(parts[3]); cs.configChanged=true; ok(`Access VLAN ${parts[3]}`); return; }
+      if (_ios(c1,'trunk')) {
+        if (_ios((parts[2]||''),'allowed')) { iface.trunkVlans=parts.slice(4).join(''); cs.configChanged=true; ok(`Trunk VLANs: ${iface.trunkVlans}`); return; }
+        if (_ios((parts[2]||''),'native'))  { iface.nativeVlan=parseInt(parts[4]); cs.configChanged=true; ok(`Native VLAN: ${parts[4]}`); return; }
+        if (_ios((parts[2]||''),'encapsulation')) { iface.encap=parts[3]; cs.configChanged=true; return; }
+      }
+      if (_ios(c1,'nonegotiate')) { cs.configChanged=true; return; }
     }
-    if (c0 === 'duplex') { iface.duplex = parts[1] || 'auto'; cs.configChanged = true; return; }
-    if (c0 === 'speed')  { iface.speed  = parts[1] || 'auto'; cs.configChanged = true; return; }
-
-    if (c0 === 'switchport') {
-      if (c1 === 'mode') { iface.swMode = parts[2]; cs.configChanged = true; return; }
-      if (c1 === 'access' && (parts[2]||'').toLowerCase() === 'vlan') { iface.accessVlan = parseInt(parts[3]); cs.configChanged = true; return; }
-      if (c1 === 'trunk' && (parts[2]||'').toLowerCase() === 'allowed') { iface.trunkVlans = parts.slice(4).join(''); cs.configChanged = true; return; }
-      if (c1 === 'trunk' && (parts[2]||'').toLowerCase() === 'encapsulation') { iface.encap = parts[3]; cs.configChanged = true; return; }
-    }
-    if (c0 === 'ip' && c1 === 'ospf') {
-      iface.ospfProcess = parseInt(parts[2]); iface.ospfArea = parseInt(parts[4] || '0'); cs.configChanged = true;
-      return;
-    }
-    if (c0 === 'ip' && c1 === 'access-group') {
-      iface.acl = parts[2]; iface.aclDir = parts[3]; cs.configChanged = true;
-      ok(`ACL ${parts[2]} applied ${parts[3]} on ${cs.ciscoCtx}`);
-      return;
-    }
-    if (c0 === 'encapsulation') {
-      iface.encap = parts[1]; iface.encapVlan = parseInt(parts[2]); cs.configChanged = true;
-      return;
-    }
-    if (c0 === 'no') {
-      if (c1 === 'shutdown' || c1 === 'shut') { iface.adminDown = false; cs.configChanged = true; ok(`%LINK-5-CHANGED: Interface ${cs.ciscoCtx}, changed state to up`); return; }
-    }
-    err(`Invalid input detected at "^"`);
+    if (c0==='ip'&&_ios(c1,'ospf'))         { iface.ospfProcess=parseInt(parts[2]); iface.ospfArea=parseInt(parts[4]||'0'); cs.configChanged=true; return; }
+    if (c0==='ip'&&_ios(c1,'access-group')) { iface.acl=parts[2]; iface.aclDir=parts[3]||'in'; cs.configChanged=true; ok(`ACL ${parts[2]} appliquée ${parts[3]||'in'} sur ${cs.ciscoCtx}`); return; }
+    if (c0==='no'&&c1==='ip'&&_ios((parts[2]||''),'access-group')) { iface.acl=null; iface.aclDir=null; cs.configChanged=true; return; }
+    if (_ios(c0,'encapsulation'))  { iface.encap=parts[1]; iface.encapVlan=parseInt(parts[2]); cs.configChanged=true; return; }
+    if (_ios(c0,'bandwidth'))      { iface.bw=parts[1]; cs.configChanged=true; return; }
+    if (_ios(c0,'clock') && _ios(c1,'rate'))  { iface.clockRate=parts[2]; cs.configChanged=true; return; }
+    if (_ios(c0,'channel-group'))  { iface.channelGroup=parts[1]; cs.configChanged=true; ok(`Port-channel ${parts[1]} mode ${parts[3]||'on'}`); return; }
+    if (_ios(c0,'spanning-tree'))  { cs.configChanged=true; return; }
+    if (_ios(c0,'storm-control'))  { cs.configChanged=true; return; }
+    if (c0==='no')                 { cs.configChanged=true; return; }
+    err(`% Invalid input at "^": ${trimmed}`);
     return;
   }
 
   // -------- VLAN CONFIG --------
   if (mode === 'config-vlan') {
-    if (c0 === 'end') { cs.ciscoMode = 'priv'; cs.configChanged = true; return; }
-    if (c0 === 'exit') { cs.ciscoMode = 'config'; return; }
-    if (c0 === 'name') { cs.vlans[cs.ciscoCtx].name = rest; cs.configChanged = true; return; }
-    if (c0 === 'state') { cs.vlans[cs.ciscoCtx].status = parts[1] || 'active'; cs.configChanged = true; return; }
-    if (c0 === 'no' && c1 === 'name') { cs.vlans[cs.ciscoCtx].name = `VLAN${cs.ciscoCtx}`; return; }
-    err(`Invalid input detected at "^"`);
+    if (_ios(c0,'name'))  { cs.vlans[cs.ciscoCtx].name=rest; cs.configChanged=true; return; }
+    if (_ios(c0,'state')) { cs.vlans[cs.ciscoCtx].status=parts[1]||'active'; cs.configChanged=true; return; }
+    if (c0==='no')        { cs.configChanged=true; return; }
+    err(`% Invalid input: ${trimmed}`);
     return;
   }
 
-  // -------- ROUTER CONFIG --------
+  // -------- ROUTER (OSPF) CONFIG --------
   if (mode === 'config-router') {
-    if (c0 === 'end') { cs.ciscoMode = 'priv'; cs.configChanged = true; return; }
-    if (c0 === 'exit') { cs.ciscoMode = 'config'; return; }
-    if (c0 === 'network') {
-      ok(`OSPF network ${parts[1]} ${parts[2]} area ${parts[4] || '0'} configured`);
-      cs.configChanged = true;
-      return;
+    if (_ios(c0,'network')) {
+      const [,net,wildcard,,area] = parts;
+      ok(`OSPF: réseau ${net} ${wildcard||'0.0.0.0'} area ${area||'0'}`);
+      cs.configChanged=true; return;
     }
-    if (c0 === 'router-id') { cs.ospfRouterId = parts[1]; cs.configChanged = true; ok(`OSPF router-id set to ${parts[1]}`); return; }
-    if (c0 === 'passive-interface') { ok(`Interface ${parts[1]} set passive`); cs.configChanged = true; return; }
-    if (c0 === 'default-information' && c1 === 'originate') { ok(`Default information originate enabled`); cs.configChanged = true; return; }
-    if (c0 === 'no') { out(`Removed`); cs.configChanged = true; return; }
-    err(`Invalid input detected at "^"`);
+    if (_ios(c0,'router-id'))  { cs.ospfRouterId=parts[1]; cs.configChanged=true; ok(`Router-id: ${parts[1]}`); return; }
+    if (_ios(c0,'passive-interface'))       { ok(`Interface ${parts[1]||'default'} passive`); cs.configChanged=true; return; }
+    if (c0==='no'&&_ios(c1,'passive-interface')) { ok(`Interface ${parts[2]} active`); cs.configChanged=true; return; }
+    if (_ios(c0,'default-information'))     { ok(`Default information originate activé`); cs.configChanged=true; return; }
+    if (_ios(c0,'area'))                    { ok(`OSPF area ${rest} configuré`); cs.configChanged=true; return; }
+    if (_ios(c0,'redistribute'))            { ok(`Redistribution: ${rest}`); cs.configChanged=true; return; }
+    if (_ios(c0,'auto-cost'))               { ok(`Auto-cost reference bandwidth: ${parts[2]||'100'} Mbps`); cs.configChanged=true; return; }
+    if (_ios(c0,'timers'))                  { ok(`Timers: ${rest}`); cs.configChanged=true; return; }
+    if (c0==='no')                          { ok(`[Supprimé]`); cs.configChanged=true; return; }
+    err(`% Invalid input: ${trimmed}`);
     return;
   }
 
   // -------- LINE CONFIG --------
   if (mode === 'config-line') {
-    if (c0 === 'end') { cs.ciscoMode = 'priv'; cs.configChanged = true; return; }
-    if (c0 === 'exit') { cs.ciscoMode = 'config'; return; }
-    if (c0 === 'password') {
-      cs.linePasswords[cs.ciscoCtx] = parts[1];
-      cs.configChanged = true;
-      return;
-    }
-    if (c0 === 'login') { ok(`Login set on ${cs.ciscoCtx}`); cs.configChanged = true; return; }
-    if (c0 === 'no' && c1 === 'login') { ok(`Login removed on ${cs.ciscoCtx}`); cs.configChanged = true; return; }
-    if (c0 === 'exec-timeout') { ok(`Exec timeout set to ${parts[1]}:${parts[2] || '00'}`); cs.configChanged = true; return; }
-    if (c0 === 'logging' && c1 === 'synchronous') { ok(`Logging synchronous enabled`); return; }
-    if (c0 === 'transport' && c1 === 'input') { ok(`Transport input ${parts[2]}`); return; }
-    err(`Invalid input detected at "^"`);
+    if (_ios(c0,'password'))             { cs.linePasswords[cs.ciscoCtx]=parts[1]; cs.configChanged=true; return; }
+    if (_ios(c0,'login'))                { ok(`Login activé sur ${cs.ciscoCtx}`); cs.configChanged=true; return; }
+    if (c0==='no'&&_ios(c1,'login'))     { ok(`Login désactivé`); cs.configChanged=true; return; }
+    if (_ios(c0,'exec-timeout'))         { ok(`Exec timeout: ${parts[1]||0}m ${parts[2]||0}s`); cs.configChanged=true; return; }
+    if (_ios(c0,'logging')&&_ios(c1,'synchronous')) { ok(`Logging synchronous activé`); return; }
+    if (_ios(c0,'transport')&&_ios(c1,'input'))      { ok(`Transport input: ${parts[2]||'all'}`); cs.configChanged=true; return; }
+    if (_ios(c0,'length'))               { return; }
+    if (_ios(c0,'privilege'))            { ok(`Privilege level: ${rest}`); cs.configChanged=true; return; }
+    if (c0==='no')                       { ok(`[Supprimé]`); cs.configChanged=true; return; }
+    err(`% Invalid input: ${trimmed}`);
     return;
   }
 }
@@ -3429,130 +3397,183 @@ function _ciscoShow(cs, args, out, err) {
   const s1 = (args[1] || '').toLowerCase();
   const s2 = (args[2] || '').toLowerCase();
 
-  if (s0 === 'version' || s0 === 'ver') { _ciscoShowVersion(out); return; }
+  if (_ios(s0,'version'))  { _ciscoShowVersion(out); return; }
 
-  if (s0 === 'clock') {
+  if (_ios(s0,'clock')) {
     const now = new Date();
     out(`${now.toTimeString().slice(0,8)} UTC ${now.toDateString()}`); return;
   }
 
-  if (s0 === 'running-config' || s0 === 'run' || (s0 === 'running' && s1 === 'config')) {
+  if (_ios(s0,'running-config') || (s0 === 'run' && !s1)) {
     _ciscoShowRunningConfig(cs, out); return;
   }
-  if (s0 === 'startup-config' || s0 === 'start') {
+  if (_ios(s0,'startup-config')) {
     if (!cs.savedConfig) out(`startup-config is not present`);
     else _ciscoShowRunningConfig(cs, out);
     return;
   }
 
-  if (s0 === 'ip' && (s1 === 'interface' || s1 === 'int') && (s2 === 'brief' || s2 === 'br' || s2 === 'b')) {
-    out(`Interface              IP-Address      OK? Method Status                Protocol
+  // show ip ...
+  if (s0 === 'ip') {
+    // show ip interface brief
+    if (_ios(s1,'interface') && _ios(s2,'brief')) {
+      out(`Interface              IP-Address      OK? Method Status                Protocol
 ${Object.entries(cs.interfaces).map(([name, iface]) => {
   const ip = iface.ip ? iface.ip.padEnd(15) : 'unassigned     ';
   const status = iface.adminDown ? 'administratively down' : 'up                   ';
   const proto  = iface.adminDown ? 'down    ' : 'up      ';
-  return `<span style="color:#e0e0e0">${(name).padEnd(23)}</span>${ip} YES manual ${status} ${proto}`;
+  return `<span style="color:#e0e0e0">${name.padEnd(23)}</span>${ip} YES manual ${status} ${proto}`;
 }).join('\n')}`);
-    return;
-  }
-
-  if (s0 === 'ip' && (s1 === 'int' || s1 === 'interface')) {
-    const ifName = _ciscoNormalizeIf(args.slice(2).join(' ')) || args[2];
-    if (ifName) {
+      return;
+    }
+    // show ip interface [NAME]
+    if (_ios(s1,'interface')) {
+      const ifName = _ciscoNormalizeIf(args.slice(2).join(' ')) || args[2];
+      if (!ifName) { err('show ip interface INTERFACE'); return; }
       const iface = cs.interfaces[ifName];
-      if (!iface) { err(`Interface ${ifName} not found`); return; }
-      out(`${ifName} is ${iface.adminDown ? '<span style="color:#ef4444">administratively down</span>' : '<span style="color:#22c55e">up</span>'}, line protocol is ${iface.adminDown ? '<span style="color:#ef4444">down</span>' : '<span style="color:#22c55e">up</span>'}
-  Description: ${iface.desc || '(non définie)'}
-  Internet address is ${iface.ip ? `${iface.ip}/${iface.mask}` : 'not set'}
+      if (!iface) { err(`Interface ${ifName} introuvable`); return; }
+      const up = !iface.adminDown;
+      out(`${ifName} is ${up?'<span style="color:#22c55e">up</span>':'<span style="color:#ef4444">administratively down</span>'}, line protocol is ${up?'<span style="color:#22c55e">up</span>':'<span style="color:#ef4444">down</span>'}
+  Description: ${iface.desc||'(non définie)'}
+  Internet address is ${iface.ip?`${iface.ip}/${_maskToCidr(iface.mask)}`:'not set'}
   MTU 1500 bytes, BW 1000000 Kbit/sec, DLY 10 usec
   Encapsulation ARPA, loopback not set
   Full-duplex, 1000Mb/s, media type is RJ45
-  output flow-control is unsupported, input flow-control is unsupported
-  ${iface.mac ? `Hardware is iGbE, address is ${iface.mac}` : ''}`);
+  ${iface.mac?`Hardware is iGbE, address is ${iface.mac}`:''}`);
+      return;
     }
-    return;
+    // show ip route
+    if (_ios(s1,'route')) {
+      const codes = `Codes: L - local, C - connected, S - static, R - RIP, B - BGP
+       O - OSPF, IA - OSPF inter area, E1/E2 - OSPF external
+       i - IS-IS, * - candidate default
+
+Gateway of last resort is ${cs.routes.find(r=>r.network==='0.0.0.0')?.nh||'not set'} to network 0.0.0.0`;
+      const routeLines = cs.routes.map(r => {
+        const proto = r.proto.padEnd(4);
+        const net = !r.mask||r.mask==='0.0.0.0' ? `${r.network}/0` :
+                    r.mask==='255.255.255.255' ? `${r.network}/32` :
+                    `${r.network}/${_maskToCidr(r.mask)}`;
+        const via = r.nh ? ` [${r.ad}/${r.metric}] via ${r.nh},` : '';
+        const iface = r.iface ? ` ${r.iface}` : '';
+        return `<span style="color:#f59e0b">${proto}</span>  ${net.padEnd(22)}${via}${iface}`;
+      }).join('\n');
+      out(codes + '\n\n' + routeLines);
+      return;
+    }
+    // show ip ospf
+    if (_ios(s1,'ospf')) {
+      if (_ios(s2,'neighbor')) {
+        out(`Neighbor ID     Pri   State           Dead Time   Address         Interface
+${(cs.ospfNeighbors||[]).map(n=>
+  `${n.id.padEnd(16)}${String(n.pri).padEnd(6)}${n.state.padEnd(16)}00:00:35    ${n.addr.padEnd(16)}${n.iface}`
+).join('\n')||'  (aucun voisin OSPF)'}`);
+      } else {
+        out(` Routing Process "ospf ${cs.ospfProcess}" with ID ${cs.ospfRouterId||'1.1.1.1'}
+ Start time: 00:00:01.123, Time elapsed: 02:34:56.789
+ Supports opaque LSA · LLS · Incremental SPF
+ Number of areas: 1 normal · 0 stub · 0 nssa
+ Number of interfaces in this router: ${Object.keys(cs.interfaces).length}`);
+      }
+      return;
+    }
+    // show ip access-lists
+    if (_ios(s1,'access-lists') || _ios(s1,'access-list')) {
+      if (Object.keys(cs.acls).length === 0) { out(`No access lists defined`); return; }
+      Object.entries(cs.acls).forEach(([num, entries]) => {
+        const isExt = parseInt(num) >= 100 || isNaN(parseInt(num));
+        out(`${isExt?'Extended':'Standard'} IP access list ${num}`);
+        entries.forEach((e, i) => {
+          const hits = e.hits || 0;
+          const matchStr = hits > 0 ? ` <span style="color:#f59e0b">(${hits} match${hits>1?'es':''})</span>` : '';
+          const extra = e.wildcard ? ` ${e.wildcard}` : '';
+          out(`    ${10*(i+1)} ${e.action==='permit'?`<span style="color:#22c55e">permit</span>`:`<span style="color:#ef4444">deny</span>`} ${e.src||'any'}${extra}${matchStr}`);
+        });
+      });
+      return;
+    }
+    // show ip ssh
+    if (_ios(s1,'ssh')) {
+      out(`SSH Enabled - version 2.0\nAuthentication timeout: 60 secs; Authentication retries: 3`); return;
+    }
+    // show ip dhcp
+    if (_ios(s1,'dhcp')) {
+      out(`IP DHCP pool: non configuré dans ce simulateur`); return;
+    }
+    // show ip nat
+    if (_ios(s1,'nat')) {
+      out(`Pro Inside global      Inside local       Outside local      Outside global
+tcp 203.0.113.1:1024  192.168.1.10:1024  8.8.8.8:80         8.8.8.8:80`); return;
+    }
+    // show ip protocols
+    if (_ios(s1,'protocols')) {
+      out(`Routing Protocol is "ospf ${cs.ospfProcess}"\n  Router ID: ${cs.ospfRouterId||'1.1.1.1'}\n  Number of areas: 1 normal`); return;
+    }
+    err(`Unknown show ip subcommand: "${s1}"`); return;
   }
 
-  if (s0 === 'interfaces' || s0 === 'interface') {
+  // show interfaces [NAME]
+  if (_ios(s0,'interfaces') || _ios(s0,'interface')) {
     const ifArg = args.slice(1).join(' ');
-    const ifName = ifArg ? _ciscoNormalizeIf(ifArg) || ifArg : null;
-    const entries = ifName ? [[ifName, cs.interfaces[ifName]]].filter(([,v]) => v) : Object.entries(cs.interfaces);
+    const ifName = ifArg ? _ciscoNormalizeIf(ifArg)||ifArg : null;
+    const entries = ifName
+      ? [[ifName, cs.interfaces[ifName]]].filter(([,v])=>v)
+      : Object.entries(cs.interfaces);
+    if (!entries.length) { err(`Interface introuvable: ${ifArg}`); return; }
     entries.forEach(([name, iface]) => {
-      out(`${name} is ${iface.adminDown ? '<span style="color:#ef4444">administratively down</span>' : '<span style="color:#22c55e">up</span>'}, line protocol is ${iface.adminDown ? '<span style="color:#ef4444">down</span>' : '<span style="color:#22c55e">up</span>'}
-  Description: ${iface.desc || '—'}
-  Internet address: ${iface.ip ? `${iface.ip}/${iface.mask}` : 'not set'}
-  MTU 1500 bytes, BW 1000000 Kbit/sec
-  5 minute input rate: 12000 bits/sec, 5 packets/sec
-  5 minute output rate: 8000 bits/sec, 3 packets/sec
-     1234 packets input, 987654 bytes, 0 no buffer
-     1100 packets output, 876543 bytes, 0 underruns`);
+      const up = !iface.adminDown;
+      out(`${name} is ${up?'<span style="color:#22c55e">up</span>':'<span style="color:#ef4444">administratively down</span>'}, line protocol is ${up?'<span style="color:#22c55e">up</span>':'<span style="color:#ef4444">down</span>'}
+  Description: ${iface.desc||'—'}
+  Internet address: ${iface.ip?`${iface.ip}/${_maskToCidr(iface.mask)}`:'not set'}
+  MTU 1500 bytes, BW 1000000 Kbit/sec, DLY 10 usec
+  5 minute input rate: ${Math.floor(Math.random()*50000)} bits/sec, ${Math.floor(Math.random()*20)} packets/sec
+  5 minute output rate: ${Math.floor(Math.random()*30000)} bits/sec, ${Math.floor(Math.random()*15)} packets/sec
+     ${Math.floor(Math.random()*9999)} packets input, ${Math.floor(Math.random()*999999)} bytes
+     ${Math.floor(Math.random()*9999)} packets output, ${Math.floor(Math.random()*999999)} bytes`);
     });
     return;
   }
 
-  if (s0 === 'ip' && s1 === 'route') {
-    const codes = `Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
-       + - replicated route, % - next hop override
-
-Gateway of last resort is ${cs.routes.find(r => r.network === '0.0.0.0')?.nh || 'not set'} to network 0.0.0.0`;
-    const routeLines = cs.routes.map(r => {
-      const proto = r.proto.padEnd(4);
-      const net = r.mask === '255.255.255.255' ? `${r.network}/32` : `${r.network}/${_maskToCidr(r.mask)}`;
-      const via = r.nh ? ` [${r.ad}/${r.metric}] via ${r.nh},` : '';
-      const iface = r.iface ? ` ${r.iface}` : '';
-      return `<span style="color:#f59e0b">${proto}</span>  ${net.padEnd(22)}${via}${iface}`;
-    }).join('\n');
-    out(codes + '\n\n' + routeLines);
-    return;
-  }
-
-  if (s0 === 'vlan' && (s1 === 'brief' || s1 === 'br' || s1 === 'b' || !s1)) {
+  // show vlan
+  if (_ios(s0,'vlan')) {
     out(`VLAN Name                             Status    Ports
 ---- --------------------------------- --------- -------------------------------
-${Object.entries(cs.vlans).map(([id, v]) =>
+${Object.entries(cs.vlans).map(([id,v])=>
   `<span style="color:#e84040">${String(id).padEnd(5)}</span>${v.name.padEnd(34)} ${v.status.padEnd(10)}`
 ).join('\n')}`);
     return;
   }
 
-  if (s0 === 'ip' && s1 === 'ospf') {
-    if (s2 === 'neighbor' || s2 === 'nei' || s2 === 'n') {
-      out(`Neighbor ID     Pri   State           Dead Time   Address         Interface
-${cs.ospfNeighbors.map(n =>
-  `${n.id.padEnd(16)}${String(n.pri).padEnd(6)}${n.state.padEnd(16)}00:00:35    ${n.addr.padEnd(16)}${n.iface}`
-).join('\n')}`);
+  // show access-lists (sans 'ip')
+  if (_ios(s0,'access-lists') || _ios(s0,'access-list')) {
+    if (Object.keys(cs.acls).length === 0) { out(`No access lists defined`); return; }
+    Object.entries(cs.acls).forEach(([num, entries]) => {
+      const isExt = parseInt(num) >= 100 || isNaN(parseInt(num));
+      out(`${isExt?'Extended':'Standard'} IP access list ${num}`);
+      entries.forEach((e, i) => {
+        const hits = e.hits || 0;
+        const matchStr = hits > 0 ? ` <span style="color:#f59e0b">(${hits} match${hits>1?'es':''})</span>` : '';
+        out(`    ${10*(i+1)} ${e.action==='permit'?`<span style="color:#22c55e">permit</span>`:`<span style="color:#ef4444">deny</span>`} ${e.src||'any'}${e.wildcard?' '+e.wildcard:''}${matchStr}`);
+      });
+    });
+    return;
+  }
+
+  // show cdp
+  if (_ios(s0,'cdp')) {
+    if (_ios(s1,'neighbors')) {
+      out(`Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
+SW1              Gig 0/0           122           S I      WS-C2960  Gig 0/1
+R2               Gig 0/1           165           R        C3925     Gig 0/0`);
     } else {
-      out(` Routing Process "ospf ${cs.ospfProcess}" with ID ${cs.ospfRouterId || '1.1.1.1'}
- Start time: 00:00:01.123, Time elapsed: 02:34:56.789
- Supports only single TOS(TOS0) routes
- Supports opaque LSA
- Supports Link-local Signaling (LLS)
- It is an area border and autonomous system boundary router
- Number of areas in this router is 1. 1 normal 0 stub 0 nssa
- Number of interfaces in this router is 4`);
+      out(`Global CDP information:\n  Sending CDP packets every 60 seconds\n  Sending a holdtime value of 180 seconds`);
     }
     return;
   }
 
-  if (s0 === 'cdp' && s1 === 'neighbors') {
-    out(`Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
-                  S - Switch, H - Host, I - IGMP, r - Repeater
-
-Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
-SW1              Gig 0/0           122           S I      WS-C2960  Gig 0/1
-R2               Gig 0/1           165           R        C3925     Gig 0/0`);
-    return;
-  }
-
-  if (s0 === 'mac' || (s0 === 'mac-address-table') || (s0 === 'mac' && s1 === 'address-table')) {
-    out(`          Mac Address Table
--------------------------------------------
+  // show mac address-table
+  if (_ios(s0,'mac-address-table') || (s0==='mac'&&_ios(s1,'address-table'))) {
+    out(`          Mac Address Table\n-------------------------------------------
 Vlan    Mac Address       Type        Ports
 ----    -----------       --------    -----
   1     fa16.3e00.0001    DYNAMIC     Gi0/0
@@ -3562,21 +3583,46 @@ Vlan    Mac Address       Type        Ports
     return;
   }
 
-  if (s0 === 'access-lists' || (s0 === 'ip' && s1 === 'access-list')) {
-    if (Object.keys(cs.acls).length === 0) { out(`No access lists defined`); return; }
-    Object.entries(cs.acls).forEach(([num, entries]) => {
-      out(`Standard IP access list ${num}`);
-      entries.forEach((e, i) => out(`    ${10*(i+1)} ${e.action} ${e.src}`));
-    });
-    return;
+  // show protocols
+  if (_ios(s0,'protocols')) {
+    out(`Global values:\n  Internet Protocol routing is enabled\n  OSPF routing protocol is enabled`); return;
   }
 
-  if (s0 === 'protocols') {
-    out(`Global values:\n  Internet Protocol routing is enabled\n  OSPF routing protocol is enabled and running`);
-    return;
+  // show spanning-tree
+  if (_ios(s0,'spanning-tree')) {
+    out(`VLAN0001\n  Spanning tree enabled protocol ieee\n  Root ID    Priority    32769\n             Address     fa16.3e00.0001\n             This bridge is the root`); return;
   }
 
-  err(`Unknown show subcommand: "show ${args.join(' ')}"`);
+  // show arp
+  if (_ios(s0,'arp')) {
+    out(`Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.1.1              -   fa16.3e00.0001  ARPA   GigabitEthernet0/0
+Internet  192.168.1.254           42   fa16.3e00.00ff  ARPA   GigabitEthernet0/0
+Internet  10.0.0.2                15   fa16.3e00.0002  ARPA   GigabitEthernet0/1`); return;
+  }
+
+  // show processes cpu / memory
+  if (_ios(s0,'processes')) {
+    out(`CPU utilization for five seconds: 2%/1%; one minute: 3%; five minutes: 2%\n PID Runtime(ms)   Invoked      uSecs   5Sec   1Min   5Min TTY Process\n   1       12345    456789         27  0.00%  0.00%  0.00%   0 Chunk Manager`); return;
+  }
+  if (_ios(s0,'memory')) {
+    out(`             Head    Total(b)     Used(b)     Free(b)   Lowest(b)  Largest(b)\nProcessor  ...    268435456   134217728   134217728   100000000    67000000`); return;
+  }
+
+  // show users / history
+  if (_ios(s0,'users'))   { out(`    Line       User       Host(s)              Idle       Location\n*  0 con 0               idle                 00:00:00`); return; }
+  if (_ios(s0,'history')) { out(`  sh run\n  sh ip int br\n  conf t\n  sh ip route`); return; }
+
+  // show line
+  if (_ios(s0,'line')) { out(`   Tty Line Typ     Tx/Rx    A Modem  Roty AccO AccI   Uses  Noise  Overruns   Int\n*    0    0 CTY              -    -    -    -    -      0      0     0/0       -`); return; }
+
+  // show logging
+  if (_ios(s0,'logging')) { out(`Syslog logging: enabled (0 messages dropped, 0 flushes, 0 overruns)\n  Console logging: level debugging, 42 messages logged`); return; }
+
+  // show environment / platform
+  if (_ios(s0,'environment') || _ios(s0,'platform')) { out(`[Environment/Platform data not available in simulator]`); return; }
+
+  err(`Unknown show subcommand: "show ${args.join(' ')}" — tapez show ? pour l'aide`);
 }
 
 function _ciscoShowRunningConfig(cs, out) {

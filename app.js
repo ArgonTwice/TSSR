@@ -723,7 +723,11 @@ function renderCoursDetail(m, cours, idx, el) {
 
   const content = document.createElement('div');
   content.className = 'cours-content';
-  (cours.sections || []).forEach(s => content.appendChild(renderSection(s)));
+  if (cours.content) {
+    content.innerHTML = cours.content;
+  } else {
+    (cours.sections || []).forEach(s => content.appendChild(renderSection(s)));
+  }
   article.appendChild(content);
 
   const breadcrumb = document.createElement('nav');
@@ -1100,6 +1104,18 @@ function renderCoursContent(sections) {
     if (s.type === 'h3')    return `<h3>${sanitizeText(s.content)}</h3>`;
     if (s.type === 'schema') return renderSchema(s.content);
     if (s.type === 'steps')  return renderSteps(s.items);
+    if (s.type === 'diagram') {
+      const uid = 'diag-' + Math.random().toString(36).slice(2, 9);
+      setTimeout(() => {
+        const el = document.getElementById(uid);
+        if (!el || typeof MODULE_DIAGRAMS === 'undefined') return;
+        const arr = MODULE_DIAGRAMS[s.module];
+        if (!arr) return;
+        const d = arr[s.index || 0];
+        if (d && d.build) el.appendChild(d.build());
+      }, 0);
+      return `<div class="diagram-wrap" id="${uid}"></div>`;
+    }
     if (s.type === 'html-file') {
       const uid = 'hf-' + Math.random().toString(36).slice(2, 9);
       setTimeout(() => {
@@ -1315,6 +1331,18 @@ function renderSection(section) {
           })
           .catch(() => { target.innerHTML = '<div class="warn-box">Erreur de chargement.</div>'; });
       }, 0);
+      wrap.appendChild(div); break;
+    }
+    case 'diagram': {
+      const div = document.createElement('div');
+      div.className = 'diagram-wrap';
+      if (typeof MODULE_DIAGRAMS !== 'undefined') {
+        const arr = MODULE_DIAGRAMS[section.module];
+        if (arr) {
+          const d = arr[section.index || 0];
+          if (d && d.build) div.appendChild(d.build());
+        }
+      }
       wrap.appendChild(div); break;
     }
   }

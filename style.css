@@ -3674,6 +3674,10 @@ body.reading-mode .back-btn { display:none!important }
 
 /* Priorité QCM badge */
 .qcm-diff-btn[onclick*="priorite"] { background:var(--purple-dim);color:var(--purple) }
+
+/* Diagrams */
+.diagram-wrap { margin:20px 0;overflow-x:auto }
+.diagram-wrap svg { display:block;margin:0 auto }
 .qcm-diff-btn[onclick*="priorite"].active { background:var(--purple);color:#000 }
 
 /* Notes localStorage */

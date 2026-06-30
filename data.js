@@ -3779,9 +3779,9 @@ const MODULES = [
 
   {
     id: 'telephonie-voip',
-    name: 'Telephonie & VoIP',
+    label: 'Telephonie & VoIP',
     icon: '📞',
-    sections: [
+    cours: [{ id: 'voip-intro', titre: 'Téléphonie & VoIP', sections: [
           { type: 'h2', content: '1. De la Telephonie Analogique a la VoIP' },
           { type: 'p', content: 'La VoIP (Voice over IP) remplace progressivement le RTC (Reseau Telephonique Commute). Les appels sont numerises et transportes en paquets IP.' },
           { type: 'table', headers: ['Critere','RTC','VoIP'], rows: [
@@ -3837,7 +3837,7 @@ const MODULES = [
             ["G.722","48-64 kbps","Haute definition","HD Voice"],
             ["Opus","6-510 kbps","Variable","VoIP moderne, Teams"],
           ]},
-    ],
+    ]}],
     flashcards: [
       { id: 'voip_fc1', question: 'Que signifie VoIP ?', answer: 'Voice over Internet Protocol', hint: 'Voix sur IP' },
       { id: 'voip_fc2', question: 'Port SIP par defaut ?', answer: '5060 (UDP/TCP), 5061 (TLS)', hint: 'Signalisation' },
@@ -3890,9 +3890,9 @@ const MODULES = [
 
   {
     id: 'support-avance',
-    name: 'Support Avance & ITSM',
+    label: 'Support Avance & ITSM',
     icon: '🎧',
-    sections: [
+    cours: [{ id: 'support-avance-intro', titre: 'Support Avancé & ITSM', sections: [
           { type: 'h2', content: '1. ITIL et la gestion de services' },
           { type: 'p', content: "ITIL (Information Technology Infrastructure Library) est le referentiel de bonnes pratiques pour la gestion des services IT. Version 4 (2019) adopte une approche DevOps et agile." },
           { type: 'table', headers: ['Pratique ITIL','Description'], rows: [
@@ -3923,7 +3923,7 @@ const MODULES = [
             ['CSAT','Score moyen','> 4/5'],
             ['Reouverture','Nb reouvertures / Nb clos','< 5%'],
           ]},
-    ],
+    ]}],
     flashcards: [
       { id: 'sa_fc1', question: 'Que signifie ITIL ?', answer: 'Information Technology Infrastructure Library', hint: 'Bonnes pratiques IT' },
       { id: 'sa_fc2', question: 'Difference incident vs probleme ?', answer: 'Incident = panne immediate. Probleme = cause racine.', hint: 'Reactif vs proactif' },
@@ -3977,9 +3977,9 @@ const MODULES = [
 
   {
     id: 'iot',
-    name: 'IoT & Objets Connectes',
+    label: 'IoT & Objets Connectes',
     icon: '🔌',
-    sections: [
+    cours: [{ id: 'iot-intro', titre: 'IoT & Objets Connectés', sections: [
           { type: 'h2', content: '1. Internet des Objets (IoT) - Introduction' },
           { type: 'p', content: "L IoT (Internet of Things) designe le reseau d objets physiques connectes a Internet, capables de collecter et echanger des donnees. En 2025, on estime 18 milliards d appareils IoT dans le monde." },
           { type: 'table', headers: ['Domaine','Exemples','Protocoles'], rows: [
@@ -4017,7 +4017,7 @@ const MODULES = [
             ['Node-RED','Open source','Flow-based programming, dashboard'],
           ]},
           { type: 'info', content: "Le TSSR rencontre l IoT principalement en entreprise: capteurs de temperature dans les serveurs, badgeuses, cameras IP, gestion de flotte. La securite et le depannage reseau de ces equipements font partie du quotidien." },
-    ],
+    ]}],
     flashcards: [
       { id: 'iot_fc1', question: 'Que signifie IoT ?', answer: 'Internet of Things - objets connectes a Internet', hint: 'Objets connectes' },
       { id: 'iot_fc2', question: 'Protocole IoT le plus utilise ?', answer: 'MQTT (Message Queuing Telemetry Transport)', hint: 'Publish/Subscribe' },

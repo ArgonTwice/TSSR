@@ -1489,6 +1489,7 @@ const MODULES = [
             ["Nutanix AHV","Hyperviseur Type 1 KVM","Proprietaire","HCI cle en main"],
           ]},
           { type: "h2", content: "7. Virtualisation vs Conteneurisation" },
+          { type: 'diagram', module: 'virtualisation', index: 1 },
           { type: "p", content: "Les conteneurs (Docker, Kubernetes) ne remplacent pas les VMs. Chacun a son usage." },
           { type: "table", headers: ["Critere","VM (VMware/Hyper-V)","Conteneur (Docker/K8s)"], rows: [
             ["Niveau isolation","Materiel (hyperviseur)","Processus (OS host)"],
@@ -1704,6 +1705,7 @@ const MODULES = [
             ["Microsegmentation","Isoler charges travail","Policies par workload"],
           ]},
           { type: "h2", content: "8. PKI et certificats" },
+          { type: 'diagram', module: 'securite', index: 1 },
           { type: "p", content: "PKI (Public Key Infrastructure) = infrastructure de gestion des certificats numeriques. Utilisee pour HTTPS, VPN, signature, chiffrement." },
           { type: "table", headers: ["Composant","Role","Exemple"], rows: [
             ["CA (Autorite de certification)","Emet et signe les certificats","AD CS, Let s Encrypt"],
@@ -2307,6 +2309,7 @@ const MODULES = [
             ['RAID Hybride', 'Contrôleur matériel avec cache logiciel', 'Complexité', 'ZFS avec HBA passthrough'],
           ]},
           { type: "h2", content: "6. DAS vs NAS vs SAN" },
+          { type: 'diagram', module: 'stockage', index: 1 },
           { type: "p", content: "Trois grandes familles de stockage: DAS (direct), NAS (fichier), SAN (bloc). Le choix depend des besoins." },
           { type: "table", headers: ["Critere","DAS","NAS","SAN"], rows: [
             ["Acces","Local","Reseau (TCP/IP)","Reseau (FC/iSCSI)"],
@@ -2470,6 +2473,7 @@ const MODULES = [
             ['Service mesuré', 'Facturation à l\'usage (pay-as-you-go)', 'Payer seulement les heures de VM utilisées'],
           ]},
           { type: "h2", content: "6. AWS vs Azure vs GCP (2025)" },
+          { type: 'diagram', module: 'cloud', index: 1 },
           { type: "p", content: "Le cloud est devenu le standard. AWS (31%) et Azure (23%) dominent. GCP (13%) croit le plus vite. 87% des entreprises sont multi-cloud." },
           { type: "table", headers: ["Service","AWS","Azure","GCP"], rows: [
             ["Compute","EC2","VMs","Compute Engine"],
@@ -2691,6 +2695,7 @@ const MODULES = [
             ['Antivirus', '--', 'Analyse les pièces jointes', 'ClamAV'],
           ]},
           { type: "h2", content: "6. SPF, DKIM et DMARC" },
+          { type: 'diagram', module: 'messagerie', index: 1 },
           { type: "p", content: "Protocoles d authentification des emails pour lutter contre le spoofing et le phishing." },
           { type: "table", headers: ["Protocole","Action","Enregistrement DNS"], rows: [
             ["SPF","Liste des serveurs autorises a envoyer","TXT: v=spf1 include:domaine.com ~all"],

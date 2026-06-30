@@ -198,4 +198,50 @@ s.appendChild(_ln(95,190,95,215,"#00e5a0","1.5"));s.appendChild(_svg("polygon",{
 s.appendChild(_ln(450,190,450,215,"#00e5a0","1.5"));s.appendChild(_svg("polygon",{points:"443,215 457,215 450,223",fill:"#00e5a0"}));
 s.appendChild(_ln(40,255,560,255));s.appendChild(_tx(300,275,"Resultat: canal chiffr (confidentialite) + certifi (authenticite) + integre (HMAC)","#64748b",{size:"10"}));
 s.appendChild(_rx(95,130,50,30,"#3b82f6",{opacity:"0.05"}));s.appendChild(_tx(120,148,"PKI","#3b82f6",{size:"10",anchor:"middle"}))
+return s}});MODULE_DIAGRAMS.stockage.push({title:"DAS vs NAS vs SAN - Architectures stockage",build(){
+var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:600px;height:auto";
+s.appendChild(_rx(10,10,580,270,"#0f1424",{stroke:"#1e293b",rx:8}));
+s.appendChild(_tx(300,35,"Architectures de stockage","#00e5a0",{size:"16",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
+[["DAS","Direct Attached","SATA / SAS / USB","Local uniquement","Rapide mais isolé","#3b82f6",30,60],["NAS","Network Attached Storage","NFS / SMB / CIFS","Partage réseau (fichiers)","Multi-clients, simple","#f59e0b",218,60],["SAN","Storage Area Network","Fibre Channel / iSCSI","Réseau dédié (blocs LUN)","Très haute perf / BDD","#00e5a0",406,60]].forEach(function(d){
+s.appendChild(_rx(d[6],parseInt(d[7]),178,170,d[4],{opacity:"0.08",stroke:d[4],rx:6}));
+s.appendChild(_tx(d[6]+89,parseInt(d[7])+18,d[0],d[4],{size:"15",weight:"bold"}));
+s.appendChild(_tx(d[6]+89,parseInt(d[7])+36,d[1],"#94a3b8",{size:"9"}));
+s.appendChild(_rx(d[6]+8,parseInt(d[7])+48,162,22,d[4],{opacity:"0.15",stroke:d[4]}));
+s.appendChild(_tx(d[6]+89,parseInt(d[7])+63,d[2],d[4],{size:"10",weight:"bold"}));
+s.appendChild(_rx(d[6]+8,parseInt(d[7])+78,162,22,"#475569",{opacity:"0.3"}));
+s.appendChild(_tx(d[6]+89,parseInt(d[7])+93,d[3],"#e2e8f0",{size:"9"}));
+s.appendChild(_rx(d[6]+8,parseInt(d[7])+108,162,20,"#475569",{opacity:"0.15"}));
+s.appendChild(_tx(d[6]+89,parseInt(d[7])+122,d[5],"#94a3b8",{size:"9"}))});
+s.appendChild(_tx(300,255,"DAS: serveur isolé | NAS: partages fichiers PME | SAN: BDD virtualisation haute perf","#64748b",{size:"10"}));
+return s}});MODULE_DIAGRAMS.messagerie.push({title:"SPF DKIM DMARC - Authentification email",build(){
+var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:600px;height:auto";
+s.appendChild(_rx(10,10,580,270,"#0f1424",{stroke:"#1e293b",rx:8}));
+s.appendChild(_tx(300,35,"SPF / DKIM / DMARC - Anti-spoofing","#f59e0b",{size:"15",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
+[["SPF","Sender Policy Framework","Liste les IP autorisées à envoyer pour ce domaine","#3b82f6",30,56],["DKIM","DomainKeys Identified Mail","Signature cryptographique dans l en-tete email","#00e5a0",30,128],["DMARC","Domain-based Msg Auth","Politique si SPF ou DKIM echoue (none/quarantine/reject)","#ef4444",30,200]].forEach(function(d){
+s.appendChild(_rx(d[4],parseInt(d[5]),260,62,d[3],{opacity:"0.08",stroke:d[3],rx:5}));
+s.appendChild(_tx(d[4]+130,parseInt(d[5])+16,d[0],d[3],{size:"13",weight:"bold"}));
+s.appendChild(_tx(d[4]+130,parseInt(d[5])+32,d[1],"#94a3b8",{size:"9"}));
+s.appendChild(_tx(d[4]+130,parseInt(d[5])+50,d[2],"#e2e8f0",{size:"9"}))});
+s.appendChild(_rx(306,56,258,206,"#0f1424",{rx:5,stroke:"#1e293b"}));
+s.appendChild(_tx(435,74,"DNS TXT records","#a855f7",{size:"11",weight:"bold"}));s.appendChild(_ln(306,82,564,82,"#1e293b","1"));
+[["v=spf1 mx include:... ~all","#3b82f6",96],["_domainkey: TXT (cle publique)","#00e5a0",130],["_dmarc: p=quarantine; rua=...","#ef4444",164],["Résultat DMARC","#a855f7",200],["none -> passe","#64748b",218],["quarantine -> spam","#f59e0b",236],["reject -> bloque","#ef4444",254]].forEach(function(d){s.appendChild(_tx(435,d[1],d[0],d[2],{size:"9"}))});
+return s}});MODULE_DIAGRAMS.virtualisation.push({title:"VM vs Conteneur - Architecture comparee",build(){
+var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:600px;height:auto";
+s.appendChild(_rx(10,10,580,270,"#0f1424",{stroke:"#1e293b",rx:8}));
+s.appendChild(_tx(300,35,"VM vs Conteneur Docker","#00e5a0",{size:"16",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
+s.appendChild(_rx(30,58,255,185,"#3b82f6",{opacity:"0.06",stroke:"#3b82f6",rx:5}));
+s.appendChild(_tx(157,76,"Machine Virtuelle (VM)","#3b82f6",{size:"13",weight:"bold"}));
+[["App A","#475569",45,88],["App B","#475569",155,88]].forEach(function(d){s.appendChild(_rx(d[2],d[3],90,22,d[1],{opacity:"0.3"}));s.appendChild(_tx(d[2]+45,d[3]+15,d[0],"#e2e8f0",{size:"9"}))});
+[["Guest OS A","#3b82f6",45,118],["Guest OS B","#3b82f6",155,118]].forEach(function(d){s.appendChild(_rx(d[2],d[3],90,22,d[1],{opacity:"0.18",stroke:d[1]}));s.appendChild(_tx(d[2]+45,d[3]+15,d[0],"#e2e8f0",{size:"8"}))});
+s.appendChild(_rx(45,148,200,22,"#00e5a0",{opacity:"0.2",stroke:"#00e5a0"}));s.appendChild(_tx(145,163,"Hyperviseur (VMware/KVM)","#00e5a0",{size:"9",weight:"bold"}));
+s.appendChild(_rx(45,178,200,22,"#64748b",{opacity:"0.25"}));s.appendChild(_tx(145,193,"Matériel physique","#e2e8f0",{size:"9"}));
+s.appendChild(_tx(157,230,"Isolation forte · OS complet · 2-20 Go · minutes","#64748b",{size:"8"}));
+s.appendChild(_rx(315,58,255,185,"#f59e0b",{opacity:"0.06",stroke:"#f59e0b",rx:5}));
+s.appendChild(_tx(442,76,"Conteneur Docker","#f59e0b",{size:"13",weight:"bold"}));
+[["App A","#475569",330,88],["App B","#475569",440,88]].forEach(function(d){s.appendChild(_rx(d[2],d[3],90,22,d[1],{opacity:"0.3"}));s.appendChild(_tx(d[2]+45,d[3]+15,d[0],"#e2e8f0",{size:"9"}))});
+s.appendChild(_rx(330,118,200,22,"#f59e0b",{opacity:"0.18",stroke:"#f59e0b"}));s.appendChild(_tx(430,133,"Docker Engine","#f59e0b",{size:"9",weight:"bold"}));
+s.appendChild(_rx(330,148,200,22,"#00e5a0",{opacity:"0.15",stroke:"#00e5a0"}));s.appendChild(_tx(430,163,"Kernel partagé (host OS)","#00e5a0",{size:"9"}));
+s.appendChild(_rx(330,178,200,22,"#64748b",{opacity:"0.25"}));s.appendChild(_tx(430,193,"Matériel physique","#e2e8f0",{size:"9"}));
+s.appendChild(_tx(442,230,"Légèreté · Kernel partagé · 50-500 Mo · secondes","#64748b",{size:"8"}));
+s.appendChild(_ln(40,248,560,248));s.appendChild(_tx(300,263,"VM: isolation OS complète | Docker: microservices, CI/CD, déploiement rapide","#64748b",{size:"10"}));
 return s}});

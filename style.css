@@ -408,6 +408,110 @@ body {
   text-transform: uppercase;
 }
 
+.home-actions {
+  display: flex;
+  gap: 12px;
+  padding: 20px 48px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.home-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition);
+}
+.home-action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--bg3); }
+.home-action-rev:hover { border-color: #f59e0b; color: #f59e0b; }
+.home-action-icon { font-size: 18px; line-height: 1; }
+.home-action-label { flex: 1; }
+.home-action-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--bg3);
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+
+.rev-module-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  margin-bottom: 8px;
+  min-height: 16px;
+}
+
+.examen-module-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #3b82f620;
+  color: #3b82f6;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.examen-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  text-align: center;
+}
+.examen-setup-icon { font-size: 56px; margin-bottom: 20px; }
+.examen-setup h2 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+.examen-setup p { color: var(--text3); font-size: 14px; margin-bottom: 32px; }
+
+.examen-count-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.examen-count-btn {
+  padding: 14px 28px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.examen-count-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--bg3); }
+.examen-count-all { border-color: var(--accent); color: var(--accent); }
+
+.examen-breakdown {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.examen-breakdown h4 { font-size: 13px; font-weight: 700; margin-bottom: 16px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+.examen-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.examen-table th { text-align: left; color: var(--text3); font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.examen-table td { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.examen-table tr:last-child td { border-bottom: none; }
+.examen-table td:nth-child(2) { color: var(--text3); font-family: var(--font-mono); }
+.examen-table td:nth-child(3) { font-family: var(--font-mono); font-weight: 700; }
+
 .home-stats {
   display: flex;
   gap: 20px;

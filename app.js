@@ -20,6 +20,8 @@ let state = {
   openAccordion: null,
   qcm: { questions: [], idx: 0, answers: [], locked: false, done: false },
   fc: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
+  rev: { cards: [], idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } },
+  examen: { questions: [], idx: 0, answers: [], locked: false, startTime: 0 },
   cli: { type: null, history: [], histIdx: -1, cwd: '/', env: {} },
 };
 
@@ -252,6 +254,22 @@ function renderHome() {
   const mname = document.getElementById('mobile-module-name');
   if (mname) mname.textContent = '';
   renderNav();
+  const actionsEl = document.getElementById('home-actions');
+  if (actionsEl) {
+    const dueCards = getDueCards();
+    const totalQcm = MODULES.reduce((s, m) => s + (m.qcm && m.qcm.length || 0), 0);
+    actionsEl.innerHTML = `
+      ${dueCards.length ? `<button class="home-action-btn home-action-rev" onclick="openRevisionDuJour()">
+        <span class="home-action-icon">🔁</span>
+        <span class="home-action-label">Révision du jour</span>
+        <span class="home-action-badge">${dueCards.length} carte${dueCards.length > 1 ? 's' : ''}</span>
+      </button>` : ''}
+      <button class="home-action-btn home-action-exam" onclick="openExamenBlanc()">
+        <span class="home-action-icon">📝</span>
+        <span class="home-action-label">Examen blanc</span>
+        <span class="home-action-badge">${totalQcm} questions</span>
+      </button>`;
+  }
   grid.innerHTML = '';
   MODULES.forEach((m, i) => {
     const card = document.createElement('div');
@@ -1467,6 +1485,252 @@ async function regenerateAutoSummary(moduleId, coursId = 'main') {
     const fallback = `[${sources.length} source(s) — ${users}]\n\nFichiers et notes enregistrés. Configurez un backend (/api/auto-summarize) pour générer un résumé IA automatique.`;
     await FirebaseNotes.saveSummary(moduleId, coursId, fallback);
   }
+}
+
+// ===== RÉVISION DU JOUR =====
+function getDueCards() {
+  const today = new Date().toISOString().slice(0, 10);
+  const due = [];
+  MODULES.forEach(m => {
+    if (!m.flashcards || !m.flashcards.length) return;
+    m.flashcards.forEach(card => {
+      const saved = store.get(`fc_${m.id}_${card.id}`);
+      if (!saved || saved.nextReview.slice(0, 10) <= today) {
+        due.push({ ...card, _moduleId: m.id, _moduleLabel: m.label });
+      }
+    });
+  });
+  return due;
+}
+
+function openRevisionDuJour() {
+  const due = getDueCards();
+  if (!due.length) return;
+  document.getElementById('examen-meta').textContent = 'Révision du jour';
+  showScreen('examen-screen');
+  state.rev = { cards: shuffle(due), idx: 0, flipped: false, session: { easy: 0, medium: 0, hard: 0 } };
+  renderRevisionView(document.getElementById('examen-content'));
+}
+
+function renderRevisionView(el) {
+  const { cards, idx, session } = state.rev;
+  const total = cards.length;
+  if (idx >= total) {
+    el.innerHTML = `
+      <div class="flashcard-arena">
+        <div class="flashcard-done">
+          <div style="margin-bottom:16px;font-family:var(--font-mono);color:var(--accent);font-size:28px;font-weight:700">[OK]</div>
+          <h3>Révision terminée !</h3>
+          <p>Facile : <strong>${session.easy}</strong> · Moyen : <strong>${session.medium}</strong> · Difficile : <strong>${session.hard}</strong></p>
+          <div style="display:flex;gap:12px;justify-content:center">
+            <button class="btn-primary" onclick="openRevisionDuJour()">Recommencer</button>
+            <button class="btn-secondary" onclick="renderHome()">Accueil</button>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+  const card = cards[idx];
+  state.rev.flipped = false;
+  el.innerHTML = `
+    <div class="flashcard-arena">
+      <div class="flashcard-progress-bar">
+        <div class="progress-bar-wrap" style="flex:1"><div class="progress-bar-fill" style="width:${Math.round((idx/total)*100)}%"></div></div>
+        <span class="flashcard-counter">${idx+1} / ${total}</span>
+      </div>
+      <div class="rev-module-label">${card._moduleLabel || ''}</div>
+      <div class="flashcard-scene" id="fc-scene" role="button" tabindex="0" aria-label="Retourner la carte">
+        <div class="flashcard-inner" id="fc-inner">
+          <div class="flashcard-face flashcard-front">
+            <span class="flashcard-side-label">Question</span>
+            <div class="flashcard-text">${card.recto}</div>
+            <span class="flashcard-hint"> cliquer pour révéler </span>
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <span class="flashcard-side-label">Réponse</span>
+            <div class="flashcard-text">${card.verso}</div>
+          </div>
+        </div>
+      </div>
+      <div class="flashcard-actions" id="fc-actions" style="opacity:0;pointer-events:none;transition:opacity 0.2s">
+        <button class="fc-btn hard"   onclick="revRate('hard')"   aria-label="Difficile">Difficile<span class="fc-btn-sub">revoir maintenant</span></button>
+        <button class="fc-btn medium" onclick="revRate('medium')" aria-label="Moyen">Moyen<span class="fc-btn-sub">+1 jour</span></button>
+        <button class="fc-btn easy"   onclick="revRate('easy')"   aria-label="Facile">Facile<span class="fc-btn-sub">+4 jours</span></button>
+      </div>
+      <div style="display:flex;gap:16px;font-size:12px;color:var(--text3)">
+        <span>✓ ${session.easy}</span><span>~ ${session.medium}</span><span>✗ ${session.hard}</span>
+      </div>
+    </div>`;
+  const scene = document.getElementById('fc-scene');
+  scene.addEventListener('click', flipRevCard);
+  scene.addEventListener('keydown', e => (e.key === 'Enter' || e.key === ' ') && flipRevCard());
+}
+
+function flipRevCard() {
+  if (state.rev.flipped) return;
+  state.rev.flipped = true;
+  document.getElementById('fc-inner').classList.add('flipped');
+  const a = document.getElementById('fc-actions');
+  a.style.opacity = '1'; a.style.pointerEvents = 'auto';
+}
+
+function revRate(rating) {
+  state.rev.session[rating]++;
+  if (rating === 'hard') state.rev.cards.push(state.rev.cards[state.rev.idx]);
+  const card = state.rev.cards[state.rev.idx];
+  const days = rating === 'easy' ? 4 : rating === 'medium' ? 1 : 0;
+  const next = new Date(); next.setDate(next.getDate() + days);
+  store.set(`fc_${card._moduleId}_${card.id}`, { rating, nextReview: next.toISOString() });
+  state.rev.idx++;
+  renderRevisionView(document.getElementById('examen-content'));
+}
+
+// ===== EXAMEN BLANC =====
+function openExamenBlanc() {
+  document.getElementById('examen-meta').textContent = 'Examen blanc';
+  showScreen('examen-screen');
+  const el = document.getElementById('examen-content');
+  const totalQcm = MODULES.reduce((s, m) => s + (m.qcm && m.qcm.length || 0), 0);
+  const nbModules = MODULES.filter(m => m.qcm && m.qcm.length).length;
+  el.innerHTML = `
+    <div class="examen-setup">
+      <div class="examen-setup-icon">📝</div>
+      <h2>Examen blanc</h2>
+      <p>${totalQcm} questions · ${nbModules} modules</p>
+      <div class="examen-count-btns">
+        <button class="examen-count-btn" onclick="startExamen(20)">20 questions</button>
+        <button class="examen-count-btn" onclick="startExamen(40)">40 questions</button>
+        <button class="examen-count-btn examen-count-all" onclick="startExamen(${totalQcm})">Tout (${totalQcm})</button>
+      </div>
+    </div>`;
+}
+
+function startExamen(count) {
+  const allQcm = MODULES.flatMap(m => (m.qcm || []).map(q => ({ ...q, _moduleLabel: m.label })));
+  const questions = shuffle(allQcm).slice(0, count).map(q => ({ ...q, options: shuffle(q.options) }));
+  state.examen = { questions, idx: 0, answers: [], locked: false, startTime: Date.now() };
+  renderExamenQuestion(document.getElementById('examen-content'));
+}
+
+function renderExamenQuestion(el) {
+  const { questions, idx } = state.examen;
+  if (idx >= questions.length) { renderExamenResults(el); return; }
+  const q = questions[idx];
+  const total = questions.length;
+  el.innerHTML = `
+    <div class="qcm-container">
+      <div class="qcm-progress">
+        <div class="progress-bar-wrap" style="flex:1"><div class="progress-bar-fill" style="width:${Math.round((idx/total)*100)}%"></div></div>
+        <span class="qcm-counter">${idx+1} / ${total}</span>
+      </div>
+      <div class="examen-module-tag">${q._moduleLabel || ''}</div>
+      <div class="qcm-question-block">
+        <div class="qcm-question-num">Question ${idx+1}</div>
+        <div class="qcm-question-text">${q.question}</div>
+        <div class="qcm-options" role="radiogroup" id="qcm-opts">
+          ${q.options.map((opt, i) => `
+            <div class="qcm-option" data-idx="${i}" role="radio" aria-checked="false" tabindex="0">
+              <span class="qcm-option-letter">${String.fromCharCode(65 + i)}</span>
+              <span>${opt.text}</span>
+            </div>`).join('')}
+        </div>
+        <div class="qcm-feedback" id="qcm-feedback" role="alert"></div>
+      </div>
+      <div class="qcm-nav">
+        <button class="btn-primary" id="qcm-next-btn" style="display:none" onclick="examenNext()">
+          ${idx + 1 < total ? 'Question suivante ' : 'Voir les résultats '}
+        </button>
+      </div>
+    </div>`;
+  document.querySelectorAll('.qcm-option').forEach(opt => {
+    opt.addEventListener('click', () => examenSelect(parseInt(opt.dataset.idx), q));
+    opt.addEventListener('keydown', e => e.key === 'Enter' && examenSelect(parseInt(opt.dataset.idx), q));
+  });
+}
+
+function examenSelect(optIdx, q) {
+  if (state.examen.locked) return;
+  state.examen.locked = true;
+  const opts = document.querySelectorAll('.qcm-option');
+  opts.forEach(o => o.classList.add('locked'));
+  const correct = q.options[optIdx].correct;
+  opts[optIdx].classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) {
+    const ci = q.options.findIndex(o => o.correct);
+    if (ci >= 0) opts[ci].classList.add('correct');
+  }
+  state.examen.answers.push({ q, selectedIdx: optIdx, correct });
+  const fb = document.getElementById('qcm-feedback');
+  fb.className = 'qcm-feedback show ' + (correct ? 'good' : 'bad');
+  fb.innerHTML = correct
+    ? `✓ ${q.explication || 'Bonne réponse !'}`
+    : `✗ ${q.explication || 'Mauvaise réponse. Bonne réponse : ' + q.options.find(o => o.correct)?.text}`;
+  document.getElementById('qcm-next-btn').style.display = 'inline-flex';
+}
+
+function examenNext() {
+  state.examen.idx++; state.examen.locked = false;
+  renderExamenQuestion(document.getElementById('examen-content'));
+}
+
+function renderExamenResults(el) {
+  const { answers, startTime } = state.examen;
+  const total = answers.length;
+  const score = answers.filter(a => a.correct).length;
+  const pct = Math.round((score / total) * 100);
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const mm = Math.floor(elapsed / 60).toString().padStart(2, '0');
+  const ss = (elapsed % 60).toString().padStart(2, '0');
+  const emoji = pct >= 80 ? '[+]' : pct >= 60 ? '[~]' : '[-]';
+  const msg = pct >= 80 ? 'Excellent !' : pct >= 60 ? 'Pas mal, continue !' : 'À retravailler...';
+  const byModule = {};
+  answers.forEach(a => {
+    const ml = a.q._moduleLabel || 'Autre';
+    if (!byModule[ml]) byModule[ml] = { total: 0, correct: 0 };
+    byModule[ml].total++;
+    if (a.correct) byModule[ml].correct++;
+  });
+  const moduleRows = Object.entries(byModule).sort((a,b) => {
+    const pa = Math.round((a[1].correct/a[1].total)*100);
+    const pb = Math.round((b[1].correct/b[1].total)*100);
+    return pa - pb;
+  }).map(([label, s]) => {
+    const mpct = Math.round((s.correct / s.total) * 100);
+    const color = mpct >= 80 ? 'var(--accent)' : mpct >= 60 ? '#f59e0b' : '#ef4444';
+    return `<tr><td>${label}</td><td>${s.correct}/${s.total}</td><td style="color:${color};font-weight:700">${mpct}%</td></tr>`;
+  }).join('');
+  const errorsHtml = answers.filter(a => !a.correct).map(a => `
+    <div class="qcm-error-item">
+      <div class="examen-module-tag" style="margin-bottom:6px">${a.q._moduleLabel || ''}</div>
+      <div class="qcm-error-q">${a.q.question}</div>
+      <div class="qcm-error-your">✗ ${a.q.options[a.selectedIdx]?.text}</div>
+      <div class="qcm-error-correct">✓ ${a.q.options.find(o => o.correct)?.text}</div>
+      ${a.q.explication ? `<div style="font-size:12px;color:var(--text3);margin-top:6px">${a.q.explication}</div>` : ''}
+    </div>`).join('');
+  el.innerHTML = `
+    <div class="qcm-container">
+      <div class="qcm-results">
+        <div class="qcm-score-circle">
+          <span class="qcm-score-num">${score}</span>
+          <span class="qcm-score-denom">/ ${total}</span>
+        </div>
+        <h3>${emoji} ${msg}</h3>
+        <p>${pct}% · ${mm}:${ss}</p>
+        <div style="display:flex;gap:12px;justify-content:center;margin-bottom:32px">
+          <button class="btn-primary" onclick="openExamenBlanc()">Nouvel examen</button>
+          <button class="btn-secondary" onclick="renderHome()">Accueil</button>
+        </div>
+        ${moduleRows ? `
+        <div class="examen-breakdown">
+          <h4>Résultats par module</h4>
+          <table class="examen-table">
+            <thead><tr><th>Module</th><th>Score</th><th>%</th></tr></thead>
+            <tbody>${moduleRows}</tbody>
+          </table>
+        </div>` : ''}
+        ${errorsHtml ? `<div class="qcm-errors" style="margin-top:32px"><h4 style="margin-bottom:16px">À retravailler</h4>${errorsHtml}</div>` : ''}
+      </div>
+    </div>`;
 }
 
 // ===== FLASHCARDS =====

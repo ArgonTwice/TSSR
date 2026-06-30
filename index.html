@@ -64,6 +64,7 @@
         <h1 class="home-title">Base de<br>connaissances</h1>
         <p class="home-sub">TSSR · Technicien Supérieur Systèmes et Réseaux</p>
       </div>
+      <div id="home-actions" class="home-actions"></div>
       <div class="module-grid" id="module-grid"></div>
     </div>
 
@@ -87,6 +88,21 @@
     <div id="terminal-fs-screen" class="screen">
       <div id="terminal-fs-header" class="terminal-fs-header"></div>
       <div id="terminal-fs-content"></div>
+    </div>
+
+    <!-- ÉCRAN EXAMEN / RÉVISION -->
+    <div id="examen-screen" class="screen">
+      <div class="module-header">
+        <button class="back-btn" onclick="renderHome()" aria-label="Retour à l'accueil">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L4 8L10 13" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Retour
+        </button>
+        <div class="module-meta"><span id="examen-meta" class="module-meta-title"></span></div>
+      </div>
+      <div id="examen-content" role="main"></div>
     </div>
 
   </main>

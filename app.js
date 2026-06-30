@@ -964,12 +964,12 @@ async function renderNotes(m, cours, el) {
           <div class="member-file-header">
             <span class="member-file-name">${escHtml(f.filename)}</span>
             ${f.kind === 'html' ? '<span class="member-file-badge">HTML</span>' : ''}
-            ${f.kind === 'pdf'  ? '<span class="member-file-badge member-file-badge-pdf">PDF</span>' : ''}
-            ${(f.kind === 'html'||f.kind === 'pdf') ? `<button type="button" class="file-open-fullscreen" data-member="${escHtml(name)}" data-fidx="${fi}">Plein écran</button>` : ''}
+            ${(f.kind==='pdf'||f.kind==='pdf-idb') ? `<span class="member-file-badge member-file-badge-pdf">${f.kind==='pdf-idb'?'PDF LOCAL':'PDF'}</span>` : ''}
+            ${(f.kind==='html'||f.kind==='pdf'||f.kind==='pdf-idb') ? `<button type="button" class="file-open-fullscreen" data-member="${escHtml(name)}" data-fidx="${fi}">Plein écran</button>` : ''}
           </div>
           ${f.kind === 'html'
             ? `<iframe class="member-file-iframe" sandbox="allow-scripts" srcdoc="${escHtml(f.content)}"></iframe>`
-            : f.kind === 'pdf'
+            : (f.kind === 'pdf' || f.kind === 'pdf-idb')
             ? `<div class="pdf-slot" data-member="${escHtml(name)}" data-fidx="${fi}"></div>`
             : `<div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>`
           }
@@ -1001,16 +1001,13 @@ async function renderNotes(m, cours, el) {
         </details>`;
     }).join('');
 
-    // Remplir les slots PDF avec blob URLs (post-render, évite XSS via srcdoc)
+    // Lancer viewer PDF.js sur chaque slot PDF (async)
     container.querySelectorAll('.pdf-slot').forEach(slot => {
       const memberName = slot.dataset.member;
       const fileIdx    = Number(slot.dataset.fidx);
       const f = (members[memberName]?.files || [])[fileIdx];
-      if (!f || f.kind !== 'pdf') return;
-      const iframe = document.createElement('iframe');
-      iframe.className = 'member-file-pdf';
-      iframe.src = _pdfB64ToUrl(f.content);
-      slot.replaceWith(iframe);
+      if (!f || (f.kind !== 'pdf' && f.kind !== 'pdf-idb')) return;
+      renderPdfViewer(slot, f);
     });
 
     container.querySelectorAll('.file-open-fullscreen[data-member]').forEach(btn => {
@@ -1061,15 +1058,13 @@ async function renderNotes(m, cours, el) {
         try {
           const extracted = await extractFileContent(file);
 
-          const MAX_SIZE = 900000;
-          if (extracted.raw.length > MAX_SIZE) {
-            alert(
-              'Le fichier "' + file.name + '" est trop volumineux (' +
-              Math.round(extracted.raw.length / 1024) + ' Ko). ' +
-              'Limite : ' + Math.round(MAX_SIZE / 1024) + ' Ko. ' +
-              'Le fichier ne sera pas ajoute en entier -- contactez l\'admin si besoin de stocker des fichiers plus lourds.'
-            );
-            continue;
+          // pdf-idb est dans IndexedDB — pas de limite Firestore
+          if (extracted.kind !== 'pdf-idb') {
+            const MAX_SIZE = 900000;
+            if (extracted.raw.length > MAX_SIZE) {
+              alert(`"${file.name}" trop volumineux (${Math.round(file.size/1024)} Ko).\nLimite inline : ~500 Ko pour PDF, ~675 Ko pour HTML/texte.\nUtilise un fichier plus léger.`);
+              continue;
+            }
           }
 
           pendingFiles.push({
@@ -1086,30 +1081,30 @@ async function renderNotes(m, cours, el) {
     }
 
     function renderFilesChips() {
-      // Pré-génère les blob URLs pour les PDF (avant innerHTML)
-      const pdfUrls = {};
-      pendingFiles.forEach((f, i) => {
-        if (f.kind === 'pdf') pdfUrls[i] = _pdfB64ToUrl(f.content);
-      });
-
       filesListEl.innerHTML = pendingFiles.map((f, i) => `
         <div class="member-file-block">
           <div class="member-file-header">
             <span class="member-file-name">${escHtml(f.filename)}</span>
             ${f.kind === 'html' ? '<span class="member-file-badge">HTML</span>' : ''}
-            ${f.kind === 'pdf'  ? '<span class="member-file-badge member-file-badge-pdf">PDF</span>' : ''}
+            ${(f.kind === 'pdf'||f.kind==='pdf-idb') ? `<span class="member-file-badge member-file-badge-pdf">${f.kind==='pdf-idb'?'PDF LOCAL':'PDF'}</span>` : ''}
             <div class="member-file-actions">
-              ${(f.kind === 'html' || f.kind === 'pdf') ? `<button type="button" class="file-open-fullscreen" data-idx="${i}">Plein écran</button>` : ''}
+              ${(f.kind === 'html' || f.kind === 'pdf' || f.kind === 'pdf-idb') ? `<button type="button" class="file-open-fullscreen" data-idx="${i}">Plein écran</button>` : ''}
               <button type="button" class="file-chip-remove" data-idx="${i}">Retirer</button>
             </div>
           </div>
           ${f.kind === 'html'
             ? `<iframe class="member-file-iframe" sandbox="allow-scripts" srcdoc="${escHtml(f.content)}"></iframe>`
-            : f.kind === 'pdf'
-            ? `<iframe class="member-file-pdf" src="${pdfUrls[i]}"></iframe>`
+            : (f.kind === 'pdf' || f.kind === 'pdf-idb')
+            ? `<div class="pdf-viewer-slot" data-pending-idx="${i}"></div>`
             : `<div class="member-file-extract">${escHtml(f.content).replace(/\n/g,'<br>')}</div>`
           }
         </div>`).join('');
+
+      // Lance les viewers PDF.js (async)
+      filesListEl.querySelectorAll('.pdf-viewer-slot[data-pending-idx]').forEach(slot => {
+        const f = pendingFiles[Number(slot.dataset.pendingIdx)];
+        if (f) renderPdfViewer(slot, f);
+      });
 
       filesListEl.querySelectorAll('.file-chip-remove').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1336,10 +1331,15 @@ function openFileFullscreen(file) {
   `;
   document.body.appendChild(overlay);
 
-  const iframe = overlay.querySelector('.file-fullscreen-iframe');
-  if (file.kind === 'pdf') {
-    iframe.src = _pdfB64ToUrl(file.content);
+  if (file.kind === 'pdf' || file.kind === 'pdf-idb') {
+    const iframeEl = overlay.querySelector('.file-fullscreen-iframe');
+    const fsWrap = document.createElement('div');
+    fsWrap.id = 'pdf-fs-wrap';
+    fsWrap.style.cssText = 'flex:1;overflow:auto;padding:1rem;background:#111;';
+    iframeEl.replaceWith(fsWrap);
+    renderPdfViewer(fsWrap, file);
   } else {
+    const iframe = overlay.querySelector('.file-fullscreen-iframe');
     iframe.setAttribute('sandbox', 'allow-scripts');
     iframe.srcdoc = file.content;
   }
@@ -1350,6 +1350,98 @@ function openFileFullscreen(file) {
   document.addEventListener('keydown', function escClose(e) {
     if (e.key === 'Escape') { close(); document.removeEventListener('keydown', escClose); }
   });
+}
+
+const PdfStore = {
+  _db: null,
+  async _open() {
+    if (this._db) return this._db;
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('tssr_pdfs', 1);
+      r.onupgradeneeded = e => e.target.result.createObjectStore('pdfs');
+      r.onsuccess = e => { this._db = e.target.result; res(this._db); };
+      r.onerror   = () => rej(r.error);
+    });
+  },
+  async save(key, blob) {
+    const db = await this._open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction('pdfs', 'readwrite');
+      tx.objectStore('pdfs').put(blob, key);
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+    });
+  },
+  async get(key) {
+    const db = await this._open();
+    return new Promise((res, rej) => {
+      const r = db.transaction('pdfs', 'readonly').objectStore('pdfs').get(key);
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  },
+};
+
+async function renderPdfViewer(container, f) {
+  container.innerHTML = `<div class="pdf-loading">Chargement PDF…</div>`;
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+    const lib = window.pdfjsLib;
+    lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let data;
+    if (f.kind === 'pdf') {
+      const bin = atob(f.content);
+      const buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      data = buf.buffer;
+    } else if (f.kind === 'pdf-idb') {
+      const blob = await PdfStore.get(f.content);
+      if (!blob) { container.innerHTML = `<div class="pdf-unavailable">⚠️ PDF stocké localement — non disponible sur cet appareil.</div>`; return; }
+      data = await blob.arrayBuffer();
+    } else { return; }
+
+    const pdf = await lib.getDocument({ data }).promise;
+    let page = 1;
+    let zoom = 1.3;
+
+    container.innerHTML = `
+      <div class="pdf-viewer">
+        <div class="pdf-viewer-bar">
+          <button class="pdf-btn" id="pv-prev" title="Page précédente">◀</button>
+          <span class="pdf-page-info"><span id="pv-cur">1</span> / <span id="pv-tot">${pdf.numPages}</span></span>
+          <button class="pdf-btn" id="pv-next" title="Page suivante">▶</button>
+          <span class="pdf-sep">|</span>
+          <button class="pdf-btn" id="pv-zm" title="Dézoomer">−</button>
+          <span class="pdf-zoom-val" id="pv-zoom">130%</span>
+          <button class="pdf-btn" id="pv-zp" title="Zoomer">+</button>
+        </div>
+        <div class="pdf-canvas-wrap">
+          <canvas id="pv-canvas"></canvas>
+        </div>
+      </div>`;
+
+    const canvas = container.querySelector('#pv-canvas');
+    const ctx = canvas.getContext('2d');
+
+    async function draw(n, z) {
+      const pg = await pdf.getPage(n);
+      const vp = pg.getViewport({ scale: z });
+      canvas.width  = vp.width;
+      canvas.height = vp.height;
+      await pg.render({ canvasContext: ctx, viewport: vp }).promise;
+      container.querySelector('#pv-cur').textContent  = n;
+      container.querySelector('#pv-zoom').textContent = Math.round(z * 100) + '%';
+    }
+
+    await draw(page, zoom);
+
+    container.querySelector('#pv-prev').onclick = () => { if (page > 1)            { page--; draw(page, zoom); } };
+    container.querySelector('#pv-next').onclick = () => { if (page < pdf.numPages) { page++; draw(page, zoom); } };
+    container.querySelector('#pv-zm').onclick   = () => { zoom = Math.max(0.5, +(zoom - 0.2).toFixed(1)); draw(page, zoom); };
+    container.querySelector('#pv-zp').onclick   = () => { zoom = Math.min(3.0, +(zoom + 0.2).toFixed(1)); draw(page, zoom); };
+
+  } catch (e) {
+    container.innerHTML = `<div class="pdf-unavailable">⚠️ Erreur lecture PDF : ${escHtml(e.message)}</div>`;
+  }
 }
 
 function _pdfB64ToUrl(b64) {
@@ -1375,6 +1467,11 @@ async function extractFileContent(file) {
 
   if (type === 'application/pdf') {
     const buf = await file.arrayBuffer();
+    if (file.size > 500000) {
+      const key = `pdf_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+      await PdfStore.save(key, new Blob([buf], { type: 'application/pdf' }));
+      return { kind: 'pdf-idb', raw: key };
+    }
     const bytes = new Uint8Array(buf);
     let bin = '';
     for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
@@ -2880,6 +2977,27 @@ Tape <strong>tp quit</strong> pour abandonner la partie.</span>`);
         { instr: 'Retourne au mode privilégié.',                                   hint: 'end',                              check: c => /^end$/i.test(c.trim()) },
         { instr: 'Vérifie les access-lists configurées.',                          hint: 'show access-lists',                check: c => /^sh(ow)?\s+(ip\s+)?access-list/i.test(c.trim()) },
         { instr: 'Sauvegarde la configuration.',                                   hint: 'write memory',                     check: c => /^(wr(ite)?(\s+memory)?|copy\s+run\S*\s+start\S*)$/i.test(c.trim()) },
+      ],
+    },
+    {
+      id: 'nat-pat',
+      title: 'NAT PAT — Partage d\'adresse IP publique',
+      desc: 'Configure un NAT PAT (overload) : pool, ACL, interfaces inside/outside, vérification et clear.',
+      steps: [
+        { instr: 'Entre en mode privilégié.',                                            hint: 'enable',                                            check: c => /^en(able)?$/i.test(c.trim()) },
+        { instr: 'Entre en mode de configuration globale.',                              hint: 'configure terminal',                                check: c => /^(conf(igure)?\s+t(erminal)?|conf\s*t)$/i.test(c.trim()) },
+        { instr: 'Crée un pool NAT "INET" : 203.0.113.1 à 203.0.113.10 /24.',          hint: 'ip nat pool INET 203.0.113.1 203.0.113.10 netmask 255.255.255.0', check: c => /^ip\s+nat\s+pool\s+\S+\s+\S+\s+\S+\s+netmask/i.test(c.trim()) },
+        { instr: 'Crée l\'ACL 1 qui autorise le LAN 192.168.1.0/24.',                  hint: 'access-list 1 permit 192.168.1.0 0.0.0.255',        check: c => /^access-list\s+1\s+permit\s+192\.168/i.test(c.trim()) },
+        { instr: 'Configure le NAT PAT : liste 1, pool INET, overload.',                hint: 'ip nat inside source list 1 pool INET overload',    check: c => /^ip\s+nat\s+inside\s+source\s+list\s+1.+overload/i.test(c.trim()) },
+        { instr: 'Va sur l\'interface LAN GigabitEthernet0/0.',                         hint: 'interface GigabitEthernet0/0',                      check: c => /^(interface|int)\s+(gi|g)?[a-z]*0[\/.]?0/i.test(c.trim()) },
+        { instr: 'Marque l\'interface comme "inside" pour le NAT.',                     hint: 'ip nat inside',                                     check: c => /^ip\s+nat\s+inside$/i.test(c.trim()) },
+        { instr: 'Va sur l\'interface WAN GigabitEthernet0/1.',                         hint: 'interface GigabitEthernet0/1',                      check: c => /^(interface|int)\s+(gi|g)?[a-z]*0[\/.]?1/i.test(c.trim()) },
+        { instr: 'Marque l\'interface comme "outside" pour le NAT.',                    hint: 'ip nat outside',                                    check: c => /^ip\s+nat\s+outside$/i.test(c.trim()) },
+        { instr: 'Retourne au mode privilégié.',                                        hint: 'end',                                               check: c => /^end$/i.test(c.trim()) },
+        { instr: 'Affiche les traductions NAT actives.',                                hint: 'show ip nat translations',                          check: c => /^sh(ow)?\s+ip\s+nat\s+tr/i.test(c.trim()) },
+        { instr: 'Effectue un ping vers 8.8.8.8 pour générer du trafic NAT.',           hint: 'ping 8.8.8.8',                                      check: c => /^ping\s+8\.8\.8\.8/i.test(c.trim()) },
+        { instr: 'Vérifie la table NAT — elle doit contenir une entrée dynamique.',     hint: 'show ip nat translations',                          check: c => /^sh(ow)?\s+ip\s+nat/i.test(c.trim()) },
+        { instr: 'Sauvegarde la configuration.',                                        hint: 'write memory',                                      check: c => /^(wr(ite)?(\s+memory)?|copy\s+run\S*\s+start\S*)$/i.test(c.trim()) },
       ],
     },
   ],

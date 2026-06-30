@@ -303,9 +303,10 @@ function renderNav() {
     nav.appendChild(termPanel);
   }
 
+  if (!MODULES || !Array.isArray(MODULES)) { console.error('MODULES not loaded'); return; }
   GROUPES.forEach(groupe => {
     const modulesGroupe = groupe.modules
-      .map(id => MODULES.find(m => m.id === id))
+      .map(id => MODULES.find(m => m && m.id === id))
       .filter(Boolean)
       .filter(m => !sq || m.label.toLowerCase().includes(sq) || m.id.toLowerCase().includes(sq));
     if (!modulesGroupe.length) return;
@@ -495,7 +496,7 @@ function renderHome() {
 
 // ===== OPEN MODULE =====
 function openModule(moduleId, skipHistory = false, directCours = null) {
-  const m = MODULES.find(x => x.id === moduleId);
+  const m = MODULES.find(x => x && x.id === moduleId);
   if (!m) return;
   state.currentModule = m;
   state.currentCours = directCours;
@@ -1070,7 +1071,7 @@ function importProgression() {
 }
 
 function openModule(mId, tab) {
-  const mod = MODULES.find(x => x.id === mId);
+  const mod = MODULES.find(x => x && x.id === mId);
   if (!mod) return;
   state.currentModule = mod;
   state.currentCours = tab === 'cours' ? (mod.cours?.[0]?.id || null) : null;
@@ -6412,7 +6413,7 @@ if (_moduleMatch) {
   openModule(_moduleMatch[1]);
   if (_moduleMatch[2]) switchTab(_moduleMatch[2], true);
   if (_moduleMatch[2] === 'cours' && _moduleMatch[3]) {
-    const _m = MODULES.find(x => x.id === _moduleMatch[1]);
+    const _m = MODULES.find(x => x && x.id === _moduleMatch[1]);
     const _idx = _m ? _m.cours.findIndex(c => c.id === _moduleMatch[3]) : -1;
     if (_idx !== -1) {
       state.currentCours = _moduleMatch[3];

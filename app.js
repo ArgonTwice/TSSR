@@ -1,5 +1,20 @@
 // app.js — TSSR Study App
 
+// Force SW cache refresh for data.js fix (BOM parasites)
+if ('caches' in window) {
+  caches.keys().then(keys => {
+    keys.filter(k => k !== 'tssr-v18').forEach(k => {
+      caches.delete(k);
+      console.log('Old cache deleted:', k);
+    });
+  });
+}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.update());
+  });
+}
+
 if (typeof chrome !== 'undefined' && chrome.runtime) {
   chrome.runtime.onMessage?.addListener(() => true);
 }

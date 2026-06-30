@@ -1331,15 +1331,20 @@ function openFileFullscreen(file) {
   `;
   document.body.appendChild(overlay);
 
+  const iframe = overlay.querySelector('.file-fullscreen-iframe');
   if (file.kind === 'pdf' || file.kind === 'pdf-idb') {
-    const iframeEl = overlay.querySelector('.file-fullscreen-iframe');
-    const fsWrap = document.createElement('div');
-    fsWrap.id = 'pdf-fs-wrap';
-    fsWrap.style.cssText = 'flex:1;overflow:auto;padding:1rem;background:#111;';
-    iframeEl.replaceWith(fsWrap);
-    renderPdfViewer(fsWrap, file);
+    (async () => {
+      let url;
+      if (file.kind === 'pdf') {
+        url = _pdfB64ToUrl(file.content);
+      } else {
+        const blob = await PdfStore.get(file.content);
+        if (!blob) { iframe.srcdoc = '<p style="color:red;padding:1rem">PDF non disponible sur cet appareil.</p>'; return; }
+        url = URL.createObjectURL(blob);
+      }
+      iframe.src = url;
+    })();
   } else {
-    const iframe = overlay.querySelector('.file-fullscreen-iframe');
     iframe.setAttribute('sandbox', 'allow-scripts');
     iframe.srcdoc = file.content;
   }
@@ -1381,67 +1386,23 @@ const PdfStore = {
 };
 
 async function renderPdfViewer(container, f) {
-  container.innerHTML = `<div class="pdf-loading">Chargement PDF…</div>`;
-  try {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-    const lib = window.pdfjsLib;
-    lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-    let data;
-    if (f.kind === 'pdf') {
-      const bin = atob(f.content);
-      const buf = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-      data = buf.buffer;
-    } else if (f.kind === 'pdf-idb') {
-      const blob = await PdfStore.get(f.content);
-      if (!blob) { container.innerHTML = `<div class="pdf-unavailable">⚠️ PDF stocké localement — non disponible sur cet appareil.</div>`; return; }
-      data = await blob.arrayBuffer();
-    } else { return; }
-
-    const pdf = await lib.getDocument({ data }).promise;
-    let page = 1;
-    let zoom = 1.3;
-
-    container.innerHTML = `
-      <div class="pdf-viewer">
-        <div class="pdf-viewer-bar">
-          <button class="pdf-btn" id="pv-prev" title="Page précédente">◀</button>
-          <span class="pdf-page-info"><span id="pv-cur">1</span> / <span id="pv-tot">${pdf.numPages}</span></span>
-          <button class="pdf-btn" id="pv-next" title="Page suivante">▶</button>
-          <span class="pdf-sep">|</span>
-          <button class="pdf-btn" id="pv-zm" title="Dézoomer">−</button>
-          <span class="pdf-zoom-val" id="pv-zoom">130%</span>
-          <button class="pdf-btn" id="pv-zp" title="Zoomer">+</button>
-        </div>
-        <div class="pdf-canvas-wrap">
-          <canvas id="pv-canvas"></canvas>
-        </div>
-      </div>`;
-
-    const canvas = container.querySelector('#pv-canvas');
-    const ctx = canvas.getContext('2d');
-
-    async function draw(n, z) {
-      const pg = await pdf.getPage(n);
-      const vp = pg.getViewport({ scale: z });
-      canvas.width  = vp.width;
-      canvas.height = vp.height;
-      await pg.render({ canvasContext: ctx, viewport: vp }).promise;
-      container.querySelector('#pv-cur').textContent  = n;
-      container.querySelector('#pv-zoom').textContent = Math.round(z * 100) + '%';
+  let url;
+  if (f.kind === 'pdf') {
+    url = _pdfB64ToUrl(f.content);
+  } else if (f.kind === 'pdf-idb') {
+    const blob = await PdfStore.get(f.content);
+    if (!blob) {
+      container.innerHTML = `<div class="pdf-unavailable">⚠️ PDF stocké localement — non disponible sur cet appareil. Re-uploadez-le.</div>`;
+      return;
     }
+    url = URL.createObjectURL(blob);
+  } else { return; }
 
-    await draw(page, zoom);
-
-    container.querySelector('#pv-prev').onclick = () => { if (page > 1)            { page--; draw(page, zoom); } };
-    container.querySelector('#pv-next').onclick = () => { if (page < pdf.numPages) { page++; draw(page, zoom); } };
-    container.querySelector('#pv-zm').onclick   = () => { zoom = Math.max(0.5, +(zoom - 0.2).toFixed(1)); draw(page, zoom); };
-    container.querySelector('#pv-zp').onclick   = () => { zoom = Math.min(3.0, +(zoom + 0.2).toFixed(1)); draw(page, zoom); };
-
-  } catch (e) {
-    container.innerHTML = `<div class="pdf-unavailable">⚠️ Erreur lecture PDF : ${escHtml(e.message)}</div>`;
-  }
+  const iframe = document.createElement('iframe');
+  iframe.src = url;
+  iframe.className = 'member-file-pdf';
+  container.innerHTML = '';
+  container.appendChild(iframe);
 }
 
 function _pdfB64ToUrl(b64) {

@@ -1220,6 +1220,7 @@ const MODULES = [
         ['AD amélioré', 'Nouveau niveau fonctionnel forêt/domaine', 'Fonctionnalités AD étendues'],
       ]},
           { type: "h2", content: "6. Bonnes pratiques GPO" },
+          { type: 'diagram', module: 'windows-server', index: 0 },
           { type: "p", content: "Les GPO sont le coeur de la configuration centralisee sous Active Directory. De mauvaises pratiques rendent le domaine ingerable." },
           { type: "table", headers: ["Mauvaise pratique","Probleme","Solution"], rows: [
             ["Pas de convention nommage","Impossible retrouver GPO","GPO_SCOPE_SETTING"],
@@ -1231,6 +1232,7 @@ const MODULES = [
           { type: "code", content: "# Ordre application GPO (LSDOU):\n# Local -> Site -> Domaine -> OU -> OU enfant\n# La derniere ECRASE la precedente\n\n# GPResult:\n# gpresult /r (resume)\n# gpresult /h C:\\report.html (HTML)\n\n# PowerShell:\n# Get-GPO -All\n# New-GPO -Name \"GPO_Password\"\n# New-GPLink -Name \"GPO_Password\" -Target \"OU=Users,DC=dom,DC=fr\"" },
           { type: "warn", content: "Ne JAMAIS modifier les GPO par defaut (Default Domain Policy). Creer des GPO dediees." },
           { type: "h2", content: "7. Securite Active Directory 2025" },
+          { type: 'diagram', module: 'windows', index: 0 },
           { type: "p", content: "Les attaques AD sont la cible #1 des ransomwares. Le TSSR doit connaitre les bonnes pratiques." },
           { type: "table", headers: ["Attaque","Description","Protection"], rows: [
             ["DCSync","Vol des hashes via replication","Limiter Domain Admins"],
@@ -2878,6 +2880,7 @@ const MODULES = [
             ["Validation inputs","Verifier les parametres","[ValidateNotNull()]"],
           ]},
           { type: "h2", content: "8. Bash vs PowerShell - Tableau comparatif TSSR" },
+          { type: 'diagram', module: 'scripting-avance', index: 1 },
           { type: "table", headers: ["Tache","Bash","PowerShell"], rows: [
             ["Lister fichiers","ls -la","Get-ChildItem | Format-Table"],
             ["Chercher texte","grep 'motif' fichier","Select-String -Pattern 'motif'"],

@@ -198,6 +198,38 @@ s.appendChild(_ln(95,190,95,215,"#00e5a0","1.5"));s.appendChild(_svg("polygon",{
 s.appendChild(_ln(450,190,450,215,"#00e5a0","1.5"));s.appendChild(_svg("polygon",{points:"443,215 457,215 450,223",fill:"#00e5a0"}));
 s.appendChild(_ln(40,255,560,255));s.appendChild(_tx(300,275,"Resultat: canal chiffr (confidentialite) + certifi (authenticite) + integre (HMAC)","#64748b",{size:"10"}));
 s.appendChild(_rx(95,130,50,30,"#3b82f6",{opacity:"0.05"}));s.appendChild(_tx(120,148,"PKI","#3b82f6",{size:"10",anchor:"middle"}))
+return s}});MODULE_DIAGRAMS["windows-server"]=[{title:"GPO - Ordre d application LSDOU",build(){
+var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:600px;height:auto";
+s.appendChild(_rx(10,10,580,270,"#0f1424",{stroke:"#1e293b",rx:8}));
+s.appendChild(_tx(300,35,"GPO - Ordre d application LSDOU","#3b82f6",{size:"15",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
+var items=[["L","Local","Poste local uniquement","#64748b",55],["S","Site","Niveau réseau AD DS","#f59e0b",110],["D","Domaine","Niveau domain.local","#3b82f6",165],["O","OU","Organizational Unit ciblée","#00e5a0",220]];
+items.forEach(function(d,i){
+s.appendChild(_rx(30,d[4],80,45,d[3],{opacity:"0.15",stroke:d[3],rx:5}));
+s.appendChild(_tx(70,d[4]+20,d[0],d[3],{size:"20",weight:"bold"}));
+s.appendChild(_tx(70,d[4]+38,d[1],"#94a3b8",{size:"9"}));
+s.appendChild(_rx(130,d[4]+5,310,35,d[3],{opacity:"0.08",stroke:d[3],rx:4}));
+s.appendChild(_tx(285,d[4]+25,d[2],"#e2e8f0",{size:"11"}));
+if(i<3)s.appendChild(_ln(70,d[4]+45,70,d[4]+55,d[3],"2"))});
+s.appendChild(_rx(460,55,110,210,"#0f1424",{rx:5,stroke:"#1e293b"}));
+s.appendChild(_tx(515,75,"Règles","#a855f7",{size:"11",weight:"bold"}));s.appendChild(_ln(460,82,570,82,"#1e293b","1"));
+[["Last wins","Dernière GPO l emporte","#f59e0b",98],["Block inh.","Bloque héritage parent","#ef4444",132],["Enforced","Force enfants","#3b82f6",166],["Loopback","Politique utilisateur","#00e5a0",200],["WMI filter","Condition sur objet","#a855f7",234]].forEach(function(d){
+s.appendChild(_tx(515,d[2],d[0],d[1],{size:"9",weight:"bold"}));
+s.appendChild(_tx(515,d[2]+12,d[3],"#64748b",{size:"8"}))});
+s.appendChild(_tx(300,265,"Local < Site < Domaine < OU - La derniere GPO appliquee gagne","#64748b",{size:"10"}));
+return s}}];MODULE_DIAGRAMS["scripting-avance"].push({title:"Bash vs PowerShell - Comparatif",build(){
+var s=_svg("svg",{viewBox:"0 0 600 290"});s.style.cssText="width:100%;max-width:600px;height:auto";
+s.appendChild(_rx(10,10,580,280,"#0f1424",{stroke:"#1e293b",rx:8}));
+s.appendChild(_tx(300,35,"Bash vs PowerShell","#00e5a0",{size:"16",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
+s.appendChild(_rx(40,55,240,22,"#00e5a0",{opacity:"0.15",stroke:"#00e5a0"}));s.appendChild(_tx(160,70,"Bash (Linux/macOS)","#00e5a0",{size:"12",weight:"bold"}));
+s.appendChild(_rx(320,55,240,22,"#3b82f6",{opacity:"0.15",stroke:"#3b82f6"}));s.appendChild(_tx(440,70,"PowerShell (Windows/cross)","#3b82f6",{size:"12",weight:"bold"}));
+s.appendChild(_ln(40,80,560,80,"#1e293b","1"));
+[["Variables","$VAR=valeur; echo $VAR","$VAR='valeur'; $VAR"],["Boucle","for i in {1..5}; do echo $i; done","for($i=1;$i -le 5;$i++){$i}"],["Condition","if [ $a -eq 1 ]; then ... fi","if($a -eq 1){ ... }"],["Pipe","ls -la | grep .txt","Get-ChildItem | Where-Object {$_.Name -match '.txt'}"],["Lister proc.","ps aux | grep nginx","Get-Process nginx"],["Arrêter proc.","kill -9 PID","Stop-Process -Id PID"],["Chercher texte","grep -r 'motif' /dossier","Select-String -Pattern 'motif' -Recurse"]].forEach(function(d,i){
+var y=88+i*26;
+s.appendChild(_rx(40,y,560,24,i%2===0?"#1e293b":"#0f1424",{opacity:"0.4"}));
+s.appendChild(_tx(280,y+9,d[0],"#94a3b8",{size:"9","text-anchor":"middle"}));
+s.appendChild(_tx(155,y+15,d[1],"#00e5a0",{size:"8","font-family":"monospace"}));
+s.appendChild(_tx(440,y+15,d[2],"#3b82f6",{size:"8","font-family":"monospace"}))});
+s.appendChild(_ln(40,275,560,275));s.appendChild(_tx(300,268,"Bash: texte brut, pipeline puissant | PS: objets .NET, écosystème Windows/AD","#64748b",{size:"9"}));
 return s}});MODULE_DIAGRAMS.stockage.push({title:"DAS vs NAS vs SAN - Architectures stockage",build(){
 var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:600px;height:auto";
 s.appendChild(_rx(10,10,580,270,"#0f1424",{stroke:"#1e293b",rx:8}));

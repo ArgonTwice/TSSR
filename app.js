@@ -3,7 +3,7 @@
 // Force SW cache refresh for data.js fix (BOM parasites)
 if ('caches' in window) {
   caches.keys().then(keys => {
-    keys.filter(k => k !== 'tssr-v21').forEach(k => {
+    keys.filter(k => k !== 'tssr-v22').forEach(k => {
       caches.delete(k);
       console.log('Old cache deleted:', k);
     });

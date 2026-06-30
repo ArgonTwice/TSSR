@@ -964,10 +964,13 @@ async function renderNotes(m, cours, el) {
           <div class="member-file-header">
             <span class="member-file-name">${escHtml(f.filename)}</span>
             ${f.kind === 'html' ? '<span class="member-file-badge">HTML</span>' : ''}
-            ${f.kind === 'html' ? `<button type="button" class="file-open-fullscreen" data-member="${escHtml(name)}" data-fidx="${fi}">Plein ecran</button>` : ''}
+            ${f.kind === 'pdf'  ? '<span class="member-file-badge member-file-badge-pdf">PDF</span>' : ''}
+            ${(f.kind === 'html'||f.kind === 'pdf') ? `<button type="button" class="file-open-fullscreen" data-member="${escHtml(name)}" data-fidx="${fi}">Plein écran</button>` : ''}
           </div>
           ${f.kind === 'html'
             ? `<iframe class="member-file-iframe" sandbox="allow-scripts" srcdoc="${escHtml(f.content)}"></iframe>`
+            : f.kind === 'pdf'
+            ? `<div class="pdf-slot" data-member="${escHtml(name)}" data-fidx="${fi}"></div>`
             : `<div class="member-file-extract">${escHtml(f.content || '').replace(/\n/g,'<br>')}</div>`
           }
         </div>`).join('');
@@ -997,6 +1000,18 @@ async function renderNotes(m, cours, el) {
           </div>
         </details>`;
     }).join('');
+
+    // Remplir les slots PDF avec blob URLs (post-render, évite XSS via srcdoc)
+    container.querySelectorAll('.pdf-slot').forEach(slot => {
+      const memberName = slot.dataset.member;
+      const fileIdx    = Number(slot.dataset.fidx);
+      const f = (members[memberName]?.files || [])[fileIdx];
+      if (!f || f.kind !== 'pdf') return;
+      const iframe = document.createElement('iframe');
+      iframe.className = 'member-file-pdf';
+      iframe.src = _pdfB64ToUrl(f.content);
+      slot.replaceWith(iframe);
+    });
 
     container.querySelectorAll('.file-open-fullscreen[data-member]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1071,18 +1086,27 @@ async function renderNotes(m, cours, el) {
     }
 
     function renderFilesChips() {
+      // Pré-génère les blob URLs pour les PDF (avant innerHTML)
+      const pdfUrls = {};
+      pendingFiles.forEach((f, i) => {
+        if (f.kind === 'pdf') pdfUrls[i] = _pdfB64ToUrl(f.content);
+      });
+
       filesListEl.innerHTML = pendingFiles.map((f, i) => `
         <div class="member-file-block">
           <div class="member-file-header">
             <span class="member-file-name">${escHtml(f.filename)}</span>
             ${f.kind === 'html' ? '<span class="member-file-badge">HTML</span>' : ''}
+            ${f.kind === 'pdf'  ? '<span class="member-file-badge member-file-badge-pdf">PDF</span>' : ''}
             <div class="member-file-actions">
-              ${f.kind === 'html' ? `<button type="button" class="file-open-fullscreen" data-idx="${i}">Plein ecran</button>` : ''}
+              ${(f.kind === 'html' || f.kind === 'pdf') ? `<button type="button" class="file-open-fullscreen" data-idx="${i}">Plein écran</button>` : ''}
               <button type="button" class="file-chip-remove" data-idx="${i}">Retirer</button>
             </div>
           </div>
           ${f.kind === 'html'
             ? `<iframe class="member-file-iframe" sandbox="allow-scripts" srcdoc="${escHtml(f.content)}"></iframe>`
+            : f.kind === 'pdf'
+            ? `<iframe class="member-file-pdf" src="${pdfUrls[i]}"></iframe>`
             : `<div class="member-file-extract">${escHtml(f.content).replace(/\n/g,'<br>')}</div>`
           }
         </div>`).join('');
@@ -1307,20 +1331,32 @@ function openFileFullscreen(file) {
         <span class="file-fullscreen-title">${escHtml(file.filename)}</span>
         <button class="file-fullscreen-close">Fermer</button>
       </div>
-      <iframe class="file-fullscreen-iframe" sandbox="allow-same-origin"></iframe>
+      <iframe class="file-fullscreen-iframe"></iframe>
     </div>
   `;
   document.body.appendChild(overlay);
 
   const iframe = overlay.querySelector('.file-fullscreen-iframe');
-  iframe.setAttribute('sandbox', 'allow-scripts');
-  iframe.srcdoc = file.content;
+  if (file.kind === 'pdf') {
+    iframe.src = _pdfB64ToUrl(file.content);
+  } else {
+    iframe.setAttribute('sandbox', 'allow-scripts');
+    iframe.srcdoc = file.content;
+  }
 
-  overlay.querySelector('.file-fullscreen-close').addEventListener('click', () => overlay.remove());
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  const close = () => overlay.remove();
+  overlay.querySelector('.file-fullscreen-close').addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
   document.addEventListener('keydown', function escClose(e) {
-    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escClose); }
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', escClose); }
   });
+}
+
+function _pdfB64ToUrl(b64) {
+  const bytes = atob(b64);
+  const buf = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
+  return URL.createObjectURL(new Blob([buf], { type: 'application/pdf' }));
 }
 
 async function extractFileContent(file) {
@@ -1338,8 +1374,11 @@ async function extractFileContent(file) {
   }
 
   if (type === 'application/pdf') {
-    const text = await extractPDF(file);
-    return { kind: 'text', raw: text };
+    const buf = await file.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return { kind: 'pdf', raw: btoa(bin) };
   }
 
   if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
@@ -2004,6 +2043,16 @@ function makeCLIState(type) {
       linePasswords: {},
       motd: null,
       ospfProcess: 1,
+      nat: {
+        translations: [],
+        overload: false,
+        pat: false,
+        pool: null,
+        sourceList: null,
+        statics: [],
+        insideIfs: [],
+        outsideIfs: [],
+      },
     };
   } else if (type === 'cmd') {
     const base = makeCLIState('windows');
@@ -3033,13 +3082,28 @@ function cliExecCisco(raw) {
     const rtt = success ? `${Math.floor(Math.random()*3)+1}/${Math.floor(Math.random()*3)+2}/${Math.floor(Math.random()*5)+3}` : '—';
     out(`Type escape sequence to abort.\nSending 5, 100-byte ICMP Echos to ${target}, timeout is 2 seconds:\n<span style="color:${success?'#22c55e':'#ef4444'}">${success?'!!!!!':'.....'}
 </span>Success rate is ${success?100:0} percent (${success?5:0}/5), round-trip min/avg/max = ${rtt} ms`);
-    // incrémenter compteurs ACL si une ACL est appliquée sur Gi0/1 out
     if (success) {
+      // Compteurs ACL
       Object.values(cs.interfaces).forEach(iface => {
         if (iface.acl && iface.aclDir === 'out' && cs.acls[iface.acl]) {
           cs.acls[iface.acl].forEach(e => { if (!e.hits) e.hits = 0; e.hits += 5; });
         }
       });
+      // NAT PAT : ajouter une entrée dynamique
+      if (cs.nat && cs.nat.overload && cs.nat.insideIfs.length && cs.nat.outsideIfs.length) {
+        const outsideIf = cs.interfaces[cs.nat.outsideIfs[0]];
+        const globalIp  = outsideIf?.ip || '203.0.113.1';
+        const port       = Math.floor(Math.random() * 40000) + 1024;
+        cs.nat.translations.push({
+          proto: 'icmp',
+          insideLocal:  `192.168.1.10`,
+          insideGlobal: `${globalIp}:${port}`,
+          outsideLocal: target,
+          outsideGlobal:target,
+          static: false,
+          ts: Date.now(),
+        });
+      }
     }
     return;
   }
@@ -3128,6 +3192,10 @@ function cliExecCisco(raw) {
 
     if (_ios(c0,'clear')) {
       if (_ios(c1,'counters'))    { ok(`Clear "show interface" counters on all interfaces [confirm]\n[OK]`); }
+      else if (c1==='ip' && _ios((parts[2]||''),'nat')) {
+        if (cs.nat) { cs.nat.translations = (cs.nat.translations||[]).filter(e=>e.static); }
+        ok(`[NAT dynamic translations cleared]`);
+      }
       else if (_ios(c1,'ip'))     { ok(`[Cleared]`); }
       else if (_ios(c1,'arp'))    { ok(`[ARP cache cleared]`); }
       else if (_ios(c1,'line'))   { ok(`[Line cleared]`); }
@@ -3212,6 +3280,39 @@ function cliExecCisco(raw) {
     }
     if (c0 === 'ip' && _ios(c1,'routing')) { cs.ipRouting=true; cs.configChanged=true; ok(`IP routing enabled`); return; }
     if (c0 === 'no' && c1 === 'ip' && _ios((parts[2]||''),'routing')) { cs.ipRouting=false; cs.configChanged=true; ok(`IP routing disabled`); return; }
+    // NAT
+    if (c0 === 'ip' && _ios(c1,'nat')) {
+      const s2=(parts[2]||'').toLowerCase(), s3=(parts[3]||'').toLowerCase(), s4=(parts[4]||'').toLowerCase();
+      if (_ios(s2,'pool')) {
+        const [,,,name,start,end] = parts;
+        cs.nat.poolDef = { name, start, end:end||start, mask:parts[7]||'255.255.255.0' };
+        cs.configChanged=true; ok(`NAT pool "${name}": ${start}–${end||start}`); return;
+      }
+      if (_ios(s2,'inside') && _ios(s3,'source')) {
+        if (_ios(s4,'static')) {
+          const localIp=parts[5], globalIp=parts[6];
+          if (!localIp||!globalIp) { err('ip nat inside source static LOCAL GLOBAL'); return; }
+          if (!cs.nat) cs.nat = { translations:[], statics:[], insideIfs:[], outsideIfs:[], overload:false };
+          cs.nat.statics.push({ local:localIp, global:globalIp });
+          cs.nat.translations.push({ proto:'---', insideLocal:localIp, insideGlobal:globalIp, outsideLocal:'---', outsideGlobal:'---', static:true });
+          cs.configChanged=true; ok(`NAT statique: ${localIp} → ${globalIp}`); return;
+        }
+        if (_ios(s4,'list')) {
+          if (!cs.nat) cs.nat = { translations:[], statics:[], insideIfs:[], outsideIfs:[], overload:false };
+          cs.nat.sourceList = parts[5]||'1';
+          cs.nat.overload   = parts.some(p=>p.toLowerCase()==='overload');
+          cs.nat.pat        = cs.nat.overload;
+          cs.nat.pool       = parts[7]||null;
+          cs.configChanged=true;
+          ok(`NAT${cs.nat.overload?' PAT/overload':''}: liste ACL ${cs.nat.sourceList}${cs.nat.pool?' pool '+cs.nat.pool:''}`); return;
+        }
+      }
+      err('ip nat {inside source {static|list}|pool}'); return;
+    }
+    if (c0==='no' && c1==='ip' && _ios((parts[2]||''),'nat')) {
+      cs.nat = { translations:[], overload:false, pat:false, pool:null, sourceList:null, statics:[], insideIfs:[], outsideIfs:[] };
+      cs.configChanged=true; ok('NAT supprimé'); return;
+    }
     if (_ios(c0,'enable') && (_ios(c1,'secret')||_ios(c1,'password'))) {
       cs.enableSecret=parts[2]||''; cs.configChanged=true; ok(`Enable ${c1} configured`); return;
     }
@@ -3295,6 +3396,17 @@ function cliExecCisco(raw) {
     if (c0==='ip'&&_ios(c1,'ospf'))         { iface.ospfProcess=parseInt(parts[2]); iface.ospfArea=parseInt(parts[4]||'0'); cs.configChanged=true; return; }
     if (c0==='ip'&&_ios(c1,'access-group')) { iface.acl=parts[2]; iface.aclDir=parts[3]||'in'; cs.configChanged=true; ok(`ACL ${parts[2]} appliquée ${parts[3]||'in'} sur ${cs.ciscoCtx}`); return; }
     if (c0==='no'&&c1==='ip'&&_ios((parts[2]||''),'access-group')) { iface.acl=null; iface.aclDir=null; cs.configChanged=true; return; }
+    if (c0==='ip'&&_ios(c1,'nat')) {
+      if (!cs.nat) cs.nat = { translations:[], statics:[], insideIfs:[], outsideIfs:[], overload:false };
+      const dir = (parts[2]||'').toLowerCase();
+      if (_ios(dir,'inside'))  { iface.natInside=true;  if (!cs.nat.insideIfs.includes(cs.ciscoCtx))  cs.nat.insideIfs.push(cs.ciscoCtx);  cs.configChanged=true; ok(`${cs.ciscoCtx}: ip nat inside`);  return; }
+      if (_ios(dir,'outside')) { iface.natOutside=true; if (!cs.nat.outsideIfs.includes(cs.ciscoCtx)) cs.nat.outsideIfs.push(cs.ciscoCtx); cs.configChanged=true; ok(`${cs.ciscoCtx}: ip nat outside`); return; }
+    }
+    if (c0==='no'&&c1==='ip'&&_ios((parts[2]||''),'nat')) {
+      iface.natInside=false; iface.natOutside=false;
+      if (cs.nat) { cs.nat.insideIfs=cs.nat.insideIfs.filter(x=>x!==cs.ciscoCtx); cs.nat.outsideIfs=cs.nat.outsideIfs.filter(x=>x!==cs.ciscoCtx); }
+      cs.configChanged=true; return;
+    }
     if (_ios(c0,'encapsulation'))  { iface.encap=parts[1]; iface.encapVlan=parseInt(parts[2]); cs.configChanged=true; return; }
     if (_ios(c0,'bandwidth'))      { iface.bw=parts[1]; cs.configChanged=true; return; }
     if (_ios(c0,'clock') && _ios(c1,'rate'))  { iface.clockRate=parts[2]; cs.configChanged=true; return; }
@@ -3500,10 +3612,30 @@ ${(cs.ospfNeighbors||[]).map(n=>
     if (_ios(s1,'dhcp')) {
       out(`IP DHCP pool: non configuré dans ce simulateur`); return;
     }
-    // show ip nat
+    // show ip nat translations / statistics
     if (_ios(s1,'nat')) {
-      out(`Pro Inside global      Inside local       Outside local      Outside global
-tcp 203.0.113.1:1024  192.168.1.10:1024  8.8.8.8:80         8.8.8.8:80`); return;
+      const nat = cs.nat || {};
+      if (_ios(s2,'statistics') || _ios(s2,'stat')) {
+        out(`Total active translations: ${(nat.translations||[]).length} (${(nat.statics||[]).length} static, ${Math.max(0,(nat.translations||[]).length-(nat.statics||[]).length)} dynamic)
+Outside interfaces: ${(nat.outsideIfs||[]).join(', ')||'aucune'}
+Inside interfaces:  ${(nat.insideIfs||[]).join(', ')||'aucune'}
+Hits: ${(nat.translations||[]).reduce((a,e)=>a+(e.hits||1),0)}   Misses: 0
+CEF Translated packets: ${Math.floor(Math.random()*1000)+100}, CEF Punted packets: 0`);
+        return;
+      }
+      // show ip nat translations (défaut)
+      if (!(nat.translations||[]).length) { out(`Pro Inside global      Inside local       Outside local      Outside global\n  (aucune traduction active)`); return; }
+      const header = `Pro  Inside global         Inside local         Outside local        Outside global`;
+      const rows = nat.translations.map(e => {
+        const proto = (e.proto||'---').padEnd(5);
+        const ig = (e.insideGlobal||'---').padEnd(21);
+        const il = (e.insideLocal||'---').padEnd(21);
+        const ol = (e.outsideLocal||'---').padEnd(21);
+        const og = (e.outsideGlobal||'---');
+        return `${proto}${ig}${il}${ol}${og}`;
+      }).join('\n');
+      out(header + '\n' + rows);
+      return;
     }
     // show ip protocols
     if (_ios(s1,'protocols')) {

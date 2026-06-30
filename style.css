@@ -2814,6 +2814,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   background: rgba(59,130,246,0.15);
   color: #60a5fa;
 }
+.member-file-badge-pdf {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+}
 .member-file-html-render {
   background: #ffffff;
   color: #1a1a1a;
@@ -2865,6 +2869,14 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   border: none;
   border-radius: 8px;
   background: #ffffff;
+}
+.member-file-pdf {
+  width: 100%;
+  height: 600px;
+  border: none;
+  border-radius: 8px;
+  background: #2a2a2a;
+  display: block;
 }
 .file-fullscreen-overlay {
   position: fixed;

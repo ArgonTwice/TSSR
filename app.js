@@ -502,7 +502,7 @@ function renderHome() {
     tagSpan.className = m.cours.length ? 'tag has-content' : 'tag';
     tagSpan.textContent = m.cours.length ? `cours (${m.cours.length})` : 'À venir';
     tagsEl.appendChild(tagSpan);
-    card.addEventListener('click', () => { try { openModule(m.id); } catch(e) { console.error('CARD CLICK:',e); alert('Erreur: '+e.message); } });
+    card.addEventListener('click', () => { try { openModule(m.id); } catch(e) { var m2=e&&e.message||e||'unknown'; var s=e&&e.stack||''; console.error('CARD CLICK ERR:',m2,'\nSTACK:',s); alert('Erreur: '+m2); } });
     card.addEventListener('keydown', e => e.key === 'Enter' && openModule(m.id));
     grid.appendChild(card);
   });

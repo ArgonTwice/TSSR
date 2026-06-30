@@ -954,7 +954,7 @@ function toggleReadingMode() {
   readingModeActive = !readingModeActive;
   document.body.classList.toggle('reading-mode', readingModeActive);
   const btn = document.getElementById('toggle-reading-btn');
-  if (btn) btn.innerHTML = readingModeActive ? '📖 Mode normal' : '📖 Plein écran';
+  if (btn) btn.innerHTML = readingModeActive ? '✕ Quitter' : '📖 Plein écran';
 }
 // ===== FAVORIS MODULES =====
 function getFavorites() {
@@ -1089,6 +1089,7 @@ function openModule(mId, tab) {
   const mod = MODULES.find(x => x && x.id === mId);
   if (!mod) return;
   state.currentModule = mod;
+  if (readingModeActive) toggleReadingMode();
   state.currentCours = tab === 'cours' ? (mod.cours?.[0]?.id || null) : null;
   if (mod.cours.length > 1) { state.openAccordion = mod.id; store.set('sidebar_open', mod.id); }
   document.getElementById('mobile-module-name').textContent = mod.label;
@@ -6411,6 +6412,7 @@ document.addEventListener('keydown', e => {
     document.body.appendChild(div);
   }
   if (e.key === 'Escape') {
+    if (readingModeActive) { toggleReadingMode(); e.preventDefault(); return; }
     if (document.getElementById('kb-help')) { document.getElementById('kb-help').remove(); e.preventDefault(); return; }
     if (document.getElementById('sidebar')?.classList.contains('open')) { closeSidebar(); e.preventDefault(); return; }
     if (screen === 'module' && s.currentCours !== null) { document.getElementById('back-btn')?.click(); e.preventDefault(); return; }

@@ -3628,7 +3628,8 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 body.reading-mode #sidebar { display:none!important }
 body.reading-mode #mobile-header { display:none!important }
 body.reading-mode #tab-bar { display:none!important }
-body.reading-mode .cours-actions { display:none!important }
+body.reading-mode .cours-actions { display:flex!important; position:fixed; bottom:24px; right:24px; z-index:9999; gap:8px; flex-direction:column-reverse; background:var(--bg2); padding:8px; border-radius:12px; border:1px solid var(--border2); }
+body.reading-mode .cours-actions button { font-size:12px!important; padding:6px 12px!important; white-space:nowrap; }
 body.reading-mode #content { margin-left:0!important;padding:20px 10% }
 body.reading-mode .cours-article { font-size:1.05rem;line-height:1.8;background:transparent;border:none;box-shadow:none }
 body.reading-mode .cours-article p { color:var(--text) }

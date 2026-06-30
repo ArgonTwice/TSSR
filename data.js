@@ -3476,7 +3476,7 @@ const MODULES = [
     ],
   }
 
-﻿,
+,
   {
     id: 'anglais-technique',
     label: 'Anglais Technique',

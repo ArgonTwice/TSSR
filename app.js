@@ -3,7 +3,7 @@
 // Force SW cache refresh for data.js fix (BOM parasites)
 if ('caches' in window) {
   caches.keys().then(keys => {
-    keys.filter(k => k !== 'tssr-v23').forEach(k => {
+    keys.filter(k => k !== 'tssr-v24').forEach(k => {
       caches.delete(k);
       console.log('Old cache deleted:', k);
     });
@@ -1522,18 +1522,53 @@ function setupFileUpload(moduleId, coursId) {
       item.querySelector('.file-remove-btn').addEventListener('click', () => item.remove());
 
       try {
-        const content = await extractFileContent(file);
-        statusEl.style.color = 'var(--accent)';
-        statusEl.textContent = `Extrait — ${content.length} caractères`;
-        import('./firebase-notes.js').then(({ FirebaseNotes }) =>
-          FirebaseNotes.trackFileUpload(moduleId, coursId, file, content)
-            .then(() => regenerateAutoSummary(moduleId, coursId))
-        ).then(() => {
-          statusEl.textContent = `Extrait — ${content.length} car. · Sync collectif OK`;
-        }).catch(() => {});
+        const result = await extractFileContent(file);
+        const { kind, raw } = result;
 
-        previewEl.textContent = content.substring(0, 300) + (content.length > 300 ? '…' : '');
-        previewEl.style.display = 'block';
+        // Text for "Ajouter aux notes" / IA summary
+        let textContent;
+        if (kind === 'text') {
+          textContent = raw;
+        } else if (kind === 'html') {
+          textContent = new DOMParser().parseFromString(raw, 'text/html').body.innerText || '';
+        } else {
+          textContent = `[${kind.toUpperCase()}: ${file.name}]`;
+        }
+
+        import('./firebase-notes.js').then(({ FirebaseNotes }) =>
+          FirebaseNotes.trackFileUpload(moduleId, coursId, file, result)
+            .then(() => regenerateAutoSummary(moduleId, coursId))
+        ).catch(() => {});
+
+        if (kind === 'html') {
+          statusEl.style.color = 'var(--accent)';
+          statusEl.textContent = 'HTML — rendu ci-dessous';
+          previewEl.className = 'file-item-preview file-item-preview--render';
+          const ifr = document.createElement('iframe');
+          ifr.className = 'file-preview-iframe';
+          ifr.setAttribute('sandbox', 'allow-scripts');
+          ifr.srcdoc = raw;
+          previewEl.appendChild(ifr);
+          previewEl.style.display = 'block';
+        } else if (kind === 'pdf' || kind === 'pdf-idb') {
+          statusEl.style.color = 'var(--accent)';
+          statusEl.textContent = 'PDF — rendu ci-dessous';
+          previewEl.className = 'file-item-preview file-item-preview--render';
+          const ifr = document.createElement('iframe');
+          ifr.className = 'file-preview-iframe';
+          if (kind === 'pdf') {
+            ifr.src = _pdfB64ToUrl(raw);
+          } else {
+            PdfStore.get(raw).then(blob => { if (blob) ifr.src = URL.createObjectURL(blob); });
+          }
+          previewEl.appendChild(ifr);
+          previewEl.style.display = 'block';
+        } else {
+          statusEl.style.color = 'var(--accent)';
+          statusEl.textContent = `Extrait — ${textContent.length} caractères`;
+          previewEl.textContent = textContent.substring(0, 300) + (textContent.length > 300 ? '…' : '');
+          previewEl.style.display = 'block';
+        }
 
         const addBtn = document.createElement('button');
         addBtn.className = 'file-add-btn';
@@ -1542,7 +1577,7 @@ function setupFileUpload(moduleId, coursId) {
           const ta = document.getElementById('notes-ta');
           if (!ta) { alert('Selectionnez d\'abord un membre dans les notes.'); return; }
           const stamp = new Date().toLocaleString('fr-FR');
-          ta.value += (ta.value ? '\n\n' : '') + `--- ${file.name} (${stamp}) ---\n${content}`;
+          ta.value += (ta.value ? '\n\n' : '') + `--- ${file.name} (${stamp}) ---\n${textContent}`;
           ta.dispatchEvent(new Event('input'));
           statusEl.textContent = 'Ajouté aux notes ✓';
         });
@@ -1550,9 +1585,17 @@ function setupFileUpload(moduleId, coursId) {
         const sumBtn = document.createElement('button');
         sumBtn.className = 'file-summarize-btn';
         sumBtn.textContent = 'Résumer avec IA';
-        sumBtn.addEventListener('click', () => generateSummaryFromFile(content, file.name));
+        sumBtn.addEventListener('click', () => generateSummaryFromFile(textContent, file.name));
 
-        actionsEl.append(addBtn, sumBtn);
+        if (kind === 'html' || kind === 'pdf' || kind === 'pdf-idb') {
+          const fsBtn = document.createElement('button');
+          fsBtn.className = 'file-fullscreen-btn';
+          fsBtn.textContent = '⛶ Plein écran';
+          fsBtn.addEventListener('click', () => openFileFullscreen({ filename: file.name, kind, content: raw }));
+          actionsEl.append(addBtn, sumBtn, fsBtn);
+        } else {
+          actionsEl.append(addBtn, sumBtn);
+        }
         actionsEl.style.display = 'flex';
       } catch (err) {
         statusEl.style.color = 'var(--red)';

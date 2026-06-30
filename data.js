@@ -3340,7 +3340,6 @@ const MODULES = [
     ],
   },
 
-﻿,
   {
     id: 'support',
     label: 'Support & Helpdesk',

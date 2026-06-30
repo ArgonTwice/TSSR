@@ -510,14 +510,11 @@ function renderHome() {
 }
 
 // ===== OPEN MODULE =====
-function openModule(moduleId, tabOrSkip = false, directCours = null) {
-  const tab = typeof tabOrSkip === 'string' ? tabOrSkip : null;
-  const skipHistory = typeof tabOrSkip === 'boolean' ? tabOrSkip : false;
+function openModule(moduleId, skipHistory = false, directCours = null) {
   const m = MODULES.find(x => x && x.id === moduleId);
   if (!m) return;
   state.currentModule = m;
-  if (readingModeActive) toggleReadingMode();
-  state.currentCours = tab === 'cours' ? (directCours || m.cours?.[0]?.id || null) : directCours;
+  state.currentCours = directCours;
   if (m.cours.length > 1) {
     state.openAccordion = m.id;
     store.set('sidebar_open', m.id);
@@ -612,14 +609,13 @@ function openModule(moduleId, tabOrSkip = false, directCours = null) {
     btn.addEventListener('click', () => switchTab(t.id));
     tabBar.appendChild(btn);
   });
-  document.getElementById('content').scrollTop = 0;
-  const initialTab = tab && tabs.some(t => t.id === tab) ? tab : tabs[0].id;
-  switchTab(initialTab, true, true);
+  switchTab(tabs[0].id, true, true);
   showScreen('module-screen');
   if (!skipHistory) {
     history.replaceState({ ...history.state, scroll: document.getElementById('content').scrollTop }, '', location.href);
-    const _initCoursPath = (initialTab === 'cours' && state.currentCours) ? '/' + state.currentCours : '';
-    history.pushState({ screen: 'module', moduleId: m.id, tab: initialTab, coursId: state.currentCours, scroll: 0 }, '', '#module-' + m.id + '/' + initialTab + _initCoursPath);
+    const _firstTab = tabs[0].id;
+    const _initCoursPath = (_firstTab === 'cours' && state.currentCours) ? '/' + state.currentCours : '';
+    history.pushState({ screen: 'module', moduleId: m.id, tab: _firstTab, coursId: state.currentCours, scroll: 0 }, '', '#module-' + m.id + '/' + _firstTab + _initCoursPath);
   }
   closeSidebar();
 }
@@ -808,7 +804,7 @@ function renderCoursDetail(m, cours, idx, el) {
   el.appendChild(wrap);
 }
 function openAIExplainer(titre, sections) {
-  const contexte = (sections || [])
+  const contexte = sections
     .filter(s => s.type === 'p' || s.type === 'h2')
     .map(s => s.content)
     .join('\n')
@@ -929,12 +925,10 @@ function doGlobalSearch(q) {
       }
     }
     // Search flashcards
-    if (m.flashcards) {
-      for (const fc of m.flashcards) {
-        const front = fc.recto || fc.front || '';
-        const back = fc.verso || fc.back || '';
-        if (front.toLowerCase().includes(ql) || back.toLowerCase().includes(ql)) {
-          results.push({ module: m, type: '🃏', label: (front || '…') + ' → ' + (back || '…'), sub: m.label, action: () => openModule(m.id,'flashcards') });
+    if (m.fc) {
+      for (const fc of m.fc) {
+        if ((fc.front && fc.front.toLowerCase().includes(ql)) || (fc.back && fc.back.toLowerCase().includes(ql))) {
+          results.push({ module: m, type: '🃏', label: (fc.front||'…') + ' → ' + (fc.back||'…'), sub: m.label, action: () => openModule(m.id,'flashcards') });
           break;
         }
       }
@@ -984,7 +978,7 @@ function renderDashboard() {
   overlay.className = 'gs-overlay';
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   const totalQcm = MODULES.reduce((s, m) => s + (m.qcm?.length || 0), 0);
-  const totalFc = MODULES.reduce((s, m) => s + (m.flashcards?.length || 0), 0);
+  const totalFc = MODULES.reduce((s, m) => s + (m.fc?.length || 0), 0);
   // Compute stats from localStorage
   let qcmDone = 0, qcmCorrect = 0, sessions = 0;
   const lb = getLB();
@@ -1000,8 +994,8 @@ function renderDashboard() {
   // Flashcards mastered
   let fcMastered = 0, fcTotal = 0;
   MODULES.forEach(m => {
-    if (!m.flashcards) return;
-    m.flashcards.forEach((fc, fi) => {
+    if (!m.fc) return;
+    m.fc.forEach((fc, fi) => {
       fcTotal++;
       const key = 'tssr_fc_' + m.id + '_' + (fc.id || fi);
       try {
@@ -1091,7 +1085,33 @@ function importProgression() {
   input.click();
 }
 
-
+function openModule(mId, tab) {
+  const mod = MODULES.find(x => x && x.id === mId);
+  if (!mod) return;
+  state.currentModule = mod;
+  if (readingModeActive) toggleReadingMode();
+  state.currentCours = tab === 'cours' ? (mod.cours?.[0]?.id || null) : null;
+  if (mod.cours.length > 1) { state.openAccordion = mod.id; store.set('sidebar_open', mod.id); }
+  document.getElementById('mobile-module-name').textContent = mod.label;
+  renderNav();
+  document.getElementById('content').scrollTop = 0;
+  const content = document.getElementById('tab-content');
+  if (tab === 'cours') {
+    renderTabContent('cours');
+    history.pushState({ screen:'module', moduleId:mod.id, tab:'cours' }, '', '#module-' + mod.id);
+  } else if (tab === 'qcm') {
+    renderTabContent('qcm');
+    history.pushState({ screen:'module', moduleId:mod.id, tab:'qcm' }, '', '#module-' + mod.id + '/qcm');
+  } else if (tab === 'flashcards') {
+    renderTabContent('flashcards');
+    history.pushState({ screen:'module', moduleId:mod.id, tab:'flashcards' }, '', '#module-' + mod.id + '/flashcards');
+  } else {
+    renderTabContent('cours');
+    history.pushState({ screen:'module', moduleId:mod.id, tab:'cours' }, '', '#module-' + mod.id);
+  }
+  showScreen('module-screen');
+  closeSidebar();
+}
 function renderCoursContent(sections) {
   if (!sections) return '';
   return sections.map(s => {
@@ -1367,7 +1387,7 @@ function renderSection(section) {
 
 // ===== OUTILS =====
 function renderOutils(m, el) {
-  el.innerHTML = `<div class="html-file-wrap"><iframe src="${m.outils || 'about:blank'}" class="cours-iframe" title="Outils" loading="lazy"></iframe></div>`;
+  el.innerHTML = `<div class="html-file-wrap"><iframe src="${m.outils}" class="cours-iframe" title="Outils" loading="lazy"></iframe></div>`;
 }
 
 // ===== NOTES =====
@@ -1844,9 +1864,9 @@ function getDueCards() {
   const due = [];
   MODULES.forEach(m => {
     if (!m.flashcards || !m.flashcards.length) return;
-    m.flashcards.forEach((card, ci) => {
-      const saved = store.get(`fc_${m.id}_${card.id || 'card_' + ci}`);
-      if (!saved || (saved.nextReview || '').slice(0, 10) <= today) {
+    m.flashcards.forEach(card => {
+      const saved = store.get(`fc_${m.id}_${card.id}`);
+      if (!saved || saved.nextReview.slice(0, 10) <= today) {
         due.push({ ...card, _moduleId: m.id, _moduleLabel: m.label });
       }
     });
@@ -1894,12 +1914,12 @@ function renderRevisionView(el) {
         <div class="flashcard-inner" id="fc-inner">
           <div class="flashcard-face flashcard-front">
             <span class="flashcard-side-label">Question</span>
-            <div class="flashcard-text">${card.recto || card.front || ''}</div>
+            <div class="flashcard-text">${card.recto}</div>
             <span class="flashcard-hint"> cliquer pour révéler </span>
           </div>
           <div class="flashcard-face flashcard-back">
             <span class="flashcard-side-label">Réponse</span>
-            <div class="flashcard-text">${card.verso || card.back || ''}</div>
+            <div class="flashcard-text">${card.verso}</div>
           </div>
         </div>
       </div>
@@ -1929,7 +1949,7 @@ function revRate(rating) {
   state.rev.session[rating]++;
   if (rating === 'hard') state.rev.cards.push(state.rev.cards[state.rev.idx]);
   const card = state.rev.cards[state.rev.idx];
-  const saved = store.get(`fc_${card._moduleId}_${card.id || state.rev.idx}`);
+  const saved = store.get(`fc_${card._moduleId}_${card.id}`);
   const prevEase = saved?.ease || 250;
   const prevStreak = saved?.streak || 0;
   let ease = prevEase, streak = 0, days;
@@ -1948,7 +1968,7 @@ function revRate(rating) {
   }
   days = Math.round(days * (ease / 250));
   const next = new Date(); next.setDate(next.getDate() + days);
-  store.set(`fc_${card._moduleId}_${card.id || state.rev.idx}`, { rating, ease, streak, nextReview: next.toISOString() });
+  store.set(`fc_${card._moduleId}_${card.id}`, { rating, ease, streak, nextReview: next.toISOString() });
   state.rev.idx++;
   renderRevisionView(document.getElementById('examen-content'));
 }
@@ -2345,14 +2365,14 @@ function renderExamenResults(el) {
             <tbody>${moduleRows}</tbody>
           </table>
         </div>` : ''}
-        ${errorsHtml ? `<div class="qcm-errors-list"><h4 style="margin-bottom:16px">À retravailler</h4>${errorsHtml}</div>` : ''}
+        ${errorsHtml ? `<div class="qcm-errors" style="margin-top:32px"><h4 style="margin-bottom:16px">À retravailler</h4>${errorsHtml}</div>` : ''}
       </div>
     </div>`;
 }
 
 // ===== FLASHCARDS =====
 function renderFlashcards(m, el) {
-  if (!m.flashcards || !m.flashcards.length) {
+  if (!m.flashcards.length) {
     el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{1F4CB}</span><h3>Cartes à venir</h3><p>Les cartes seront ajoutées prochainement.</p></div>`;
     return;
   }
@@ -2392,12 +2412,12 @@ function renderFlashcardView(el, m) {
         <div class="flashcard-inner" id="fc-inner">
           <div class="flashcard-face flashcard-front">
             <span class="flashcard-side-label">Question</span>
-            <div class="flashcard-text">${card.recto || card.front || ''}</div>
+            <div class="flashcard-text">${card.recto}</div>
             <span class="flashcard-hint"> cliquer pour révéler </span>
           </div>
           <div class="flashcard-face flashcard-back">
             <span class="flashcard-side-label">Réponse</span>
-            <div class="flashcard-text">${card.verso || card.back || ''}</div>
+            <div class="flashcard-text">${card.verso}</div>
           </div>
         </div>
       </div>
@@ -2427,14 +2447,14 @@ function fcRate(rating) {
   const card = state.fc.cards[state.fc.idx];
   const days = rating==='easy'?4:rating==='medium'?1:0;
   const next = new Date(); next.setDate(next.getDate()+days);
-  store.set(`fc_${state.currentModule.id}_${card.id || state.fc.idx}`, { rating, nextReview: next.toISOString() });
+  store.set(`fc_${state.currentModule.id}_${card.id}`, { rating, nextReview: next.toISOString() });
   state.fc.idx++;
   renderFlashcardView(document.getElementById('tab-content'), state.currentModule);
 }
 
 // ===== QCM =====
 function renderQCM(m, el) {
-  if (!m.qcm || !m.qcm.length) {
+  if (!m.qcm.length) {
     el.innerHTML = `<div class="empty-state"><span class="empty-state-icon">\u{2753}</span><h3>QCM à venir</h3><p>Les questions seront ajoutées prochainement.</p></div>`;
     return;
   }
@@ -6273,9 +6293,7 @@ function showScreen(id) {
   const leavingTerminal = state.currentScreen === 'terminal-fs' && id !== 'terminal-fs-screen';
 
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(id);
-  if (!target) { console.error('showScreen: element not found', id); return; }
-  target.classList.add('active');
+  document.getElementById(id).classList.add('active');
   document.getElementById('content').scrollTop = 0;
   state.currentScreen = id.replace('-screen','');
 

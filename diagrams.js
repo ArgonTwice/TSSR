@@ -99,17 +99,19 @@ s.appendChild(_ln(40,245,560,245));s.appendChild(_tx(300,270,"Protocoles : HTTP 
 return s}});MODULE_DIAGRAMS.cloud = [{title:"Cloud Computing - Architectures",build(){
 var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:600px;height:auto";
 s.appendChild(_rx(10,10,580,270,"#0f1424",{stroke:"#1e293b",rx:8}));
-s.appendChild(_tx(300,35,"Cloud - Modeles de Service","#3b82f6",{size:"16",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
-[["IaaS","Infrastructure as a Service","VM, stockage, reseau","Vous gerez : OS, apps, donnees","#3b82f6",30,65],["PaaS","Platform as a Service","Base de donnees, runtime, middleware","Vous devez juste coder","#f59e0b",30,130],["SaaS","Software as a Service","Applications pretes a l emploi","Vous utilisez seulement","#00e5a0",30,195]].forEach(function(d){
-s.appendChild(_rx(d[4],parseInt(d[5])+18,180,50,d[4],{opacity:"0.15"}));
-s.appendChild(_tx(120,d[5]+18,d[0],d[4],{size:"13",weight:"bold"}));s.appendChild(_tx(120,d[5]+36,d[1],"#e2e8f0",{size:"10"}));
-s.appendChild(_tx(120,d[5]+52,d[2],"#94a3b8",{size:"9"}))});
-[["Public","Azure, AWS, GCP","orange","#f59e0b",230,65],["Prive","VMware, OpenStack","orange","#3b82f6",230,130],["Hybride","Mixte (le plus courant)","orange","#a855f7",230,195]].forEach(function(d){
-s.appendChild(_rx(d[3],parseInt(d[4])+36,260,40,d[3],{opacity:"0.08",stroke:d[3]}));
-s.appendChild(_tx(360,d[4]+44,d[0],d[3],{size:"13","anchor":"middle"}));
-s.appendChild(_tx(360,d[4]+60,d[1],"#64748b",{size:"10","anchor":"middle"}))});
-s.appendChild(_rx(230,65,260,170,"#a855f7",{opacity:"0.04",stroke:"#a855f7",rx:6}));s.appendChild(_tx(360,78,"Modeles de déploiement","#a855f7",{size:"12",weight:"bold"}));
-s.appendChild(_ln(40,265,560,265));s.appendChild(_tx(300,262,"IaaS: AWS EC2 / PaaS: Heroku / SaaS: Office365 Gmail","#64748b",{size:"9"}));
+s.appendChild(_tx(300,35,"Cloud - Modeles de Service","#3b82f6",{size:"16",weight:"bold",anchor:"middle"}));s.appendChild(_ln(40,48,560,48));
+s.appendChild(_ln(215,55,215,258,"#334155","1"));
+s.appendChild(_tx(108,62,"Modeles de service","#3b82f6",{size:"11",weight:"bold",anchor:"middle"}));
+s.appendChild(_tx(390,62,"Modeles de deploiement","#a855f7",{size:"11",weight:"bold",anchor:"middle"}));
+[["IaaS","Infrastructure as a Service","VM, stockage, reseau","#3b82f6",68],["PaaS","Platform as a Service","BDD, runtime, middleware","#f59e0b",128],["SaaS","Software as a Service","Apps pretes a l emploi","#00e5a0",188]].forEach(function(d){
+s.appendChild(_rx(22,d[4],190,50,d[3],{opacity:"0.15",stroke:d[3],rx:4}));
+s.appendChild(_tx(117,d[4]+16,d[0],d[3],{size:"13",weight:"bold",anchor:"middle"}));s.appendChild(_tx(117,d[4]+31,d[1],"#e2e8f0",{size:"9",anchor:"middle"}));
+s.appendChild(_tx(117,d[4]+45,d[2],"#94a3b8",{size:"8",anchor:"middle"}))});
+[["Public","Azure AWS GCP","#f59e0b",68],["Prive","VMware OpenStack","#3b82f6",128],["Hybride","Mix public + prive","#a855f7",188]].forEach(function(d){
+s.appendChild(_rx(220,d[3],355,50,d[2],{opacity:"0.08",stroke:d[2],rx:4}));
+s.appendChild(_tx(397,d[3]+16,d[0],d[2],{size:"13",weight:"bold",anchor:"middle"}));
+s.appendChild(_tx(397,d[3]+32,d[1],"#e2e8f0",{size:"9",anchor:"middle"}))});
+s.appendChild(_ln(40,263,560,263));s.appendChild(_tx(300,274,"IaaS: AWS EC2 / PaaS: Heroku / SaaS: Office365 Gmail","#64748b",{size:"9",anchor:"middle"}));
 return s}}];MODULE_DIAGRAMS.messagerie = [{title:"Messagerie - SMTP POP3 IMAP",build(){
 var s=_svg("svg",{viewBox:"0 0 600 260"});s.style.cssText="width:100%;max-width:600px;height:auto";
 s.appendChild(_rx(10,10,580,250,"#0f1424",{stroke:"#1e293b",rx:8}));

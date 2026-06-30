@@ -601,16 +601,25 @@ const MODULES = [
       },
     ],
     flashcards: [
-      { id: 'res_f1', recto: 'Rôle de la couche 1 OSI (Physique)', verso: 'Transmission de bits sur le support physique : câbles, fibre, Wi-Fi, signaux électriques' },
-      { id: 'res_f2', recto: 'Rôle de la couche 2 OSI (Liaison)', verso: 'Adressage MAC, trames Ethernet, détection d\'erreurs, switches' },
-      { id: 'res_f3', recto: 'Rôle de la couche 3 OSI (Réseau)', verso: 'Adressage IP, routage des paquets entre réseaux, routeurs' },
-      { id: 'res_f4', recto: 'Rôle de la couche 4 OSI (Transport)', verso: 'Segmentation, TCP (fiable) / UDP (non fiable), ports' },
+      { id: 'osi_f1', recto: 'Couche 1 — Physique', verso: 'Transmission des bits bruts sur le support physique. Exemples : câbles RJ45, fibre, Wi-Fi. Équipements : hub, répéteur, câble.' },
+      { id: 'osi_f2', recto: 'Couche 2 — Liaison de données', verso: 'Trames entre nœuds adjacents. Adressage MAC. Détection d\'erreurs (CRC). Équipements : switch, pont. Protocoles : Ethernet, Wi-Fi 802.11, PPP.' },
+      { id: 'osi_f3', recto: 'Couche 3 — Réseau', verso: 'Routage des paquets entre réseaux. Adressage IP (IPv4/IPv6). Équipements : routeur. Protocoles : IP, ICMP, ARP, OSPF, BGP.' },
+      { id: 'osi_f4', recto: 'Couche 4 — Transport', verso: 'Communication de bout en bout. Segmentation/réassemblage. TCP (fiable, connexion) vs UDP (rapide, sans connexion). Ports source/destination.' },
+      { id: 'osi_f5', recto: 'Couche 5 — Session', verso: 'Établissement, maintien et fermeture des sessions. Reprise après coupure. Protocoles : NetBIOS, RPC, PPTP.' },
+      { id: 'osi_f6', recto: 'Couche 6 — Présentation', verso: 'Formatage, chiffrement, compression des données. Conversion encodage (ASCII, UTF-8). Protocoles : SSL/TLS (en partie), JPEG, MPEG.' },
+      { id: 'osi_f7', recto: 'Couche 7 — Application', verso: 'Interface avec l\'utilisateur. Protocoles : HTTP/HTTPS, FTP, SMTP, DNS, DHCP, SSH, SNMP.' },
+      { id: 'osi_f8', recto: 'Mnémotechnique OSI 1→7', verso: 'Philippe Laisse Rentrer Tous Ses Petits Amis\n(Physique / Liaison / Réseau / Transport / Session / Présentation / Application)' },
+      { id: 'osi_f9', recto: 'Mnémotechnique OSI 7→1', verso: 'Alex Pète Sa Tête Rarement Le Premier\n(Application / Présentation / Session / Transport / Réseau / Liaison / Physique)' },
+      { id: 'osi_f10', recto: 'Unité de données OSI par couche', verso: 'Bits (C1) → Trame (C2) → Paquet (C3) → Segment/Datagramme (C4) → Données (C5-C7)' },
+      { id: 'osi_f11', recto: 'Différence TCP vs UDP', verso: 'TCP : connexion (3-way handshake), fiable, ACK, ordre garanti. UDP : sans connexion, rapide, aucune garantie. UDP pour streaming/DNS/DHCP.' },
+      { id: 'osi_f12', recto: 'À quelle couche opère un switch ?', verso: 'Couche 2 (Liaison) : commutation par adresse MAC. Un switch L3 peut aussi router (couche 3).' },
+      { id: 'osi_f13', recto: 'À quelle couche opère un routeur ?', verso: 'Couche 3 (Réseau) : routage par adresse IP entre réseaux différents.' },
+      { id: 'osi_f14', recto: 'Encapsulation vs décapsulation', verso: 'Encapsulation : chaque couche ajoute un en-tête (émetteur, de C7 vers C1). Décapsulation : chaque couche retire son en-tête (récepteur, de C1 vers C7).' },
       { id: 'res_f5', recto: 'Port HTTP / HTTPS / SSH / DNS / FTP', verso: 'HTTP:80 / HTTPS:443 / SSH:22 / DNS:53 / FTP:20-21' },
       { id: 'res_f6', recto: 'Masque de sous-réseau /24', verso: '255.255.255.0 → 254 hôtes utilisables par réseau' },
       { id: 'res_f7', recto: 'Qu\'est-ce qu\'un VLAN ?', verso: 'LAN virtuel : segmentation logique d\'un réseau sur un switch, isolement du broadcast' },
       { id: 'res_f8', recto: 'Rôle du protocole ARP', verso: 'Résout une adresse IP en adresse MAC sur le réseau local' },
       { id: 'res_f9', recto: 'Adresse de loopback IPv4', verso: '127.0.0.1 (trafic local, jamais envoyé sur le réseau)' },
-      { id: 'res_f10', recto: 'Différence TCP vs UDP', verso: 'TCP : connexion fiable, accusés de réception, ordre garanti / UDP : rapide, sans connexion, sans garantie' },
     ],
     qcm: [
       { id: 'res_q1', difficulty: 'facile', question: 'Quelle couche OSI gère l\'adressage MAC ?', options: [{ text: 'Couche 1 – Physique', correct: false }, { text: 'Couche 2 – Liaison', correct: true }, { text: 'Couche 3 – Réseau', correct: false }, { text: 'Couche 4 – Transport', correct: false }], explication: 'La couche 2 (Liaison de données) utilise les adresses MAC pour identifier les machines sur un LAN.' },
@@ -3455,116 +3464,195 @@ const MODULES = [
   {
     id: 'anglais-technique',
     label: 'Anglais Technique',
-    icon: '\u{1F310}',
-    color: '#ec4899',
-    desc: 'Vocabulaire reseau, hardware, protocoles, documentation technique en anglais...',
-    topics: ['Network', 'Hardware', 'Protocols', 'Certifications', 'IT English'],
+    icon: '🇬🇧',
+    color: '#3b82f6',
+    desc: 'Vocabulaire IT, helpdesk, rédaction technique, certifications en anglais...',
+    topics: ['Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications'],
     cours: [
       {
-        id: 'anglais-tssr',
-        titre: 'Anglais Technique pour le TSSR',
-        sections: [
-          { type: 'h2', content: '1. Network Vocabulary' },
-          { type: 'table', headers: ['English', 'French'], rows: [
-            ['Router', 'Routeur'], ['Switch', 'Commutateur'], ['Firewall', 'Pare-feu'],
-            ['Gateway', 'Passerelle'], ['Subnet mask', 'Masque sous-reseau'],
-            ['VLAN', 'VLAN'], ['VPN', 'VPN'], ['DNS', 'DNS'], ['DHCP', 'DHCP'],
-            ['Load Balancer', 'Repartiteur charge'], ['Proxy', 'Proxy'],
-          ]},
-          { type: 'h2', content: '2. Hardware Vocabulary' },
-          { type: 'table', headers: ['English', 'French'], rows: [
-            ['Server', 'Serveur'], ['Rack / Cabinet', 'Baie / Armoire'],
-            ['UPS (Uninterruptible Power Supply)', 'ASI (Alim sans interruption)'],
-            ['PSU (Power Supply Unit)', 'Bloc alimentation'],
-            ['RAID Controller', 'Controleur RAID'],
-            ['Patch panel', 'Baie de brassage'],
-            ['PDU (Power Distribution Unit)', 'Unite distribution elec'],
-            ['KVM (Keyboard/Video/Mouse)', 'KVM / Commutateur'],
-            ['SFP (Small Form-factor Pluggable)', 'Module SFP'],
-          ]},
-          { type: 'h2', content: '3. Protocols' },
-          { type: 'table', headers: ['Acronym', 'Full Name', 'Function'], rows: [
-            ['TCP', 'Transmission Control Protocol', 'Connection-oriented, reliable'],
-            ['UDP', 'User Datagram Protocol', 'Connectionless, fast'],
-            ['ICMP', 'Internet Control Message Protocol', 'Ping, error reporting'],
-            ['ARP', 'Address Resolution Protocol', 'IP to MAC resolution'],
-            ['NAT', 'Network Address Translation', 'Private to public IP mapping'],
-            ['OSPF', 'Open Shortest Path First', 'Link-state routing'],
-            ['BGP', 'Border Gateway Protocol', 'Internet routing between AS'],
-            ['SSL/TLS', 'Secure Sockets/Transport Layer Security', 'HTTPS encryption'],
-            ['LDAP', 'Lightweight Directory Access Protocol', 'Directory (AD)'],
-            ['RADIUS', 'Remote Auth Dial-In User Service', 'AAA authentication'],
-          ]},
-          { type: 'h2', content: '4. Technical Documentation' },
-          { type: 'p', content: 'Key terms: Prerequisites (pre-requis), Workaround (solution contournement), Rollback (retour arriere), Deprecated (deprecie), EOL - End of Life (fin de vie), Known Issue (probleme connu), Troubleshooting (depannage), Outage (panne/interruption).' },
-          { type: 'h2', content: '5. Certifications' },
-          { type: 'table', headers: ['Cert', 'Focus', 'TSSR Value'], rows: [
-            ['CompTIA A+', 'Hardware, OS, troubleshooting', 'IT support foundation'],
-            ['CompTIA Network+', 'TCP/IP, routing, networking', 'Core network skills'],
-            ['CompTIA Security+', 'Crypto, risk, security', 'Security basics'],
-            ['Cisco CCNA', 'IOS, VLAN, routing, ACL', 'Cisco networking'],
-            ['Microsoft AZ-900', 'Azure fundamentals', 'Cloud basics'],
-            ['ITIL Foundation', 'ITSM, incidents, changes', 'Service management'],
-            ['Linux LPIC-1', 'Bash, services, networking', 'Linux admin'],
-          ]},
-          { type: 'h2', content: '6. IT Support Phrases' },
-          { type: 'table', headers: ['English', 'French'], rows: [
-            ['Thank you for contacting IT support', 'Merci de contacter le support IT'],
-            ['Could you provide your username?', 'Votre identifiant ?'],
-            ['Can you describe the issue?', 'Decrivez le probleme SVP'],
-            ['One moment please', 'Un instant SVP'],
-            ['Can you run ipconfig?', 'Lancez ipconfig SVP'],
-            ['Is the issue resolved?', 'Le probleme est-il resolu ?'],
-            ['I will escalate to L2', 'Je vais escalader au N2'],
-            ['I have created ticket INC-...', 'J ai cree le ticket INC-...'],
-            ['We will follow up by email', 'Suivi par email'],
-          ]},
-        ],
+        id: 'vocabulaire-it',
+        titre: 'Vocabulaire IT — Les essentiels',
+        content: `<h2>Vocabulaire IT fondamental</h2>
+<h3>Infrastructure &amp; Matériel</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Contexte</th></tr>
+<tr><td>rack</td><td>baie de serveur</td><td>"The server is rack-mounted"</td></tr>
+<tr><td>NIC (Network Interface Card)</td><td>carte réseau</td><td>"Install a NIC"</td></tr>
+<tr><td>UPS (Uninterruptible Power Supply)</td><td>onduleur</td><td>"Connect to the UPS"</td></tr>
+<tr><td>throughput</td><td>débit effectif</td><td>"Network throughput is 1 Gbps"</td></tr>
+<tr><td>latency</td><td>latence</td><td>"High latency causes delays"</td></tr>
+<tr><td>bandwidth</td><td>bande passante</td><td>"Limited bandwidth"</td></tr>
+<tr><td>firmware</td><td>micrologiciel</td><td>"Update the firmware"</td></tr>
+<tr><td>patch</td><td>correctif</td><td>"Apply the security patch"</td></tr>
+<tr><td>legacy</td><td>ancien système hérité</td><td>"Legacy hardware"</td></tr>
+<tr><td>uptime</td><td>disponibilité</td><td>"99.9% uptime SLA"</td></tr>
+</table>
+<h3>Réseau &amp; Sécurité</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>subnet</td><td>sous-réseau</td><td>"Create a /24 subnet"</td></tr>
+<tr><td>gateway</td><td>passerelle</td><td>"Default gateway : 192.168.1.1"</td></tr>
+<tr><td>breach</td><td>violation / intrusion</td><td>"Security breach detected"</td></tr>
+<tr><td>vulnerability</td><td>vulnérabilité</td><td>"Critical vulnerability CVE-2024-..."</td></tr>
+<tr><td>endpoint</td><td>terminal / poste</td><td>"Endpoint protection suite"</td></tr>
+<tr><td>payload</td><td>charge utile malveillante</td><td>"Malware payload"</td></tr>
+<tr><td>encryption</td><td>chiffrement</td><td>"End-to-end encryption"</td></tr>
+<tr><td>certificate</td><td>certificat</td><td>"SSL certificate expired"</td></tr>
+</table>
+<h3>Système &amp; Administration</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>deployment</td><td>déploiement</td><td>"Production deployment at 3am"</td></tr>
+<tr><td>provisioning</td><td>approvisionnement</td><td>"Server provisioning via Ansible"</td></tr>
+<tr><td>snapshot</td><td>instantané</td><td>"Take a VM snapshot before update"</td></tr>
+<tr><td>downtime</td><td>interruption de service</td><td>"Planned downtime 22h-23h"</td></tr>
+<tr><td>troubleshoot</td><td>dépanner / diagnostiquer</td><td>"Troubleshoot the connectivity issue"</td></tr>
+<tr><td>workaround</td><td>contournement</td><td>"Temporary workaround in place"</td></tr>
+<tr><td>rollback</td><td>retour arrière</td><td>"Rollback the update immediately"</td></tr>
+<tr><td>deprecate</td><td>déprécier</td><td>"This feature is deprecated"</td></tr>
+</table>`
+      },
+      {
+        id: 'helpdesk-anglais',
+        titre: 'Helpdesk &amp; Support en anglais',
+        content: `<h2>Anglais du Support Technique</h2>
+<h3>Phrases d'accueil &amp; diagnostic</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"Thank you for calling IT support, how can I help you?"</td><td>"Merci d'appeler le support IT, comment puis-je vous aider ?"</td></tr>
+<tr><td>"Could you describe the issue you're experiencing?"</td><td>"Pourriez-vous décrire le problème que vous rencontrez ?"</td></tr>
+<tr><td>"When did the issue first occur?"</td><td>"Quand le problème s'est-il manifesté pour la première fois ?"</td></tr>
+<tr><td>"Have you tried restarting the device?"</td><td>"Avez-vous essayé de redémarrer l'appareil ?"</td></tr>
+<tr><td>"Is anyone else affected by this issue?"</td><td>"D'autres personnes sont-elles touchées par ce problème ?"</td></tr>
+<tr><td>"What error message are you seeing?"</td><td>"Quel message d'erreur voyez-vous ?"</td></tr>
+<tr><td>"Can you reproduce the issue?"</td><td>"Pouvez-vous reproduire le problème ?"</td></tr>
+<tr><td>"I'll need remote access to your machine."</td><td>"J'aurai besoin d'un accès distant à votre machine."</td></tr>
+</table>
+<h3>Escalade &amp; résolution</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"I'm going to escalate this ticket to our L2 team."</td><td>"Je vais escalader ce ticket à notre équipe N2."</td></tr>
+<tr><td>"I'm checking the logs right now."</td><td>"Je consulte les journaux en ce moment."</td></tr>
+<tr><td>"This appears to be a network-related issue."</td><td>"Il semble que ce soit un problème lié au réseau."</td></tr>
+<tr><td>"The issue is now resolved."</td><td>"Le problème est maintenant résolu."</td></tr>
+<tr><td>"We're currently investigating the root cause."</td><td>"Nous recherchons actuellement la cause racine."</td></tr>
+<tr><td>"A workaround is in place while we investigate."</td><td>"Un contournement est en place pendant notre investigation."</td></tr>
+</table>
+<h3>Terminologie tickets</h3>
+<table><tr><th>Terme</th><th>Signification</th></tr>
+<tr><td>SLA (Service Level Agreement)</td><td>Accord de niveau de service — délai de résolution garanti</td></tr>
+<tr><td>RCA (Root Cause Analysis)</td><td>Analyse de la cause racine d'un incident</td></tr>
+<tr><td>ETA (Estimated Time of Arrival)</td><td>Délai estimé de résolution</td></tr>
+<tr><td>P1 / P2 / P3</td><td>Priorité 1 (critique) → Priorité 3 (faible)</td></tr>
+<tr><td>change freeze</td><td>Gel des modifications (avant release, fêtes)</td></tr>
+<tr><td>post-mortem</td><td>Analyse rétrospective après incident (sans blâme)</td></tr>
+<tr><td>known issue</td><td>Problème connu et documenté</td></tr>
+</table>`
+      },
+      {
+        id: 'rediger-anglais',
+        titre: 'Rédiger de la documentation technique',
+        content: `<h2>Écrire en anglais technique</h2>
+<h3>Structures de phrases techniques</h3>
+<table><tr><th>Objectif</th><th>Structure</th><th>Exemple</th></tr>
+<tr><td>Décrire une action</td><td>To + verb + object</td><td>"To enable SSH, run: systemctl enable sshd"</td></tr>
+<tr><td>Prérequis</td><td>Before / Prior to + -ing</td><td>"Before installing, back up the configuration."</td></tr>
+<tr><td>Avertissement</td><td>Warning: / Note: / Caution:</td><td>"Warning: This action cannot be undone."</td></tr>
+<tr><td>Condition</td><td>If ... then ...</td><td>"If the service fails, restart it manually."</td></tr>
+<tr><td>Résultat attendu</td><td>The ... should ...</td><td>"The server should respond with HTTP 200."</td></tr>
+<tr><td>Étapes</td><td>Step N: / First, / Then, / Finally,</td><td>"Step 1: Open a terminal."</td></tr>
+</table>
+<h3>Verbes techniques courants</h3>
+<table><tr><th>Verbe</th><th>Traduction</th><th>Verbe</th><th>Traduction</th></tr>
+<tr><td>configure</td><td>configurer</td><td>trigger</td><td>déclencher</td></tr>
+<tr><td>deploy</td><td>déployer</td><td>terminate</td><td>arrêter</td></tr>
+<tr><td>provision</td><td>approvisionner</td><td>inherit</td><td>hériter</td></tr>
+<tr><td>mount</td><td>monter</td><td>override</td><td>écraser/remplacer</td></tr>
+<tr><td>bind</td><td>lier/associer</td><td>expose</td><td>exposer (port/API)</td></tr>
+<tr><td>flush</td><td>vider (cache/règles)</td><td>sanitize</td><td>nettoyer/assainir</td></tr>
+<tr><td>parse</td><td>analyser/interpréter</td><td>propagate</td><td>propager</td></tr>
+<tr><td>toggle</td><td>activer/désactiver</td><td>deprecate</td><td>déprécier</td></tr>
+</table>
+<h3>Abréviations professionnelles</h3>
+<table><tr><th>Abréviation</th><th>Signification</th><th>Usage</th></tr>
+<tr><td>ASAP</td><td>As Soon As Possible</td><td>"Fix ASAP"</td></tr>
+<tr><td>EOD</td><td>End Of Day</td><td>"Deliver by EOD"</td></tr>
+<tr><td>FYI</td><td>For Your Information</td><td>"FYI, server is down"</td></tr>
+<tr><td>POC</td><td>Proof Of Concept</td><td>"Build a POC first"</td></tr>
+<tr><td>TBD</td><td>To Be Determined</td><td>"Schedule TBD"</td></tr>
+<tr><td>N/A</td><td>Not Applicable</td><td>"N/A for Linux"</td></tr>
+<tr><td>LGTM</td><td>Looks Good To Me</td><td>Code review approval</td></tr>
+<tr><td>WIP</td><td>Work In Progress</td><td>"WIP — do not merge"</td></tr>
+</table>`
+      },
+      {
+        id: 'certifications-anglais',
+        titre: 'Certifications IT — lire les questions',
+        content: `<h2>Comprendre les examens IT en anglais</h2>
+<h3>Mots-clés des questions d'examen</h3>
+<table><tr><th>Formulation</th><th>Ce qu'elle demande</th></tr>
+<tr><td>"Which of the following BEST..."</td><td>La MEILLEURE réponse — plusieurs peuvent être correctes, une est optimale</td></tr>
+<tr><td>"What is the FIRST step..."</td><td>L'ordre est critique — répondre uniquement à la première étape</td></tr>
+<tr><td>"Which is LEAST likely..."</td><td>La réponse la moins probable ou la moins adaptée</td></tr>
+<tr><td>"A technician notices... What should they do NEXT?"</td><td>Étape suivante logique dans un processus de dépannage</td></tr>
+<tr><td>"Which protocol operates at Layer X..."</td><td>Connaissance du modèle OSI requise</td></tr>
+<tr><td>"Which TWO of the following..."</td><td>Sélectionner exactement 2 bonnes réponses</td></tr>
+</table>
+<h3>Verbes d'action des certifications</h3>
+<table><tr><th>Verbe</th><th>Sens dans les examens</th></tr>
+<tr><td>implement</td><td>mettre en place (action concrète)</td></tr>
+<tr><td>recommend</td><td>conseiller (meilleure pratique)</td></tr>
+<tr><td>identify</td><td>identifier/reconnaître</td></tr>
+<tr><td>mitigate</td><td>atténuer un risque</td></tr>
+<tr><td>remediate</td><td>corriger/remédier</td></tr>
+<tr><td>harden</td><td>durcir (sécuriser)</td></tr>
+<tr><td>audit</td><td>auditer (vérifier conformité)</td></tr>
+</table>
+<h3>Certifications anglophones à connaître</h3>
+<table><tr><th>Certification</th><th>Éditeur</th><th>Domaine</th></tr>
+<tr><td>CompTIA A+</td><td>CompTIA</td><td>Hardware, OS, support</td></tr>
+<tr><td>CompTIA Network+</td><td>CompTIA</td><td>Réseaux</td></tr>
+<tr><td>CompTIA Security+</td><td>CompTIA</td><td>Cybersécurité</td></tr>
+<tr><td>CCNA</td><td>Cisco</td><td>Réseaux Cisco</td></tr>
+<tr><td>AZ-900</td><td>Microsoft</td><td>Azure Fundamentals</td></tr>
+<tr><td>AWS Cloud Practitioner</td><td>Amazon</td><td>Cloud AWS</td></tr>
+<tr><td>ITIL 4 Foundation</td><td>Axelos</td><td>ITSM / service management</td></tr>
+</table>`
       },
     ],
     flashcards: [
-      { id: 'ang_f1', recto: 'Router?', verso: 'Routeur. Forwards packets between networks (L3)' },
-      { id: 'ang_f2', recto: 'Switch?', verso: 'Commutateur L2. Forwards frames using MAC addresses' },
-      { id: 'ang_f3', recto: 'Firewall?', verso: 'Pare-feu. Filtre le trafic reseau' },
-      { id: 'ang_f4', recto: 'Subnet mask in French?', verso: 'Masque de sous-reseau. Ex: 255.255.255.0 = /24' },
-      { id: 'ang_f5', recto: 'What is TCP?', verso: 'Transmission Control Protocol. Fiable, oriente connexion' },
-      { id: 'ang_f6', recto: 'What is DHCP?', verso: 'Dynamic Host Config Protocol. Assigne IP auto' },
-      { id: 'ang_f7', recto: 'UPS translate?', verso: 'ASI = Alimentation sans interruption' },
-      { id: 'ang_f8', recto: 'PSU definition?', verso: 'Power Supply Unit = bloc alimentation serveur' },
-      { id: 'ang_f9', recto: 'EOL meaning?', verso: 'End of Life = fin de vie produit' },
-      { id: 'ang_f10', recto: 'Troubleshooting?', verso: 'Depannage systeme/reseau' },
-      { id: 'ang_f11', recto: 'Workaround?', verso: 'Solution de contournement temporaire' },
-      { id: 'ang_f12', recto: 'Rollback?', verso: 'Retour arriere (configuration/version)' },
-      { id: 'ang_f13', recto: 'RFC meaning?', verso: 'Request for Comments: standard Internet (RFC 791=IP)' },
-      { id: 'ang_f14', recto: 'Outage?', verso: 'Panne / interruption de service' },
-      { id: 'ang_f15', recto: 'What is CCNA?', verso: 'Cisco Certified Network Associate' },
-      { id: 'ang_f16', recto: 'ITIL full name?', verso: 'Information Technology Infrastructure Library' },
-      { id: 'ang_f17', recto: 'What is KB?', verso: 'Knowledge Base. Ex: KB504123' },
-      { id: 'ang_f18', recto: 'NAT full name?', verso: 'Network Address Translation' },
-      { id: 'ang_f19', recto: 'ARP function?', verso: 'Address Resolution Protocol: IP vers MAC' },
-      { id: 'ang_f20', recto: 'RADIUS?', verso: 'Remote Auth Dial-In: serveur AAA' },
+      { id: 'ang_f1', recto: 'throughput', verso: 'Débit effectif mesuré (≤ bandwidth). "Network throughput is 800 Mbps on a 1 Gbps link."' },
+      { id: 'ang_f2', recto: 'to troubleshoot', verso: 'Dépanner / diagnostiquer un problème. "Troubleshoot the connectivity issue."' },
+      { id: 'ang_f3', recto: 'legacy system', verso: 'Ancien système encore en production, difficile à remplacer. "Legacy hardware still running Windows Server 2008."' },
+      { id: 'ang_f4', recto: 'workaround', verso: 'Contournement temporaire. "A workaround is in place — the root fix deploys tonight."' },
+      { id: 'ang_f5', recto: 'SLA', verso: 'Service Level Agreement — accord définissant délais et disponibilité garantis. P1 < 1h, P2 < 4h, P3 < 24h.' },
+      { id: 'ang_f6', recto: 'RCA', verso: 'Root Cause Analysis — analyse post-incident pour trouver l\'origine réelle (pas juste les symptômes).' },
+      { id: 'ang_f7', recto: 'rollback', verso: 'Retour arrière — annuler un déploiement et revenir à la version stable précédente.' },
+      { id: 'ang_f8', recto: 'to escalate', verso: 'Escalader un ticket — transférer à un niveau supérieur (L1→L2→L3) quand le niveau actuel ne peut résoudre.' },
+      { id: 'ang_f9', recto: 'to harden', verso: 'Durcir un système — désactiver services inutiles, appliquer MDP forts, chiffrer, restreindre accès.' },
+      { id: 'ang_f10', recto: 'post-mortem', verso: 'Analyse rétrospective après incident. Blameless — objectif : comprendre, pas punir.' },
+      { id: 'ang_f11', recto: 'bandwidth vs throughput', verso: 'Bandwidth = capacité théorique max. Throughput = débit réel mesuré. Toujours : throughput ≤ bandwidth.' },
+      { id: 'ang_f12', recto: '"Which of the following BEST..."', verso: 'Formulation d\'exam : cherche la MEILLEURE réponse. Plusieurs peuvent être correctes, une est optimale.' },
+      { id: 'ang_f13', recto: 'downtime', verso: 'Période d\'indisponibilité d\'un service. Opposé : uptime. "Planned downtime 22h-23h Saturday."' },
+      { id: 'ang_f14', recto: 'provisioning', verso: 'Allouer et configurer des ressources (VM, compte, espace disque) pour un utilisateur ou service.' },
+      { id: 'ang_f15', recto: 'to mitigate', verso: 'Atténuer un risque — réduire sa probabilité ou son impact (pas nécessairement l\'éliminer).' },
     ],
     qcm: [
-      { id: 'ang_q1', difficulty: 'normal', question: 'What forwards packets between different networks?', options: [{ text: 'Switch', correct: false }, { text: 'Router', correct: true }, { text: 'Hub', correct: false }, { text: 'Firewall', correct: false }], explication: 'Router operates at Layer 3' },
-      { id: 'ang_q2', difficulty: 'normal', question: 'What does TCP stand for?', options: [{ text: 'Transmission Control Protocol', correct: true }, { text: 'Transport Comm Protocol', correct: false }, { text: 'Transfer Control Procedure', correct: false }, { text: 'Terminal Connection Protocol', correct: false }], explication: 'TCP = Transmission Control Protocol' },
-      { id: 'ang_q3', difficulty: 'normal', question: 'UPS translation in French?', options: [{ text: 'Alimentation Principale', correct: false }, { text: 'ASI (Alimentation sans interruption)', correct: true }, { text: 'Bloc alimentation', correct: false }, { text: 'Transformateur', correct: false }], explication: 'UPS = ASI' },
-      { id: 'ang_q4', difficulty: 'normal', question: 'Subnet mask in French?', options: [{ text: 'Passerelle defaut', correct: false }, { text: 'Masque de sous-reseau', correct: true }, { text: 'Adresse IP', correct: false }, { text: 'Masque broadcast', correct: false }], explication: 'Subnet mask = Masque de sous-reseau' },
-      { id: 'ang_q5', difficulty: 'normal', question: 'What does EOL stand for?', options: [{ text: 'End of Line', correct: false }, { text: 'End of Life', correct: true }, { text: 'End of License', correct: false }, { text: 'Early Onset Lifecycle', correct: false }], explication: 'EOL = End of Life' },
-      { id: 'ang_q6', difficulty: 'normal', question: 'What is a workaround?', options: [{ text: 'Solution permanente', correct: false }, { text: 'Solution contournement temporaire', correct: true }, { text: 'Mise a jour officielle', correct: false }, { text: 'Procedure installation', correct: false }], explication: 'Temporary fix until permanent solution' },
-      { id: 'ang_q7', difficulty: 'normal', question: 'What does DHCP provide?', options: [{ text: 'Domain names', correct: false }, { text: 'Auto IP address assignment', correct: true }, { text: 'Email routing', correct: false }, { text: 'Web hosting', correct: false }], explication: 'DHCP = Dynamic Host Configuration Protocol' },
-      { id: 'ang_q8', difficulty: 'normal', question: 'What is a PSU?', options: [{ text: 'Primary Storage Unit', correct: false }, { text: 'Power Supply Unit', correct: true }, { text: 'Processor Support Unit', correct: false }, { text: 'Protocol Switching Unit', correct: false }], explication: 'PSU = alimentation electrique' },
-      { id: 'ang_q9', difficulty: 'normal', question: 'What does ICMP do?', options: [{ text: 'IP to MAC resolution', correct: false }, { text: 'Error reporting + ping', correct: true }, { text: 'Encrypts data', correct: false }, { text: 'Assigns IP', correct: false }], explication: 'ICMP = ping, traceroute, error reporting' },
-      { id: 'ang_q10', difficulty: 'normal', question: 'What is a rollback?', options: [{ text: 'Install new version', correct: false }, { text: 'Return to previous config', correct: true }, { text: 'System backup', correct: false }, { text: 'Prerequisites check', correct: false }], explication: 'Rollback = retour a la config precedente' },
-      { id: 'ang_q11', difficulty: 'normal', question: 'What does BGP do?', options: [{ text: 'Routes within enterprise', correct: false }, { text: 'Routes between AS on Internet', correct: true }, { text: 'Configures VLANs', correct: false }, { text: 'Manages IPs', correct: false }], explication: 'BGP = Border Gateway Protocol, Internet routing' },
-      { id: 'ang_q12', difficulty: 'normal', question: 'What does KB mean?', options: [{ text: 'Kilobyte', correct: false }, { text: 'Knowledge Base', correct: true }, { text: 'Kernel Boot', correct: false }, { text: 'Key Binding', correct: false }], explication: 'KB = Knowledge Base (ex: KB504123)' },
-      { id: 'ang_q13', difficulty: 'troubleshooter', question: 'What is troubleshooting?', options: [{ text: 'Software install', correct: false }, { text: 'Diagnostic/problem solving', correct: true }, { text: 'Network config', correct: false }, { text: 'System update', correct: false }], explication: 'Troubleshooting = depannage/diagnostic' },
-      { id: 'ang_q14', difficulty: 'normal', question: 'What is an RFC?', options: [{ text: 'Remote Function Call', correct: false }, { text: 'Request for Comments (Internet standard)', correct: true }, { text: 'Ready For Certification', correct: false }, { text: 'Remote File Copy', correct: false }], explication: 'RFC = Request for Comments, Internet standards' },
-      { id: 'ang_q15', difficulty: 'normal', question: 'What does ARP do?', options: [{ text: 'Name to IP resolution', correct: false }, { text: 'IP to MAC address resolution', correct: true }, { text: 'MAC to IP resolution', correct: false }, { text: 'Port to service mapping', correct: false }], explication: 'ARP = Address Resolution Protocol' },
-      { id: 'ang_q16', difficulty: 'normal', question: 'NAT translation in French?', options: [{ text: 'Traduction adresse reseau', correct: true }, { text: 'Passerelle par defaut', correct: false }, { text: 'Protocole routage', correct: false }, { text: 'Masque sous-reseau', correct: false }], explication: 'NAT = Network Address Translation, mappe IP privees/publiques' },
-      { id: 'ang_q17', difficulty: 'normal', question: 'What is LDAP used for?', options: [{ text: 'Email server', correct: false }, { text: 'Directory services (AD)', correct: true }, { text: 'Web server', correct: false }, { text: 'DNS resolution', correct: false }], explication: 'LDAP = Lightweight Directory Access Protocol for AD' },
-      { id: 'ang_q18', difficulty: 'normal', question: 'What does SSL/TLS provide?', options: [{ text: 'Faster networking', correct: false }, { text: 'Encryption for HTTPS', correct: true }, { text: 'IP addressing', correct: false }, { text: 'Email routing', correct: false }], explication: 'SSL/TLS = encryption for secure web traffic' },
-      { id: 'ang_q19', difficulty: 'normal', question: 'ITIL full name?', options: [{ text: 'Internet Technical Info Library', correct: false }, { text: 'Information Technology Infrastructure Library', correct: true }, { text: 'Integrated Tech Implementation Layer', correct: false }, { text: 'IT Infrastructure Lifecycle', correct: false }], explication: 'ITIL = best practices for ITSM' },
-      { id: 'ang_q20', difficulty: 'normal', question: 'RADIUS used for?', options: [{ text: 'DNS resolution', correct: false }, { text: 'AAA authentication (network)', correct: true }, { text: 'Email delivery', correct: false }, { text: 'Web hosting', correct: false }], explication: 'RADIUS = AAA server (Authentication, Authorization, Accounting)' },
+      { id: 'ang_q1', question: 'What does "throughput" mean in networking?', options: [{ text: 'Maximum theoretical speed', correct: false }, { text: 'Actual data transfer rate measured', correct: true }, { text: 'Network latency', correct: false }, { text: 'Packet loss percentage', correct: false }], explication: 'Throughput = débit effectif mesuré. Bandwidth = capacité théorique. Throughput ≤ bandwidth toujours.', difficulty: 'normal' },
+      { id: 'ang_q2', question: 'A user calls: "my machine is freezing intermittently." What do you do FIRST?', options: [{ text: 'Replace the RAM immediately', correct: false }, { text: 'Ask when it started and if others are affected', correct: true }, { text: 'Reinstall the OS', correct: false }, { text: 'Escalate to L3', correct: false }], explication: 'En helpdesk, première étape = collecter infos : quand, depuis quand, périmètre. Avant toute action.', difficulty: 'facile' },
+      { id: 'ang_q3', question: 'What is a "workaround" in IT support?', options: [{ text: 'A permanent fix', correct: false }, { text: 'A temporary solution to bypass a problem', correct: true }, { text: 'A type of malware', correct: false }, { text: 'A network protocol', correct: false }], explication: 'Workaround = contournement temporaire. Pas un fix définitif — permet de débloquer l\'utilisateur en attendant.', difficulty: 'facile' },
+      { id: 'ang_q4', question: 'What does SLA stand for?', options: [{ text: 'System Level Access', correct: false }, { text: 'Software License Agreement', correct: false }, { text: 'Service Level Agreement', correct: true }, { text: 'Server Log Analysis', correct: false }], explication: 'SLA = Service Level Agreement — contrat définissant disponibilité et délais de résolution garantis.', difficulty: 'normal' },
+      { id: 'ang_q5', question: 'In a certification question: "Which of the following BEST describes..." — what should you look for?', options: [{ text: 'The only correct answer', correct: false }, { text: 'The most complete or optimal answer among several correct ones', correct: true }, { text: 'The shortest answer', correct: false }, { text: 'The first answer listed', correct: false }], explication: 'BEST = la meilleure parmi plusieurs correctes. Cherche la plus précise, la plus complète, la plus adaptée.', difficulty: 'difficile' },
+      { id: 'ang_q6', question: 'What does "to escalate a ticket" mean?', options: [{ text: 'Close the ticket', correct: false }, { text: 'Transfer it to a higher support level', correct: true }, { text: 'Mark it as low priority', correct: false }, { text: 'Duplicate the ticket', correct: false }], explication: 'Escalader = transférer vers un niveau supérieur (L1→L2→L3) quand le niveau actuel ne peut résoudre.', difficulty: 'facile' },
+      { id: 'ang_q7', question: 'What is "downtime"?', options: [{ text: 'The time to deploy a patch', correct: false }, { text: 'A period when a system is unavailable', correct: true }, { text: 'A type of network attack', correct: false }, { text: 'The time to complete a backup', correct: false }], explication: 'Downtime = période d\'indisponibilité d\'un service. Opposé : uptime = temps de fonctionnement.', difficulty: 'facile' },
+      { id: 'ang_q8', question: 'A "firmware update" refers to:', options: [{ text: 'Updating the OS', correct: false }, { text: 'Updating software applications', correct: false }, { text: 'Updating low-level software embedded in hardware', correct: true }, { text: 'Updating network drivers only', correct: false }], explication: 'Firmware = micrologiciel intégré dans le matériel (BIOS, UEFI, switch, routeur). Plus bas niveau que l\'OS.', difficulty: 'normal' },
+      { id: 'ang_q9', question: 'What does RCA stand for in IT?', options: [{ text: 'Remote Control Access', correct: false }, { text: 'Root Cause Analysis', correct: true }, { text: 'Rapid Configuration Application', correct: false }, { text: 'Resource Control Audit', correct: false }], explication: 'RCA = Root Cause Analysis — identifier l\'origine réelle d\'un incident pour éviter la récurrence.', difficulty: 'normal' },
+      { id: 'ang_q10', question: '"ETA for resolution?" — what does ETA mean?', options: [{ text: 'Error Type Analysis', correct: false }, { text: 'Estimated Time of Arrival/resolution', correct: true }, { text: 'Extended Ticket Assessment', correct: false }, { text: 'Emergency Technical Action', correct: false }], explication: 'ETA = Estimated Time of Arrival — délai estimé avant résolution du problème.', difficulty: 'facile' },
+      { id: 'ang_q11', question: 'What does "to harden a server" mean?', options: [{ text: 'Add more RAM', correct: false }, { text: 'Increase processing speed', correct: false }, { text: 'Reduce attack surface by disabling unnecessary services', correct: true }, { text: 'Make physical hardware upgrades', correct: false }], explication: 'Hardening = durcissement — désactiver services inutiles, MDP forts, chiffrement, restriction accès.', difficulty: 'difficile' },
+      { id: 'ang_q12', question: 'A "legacy system" is:', options: [{ text: 'A brand new server', correct: false }, { text: 'An old system still in production that is hard to replace', correct: true }, { text: 'A backup system', correct: false }, { text: 'A cloud-based system', correct: false }], explication: 'Legacy = héritage — système ancien toujours en production, souvent critique et difficile à moderniser.', difficulty: 'facile' },
+      { id: 'ang_q13', question: 'What is a "rollback" in deployment?', options: [{ text: 'Deploying a new version', correct: false }, { text: 'Reverting to the previous stable version', correct: true }, { text: 'Deleting old configuration files', correct: false }, { text: 'Running a full backup', correct: false }], explication: 'Rollback = retour arrière — annuler un déploiement raté et revenir à la version stable précédente.', difficulty: 'normal' },
+      { id: 'ang_q14', question: 'POC stands for:', options: [{ text: 'Point of Contact', correct: false }, { text: 'Proof of Concept', correct: true }, { text: 'Protocol of Communication', correct: false }, { text: 'Port of Connection', correct: false }], explication: 'POC = Proof of Concept — démonstration de faisabilité avant développement complet.', difficulty: 'normal' },
+      { id: 'ang_q15', question: 'The verb "to provision" in IT means:', options: [{ text: 'To delete resources', correct: false }, { text: 'To monitor systems', correct: false }, { text: 'To allocate and configure resources for a user or service', correct: true }, { text: 'To document a process', correct: false }], explication: 'Provisioning = allouer et configurer des ressources (VM, compte, espace disque) pour un utilisateur ou service.', difficulty: 'normal' },
+      { id: 'ang_q16', question: '"Bandwidth" vs "Throughput" — which is always higher?', options: [{ text: 'Throughput', correct: false }, { text: 'Bandwidth', correct: true }, { text: 'They are always equal', correct: false }, { text: 'Depends on the protocol', correct: false }], explication: 'Bandwidth = capacité théorique (toujours supérieure). Throughput = débit réel mesuré (toujours ≤ bandwidth).', difficulty: 'difficile' },
+      { id: 'ang_q17', question: 'What does "to mitigate a risk" mean?', options: [{ text: 'Ignore the risk', correct: false }, { text: 'Eliminate the risk completely', correct: false }, { text: 'Reduce the probability or impact of a risk', correct: true }, { text: 'Transfer the risk to insurance', correct: false }], explication: 'Mitigate = atténuer — réduire probabilité ou impact d\'un risque. Ne signifie pas l\'éliminer.', difficulty: 'difficile' },
+      { id: 'ang_q18', question: 'A "change freeze" means:', options: [{ text: 'The system is frozen/crashed', correct: false }, { text: 'No changes allowed during a critical period', correct: true }, { text: 'A type of backup procedure', correct: false }, { text: 'A network outage', correct: false }], explication: 'Change freeze = gel des modifications — période (release, fêtes) où aucun changement en prod n\'est autorisé.', difficulty: 'normal' },
+      { id: 'ang_q19', question: 'In CompTIA exams, "LEAST" in a question means:', options: [{ text: 'Find the best solution', correct: false }, { text: 'Find the answer that is least likely or least recommended', correct: true }, { text: 'Find the simplest answer', correct: false }, { text: 'Find the fastest solution', correct: false }], explication: 'LEAST = la moins probable ou la moins recommandée. Piège courant — lire très attentivement.', difficulty: 'troubleshooter' },
+      { id: 'ang_q20', question: 'What does "post-mortem" mean in IT incident management?', options: [{ text: 'Shutting down the server after failure', correct: false }, { text: 'A review after an incident to understand what happened and prevent recurrence', correct: true }, { text: 'A security audit type', correct: false }, { text: 'Deleting logs after an incident', correct: false }], explication: 'Post-mortem = analyse rétrospective après incident. Sans blâme (blameless). Causes → impact → actions correctives.', difficulty: 'difficile' },
     ],
   }
 

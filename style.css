@@ -1271,6 +1271,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 
 .cli-header-linux { background: #0d1f0d; }
 .cli-header-win   { background: #012456; }
+.cli-header-cisco { background: #1a0000; }
 
 .cli-dots { display: flex; gap: 6px; }
 .cli-dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -1378,6 +1379,12 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 /* Prompt Windows */
 .cli-ps-path-win   { color: #569cd6; font-weight: 600; }
 .cli-ps-dollar-win { color: rgba(255,255,255,0.6); margin: 0 8px 0 1px; }
+
+/* Prompt Cisco IOS */
+.cli-ps-cisco-host { color: #e84040; font-weight: 700; }
+.cli-ps-cisco-cfg  { color: #f59e0b; font-weight: 600; }
+.cli-ps-cisco-gt   { color: rgba(255,255,255,0.5); margin: 0 8px 0 1px; }
+.cli-ps-cisco-hash { color: #e84040; margin: 0 8px 0 1px; font-weight: 700; }
 
 .cli-input-row {
   display: flex;

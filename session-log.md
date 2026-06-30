@@ -1,3 +1,26 @@
+## 📋 Récap — 2026-06-30 (session 21)
+
+### Fait :
+- `app.js` : GameShell 40 missions — fix numérotation (missions 1-29 disaient /30 → /40), desc corrigée, Niveau 6 ajouté, icons [G]/[N]
+- `app.js` : Leaderboard global (getLB/addLB/openLeaderboard), stats module (getModStats), mode QCM Priorité (getQCMWeak), raccourcis clavier (? h r e Ctrl+P Esc)
+- `app.js` : NetRunner 2.0 — 20 missions PowerShell dans TP_SCENARIOS.windows
+- `data.js` : OSI flashcards (14 FC couches 1-7 + mnémos + PDU) dans module reseaux
+- `data.js` : Module anglais-technique enrichi (4 cours : vocabulaire IT, helpdesk, rédaction, certifications — 15 FC, 20 QCM)
+- `netrunner.html` : Leaderboard localStorage (records par mission, flash nouveau record)
+- `sw.js` : bump cache tssr-v14 → tssr-v15
+- Audit complet : 22 modules OK, cohérence sidebar/MODULES OK, encodage OK, CSS variables OK, aucun QCM sans difficulty
+
+### À reprendre :
+- [ ] Déployer Railway (railway login → init → variables set ANTHROPIC_API_KEY → up) + update URL fetch dans app.js
+- [ ] Vérifier règles Firestore (allow read, write: if true sur collection notes)
+- [ ] Tester sync temps réel Notes entre 2 ordis
+- [ ] Re-uploader les fichiers HTML/PDF uploadés AVANT session 17
+
+### Contexte express :
+> Session audit & polish : check-up complet (22 modules, tous propres), fix GameShell (numérotation /30→/40, niveau 6 manquant, icons), ajout leaderboard global + stats module + raccourcis clavier + NetRunner 2.0 + OSI flashcards + module anglais enrichi. SW bumped v15.
+
+---
+
 ## 📋 Récap — 2026-06-30 (session 20)
 
 ### Fait :

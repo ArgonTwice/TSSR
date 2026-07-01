@@ -3498,7 +3498,7 @@ const MODULES = [
     icon: '🇬🇧',
     color: '#3b82f6',
     desc: 'Vocabulaire IT, helpdesk, rédaction technique, certifications en anglais...',
-    topics: ['Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications'],
+    topics: ['Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications', 'Email', 'Prononciation', 'Oral'],
     cours: [
       {
         id: 'vocabulaire-it',
@@ -3835,6 +3835,168 @@ const MODULES = [
 <tr><td>validate</td><td>valider</td><td>verify</td><td>vérifier</td></tr>
 </table>`
       },
+      {
+        id: 'email-professionnel',
+        titre: 'Rédiger un email professionnel',
+        content: `<h2>Structure d'un email professionnel en anglais</h2>
+<h3>1. L'objet (Subject line)</h3>
+<p>Clair, court, actionnable — le destinataire doit comprendre l'urgence sans ouvrir l'email.</p>
+<table><tr><th>Faible</th><th>Meilleur</th></tr>
+<tr><td>"Problem"</td><td>"[Action Required] Server SRV-DB01 disk space critical"</td></tr>
+<tr><td>"Update"</td><td>"Maintenance window scheduled — Sat 22:00-23:00 UTC"</td></tr>
+<tr><td>"Question"</td><td>"Access request: VPN account for new hire (J. Dupont)"</td></tr>
+</table>
+<h3>2. La salutation</h3>
+<table><tr><th>Formule</th><th>Contexte</th></tr>
+<tr><td>Dear Mr./Ms. [Nom],</td><td>Très formel — premier contact, client externe</td></tr>
+<tr><td>Dear [Prénom],</td><td>Formel mais personnel — collègue connu</td></tr>
+<tr><td>Hi [Prénom],</td><td>Informel — équipe interne</td></tr>
+<tr><td>Hello team,</td><td>Email groupe / annonce</td></tr>
+<tr><td>To whom it may concern,</td><td>Destinataire inconnu (à éviter si possible)</td></tr>
+</table>
+<h3>3. Le corps — structure en 3 temps</h3>
+<table><tr><th>Étape</th><th>Objectif</th><th>Phrase type</th></tr>
+<tr><td>Ouverture</td><td>Contexte / raison de l'email</td><td>"I am writing to inform you that..."</td></tr>
+<tr><td>Développement</td><td>Détails, action demandée</td><td>"Could you please confirm..." / "Please find attached..."</td></tr>
+<tr><td>Clôture</td><td>Prochaine étape, remerciement</td><td>"Please let me know if you have any questions."</td></tr>
+</table>
+<h3>4. Formules de politesse (fermeture)</h3>
+<table><tr><th>Formule</th><th>Registre</th></tr>
+<tr><td>Best regards,</td><td>Standard, tous contextes</td></tr>
+<tr><td>Kind regards,</td><td>Légèrement plus formel</td></tr>
+<tr><td>Sincerely,</td><td>Très formel (lettre/client important)</td></tr>
+<tr><td>Thanks,</td><td>Informel, équipe interne</td></tr>
+<tr><td>Regards,</td><td>Neutre, court</td></tr>
+</table>
+<h3>5. Phrases utiles par situation</h3>
+<table><tr><th>Situation</th><th>Phrase</th></tr>
+<tr><td>Informer d'un incident</td><td>"We are currently experiencing an issue with [system]. Our team is investigating."</td></tr>
+<tr><td>Notifier une maintenance</td><td>"Please be advised that a maintenance window is scheduled for [date/time]."</td></tr>
+<tr><td>Demander une action</td><td>"Could you please review the attached report and let us know if you approve?"</td></tr>
+<tr><td>Relancer poliment</td><td>"I just wanted to follow up on my previous email regarding..."</td></tr>
+<tr><td>S'excuser d'un retard</td><td>"Apologies for the delay in responding."</td></tr>
+<tr><td>Joindre un fichier</td><td>"Please find attached the incident report for your review."</td></tr>
+<tr><td>Conclure en attente de réponse</td><td>"I look forward to hearing from you." / "Looking forward to your reply."</td></tr>
+</table>
+<h3>Exemple complet — notification d'incident</h3>
+<pre>Subject: [P1] Production database outage — investigating
+
+Dear team,
+
+We are currently experiencing an outage affecting the production database
+(DB-PROD-01). The issue started at approximately 14:20 UTC.
+
+Our team is actively investigating the root cause. We will send an update
+within the next 30 minutes, or as soon as we have more information.
+
+We apologize for any inconvenience this may cause.
+
+Best regards,
+[Your name]
+IT Support Team</pre>`
+      },
+      {
+        id: 'prononciation-tssr',
+        titre: 'Prononciation — les pièges du TSSR',
+        content: `<h2>Bien prononcer les termes techniques</h2>
+<h3>1. L'alphabet OTAN — épeler au téléphone</h3>
+<p>Indispensable pour dicter un identifiant, un mot de passe temporaire ou une adresse email au téléphone sans erreur.</p>
+<table><tr><th>Lettre</th><th>Mot</th><th>Lettre</th><th>Mot</th></tr>
+<tr><td>A</td><td>Alpha</td><td>N</td><td>November</td></tr>
+<tr><td>B</td><td>Bravo</td><td>O</td><td>Oscar</td></tr>
+<tr><td>C</td><td>Charlie</td><td>P</td><td>Papa</td></tr>
+<tr><td>D</td><td>Delta</td><td>Q</td><td>Quebec</td></tr>
+<tr><td>E</td><td>Echo</td><td>R</td><td>Romeo</td></tr>
+<tr><td>F</td><td>Foxtrot</td><td>S</td><td>Sierra</td></tr>
+<tr><td>G</td><td>Golf</td><td>T</td><td>Tango</td></tr>
+<tr><td>H</td><td>Hotel</td><td>U</td><td>Uniform</td></tr>
+<tr><td>I</td><td>India</td><td>V</td><td>Victor</td></tr>
+<tr><td>J</td><td>Juliett</td><td>W</td><td>Whiskey</td></tr>
+<tr><td>K</td><td>Kilo</td><td>X</td><td>X-ray</td></tr>
+<tr><td>L</td><td>Lima</td><td>Y</td><td>Yankee</td></tr>
+<tr><td>M</td><td>Mike</td><td>Z</td><td>Zulu</td></tr>
+</table>
+<p>Exemple : "My ticket ID is A-B-2-4-9" se dit "Alpha, Bravo, two, four, niner" (le chiffre 9 se prononce "niner" en radio/téléphonie pour éviter la confusion avec "five").</p>
+<h3>2. Lire une IP, un port ou une version à voix haute</h3>
+<table><tr><th>Écrit</th><th>Se lit</th></tr>
+<tr><td>192.168.1.1</td><td>"one nine two, dot, one six eight, dot, one, dot, one"</td></tr>
+<tr><td>Port 8080</td><td>"port eighty-eighty" ou "port eight-zero-eight-zero"</td></tr>
+<tr><td>Version 2.5.1</td><td>"version two point five point one"</td></tr>
+<tr><td>255.255.255.0</td><td>"two five five, dot, two five five, dot, two five five, dot, zero"</td></tr>
+</table>
+<h3>3. Mots techniques souvent mal prononcés</h3>
+<table><tr><th>Mot</th><th>Prononciation (approx. FR)</th><th>Piège</th></tr>
+<tr><td>Linux</td><td>"LIH-nuks"</td><td>Pas "LIE-nux" — le "i" est court comme dans "bit"</td></tr>
+<tr><td>cache</td><td>"cash"</td><td>Se prononce comme le mot anglais "cash", pas "catche"</td></tr>
+<tr><td>router</td><td>US: "ROU-ter" / UK: "ROO-ter"</td><td>Les deux prononciations existent selon l'accent</td></tr>
+<tr><td>data</td><td>US: "DAY-ta" / UK: "DAH-ta"</td><td>Les deux sont acceptées</td></tr>
+<tr><td>SQL</td><td>"sequel" ou "S-Q-L"</td><td>Les deux usages coexistent selon l'entreprise</td></tr>
+<tr><td>daemon</td><td>"DEE-mon"</td><td>Pas "day-mon"</td></tr>
+<tr><td>queue</td><td>"kyoo"</td><td>Se prononce comme la lettre "Q"</td></tr>
+<tr><td>via</td><td>"VY-uh" ou "VEE-uh"</td><td>Les deux formes sont courantes</td></tr>
+<tr><td>Nginx</td><td>"engine-x"</td><td>Le "N" initial est muet à l'oral</td></tr>
+<tr><td>kernel</td><td>"KER-nl"</td><td>Ne pas prononcer le "e" final</td></tr>
+<tr><td>debug</td><td>"dee-BUG"</td><td>Accent sur la 2e syllabe</td></tr>
+<tr><td>Wi-Fi</td><td>"WHY-fye"</td><td>Deux syllabes accentuées, pas "wifi" à la française</td></tr>
+</table>
+<h3>4. Épeler les acronymes lettre par lettre</h3>
+<p>Les acronymes techniques se lisent presque toujours lettre par lettre (jamais comme un mot), sauf exceptions connues (RAM, SQL parfois "sequel", RAID).</p>
+<table><tr><th>Acronyme</th><th>Se lit</th></tr>
+<tr><td>CPU</td><td>"C-P-U" (pas "keu-pu")</td></tr>
+<tr><td>URL</td><td>"U-R-L"</td></tr>
+<tr><td>API</td><td>"A-P-I"</td></tr>
+<tr><td>VM</td><td>"V-M"</td></tr>
+<tr><td>RAM</td><td>"ram" (comme un mot)</td></tr>
+<tr><td>RAID</td><td>"rayd" (comme un mot)</td></tr>
+</table>`
+      },
+      {
+        id: 'comprehension-orale',
+        titre: 'Comprendre un appel support en anglais',
+        content: `<h2>Compréhension orale — appels et réunions techniques</h2>
+<h3>1. Demander une répétition ou clarification poliment</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"Could you repeat that, please?"</td><td>"Pourriez-vous répéter, s'il vous plaît ?"</td></tr>
+<tr><td>"Sorry, could you speak more slowly?"</td><td>"Désolé, pourriez-vous parler plus lentement ?"</td></tr>
+<tr><td>"Could you spell that for me?"</td><td>"Pourriez-vous me l'épeler ?"</td></tr>
+<tr><td>"I didn't quite catch that."</td><td>"Je n'ai pas bien saisi."</td></tr>
+<tr><td>"Just to confirm, you said..."</td><td>"Juste pour confirmer, vous avez dit..."</td></tr>
+<tr><td>"Could you send that in writing/by email?"</td><td>"Pourriez-vous l'envoyer par écrit/email ?"</td></tr>
+</table>
+<h3>2. Comprendre les nombres et dates à l'oral</h3>
+<table><tr><th>Format</th><th>Exemple US</th><th>Exemple UK</th></tr>
+<tr><td>Date</td><td>"March 5th, 2026" (mois/jour)</td><td>"5th of March, 2026" (jour/mois)</td></tr>
+<tr><td>Heure</td><td>"3:30 PM" (format 12h)</td><td>"15:30" (format 24h, plus courant en IT)</td></tr>
+<tr><td>Grand nombre</td><td>"one thousand two hundred"</td><td>identique</td></tr>
+<tr><td>Décimal</td><td>"three point one four" (3.14)</td><td>identique</td></tr>
+</table>
+<p><strong>En IT, privilégier le format 24h et la notation ISO (YYYY-MM-DD) à l'écrit pour éviter toute ambiguïté entre les conventions US et UK.</strong></p>
+<h3>3. Exemple de dialogue support — transcript annoté</h3>
+<pre>Technician: Thank you for calling IT support, how can I help you?
+User: Hi, my laptop keeps disconnecting from the Wi-Fi every few minutes.
+Technician: I see. When did this start happening?
+User: It started yesterday afternoon, after a Windows update.
+Technician: Okay, has anyone else in your team reported the same issue?
+User: Not that I know of.
+Technician: Understood. Could you open the Network settings and tell me
+            what the connection status shows?
+User: It says "Limited connectivity."
+Technician: Alright, I'm going to walk you through resetting the network
+            adapter. This should take about two minutes.</pre>
+<table><tr><th>Expression du dialogue</th><th>Sens</th></tr>
+<tr><td>"I see."</td><td>Marque d'écoute active — "je comprends"</td></tr>
+<tr><td>"Understood."</td><td>Confirme la bonne réception de l'info</td></tr>
+<tr><td>"I'm going to walk you through..."</td><td>"Je vais vous guider pas à pas dans..."</td></tr>
+<tr><td>"Limited connectivity"</td><td>Message Windows : connexion réseau restreinte/sans accès internet</td></tr>
+</table>
+<h3>4. Accents — repères utiles</h3>
+<table><tr><th>Accent</th><th>Particularité à l'oral</th></tr>
+<tr><td>Américain (US)</td><td>"r" prononcé partout, "t" au milieu d'un mot sonne souvent comme "d" (water → "wader")</td></tr>
+<tr><td>Britannique (UK)</td><td>"r" souvent muet en fin de syllabe (server → "sœ-veu")</td></tr>
+<tr><td>Indien</td><td>Débit rapide, intonation marquée — très courant en support IT offshore</td></tr>
+</table>
+<p>En cas de doute sur un accent, ne jamais deviner : "Just to make sure I understood correctly, you said..." permet de reformuler et confirmer sans gêne.</p>`
+      },
     ],
     flashcards: [
       { id: 'ang_f1', recto: 'throughput', verso: 'Débit effectif mesuré (≤ bandwidth). "Network throughput is 800 Mbps on a 1 Gbps link."' },
@@ -3881,6 +4043,16 @@ const MODULES = [
       { id: 'ang_f42', recto: 'to parse', verso: 'Analyser/interpréter une donnée structurée. "Parse the log file for errors."' },
       { id: 'ang_f43', recto: 'to override', verso: 'Écraser/remplacer une valeur ou un comportement par défaut. "Override the default configuration."' },
       { id: 'ang_f44', recto: 'to expose', verso: 'Exposer un port/service/API vers l\'extérieur. "Expose port 443 to the internet."' },
+      { id: 'ang_f45', recto: 'Objet email efficace', verso: 'Clair, court, actionnable. "Update" est faible ; "[Action Required] Server disk space critical" est fort.' },
+      { id: 'ang_f46', recto: '"Please find attached"', verso: 'Formule pour introduire une pièce jointe dans un email professionnel.' },
+      { id: 'ang_f47', recto: 'Best regards / Sincerely', verso: 'Formules de clôture email. Best regards = standard. Sincerely = très formel (client important).' },
+      { id: 'ang_f48', recto: 'Alphabet OTAN — Alpha, Bravo, Charlie', verso: 'Alphabet phonétique pour épeler au téléphone sans erreur (identifiants, mots de passe).' },
+      { id: 'ang_f49', recto: 'Prononciation : Linux', verso: '"LIH-nuks" — le "i" est court comme dans "bit", pas "LIE-nux".' },
+      { id: 'ang_f50', recto: 'Prononciation : cache', verso: 'Se prononce "cash", comme le mot anglais pour argent liquide — pas "catche".' },
+      { id: 'ang_f51', recto: 'Chiffre "9" au téléphone/radio', verso: 'Se prononce "niner" pour éviter la confusion avec "five" lors de la dictée d\'un numéro.' },
+      { id: 'ang_f52', recto: '"Could you repeat that, please?"', verso: 'Demander une répétition poliment lors d\'un appel support.' },
+      { id: 'ang_f53', recto: '"I\'m going to walk you through..."', verso: '"Je vais vous guider pas à pas dans..." — formule courante en support pour annoncer une procédure.' },
+      { id: 'ang_f54', recto: '"Limited connectivity"', verso: 'Message Windows signalant une connexion réseau restreinte, sans accès internet complet.' },
     ],
     qcm: [
       { id: 'ang_q1', question: 'What does "throughput" mean in networking?', options: [{ text: 'Maximum theoretical speed', correct: false }, { text: 'Actual data transfer rate measured', correct: true }, { text: 'Network latency', correct: false }, { text: 'Packet loss percentage', correct: false }], explication: 'Throughput = débit effectif mesuré. Bandwidth = capacité théorique. Throughput ≤ bandwidth toujours.', difficulty: 'normal' },
@@ -3923,6 +4095,16 @@ const MODULES = [
       { id: 'ang_q38', question: 'A "known issue" in a ticketing system is:', options: [{ text: 'A brand new, unreported bug', correct: false }, { text: 'A documented problem already identified', correct: true }, { text: 'A resolved ticket', correct: false }, { text: 'A security incident', correct: false }], explication: 'Known issue = problème déjà documenté, pas besoin de ré-investiguer depuis zéro.', difficulty: 'facile' },
       { id: 'ang_q39', question: 'What does "to parse" mean in a scripting context?', options: [{ text: 'To delete data', correct: false }, { text: 'To analyze and interpret structured data', correct: true }, { text: 'To encrypt data', correct: false }, { text: 'To back up data', correct: false }], explication: 'Parse = analyser une donnée structurée (log, JSON, CSV) pour en extraire des informations.', difficulty: 'normal' },
       { id: 'ang_q40', question: 'A "snapshot" of a virtual machine is:', options: [{ text: 'A full clone of the VM', correct: false }, { text: 'A saved state of the VM at a specific point in time', correct: true }, { text: 'A network diagram of the VM', correct: false }, { text: 'A performance report', correct: false }], explication: 'Snapshot = instantané, état figé réversible d\'une VM avant une opération risquée (update, test).', difficulty: 'normal' },
+      { id: 'ang_q41', question: 'Which subject line is the most effective for a professional email?', options: [{ text: '"Problem"', correct: false }, { text: '"Update"', correct: false }, { text: '"[Action Required] Server SRV-DB01 disk space critical"', correct: true }, { text: '"Hi"', correct: false }], explication: 'Un bon objet est clair, court et actionnable — le destinataire comprend l\'urgence sans ouvrir l\'email.', difficulty: 'facile' },
+      { id: 'ang_q42', question: 'Which closing formula is the most formal?', options: [{ text: 'Thanks,', correct: false }, { text: 'Sincerely,', correct: true }, { text: 'Regards,', correct: false }, { text: 'Best,', correct: false }], explication: '"Sincerely" est réservé aux contextes très formels (lettre officielle, client important).', difficulty: 'normal' },
+      { id: 'ang_q43', question: 'How do you spell "SRV" using the NATO phonetic alphabet?', options: [{ text: 'Sierra, Romeo, Victor', correct: true }, { text: 'Sam, Roger, Vincent', correct: false }, { text: 'Sierra, Romeo, Vector', correct: false }, { text: 'Stop, Run, View', correct: false }], explication: 'S = Sierra, R = Romeo, V = Victor. L\'alphabet OTAN évite les erreurs de compréhension au téléphone.', difficulty: 'normal' },
+      { id: 'ang_q44', question: 'How is the digit "9" pronounced in radio/phone dictation to avoid confusion with "5"?', options: [{ text: '"nine"', correct: false }, { text: '"niner"', correct: true }, { text: '"nein"', correct: false }, { text: '"ninety"', correct: false }], explication: '"Niner" est utilisé en dictée téléphonique/radio pour distinguer clairement "9" de "5" (five).', difficulty: 'difficile' },
+      { id: 'ang_q45', question: 'How do you correctly pronounce "Linux"?', options: [{ text: '"LIE-nux" (long i)', correct: false }, { text: '"LIH-nuks" (short i)', correct: true }, { text: '"lee-NUKS"', correct: false }, { text: '"LEE-nux"', correct: false }], explication: 'Le "i" de Linux se prononce court, comme dans "bit" — "LIH-nuks", pas "LIE-nux".', difficulty: 'normal' },
+      { id: 'ang_q46', question: 'What is the polite way to ask someone to repeat what they said?', options: [{ text: '"What?"', correct: false }, { text: '"Could you repeat that, please?"', correct: true }, { text: '"Say it again."', correct: false }, { text: '"Huh?"', correct: false }], explication: 'Formule polie et professionnelle adaptée à un contexte de support technique.', difficulty: 'facile' },
+      { id: 'ang_q47', question: 'In IT, which date/time format is recommended to avoid US/UK ambiguity?', options: [{ text: '12-hour format with AM/PM', correct: false }, { text: '24-hour format with ISO date (YYYY-MM-DD)', correct: true }, { text: 'Day/month without year', correct: false }, { text: 'Month written as a number only', correct: false }], explication: 'Le format 24h + notation ISO évite toute confusion entre les conventions américaine (mois/jour) et britannique (jour/mois).', difficulty: 'normal' },
+      { id: 'ang_q48', question: 'What does "Limited connectivity" mean in a Windows network status?', options: [{ text: 'The connection is encrypted', correct: false }, { text: 'The network connection is restricted, without full internet access', correct: true }, { text: 'The Wi-Fi signal is very strong', correct: false }, { text: 'The firewall is blocking all traffic', correct: false }], explication: 'Limited connectivity = connexion réseau active mais restreinte, souvent sans accès internet complet.', difficulty: 'normal' },
+      { id: 'ang_q49', question: 'How should an acronym like "CPU" usually be pronounced?', options: [{ text: 'As a single word "keu-pu"', correct: false }, { text: 'Letter by letter: "C-P-U"', correct: true }, { text: 'It has no standard pronunciation', correct: false }, { text: 'Only in French', correct: false }], explication: 'La plupart des acronymes techniques se lisent lettre par lettre, sauf exceptions connues (RAM, RAID).', difficulty: 'facile' },
+      { id: 'ang_q50', question: 'Which phrase is best to safely confirm you understood someone with a strong accent?', options: [{ text: 'Ignore it and move on', correct: false }, { text: '"Just to make sure I understood correctly, you said..."', correct: true }, { text: '"Can you speak proper English?"', correct: false }, { text: 'Guess and proceed', correct: false }], explication: 'Reformuler pour confirmer évite les malentendus sans mettre l\'interlocuteur mal à l\'aise.', difficulty: 'normal' },
     ],
   }
 

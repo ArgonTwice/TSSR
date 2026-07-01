@@ -1,6 +1,6 @@
 import { db } from './firebase-config.js';
 import {
-  doc, getDoc, setDoc, onSnapshot, serverTimestamp,
+  doc, getDoc, setDoc, onSnapshot,
 } from 'https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js';
 
 const FirebaseNotes = {
@@ -47,30 +47,6 @@ const FirebaseNotes = {
     const docId = moduleId + '-' + coursId;
     const snap = await getDoc(doc(db, 'notes', docId));
     return (snap.data() || {}).members || {};
-  },
-
-  saveSummary: async (moduleId, coursId, summary) => {
-    const docId = moduleId + '-' + coursId;
-    try {
-      await setDoc(doc(db, 'notes', docId), {
-        summaryAuto: summary,
-        summaryAutoUpdatedAt: serverTimestamp(),
-      }, { merge: true });
-      return { success: true };
-    } catch (err) {
-      return { success: false, error: err.message };
-    }
-  },
-
-  listenToSummary: (moduleId, coursId, callback) => {
-    const docId = moduleId + '-' + coursId;
-    return onSnapshot(doc(db, 'notes', docId), (snap) => {
-      const data = snap.data() || {};
-      callback({
-        summary: data.summaryAuto || '',
-        updatedAt: data.summaryAutoUpdatedAt?.toDate?.() || null,
-      });
-    }, (err) => console.error('Erreur écoute résumé:', err));
   },
 
 };

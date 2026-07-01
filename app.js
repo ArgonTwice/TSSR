@@ -1369,99 +1369,210 @@ const KNOWN_MEMBERS = ['Esdine','Madjid','Fouad','Ilir','Jores','Ronel','Folly',
 
 function renderNotes(m, el) {
   if (window._noteUnsub) { window._noteUnsub(); window._noteUnsub = null; }
-  const lastKey = 'notes_last_' + m.id;
-  let cur = store.get(lastKey) || KNOWN_MEMBERS[0];
 
-  function getNote(p)     { return store.get(`notes_${m.id}_${p}`) || ''; }
-  function saveNote(p, v) { store.set(`notes_${m.id}_${p}`, v); }
+  const identityKey = 'notes_identity';
+  let myId = store.get(identityKey) || KNOWN_MEMBERS[0];
+  let cur  = store.get('notes_last_' + m.id) || myId;
+  let membersData = {};
+  let myFiles = [];
+
+  function makeFileCard(f) {
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    const icon = f.kind === 'pdf' || f.kind === 'pdf-idb' ? '[PDF]'
+               : f.kind === 'html' ? '[HTML]' : '[TXT]';
+    div.innerHTML = `
+      <div class="file-item-header">
+        <span class="file-icon">${icon}</span>
+        <span class="file-name">${escHtml(f.filename)}</span>
+      </div>
+      <div class="file-item-preview" style="display:none"></div>
+      <div class="file-actions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>`;
+    const previewEl = div.querySelector('.file-item-preview');
+    const actionsEl = div.querySelector('.file-actions');
+    if (f.content && f.kind === 'html') {
+      previewEl.className = 'file-item-preview file-item-preview--render';
+      previewEl.style.display = 'block';
+      const ifr = document.createElement('iframe');
+      ifr.className = 'file-preview-iframe';
+      ifr.setAttribute('sandbox', 'allow-scripts');
+      ifr.srcdoc = f.content;
+      previewEl.appendChild(ifr);
+    } else if (f.content && f.kind === 'pdf') {
+      previewEl.className = 'file-item-preview file-item-preview--render';
+      previewEl.style.display = 'block';
+      const ifr = document.createElement('iframe');
+      ifr.className = 'file-preview-iframe';
+      ifr.src = _pdfB64ToUrl(f.content);
+      previewEl.appendChild(ifr);
+    } else if (f.content && f.kind === 'pdf-idb') {
+      previewEl.className = 'file-item-preview file-item-preview--render';
+      previewEl.style.display = 'block';
+      const ifr = document.createElement('iframe');
+      ifr.className = 'file-preview-iframe';
+      PdfStore.get(f.content).then(blob => {
+        if (blob) ifr.src = URL.createObjectURL(blob);
+        else previewEl.textContent = '(PDF non disponible sur cet appareil — re-uploadez-le)';
+      });
+      previewEl.appendChild(ifr);
+    } else if (f.content && f.kind === 'text') {
+      previewEl.className = 'file-item-preview';
+      previewEl.style.display = 'block';
+      previewEl.textContent = f.content.substring(0, 300) + (f.content.length > 300 ? '…' : '');
+    } else {
+      previewEl.className = 'file-item-preview';
+      previewEl.style.display = 'block';
+      previewEl.textContent = '(Fichier local uniquement — trop volumineux pour Firestore)';
+    }
+    if (f.content && (f.kind === 'html' || f.kind === 'pdf' || f.kind === 'pdf-idb')) {
+      actionsEl.style.display = 'flex';
+      const fsBtn = document.createElement('button');
+      fsBtn.className = 'file-fullscreen-btn';
+      fsBtn.textContent = '⛶ Plein écran';
+      fsBtn.addEventListener('click', () => openFileFullscreen({ filename: f.filename, kind: f.kind, content: f.content }));
+      actionsEl.appendChild(fsBtn);
+    }
+    return div;
+  }
+
+  async function saveMyData(text) {
+    try {
+      const { FirebaseNotes } = await import('./firebase-notes.js');
+      return await FirebaseNotes.saveMemberData(m.id, 'notes', myId, text, myFiles);
+    } catch (e) { return { success: false, error: e.message }; }
+  }
 
   function showPerson(person) {
     cur = person;
-    store.set(lastKey, person);
+    store.set('notes_last_' + m.id, person);
     el.querySelectorAll('.np-btn').forEach(b => b.classList.toggle('active', b.dataset.p === person));
     const area = el.querySelector('.notes-area');
+    if (!area) return;
+
     if (person === 'Résumé') {
       const entries = KNOWN_MEMBERS.map(p => {
-        const txt = getNote(p).trim();
-        if (!txt) return '';
-        return `<div class="notes-entry"><div class="notes-entry-name">${p}</div><div class="notes-entry-text">${escHtml(txt)}</div></div>`;
+        const data = membersData[p];
+        const txt  = data?.text || store.get(`notes_${m.id}_${p}`) || '';
+        const nf   = (data?.files || []).length;
+        if (!txt.trim() && !nf) return '';
+        return `<div class="notes-entry">
+          <div class="notes-entry-name">${p}</div>
+          <div class="notes-entry-text">${escHtml(txt)}</div>
+          ${nf ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">${nf} fichier(s) partagé(s)</div>` : ''}
+        </div>`;
       }).filter(Boolean).join('');
       area.innerHTML = entries || `<div class="empty-state" style="padding:60px 0"><span class="empty-state-icon">📝</span><h3>Aucune note pour l'instant</h3><p>Les notes de chaque membre apparaîtront ici.</p></div>`;
+      return;
+    }
+
+    if (person === myId) {
+      const myData    = membersData[myId];
+      const savedText = myData?.text ?? store.get(`notes_${m.id}_${myId}`) ?? '';
+      myFiles = myData?.files ?? myFiles;
+      area.innerHTML = `
+        <div class="notes-editor">
+          <div class="notes-editor-header">
+            <span class="notes-editor-who">${myId}</span>
+            <span class="notes-save-status" id="ns-status">✓ Synchronisé</span>
+          </div>
+          <textarea id="notes-ta" class="notes-textarea" placeholder="Mes notes pour ce module…" spellcheck="true">${escHtml(savedText)}</textarea>
+          <div class="file-upload-section">
+            <div id="file-upload-zone" class="file-upload-zone">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="margin-bottom:8px;color:var(--accent)">
+                <path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <div>Glisser ici ou <button id="upload-btn-trigger" class="upload-trigger-btn">Choisir un fichier</button></div>
+              <div class="upload-hint">HTML, PDF, TXT, MD</div>
+              <input type="file" id="file-input" accept=".html,.htm,.pdf,.txt,.md,.docx" multiple style="display:none">
+            </div>
+            <div id="files-list" class="files-list"></div>
+          </div>
+        </div>`;
+      const ta = area.querySelector('#notes-ta');
+      const statusEl = area.querySelector('#ns-status');
+      let t;
+      ta.addEventListener('input', () => {
+        statusEl.textContent = '…';
+        clearTimeout(t);
+        t = setTimeout(async () => {
+          store.set(`notes_${m.id}_${myId}`, ta.value);
+          const res = await saveMyData(ta.value);
+          statusEl.textContent = res.success ? '✓ Synchronisé' : '⚠ Local seulement';
+        }, 800);
+      });
+      setupFileUpload(m.id, 'notes', async fileEntry => {
+        myFiles = [...myFiles, fileEntry];
+        const res = await saveMyData(ta.value);
+        statusEl.textContent = res.success ? '✓ Synchronisé' : '⚠ Fichier trop volumineux pour Firestore';
+      });
+      const filesList = area.querySelector('#files-list');
+      myFiles.forEach(f => filesList.appendChild(makeFileCard(f)));
     } else {
+      const data  = membersData[person];
+      const txt   = data?.text || '';
+      const files = data?.files || [];
       area.innerHTML = `
         <div class="notes-editor">
           <div class="notes-editor-header">
             <span class="notes-editor-who">${person}</span>
-            <span class="notes-save-status" id="ns-status">✓ Sauvegardé</span>
+            <span class="notes-save-status" style="color:${data ? 'var(--accent)' : 'var(--text3)'}">
+              ${data ? 'Firestore ✓' : 'Aucune note partagée'}
+            </span>
           </div>
-          <textarea id="notes-ta" class="notes-textarea" placeholder="Notes de ${person} pour ce module…" spellcheck="true">${escHtml(getNote(person))}</textarea>
+          ${txt ? `<div class="notes-readonly-text">${escHtml(txt)}</div>` : ''}
         </div>`;
-      const ta = el.querySelector('#notes-ta');
-      let t;
-      ta.addEventListener('input', () => {
-        document.getElementById('ns-status').textContent = '…';
-        clearTimeout(t);
-        t = setTimeout(() => { saveNote(person, ta.value); document.getElementById('ns-status').textContent = '✓ Sauvegardé'; }, 600);
-      });
-      ta.focus();
+      if (files.length) {
+        const section = document.createElement('div');
+        section.className = 'file-upload-section';
+        section.style.marginTop = '12px';
+        files.forEach(f => section.appendChild(makeFileCard(f)));
+        area.querySelector('.notes-editor').appendChild(section);
+      }
     }
   }
 
+  const identityOptions = KNOWN_MEMBERS.map(p =>
+    `<option value="${p}"${p === myId ? ' selected' : ''}>${p}</option>`
+  ).join('');
   const btns = KNOWN_MEMBERS.map(p =>
     `<button class="np-btn${p === cur ? ' active' : ''}" data-p="${p}">${p}</button>`
   ).join('') + `<button class="np-btn np-btn-resume${cur === 'Résumé' ? ' active' : ''}" data-p="Résumé">📋 Résumé</button>`;
 
-  el.innerHTML = `<div class="notes-wrap"><div class="notes-people">${btns}</div><div class="notes-area"></div></div>`;
-  el.querySelectorAll('.np-btn').forEach(b => b.addEventListener('click', () => showPerson(b.dataset.p)));
+  el.innerHTML = `
+    <div class="notes-wrap">
+      <div class="notes-identity-bar">
+        <label class="notes-identity-label">Je suis :</label>
+        <select class="notes-identity-select">${identityOptions}</select>
+      </div>
+      <div class="notes-people">${btns}</div>
+      <div class="notes-area"></div>
+    </div>`;
+
+  el.querySelector('.notes-identity-select').addEventListener('change', e => {
+    myId = e.target.value;
+    store.set(identityKey, myId);
+    showPerson(cur);
+  });
+  el.querySelectorAll('.np-btn').forEach(b =>
+    b.addEventListener('click', () => showPerson(b.dataset.p))
+  );
+
   showPerson(cur);
+
+  let firstSnapshot = true;
+  import('./firebase-notes.js').then(({ FirebaseNotes }) => {
+    window._noteUnsub = FirebaseNotes.listenToAllMembers(m.id, 'notes', members => {
+      membersData = members;
+      if (cur !== myId || firstSnapshot) {
+        showPerson(cur);
+      } else {
+        myFiles = members[myId]?.files || myFiles;
+      }
+      firstSnapshot = false;
+    });
+  }).catch(() => {});
 }
 
-// ===== NOTES — RESUME AUTOMATIQUE =====
-
-async function autoGenerateSummary(moduleId, coursId) {
-  const metaEl    = document.getElementById('summary-meta');
-  const contentEl = document.getElementById('summary-content');
-  if (metaEl) metaEl.textContent = 'Génération en cours...';
-
-  try {
-    const { FirebaseNotes } = await import('./firebase-notes.js');
-    const members = await FirebaseNotes.getAllMembers(moduleId, coursId);
-    const entries = Object.entries(members).filter(([, d]) =>
-      (d.text || '').trim() || (d.files || []).length
-    );
-
-    if (!entries.length) {
-      if (contentEl) contentEl.innerHTML = '<em>Aucun contenu partagé pour le moment.</em>';
-      if (metaEl) metaEl.textContent = 'En attente de contenu...';
-      return;
-    }
-
-    let aggregated = '';
-    entries.forEach(([name, data]) => {
-      aggregated += `--- ${name} ---\n`;
-      if (data.text) aggregated += `Notes: ${data.text}\n`;
-      (data.files || []).forEach(f => {
-        aggregated += `Fichier "${f.filename}":\n${f.content}\n`;
-      });
-      aggregated += '\n';
-    });
-
-    const response = await fetch('/api/auto-summarize', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: aggregated, sourceCount: entries.length }),
-    });
-    if (!response.ok) throw new Error('API indisponible');
-    const { summary } = await response.json();
-    await FirebaseNotes.saveSummary(moduleId, coursId, summary);
-  } catch (err) {
-    if (contentEl) contentEl.innerHTML =
-      '<em>Génération automatique indisponible (backend non déployé). ' +
-      'Le contenu est bien sauvegardé, mais le résumé IA nécessite un serveur actif.</em>';
-    if (metaEl) metaEl.textContent = 'Résumé indisponible';
-    console.warn('Erreur autoGenerateSummary:', err);
-  }
-}
 
 // ===== NOTES — UPLOAD FICHIERS =====
 
@@ -1482,7 +1593,7 @@ function loadScript(url) {
   });
 }
 
-function setupFileUpload(moduleId, coursId) {
+function setupFileUpload(moduleId, coursId, onFileReady) {
   const zone  = document.getElementById('file-upload-zone');
   const input = document.getElementById('file-input');
   const btn   = document.getElementById('upload-btn-trigger');
@@ -1535,10 +1646,7 @@ function setupFileUpload(moduleId, coursId) {
           textContent = `[${kind.toUpperCase()}: ${file.name}]`;
         }
 
-        import('./firebase-notes.js').then(({ FirebaseNotes }) =>
-          FirebaseNotes.trackFileUpload(moduleId, coursId, file, result)
-            .then(() => regenerateAutoSummary(moduleId, coursId))
-        ).catch(() => {});
+        if (onFileReady) onFileReady({ filename: file.name, kind, content: raw });
 
         if (kind === 'html') {
           statusEl.style.color = 'var(--accent)';
@@ -1845,34 +1953,6 @@ function formatFileSize(bytes) {
   if (!bytes) return '0 B';
   const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3);
   return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
-}
-
-// ===== FIREBASE — SYNC COLLECTIF =====
-
-async function regenerateAutoSummary(moduleId, coursId = 'main') {
-  const { FirebaseNotes } = await import('./firebase-notes.js');
-  const sources = await FirebaseNotes.getAggregatedContent(moduleId, coursId);
-  if (!sources.length) return;
-
-  let aggregated = `Notes et fichiers de ${new Set(sources.map(s => s.userId)).size} collègue(s) :\n\n`;
-  sources.forEach((src, i) => {
-    aggregated += `[Source ${i + 1} — ${src.userId}]\nType : ${src.type}${src.filename ? ' / ' + src.filename : ''}\n${src.content}\n\n`;
-  });
-
-  try {
-    const resp = await fetch('/api/auto-summarize', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: aggregated.substring(0, 5000), sourceCount: sources.length }),
-    });
-    if (!resp.ok) throw new Error('no-backend');
-    const { summary } = await resp.json();
-    await FirebaseNotes.saveSummary(moduleId, coursId, summary);
-  } catch (_) {
-    const users   = [...new Set(sources.map(s => s.userId))].join(', ');
-    const fallback = `[${sources.length} source(s) — ${users}]\n\nFichiers et notes enregistrés. Configurez un backend (/api/auto-summarize) pour générer un résumé IA automatique.`;
-    await FirebaseNotes.saveSummary(moduleId, coursId, fallback);
-  }
 }
 
 // ===== RÉVISION DU JOUR =====

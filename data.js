@@ -3498,7 +3498,7 @@ const MODULES = [
     icon: '🇬🇧',
     color: '#3b82f6',
     desc: 'Vocabulaire IT, helpdesk, rédaction technique, certifications en anglais...',
-    topics: ['Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications', 'Email', 'Prononciation', 'Oral', 'Entretien', 'Réunions'],
+    topics: ['Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications', 'Email', 'Prononciation', 'Oral', 'Entretien', 'Réunions', 'Sécurité', 'Cloud/DevOps', 'CV/LinkedIn'],
     cours: [
       {
         id: 'vocabulaire-it',
@@ -4119,6 +4119,164 @@ Next meeting: July 8, 2026</pre>
 <tr><td>"Thanks everyone, talk soon."</td><td>"Merci à tous, à bientôt."</td></tr>
 </table>`
       },
+      {
+        id: 'securite-anglais',
+        titre: 'Cybersécurité en anglais',
+        content: `<h2>Vocabulaire et communication en cybersécurité</h2>
+<h3>1. Types d'attaques et de menaces</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>phishing</td><td>hameçonnage</td><td>"The user reported a phishing email."</td></tr>
+<tr><td>ransomware</td><td>rançongiciel</td><td>"Ransomware encrypted all files on the share."</td></tr>
+<tr><td>malware</td><td>logiciel malveillant</td><td>"Malware was detected on the endpoint."</td></tr>
+<tr><td>brute-force attack</td><td>attaque par force brute</td><td>"Multiple failed logins suggest a brute-force attack."</td></tr>
+<tr><td>social engineering</td><td>ingénierie sociale</td><td>"The attacker used social engineering to get the password."</td></tr>
+<tr><td>spoofing</td><td>usurpation</td><td>"Email spoofing bypassed the spam filter."</td></tr>
+<tr><td>data breach</td><td>fuite / violation de données</td><td>"The company disclosed a data breach."</td></tr>
+<tr><td>zero-day</td><td>faille non corrigée / jour zéro</td><td>"A zero-day vulnerability was exploited."</td></tr>
+<tr><td>backdoor</td><td>porte dérobée</td><td>"The malware installed a backdoor."</td></tr>
+<tr><td>DDoS attack</td><td>attaque par déni de service distribué</td><td>"The website went down after a DDoS attack."</td></tr>
+</table>
+<h3>2. Répondre à un incident de sécurité</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"We've isolated the affected machine from the network."</td><td>"Nous avons isolé la machine touchée du réseau."</td></tr>
+<tr><td>"The incident has been contained."</td><td>"L'incident a été contenu."</td></tr>
+<tr><td>"We are investigating the root cause."</td><td>"Nous investiguons la cause racine."</td></tr>
+<tr><td>"No evidence of data exfiltration was found."</td><td>"Aucune preuve d'exfiltration de données n'a été trouvée."</td></tr>
+<tr><td>"Please reset your password immediately."</td><td>"Veuillez réinitialiser votre mot de passe immédiatement."</td></tr>
+</table>
+<h3>3. Structure d'un incident report</h3>
+<table><tr><th>Section</th><th>Contenu type</th></tr>
+<tr><td>Summary</td><td>Résumé en 2-3 phrases : quoi, quand, impact</td></tr>
+<tr><td>Timeline</td><td>Chronologie des événements avec horodatage</td></tr>
+<tr><td>Impact</td><td>Systèmes/utilisateurs affectés, sévérité</td></tr>
+<tr><td>Root cause</td><td>Cause identifiée</td></tr>
+<tr><td>Remediation</td><td>Actions correctives appliquées</td></tr>
+<tr><td>Lessons learned</td><td>Ce qui sera changé pour éviter la récidive</td></tr>
+</table>
+<pre>Security Incident Report — INC-2026-0731
+
+Summary: Phishing email led to compromised credentials on one workstation.
+
+Timeline:
+09:14 — User reported a suspicious email.
+09:20 — SOC confirmed credential harvesting link.
+09:35 — Affected account disabled, workstation isolated.
+
+Impact: One user account, no lateral movement detected.
+
+Root cause: User clicked a spoofed login page link.
+
+Remediation: Password reset, MFA enforced, email blocked at gateway.
+
+Lessons learned: Additional phishing awareness training scheduled.</pre>
+<h3>4. Repérer un email de phishing</h3>
+<table><tr><th>Signal</th><th>Description</th></tr>
+<tr><td>Sense of urgency</td><td>"Your account will be suspended in 24 hours"</td></tr>
+<tr><td>Mismatched sender domain</td><td>support@micros0ft-security.com</td></tr>
+<tr><td>Generic greeting</td><td>"Dear Customer" instead of your name</td></tr>
+<tr><td>Suspicious link</td><td>Hovering shows a different URL than displayed</td></tr>
+<tr><td>Unexpected attachment</td><td>Invoice.zip from an unknown sender</td></tr>
+</table>`
+      },
+      {
+        id: 'cloud-devops-anglais',
+        titre: 'Cloud & DevOps en anglais',
+        content: `<h2>Cloud & DevOps en anglais</h2>
+<h3>1. Vocabulaire Cloud (Azure / AWS)</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>resource group</td><td>groupe de ressources</td><td>"Create a new resource group for the project."</td></tr>
+<tr><td>scaling</td><td>mise à l'échelle</td><td>"Enable auto-scaling for the web app."</td></tr>
+<tr><td>availability zone</td><td>zone de disponibilité</td><td>"Deploy across multiple availability zones."</td></tr>
+<tr><td>instance</td><td>instance (machine virtuelle cloud)</td><td>"Launch a new EC2 instance."</td></tr>
+<tr><td>bucket</td><td>compartiment de stockage (S3)</td><td>"Upload the file to the S3 bucket."</td></tr>
+<tr><td>throttling</td><td>limitation de débit</td><td>"The API returned a throttling error."</td></tr>
+<tr><td>tenant</td><td>locataire (organisation Azure AD)</td><td>"Each customer has its own tenant."</td></tr>
+<tr><td>role-based access control (RBAC)</td><td>contrôle d'accès basé sur les rôles</td><td>"Assign RBAC roles to limit access."</td></tr>
+</table>
+<h3>2. CI/CD — vocabulaire</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>pipeline</td><td>chaîne d'intégration/déploiement</td><td>"The pipeline failed at the test stage."</td></tr>
+<tr><td>build</td><td>compilation / construction</td><td>"The build succeeded on the first try."</td></tr>
+<tr><td>artifact</td><td>artefact (fichier produit par un build)</td><td>"Publish the artifact to the registry."</td></tr>
+<tr><td>staging environment</td><td>environnement de préproduction</td><td>"Test the release in staging first."</td></tr>
+<tr><td>merge conflict</td><td>conflit de fusion</td><td>"Resolve the merge conflict before merging."</td></tr>
+<tr><td>continuous deployment</td><td>déploiement continu</td><td>"Continuous deployment pushes to production automatically."</td></tr>
+<tr><td>rollback</td><td>retour arrière</td><td>"We rolled back to the previous version."</td></tr>
+<tr><td>canary release</td><td>déploiement progressif (canari)</td><td>"Use a canary release to limit the blast radius."</td></tr>
+</table>
+<h3>3. Rédiger un ticket Jira / Confluence</h3>
+<table><tr><th>Champ</th><th>Contenu type en anglais</th></tr>
+<tr><td>Title</td><td>"API returns 500 error on POST /users"</td></tr>
+<tr><td>Description</td><td>"Steps to reproduce, expected vs actual behavior"</td></tr>
+<tr><td>Acceptance criteria</td><td>"The endpoint returns 201 on valid input"</td></tr>
+<tr><td>Labels</td><td>bug / feature / tech-debt / blocker</td></tr>
+<tr><td>Priority</td><td>Highest / High / Medium / Low</td></tr>
+</table>
+<pre>Title: Pipeline fails at deployment stage on staging
+
+Description:
+Steps to reproduce:
+1. Merge a PR into main.
+2. Pipeline builds and tests pass.
+3. Deployment stage fails with a timeout.
+
+Expected: Deployment completes within 5 minutes.
+Actual: Deployment times out after 10 minutes.
+
+Priority: High
+Labels: bug, ci-cd</pre>
+<h3>4. Phrases types en réunion DevOps</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"The deployment is blocked by a failing test."</td><td>"Le déploiement est bloqué par un test en échec."</td></tr>
+<tr><td>"Let's roll back to the last stable release."</td><td>"Revenons à la dernière version stable."</td></tr>
+<tr><td>"We need to scale up before the traffic spike."</td><td>"Nous devons monter en charge avant le pic de trafic."</td></tr>
+<tr><td>"The infrastructure is provisioned via Terraform."</td><td>"L'infrastructure est provisionnée via Terraform."</td></tr>
+</table>`
+      },
+      {
+        id: 'cv-linkedin-anglais',
+        titre: 'CV et profil LinkedIn IT en anglais',
+        content: `<h2>CV et profil LinkedIn IT en anglais</h2>
+<h3>1. Structure d'un CV IT en anglais</h3>
+<table><tr><th>Section</th><th>Contenu</th></tr>
+<tr><td>Header</td><td>Name, phone, email, LinkedIn URL, location</td></tr>
+<tr><td>Professional summary</td><td>2-3 lignes résumant profil et objectif</td></tr>
+<tr><td>Technical skills</td><td>Liste par catégorie : OS, Networking, Cloud, Tools</td></tr>
+<tr><td>Work experience</td><td>Poste, entreprise, dates, bullet points d'actions</td></tr>
+<tr><td>Certifications</td><td>CompTIA, Cisco, Microsoft, dates d'obtention</td></tr>
+<tr><td>Education</td><td>Diplôme, établissement, année</td></tr>
+</table>
+<h3>2. Verbes d'action pour décrire son expérience</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>administered</td><td>administré</td><td>"Administered 50+ Windows Server instances."</td></tr>
+<tr><td>implemented</td><td>mis en place</td><td>"Implemented a new backup strategy."</td></tr>
+<tr><td>optimized</td><td>optimisé</td><td>"Optimized network performance by 30%."</td></tr>
+<tr><td>troubleshot</td><td>diagnostiqué (passé de troubleshoot)</td><td>"Troubleshot connectivity issues across sites."</td></tr>
+<tr><td>deployed</td><td>déployé</td><td>"Deployed and configured 20 virtual machines."</td></tr>
+<tr><td>maintained</td><td>maintenu</td><td>"Maintained 99.9% uptime SLA."</td></tr>
+<tr><td>automated</td><td>automatisé</td><td>"Automated user provisioning with PowerShell."</td></tr>
+</table>
+<h3>3. Exemple de résumé (About section LinkedIn)</h3>
+<pre>IT Support Technician with 2 years of hands-on experience in Windows Server
+administration, network troubleshooting, and Active Directory management.
+Comfortable working in fast-paced environments, resolving incidents within
+SLA, and documenting solutions for the knowledge base. Currently pursuing
+CompTIA Network+ certification. Looking for a Systems &amp; Network Technician
+role where I can grow my infrastructure and security skills.</pre>
+<h3>4. Exemple de bullet points d'expérience</h3>
+<pre>IT Support Technician — ACME Corp (2024 - Present)
+- Administered and maintained 80+ Windows and Linux servers.
+- Resolved an average of 25 tickets per week, meeting SLA 95% of the time.
+- Implemented a monitoring dashboard reducing incident detection time by 40%.
+- Automated routine tasks using PowerShell, saving 5 hours per week.
+- Documented troubleshooting procedures for the internal knowledge base.</pre>
+<h3>5. Erreurs fréquentes à éviter</h3>
+<table><tr><th>À éviter</th><th>Préférer</th></tr>
+<tr><td>"I was responsible for servers."</td><td>"Administered and monitored 80+ servers."</td></tr>
+<tr><td>"I know Windows and Linux."</td><td>"Proficient in Windows Server 2022 and RHEL administration."</td></tr>
+<tr><td>Résumé trop long (paragraphe entier)</td><td>Bullet points courts et quantifiés</td></tr>
+</table>`
+      },
     ],
     flashcards: [
       { id: 'ang_f1', recto: 'throughput', verso: 'Débit effectif mesuré (≤ bandwidth). "Network throughput is 800 Mbps on a 1 Gbps link."' },
@@ -4182,6 +4340,37 @@ Next meeting: July 8, 2026</pre>
       { id: 'ang_f59', recto: '"You\'re on mute."', verso: '"Vous êtes en muet." — phrase incontournable en visioconférence.' },
       { id: 'ang_f60', recto: 'meeting minutes', verso: 'Compte-rendu de réunion : participants, sujets discutés, décisions, actions, prochaine réunion.' },
       { id: 'ang_f61', recto: '"Sorry to interrupt, but..."', verso: 'Formule polie pour prendre la parole en coupant quelqu\'un lors d\'une réunion.' },
+      { id: 'ang_f62', recto: 'phishing', verso: 'Hameçonnage — email frauduleux visant à voler des identifiants. "The user reported a phishing email."' },
+      { id: 'ang_f63', recto: 'ransomware', verso: 'Rançongiciel — chiffre les fichiers et demande une rançon. "Ransomware encrypted all files on the share."' },
+      { id: 'ang_f64', recto: 'data breach', verso: 'Fuite/violation de données. "The company disclosed a data breach."' },
+      { id: 'ang_f65', recto: 'zero-day', verso: 'Vulnérabilité non corrigée et déjà exploitée. "A zero-day vulnerability was exploited."' },
+      { id: 'ang_f66', recto: 'to contain an incident', verso: 'Contenir un incident — empêcher sa propagation. "The incident has been contained."' },
+      { id: 'ang_f67', recto: 'social engineering', verso: 'Ingénierie sociale — manipulation humaine pour obtenir des informations sensibles.' },
+      { id: 'ang_f68', recto: 'pipeline (CI/CD)', verso: 'Chaîne automatisée de build/test/déploiement. "The pipeline failed at the test stage."' },
+      { id: 'ang_f69', recto: 'artifact', verso: 'Fichier produit par un build (jar, binaire, image Docker). "Publish the artifact to the registry."' },
+      { id: 'ang_f70', recto: 'canary release', verso: 'Déploiement progressif à un petit sous-ensemble d\'utilisateurs pour limiter le risque.' },
+      { id: 'ang_f71', recto: 'resource group (Azure)', verso: 'Groupe logique de ressources cloud gérées ensemble. "Create a new resource group."' },
+      { id: 'ang_f72', recto: 'RBAC', verso: 'Role-Based Access Control — contrôle d\'accès basé sur les rôles attribués.' },
+      { id: 'ang_f73', recto: 'staging environment', verso: 'Environnement de préproduction, identique à la prod, utilisé pour tester avant release.' },
+      { id: 'ang_f74', recto: 'professional summary', verso: 'Résumé professionnel en 2-3 lignes en tête de CV, présentant profil et objectif.' },
+      { id: 'ang_f75', recto: 'to administer (CV)', verso: 'Administrer — verbe d\'action fort pour décrire la gestion de systèmes. "Administered 50+ servers."' },
+      { id: 'ang_f76', recto: 'hands-on experience', verso: 'Expérience pratique concrète, à privilégier sur un CV plutôt que des connaissances théoriques.' },
+      { id: 'ang_f77', recto: 'quantified bullet point', verso: 'Point de CV chiffré : "Resolved 25 tickets per week" plutôt que "Resolved tickets".' },
+      { id: 'ang_f78', recto: '"I was responsible for..."', verso: 'Formule faible sur un CV — préférer un verbe d\'action direct : "Administered...", "Managed..."' },
+      { id: 'ang_f79', recto: 'malware', verso: 'Logiciel malveillant, terme générique (virus, ransomware, spyware...). "Malware was detected on the endpoint."' },
+      { id: 'ang_f80', recto: 'brute-force attack', verso: 'Attaque par force brute — essais répétés de mots de passe. "Multiple failed logins suggest a brute-force attack."' },
+      { id: 'ang_f81', recto: 'spoofing', verso: 'Usurpation d\'identité (adresse email, IP, MAC). "Email spoofing bypassed the spam filter."' },
+      { id: 'ang_f82', recto: 'backdoor', verso: 'Porte dérobée — accès caché installé par un attaquant pour revenir plus tard. "The malware installed a backdoor."' },
+      { id: 'ang_f83', recto: 'DDoS attack', verso: 'Attaque par déni de service distribué — surcharge un service via de multiples sources.' },
+      { id: 'ang_f84', recto: 'bucket (S3)', verso: 'Compartiment de stockage objet chez AWS. "Upload the file to the S3 bucket."' },
+      { id: 'ang_f85', recto: 'tenant (Azure AD)', verso: 'Organisation/locataire isolé dans Azure Active Directory. "Each customer has its own tenant."' },
+      { id: 'ang_f86', recto: 'build (CI/CD)', verso: 'Compilation/construction du code en artefact déployable. "The build succeeded on the first try."' },
+      { id: 'ang_f87', recto: 'merge conflict', verso: 'Conflit de fusion — modifications incompatibles entre deux branches Git à résoudre manuellement.' },
+      { id: 'ang_f88', recto: 'continuous deployment', verso: 'Déploiement continu — chaque changement validé est automatiquement mis en production.' },
+      { id: 'ang_f89', recto: 'optimized (CV)', verso: 'Optimisé — verbe d\'action quantifiable. "Optimized network performance by 30%."' },
+      { id: 'ang_f90', recto: 'automated (CV)', verso: 'Automatisé — verbe valorisant un gain de temps mesurable. "Automated user provisioning with PowerShell."' },
+      { id: 'ang_f91', recto: 'Certifications (section CV)', verso: 'Section listant nom du certificat, organisme, date d\'obtention (ex: CompTIA Network+, 2026).' },
+      { id: 'ang_f92', recto: 'Technical skills (section CV)', verso: 'Section organisée par catégories : OS, Networking, Cloud, Tools — pas une liste en vrac.' },
     ],
     qcm: [
       { id: 'ang_q1', question: 'What does "throughput" mean in networking?', options: [{ text: 'Maximum theoretical speed', correct: false }, { text: 'Actual data transfer rate measured', correct: true }, { text: 'Network latency', correct: false }, { text: 'Packet loss percentage', correct: false }], explication: 'Throughput = débit effectif mesuré. Bandwidth = capacité théorique. Throughput ≤ bandwidth toujours.', difficulty: 'normal' },
@@ -4241,6 +4430,38 @@ Next meeting: July 8, 2026</pre>
       { id: 'ang_q55', question: 'What is the polite way to tell someone their microphone is muted?', options: [{ text: '"Speak louder!"', correct: false }, { text: '"You\'re on mute."', correct: true }, { text: '"I can\'t hear anything, fix it."', correct: false }, { text: '"Your mic is broken."', correct: false }], explication: '"You\'re on mute" est la formule standard et neutre en visioconférence.', difficulty: 'facile' },
       { id: 'ang_q56', question: 'What should "meeting minutes" typically include?', options: [{ text: 'Only the meeting duration', correct: false }, { text: 'Attendees, topics discussed, decisions, and action items', correct: true }, { text: 'A transcript of every word spoken', correct: false }, { text: 'Only the next meeting date', correct: false }], explication: 'Un bon compte-rendu couvre participants, sujets, décisions et actions à suivre.', difficulty: 'normal' },
       { id: 'ang_q57', question: 'Which phrase politely interrupts someone in a meeting?', options: [{ text: '"Stop talking."', correct: false }, { text: '"Sorry to interrupt, but..."', correct: true }, { text: '"Wrong."', correct: false }, { text: '"Excuse me, that\'s not important."', correct: false }], explication: '"Sorry to interrupt, but..." permet de couper poliment sans paraître impoli.', difficulty: 'facile' },
+      { id: 'ang_q58', question: 'What is "phishing"?', options: [{ text: 'A firewall rule', correct: false }, { text: 'A fraudulent email trying to steal credentials', correct: true }, { text: 'A backup strategy', correct: false }, { text: 'A type of encryption', correct: false }], explication: 'Phishing = hameçonnage, email frauduleux visant à voler des identifiants ou informations sensibles.', difficulty: 'facile' },
+      { id: 'ang_q59', question: 'What does "ransomware" do?', options: [{ text: 'Deletes files permanently', correct: false }, { text: 'Encrypts files and demands payment', correct: true }, { text: 'Monitors network traffic', correct: false }, { text: 'Blocks phishing emails', correct: false }], explication: 'Ransomware chiffre les fichiers de la victime et exige une rançon pour les déchiffrer.', difficulty: 'facile' },
+      { id: 'ang_q60', question: 'What is a "zero-day vulnerability"?', options: [{ text: 'A vulnerability patched immediately', correct: false }, { text: 'A flaw unknown to the vendor, exploited before a patch exists', correct: true }, { text: 'A vulnerability only in legacy systems', correct: false }, { text: 'A vulnerability in physical hardware only', correct: false }], explication: 'Zero-day = faille inconnue du fournisseur, exploitée avant qu\'un correctif existe.', difficulty: 'difficile' },
+      { id: 'ang_q61', question: '"We have isolated the affected machine" means:', options: [{ text: 'The machine was deleted', correct: false }, { text: 'The machine was disconnected from the network to prevent spread', correct: true }, { text: 'The machine was encrypted', correct: false }, { text: 'The machine was given more privileges', correct: false }], explication: 'Isoler une machine = la déconnecter du réseau pour stopper la propagation d\'une menace.', difficulty: 'normal' },
+      { id: 'ang_q62', question: 'Which is a common phishing red flag?', options: [{ text: 'A personalized greeting with your full name', correct: false }, { text: 'A sense of urgency and a mismatched sender domain', correct: true }, { text: 'A signature block', correct: false }, { text: 'A company logo', correct: false }], explication: 'Urgence artificielle + domaine d\'expéditeur suspect sont des signaux classiques de phishing.', difficulty: 'normal' },
+      { id: 'ang_q63', question: 'What should an incident report always include?', options: [{ text: 'Only the resolution time', correct: false }, { text: 'Timeline, impact, root cause and remediation', correct: true }, { text: 'The attacker\'s personal details', correct: false }, { text: 'Only a list of affected passwords', correct: false }], explication: 'Un bon incident report couvre chronologie, impact, cause racine et actions correctives.', difficulty: 'normal' },
+      { id: 'ang_q64', question: 'What is a "pipeline" in CI/CD?', options: [{ text: 'A network cable', correct: false }, { text: 'An automated sequence of build, test and deploy steps', correct: true }, { text: 'A type of database', correct: false }, { text: 'A security protocol', correct: false }], explication: 'Pipeline = chaîne automatisée d\'étapes (build, test, déploiement) déclenchée à chaque changement de code.', difficulty: 'facile' },
+      { id: 'ang_q65', question: 'What is an "artifact" in a build process?', options: [{ text: 'A bug in the code', correct: false }, { text: 'The output file produced by a build (binary, image...)', correct: true }, { text: 'A deployment log', correct: false }, { text: 'A test case', correct: false }], explication: 'Artifact = fichier produit par le build (jar, exécutable, image Docker) prêt à être déployé.', difficulty: 'normal' },
+      { id: 'ang_q66', question: 'What does a "canary release" do?', options: [{ text: 'Deploys to all users at once', correct: false }, { text: 'Gradually deploys to a small subset of users first', correct: true }, { text: 'Rolls back automatically after any error', correct: false }, { text: 'Deletes old deployments', correct: false }], explication: 'Canary release = déploiement progressif limitant le risque en testant sur un petit groupe d\'abord.', difficulty: 'difficile' },
+      { id: 'ang_q67', question: 'In Azure, a "resource group" is:', options: [{ text: 'A team of developers', correct: false }, { text: 'A logical container grouping related cloud resources', correct: true }, { text: 'A billing invoice', correct: false }, { text: 'A type of virtual machine', correct: false }], explication: 'Resource group = conteneur logique regroupant des ressources Azure gérées ensemble.', difficulty: 'normal' },
+      { id: 'ang_q68', question: 'What does RBAC stand for?', options: [{ text: 'Remote Backup Access Control', correct: false }, { text: 'Role-Based Access Control', correct: true }, { text: 'Resource Backup and Compliance', correct: false }, { text: 'Rapid Build Automation Control', correct: false }], explication: 'RBAC = Role-Based Access Control, attribution de permissions selon le rôle de l\'utilisateur.', difficulty: 'normal' },
+      { id: 'ang_q69', question: 'What is the purpose of a "staging environment"?', options: [{ text: 'To store backups only', correct: false }, { text: 'To test a release in conditions close to production before going live', correct: true }, { text: 'To host the company website', correct: false }, { text: 'To train new employees', correct: false }], explication: 'Staging = environnement proche de la prod pour valider une release avant mise en production.', difficulty: 'facile' },
+      { id: 'ang_q70', question: 'Which is the strongest way to describe server management on a CV?', options: [{ text: '"I was responsible for servers."', correct: false }, { text: '"Administered and monitored 80+ servers."', correct: true }, { text: '"I did server stuff."', correct: false }, { text: '"Servers were managed by me."', correct: false }], explication: 'Les verbes d\'action directs et quantifiés (Administered, 80+) sont plus percutants qu\'une formule passive.', difficulty: 'facile' },
+      { id: 'ang_q71', question: 'What should a "professional summary" contain?', options: [{ text: 'A full job history', correct: false }, { text: 'A short 2-3 line overview of profile and goal', correct: true }, { text: 'A list of hobbies', correct: false }, { text: 'References contact details', correct: false }], explication: 'Le professional summary est court : profil, compétences clés, objectif de carrière.', difficulty: 'facile' },
+      { id: 'ang_q72', question: 'Which bullet point is best practice?', options: [{ text: '"Worked on tickets."', correct: false }, { text: '"Resolved an average of 25 tickets per week, meeting SLA 95% of the time."', correct: true }, { text: '"Did support tasks."', correct: false }, { text: '"Was in the support team."', correct: false }], explication: 'Un bon bullet point est quantifié et orienté résultat, pas une simple description de tâche.', difficulty: 'normal' },
+      { id: 'ang_q73', question: 'What does "troubleshot" mean (past tense of troubleshoot)?', options: [{ text: 'Installed', correct: false }, { text: 'Diagnosed and resolved a problem', correct: true }, { text: 'Deleted', correct: false }, { text: 'Documented', correct: false }], explication: 'Troubleshoot/troubleshot = diagnostiquer et résoudre un problème technique.', difficulty: 'normal' },
+      { id: 'ang_q74', question: 'On a LinkedIn "About" section, what should you avoid?', options: [{ text: 'Mentioning certifications in progress', correct: false }, { text: 'A vague statement with no concrete skills or goal', correct: true }, { text: 'Stating your years of experience', correct: false }, { text: 'Mentioning the role you are looking for', correct: false }], explication: 'Un About vague sans compétences concrètes ni objectif clair n\'apporte pas de valeur au recruteur.', difficulty: 'difficile' },
+      { id: 'ang_q75', question: 'Which phrase best conveys hands-on skill with a technology?', options: [{ text: '"I have heard of PowerShell."', correct: false }, { text: '"Proficient in PowerShell scripting for automation."', correct: true }, { text: '"I would like to learn PowerShell."', correct: false }, { text: '"PowerShell is a scripting language."', correct: false }], explication: '"Proficient in..." affirme une compétence maîtrisée et concrète, contrairement à une simple connaissance théorique.', difficulty: 'normal' },
+      { id: 'ang_q76', question: 'What is "malware"?', options: [{ text: 'A hardware component', correct: false }, { text: 'A generic term for malicious software', correct: true }, { text: 'A network protocol', correct: false }, { text: 'A backup tool', correct: false }], explication: 'Malware = terme générique pour tout logiciel malveillant (virus, ransomware, spyware...).', difficulty: 'facile' },
+      { id: 'ang_q77', question: 'What is a "brute-force attack"?', options: [{ text: 'Physically destroying a server', correct: false }, { text: 'Repeatedly trying passwords until one works', correct: true }, { text: 'Sending a phishing email', correct: false }, { text: 'Encrypting a hard drive', correct: false }], explication: 'Brute-force = tentatives répétées et systématiques de mots de passe jusqu\'à trouver le bon.', difficulty: 'facile' },
+      { id: 'ang_q78', question: 'What does "spoofing" mean?', options: [{ text: 'Backing up data', correct: false }, { text: 'Faking an identity (email, IP, MAC address)', correct: true }, { text: 'Encrypting traffic', correct: false }, { text: 'Scanning for vulnerabilities', correct: false }], explication: 'Spoofing = usurpation d\'identité pour tromper un système ou un utilisateur.', difficulty: 'normal' },
+      { id: 'ang_q79', question: 'What is a "backdoor"?', options: [{ text: 'A firewall rule', correct: false }, { text: 'A hidden access point installed by an attacker for later use', correct: true }, { text: 'A type of VPN', correct: false }, { text: 'A password policy', correct: false }], explication: 'Backdoor = porte dérobée, accès caché permettant à un attaquant de revenir sans être détecté.', difficulty: 'normal' },
+      { id: 'ang_q80', question: 'A "DDoS attack" aims to:', options: [{ text: 'Steal a single user\'s password', correct: false }, { text: 'Overwhelm a service with traffic from multiple sources to make it unavailable', correct: true }, { text: 'Encrypt files for ransom', correct: false }, { text: 'Install a backdoor', correct: false }], explication: 'DDoS = Distributed Denial of Service, submerge un service depuis de multiples sources pour le rendre indisponible.', difficulty: 'normal' },
+      { id: 'ang_q81', question: 'In AWS, a "bucket" is used to:', options: [{ text: 'Run virtual machines', correct: false }, { text: 'Store objects (files) in S3', correct: true }, { text: 'Manage DNS records', correct: false }, { text: 'Monitor CPU usage', correct: false }], explication: 'Bucket = compartiment de stockage objet dans Amazon S3.', difficulty: 'facile' },
+      { id: 'ang_q82', question: 'In Azure AD, a "tenant" represents:', options: [{ text: 'A single user account', correct: false }, { text: 'An isolated organization instance', correct: true }, { text: 'A virtual machine', correct: false }, { text: 'A firewall rule', correct: false }], explication: 'Tenant = instance isolée d\'une organisation dans Azure Active Directory.', difficulty: 'normal' },
+      { id: 'ang_q83', question: 'What happens during a "build" in CI/CD?', options: [{ text: 'The code is deployed to production', correct: false }, { text: 'The source code is compiled/packaged into a deployable artifact', correct: true }, { text: 'The database is backed up', correct: false }, { text: 'User accounts are provisioned', correct: false }], explication: 'Build = compilation/construction du code source en un artefact prêt à être testé ou déployé.', difficulty: 'facile' },
+      { id: 'ang_q84', question: 'A "merge conflict" occurs when:', options: [{ text: 'Two branches have incompatible changes to the same code', correct: true }, { text: 'A build fails', correct: false }, { text: 'A server goes down', correct: false }, { text: 'A pipeline is disabled', correct: false }], explication: 'Merge conflict = Git ne peut pas fusionner automatiquement deux modifications incompatibles, résolution manuelle requise.', difficulty: 'normal' },
+      { id: 'ang_q85', question: 'What does "continuous deployment" mean?', options: [{ text: 'Manual approval is required for every release', correct: false }, { text: 'Every validated change is automatically deployed to production', correct: true }, { text: 'Deployments happen once a month', correct: false }, { text: 'Only staging is updated automatically', correct: false }], explication: 'Continuous deployment = déploiement automatique en production dès qu\'un changement passe les tests.', difficulty: 'difficile' },
+      { id: 'ang_q86', question: 'Which CV verb best shows a measurable improvement?', options: [{ text: '"Helped with the network."', correct: false }, { text: '"Optimized network performance by 30%."', correct: true }, { text: '"Worked on the network."', correct: false }, { text: '"Was involved in networking."', correct: false }], explication: '"Optimized... by 30%" est précis et quantifié, contrairement aux formules vagues.', difficulty: 'facile' },
+      { id: 'ang_q87', question: 'Which sentence best highlights automation skills on a CV?', options: [{ text: '"I sometimes use PowerShell."', correct: false }, { text: '"Automated user provisioning with PowerShell, saving 5 hours per week."', correct: true }, { text: '"PowerShell was used."', correct: false }, { text: '"I know some scripting."', correct: false }], explication: 'Quantifier le gain ("saving 5 hours per week") renforce l\'impact du verbe d\'action "Automated".', difficulty: 'normal' },
+      { id: 'ang_q88', question: 'What should the "Certifications" section of a CV include?', options: [{ text: 'Only the certification name', correct: false }, { text: 'Certification name, issuing organization, and date obtained', correct: true }, { text: 'A description of the exam questions', correct: false }, { text: 'The study time spent', correct: false }], explication: 'Une section certifications complète mentionne nom, organisme et date d\'obtention.', difficulty: 'facile' },
+      { id: 'ang_q89', question: 'How should "Technical skills" be organized on a CV?', options: [{ text: 'As one long unsorted list', correct: false }, { text: 'Grouped by category (OS, Networking, Cloud, Tools)', correct: true }, { text: 'In alphabetical order only', correct: false }, { text: 'Hidden at the end with no headings', correct: false }], explication: 'Organiser les compétences par catégorie facilite la lecture rapide par le recruteur ou l\'ATS.', difficulty: 'normal' },
     ],
   }
 

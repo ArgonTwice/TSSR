@@ -3498,7 +3498,7 @@ const MODULES = [
     icon: '🇬🇧',
     color: '#3b82f6',
     desc: 'Vocabulaire IT, helpdesk, rédaction technique, certifications en anglais...',
-    topics: ['Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications'],
+    topics: ['Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications'],
     cours: [
       {
         id: 'vocabulaire-it',
@@ -3645,6 +3645,196 @@ const MODULES = [
 <tr><td>ITIL 4 Foundation</td><td>Axelos</td><td>ITSM / service management</td></tr>
 </table>`
       },
+      {
+        id: 'grammaire-temps',
+        titre: 'Grammaire — Les temps et les verbes',
+        content: `<h2>Les temps essentiels pour un TSSR</h2>
+<p>En anglais technique, la majorité des phrases utilisent seulement 5 temps. Les maîtriser suffit pour lire une doc, rédiger un rapport ou passer un appel support.</p>
+<h3>1. Present Simple — le présent simple</h3>
+<p>Usage : faits, vérités générales, fonctionnement d'un système, habitudes.</p>
+<table><tr><th>Forme</th><th>Structure</th><th>Exemple</th></tr>
+<tr><td>Affirmative</td><td>sujet + verbe (+s à la 3e pers. sing.)</td><td>"The server runs Windows Server 2025."</td></tr>
+<tr><td>Négative</td><td>sujet + do/does not + verbe</td><td>"The switch does not support VLAN tagging."</td></tr>
+<tr><td>Interrogative</td><td>Do/Does + sujet + verbe ?</td><td>"Does the firewall block port 443?"</td></tr>
+</table>
+<p><strong>Piège fréquent :</strong> à la 3e personne du singulier (he/she/it), le verbe prend un -s : "The service <em>runs</em>", "The backup <em>fails</em>".</p>
+<h3>2. Present Continuous — l'action en cours</h3>
+<p>Usage : ce qui se passe maintenant, un processus en cours d'exécution.</p>
+<table><tr><th>Forme</th><th>Structure</th><th>Exemple</th></tr>
+<tr><td>Affirmative</td><td>sujet + am/is/are + V-ing</td><td>"The backup is running."</td></tr>
+<tr><td>Négative</td><td>sujet + am/is/are not + V-ing</td><td>"The service is not responding."</td></tr>
+<tr><td>Interrogative</td><td>Am/Is/Are + sujet + V-ing ?</td><td>"Is the migration still running?"</td></tr>
+</table>
+<h3>3. Past Simple — l'action terminée</h3>
+<p>Usage : un incident déjà survenu, une action déjà réalisée à un moment précis.</p>
+<table><tr><th>Forme</th><th>Structure</th><th>Exemple</th></tr>
+<tr><td>Affirmative</td><td>sujet + verbe-ed (ou irrégulier)</td><td>"The technician restarted the server."</td></tr>
+<tr><td>Négative</td><td>sujet + did not + verbe (base)</td><td>"The patch did not fix the issue."</td></tr>
+<tr><td>Interrogative</td><td>Did + sujet + verbe (base) ?</td><td>"Did the backup complete last night?"</td></tr>
+</table>
+<h3>4. Present Perfect — le résultat présent d'une action passée</h3>
+<p>Usage : très utilisé en support — l'action est terminée mais son résultat compte maintenant. Pas de date précise.</p>
+<table><tr><th>Forme</th><th>Structure</th><th>Exemple</th></tr>
+<tr><td>Affirmative</td><td>sujet + have/has + participe passé</td><td>"I have already restarted the service."</td></tr>
+<tr><td>Négative</td><td>sujet + have/has not + participe passé</td><td>"We haven't received the logs yet."</td></tr>
+<tr><td>Interrogative</td><td>Have/Has + sujet + participe passé ?</td><td>"Has the ticket been escalated?"</td></tr>
+</table>
+<p><strong>Past Simple vs Present Perfect :</strong> "I restarted the server at 3pm" (moment précis → Past Simple) vs "I have restarted the server" (résultat, pas de date → Present Perfect).</p>
+<h3>5. Le futur : will / going to / present continuous</h3>
+<table><tr><th>Forme</th><th>Usage</th><th>Exemple</th></tr>
+<tr><td>will + verbe (base)</td><td>Décision spontanée, prévision, promesse</td><td>"We will deploy the patch tonight."</td></tr>
+<tr><td>be going to + verbe (base)</td><td>Plan déjà décidé, intention</td><td>"I'm going to reboot the server."</td></tr>
+<tr><td>present continuous</td><td>Planning fixé, rendez-vous</td><td>"We are migrating the database on Friday."</td></tr>
+</table>
+<h3>Les modaux utiles pour recommander une action</h3>
+<table><tr><th>Modal</th><th>Sens</th><th>Exemple</th></tr>
+<tr><td>can</td><td>capacité / possibilité</td><td>"You can check the event logs."</td></tr>
+<tr><td>could</td><td>suggestion polie</td><td>"You could try clearing the cache."</td></tr>
+<tr><td>must</td><td>obligation forte</td><td>"You must back up before updating."</td></tr>
+<tr><td>should</td><td>recommandation</td><td>"You should restart the service."</td></tr>
+<tr><td>would</td><td>conditionnel / politesse</td><td>"Would you mind sending the logs?"</td></tr>
+</table>
+<h3>Verbes irréguliers indispensables en IT</h3>
+<table><tr><th>Base</th><th>Past Simple</th><th>Participe passé</th><th>Traduction</th></tr>
+<tr><td>be</td><td>was / were</td><td>been</td><td>être</td></tr>
+<tr><td>have</td><td>had</td><td>had</td><td>avoir</td></tr>
+<tr><td>do</td><td>did</td><td>done</td><td>faire</td></tr>
+<tr><td>go</td><td>went</td><td>gone</td><td>aller</td></tr>
+<tr><td>make</td><td>made</td><td>made</td><td>faire/fabriquer</td></tr>
+<tr><td>build</td><td>built</td><td>built</td><td>construire</td></tr>
+<tr><td>break</td><td>broke</td><td>broken</td><td>casser</td></tr>
+<tr><td>find</td><td>found</td><td>found</td><td>trouver</td></tr>
+<tr><td>give</td><td>gave</td><td>given</td><td>donner</td></tr>
+<tr><td>take</td><td>took</td><td>taken</td><td>prendre</td></tr>
+<tr><td>write</td><td>wrote</td><td>written</td><td>écrire</td></tr>
+<tr><td>send</td><td>sent</td><td>sent</td><td>envoyer</td></tr>
+<tr><td>set</td><td>set</td><td>set</td><td>définir/configurer</td></tr>
+<tr><td>keep</td><td>kept</td><td>kept</td><td>garder</td></tr>
+<tr><td>know</td><td>knew</td><td>known</td><td>savoir/connaître</td></tr>
+<tr><td>lose</td><td>lost</td><td>lost</td><td>perdre</td></tr>
+<tr><td>run</td><td>ran</td><td>run</td><td>exécuter/tourner</td></tr>
+<tr><td>become</td><td>became</td><td>become</td><td>devenir</td></tr>
+<tr><td>begin</td><td>began</td><td>begun</td><td>commencer</td></tr>
+<tr><td>bring</td><td>brought</td><td>brought</td><td>apporter</td></tr>
+<tr><td>think</td><td>thought</td><td>thought</td><td>penser</td></tr>
+<tr><td>understand</td><td>understood</td><td>understood</td><td>comprendre</td></tr>
+<tr><td>shut</td><td>shut</td><td>shut</td><td>fermer/éteindre</td></tr>
+</table>
+<p><strong>Astuce :</strong> les verbes techniques (configure, install, deploy, restart, update, check, connect) sont presque tous réguliers → +ed. Les irréguliers ci-dessus sont surtout des verbes "quotidiens" utilisés en contexte IT.</p>`
+      },
+      {
+        id: 'grammaire-questions',
+        titre: 'Grammaire — Poser une question',
+        content: `<h2>Comment former une question en anglais</h2>
+<p>Poser une question mal formée est l'erreur la plus fréquente en anglais technique — utile en support, en entretien de certification, ou pour interroger un client.</p>
+<h3>1. La règle d'inversion</h3>
+<p>En anglais, une question se forme presque toujours en inversant l'auxiliaire et le sujet. Contrairement au français, on ne peut pas juste monter le ton de la voix.</p>
+<table><tr><th>Affirmation</th><th>Question</th></tr>
+<tr><td>The server is down.</td><td>Is the server down?</td></tr>
+<tr><td>You restarted the service.</td><td>Did you restart the service?</td></tr>
+<tr><td>She has checked the logs.</td><td>Has she checked the logs?</td></tr>
+</table>
+<h3>2. Questions fermées (Yes/No)</h3>
+<table><tr><th>Temps</th><th>Auxiliaire</th><th>Exemple</th></tr>
+<tr><td>Present Simple</td><td>Do / Does</td><td>"Does the switch support VLAN tagging?"</td></tr>
+<tr><td>Present Continuous</td><td>Am / Is / Are</td><td>"Is the backup still running?"</td></tr>
+<tr><td>Past Simple</td><td>Did</td><td>"Did the update install correctly?"</td></tr>
+<tr><td>Present Perfect</td><td>Have / Has</td><td>"Have you tried rebooting the router?"</td></tr>
+<tr><td>Modal</td><td>Can / Could / Should</td><td>"Can you access the shared drive?"</td></tr>
+</table>
+<p><strong>Attention :</strong> avec be/have/modal comme verbe principal, pas besoin de do/does/did — on inverse directement. "Is the server..." et non "Does the server is...".</p>
+<h3>3. Questions ouvertes — les mots WH-</h3>
+<table><tr><th>Mot</th><th>Sens</th><th>Exemple technique</th></tr>
+<tr><td>What</td><td>quoi/quel</td><td>"What error message are you seeing?"</td></tr>
+<tr><td>Where</td><td>où</td><td>"Where is the log file stored?"</td></tr>
+<tr><td>When</td><td>quand</td><td>"When did the issue start?"</td></tr>
+<tr><td>Why</td><td>pourquoi</td><td>"Why did the service fail?"</td></tr>
+<tr><td>Who</td><td>qui</td><td>"Who has admin access to this server?"</td></tr>
+<tr><td>Which</td><td>lequel</td><td>"Which port is blocked?"</td></tr>
+<tr><td>How</td><td>comment</td><td>"How do I reset the password?"</td></tr>
+<tr><td>How much / How many</td><td>combien</td><td>"How much disk space is left?"</td></tr>
+<tr><td>How often</td><td>à quelle fréquence</td><td>"How often does the backup run?"</td></tr>
+<tr><td>How long</td><td>depuis combien de temps</td><td>"How long has the server been down?"</td></tr>
+</table>
+<p>Structure : <strong>WH-word + auxiliaire + sujet + verbe ?</strong> — "What <em>does</em> this error <em>mean</em>?"</p>
+<h3>4. Questions indirectes et polies (emails, tickets clients)</h3>
+<p>Pour être plus formel ou poli, on "cache" la question dans une phrase — l'ordre des mots redevient celui d'une affirmation (pas d'inversion).</p>
+<table><tr><th>Question directe</th><th>Question indirecte / polie</th></tr>
+<tr><td>What is the error code?</td><td>Could you tell me what the error code is?</td></tr>
+<tr><td>Why did it fail?</td><td>Do you know why it failed?</td></tr>
+<tr><td>Can you restart it?</td><td>I was wondering if you could restart it.</td></tr>
+<tr><td>Is it urgent?</td><td>I'd like to know if this is urgent.</td></tr>
+</table>
+<h3>5. Question tags — demander confirmation</h3>
+<table><tr><th>Affirmation</th><th>Tag</th></tr>
+<tr><td>The server is down,</td><td>isn't it?</td></tr>
+<tr><td>You didn't apply the patch,</td><td>did you?</td></tr>
+<tr><td>She has restarted it,</td><td>hasn't she?</td></tr>
+</table>
+<p>Règle : affirmatif → tag négatif, négatif → tag affirmatif.</p>
+<h3>Checklist — questions de diagnostic à poser à un utilisateur</h3>
+<table><tr><th>Anglais</th><th>Objectif</th></tr>
+<tr><td>"What were you doing when it happened?"</td><td>Contexte de l'incident</td></tr>
+<tr><td>"Is this the first time it's happened?"</td><td>Fréquence</td></tr>
+<tr><td>"Are other users affected?"</td><td>Périmètre</td></tr>
+<tr><td>"Have you made any recent changes?"</td><td>Cause potentielle</td></tr>
+<tr><td>"Can you take a screenshot of the error?"</td><td>Preuve/diagnostic</td></tr>
+<tr><td>"What's the exact error message?"</td><td>Diagnostic précis</td></tr>
+</table>`
+      },
+      {
+        id: 'glossaire-tssr-complet',
+        titre: 'Glossaire technique complémentaire',
+        content: `<h2>Vocabulaire — domaines TSSR complémentaires</h2>
+<h3>Virtualisation &amp; Cloud</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>hypervisor</td><td>hyperviseur</td><td>"Type 1 hypervisor runs directly on hardware."</td></tr>
+<tr><td>host / guest</td><td>hôte / invité</td><td>"The host machine runs 4 guest VMs."</td></tr>
+<tr><td>cluster</td><td>grappe/cluster</td><td>"Add the node to the cluster."</td></tr>
+<tr><td>failover</td><td>bascule automatique</td><td>"Failover to the secondary node."</td></tr>
+<tr><td>scalability</td><td>scalabilité/évolutivité</td><td>"Horizontal scalability with load balancing."</td></tr>
+<tr><td>tenant</td><td>locataire (cloud multi-tenant)</td><td>"Each tenant has isolated resources."</td></tr>
+<tr><td>on-premises</td><td>sur site (par opposition au cloud)</td><td>"Migrate from on-premises to the cloud."</td></tr>
+<tr><td>elasticity</td><td>élasticité (auto-scaling)</td><td>"Cloud elasticity handles traffic spikes."</td></tr>
+<tr><td>pay-as-you-go</td><td>paiement à l'usage</td><td>"Billed on a pay-as-you-go basis."</td></tr>
+</table>
+<h3>Stockage &amp; Sauvegarde</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>retention policy</td><td>politique de rétention</td><td>"30-day backup retention policy."</td></tr>
+<tr><td>redundancy</td><td>redondance</td><td>"RAID provides disk redundancy."</td></tr>
+<tr><td>tiering</td><td>hiérarchisation (stockage)</td><td>"Automatic storage tiering."</td></tr>
+<tr><td>checksum</td><td>somme de contrôle</td><td>"Verify file integrity with a checksum."</td></tr>
+<tr><td>disaster recovery (DR)</td><td>plan de reprise d'activité</td><td>"Test the disaster recovery plan."</td></tr>
+</table>
+<h3>Active Directory &amp; Identité</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>trust relationship</td><td>relation d'approbation</td><td>"A two-way trust between domains."</td></tr>
+<tr><td>least privilege</td><td>moindre privilège</td><td>"Apply the principle of least privilege."</td></tr>
+<tr><td>lockout</td><td>verrouillage (compte)</td><td>"The account is locked out after 5 attempts."</td></tr>
+<tr><td>group policy</td><td>stratégie de groupe</td><td>"Push settings via group policy."</td></tr>
+<tr><td>single sign-on (SSO)</td><td>authentification unique</td><td>"Enable SSO for all apps."</td></tr>
+<tr><td>token</td><td>jeton</td><td>"The session token expired."</td></tr>
+</table>
+<h3>Scripting &amp; Automatisation</h3>
+<table><tr><th>Anglais</th><th>Français</th><th>Exemple</th></tr>
+<tr><td>loop</td><td>boucle</td><td>"Use a loop to iterate over servers."</td></tr>
+<tr><td>variable</td><td>variable</td><td>"Assign a value to the variable."</td></tr>
+<tr><td>output / input</td><td>sortie / entrée</td><td>"Redirect the output to a file."</td></tr>
+<tr><td>exception</td><td>exception</td><td>"Catch the exception and log it."</td></tr>
+<tr><td>scheduled task</td><td>tâche planifiée</td><td>"Run the script as a scheduled task."</td></tr>
+<tr><td>idempotent</td><td>idempotent (même résultat si rejoué)</td><td>"Ansible playbooks should be idempotent."</td></tr>
+<tr><td>dependency</td><td>dépendance</td><td>"Install the missing dependency."</td></tr>
+</table>
+<h3>Verbes techniques additionnels</h3>
+<table><tr><th>Verbe</th><th>Traduction</th><th>Verbe</th><th>Traduction</th></tr>
+<tr><td>allocate</td><td>allouer</td><td>revoke</td><td>révoquer</td></tr>
+<tr><td>authenticate</td><td>authentifier</td><td>authorize</td><td>autoriser</td></tr>
+<tr><td>replicate</td><td>répliquer</td><td>synchronize</td><td>synchroniser</td></tr>
+<tr><td>throttle</td><td>limiter (débit/requêtes)</td><td>queue</td><td>mettre en file d'attente</td></tr>
+<tr><td>archive</td><td>archiver</td><td>purge</td><td>purger</td></tr>
+<tr><td>validate</td><td>valider</td><td>verify</td><td>vérifier</td></tr>
+</table>`
+      },
     ],
     flashcards: [
       { id: 'ang_f1', recto: 'throughput', verso: 'Débit effectif mesuré (≤ bandwidth). "Network throughput is 800 Mbps on a 1 Gbps link."' },
@@ -3662,6 +3852,35 @@ const MODULES = [
       { id: 'ang_f13', recto: 'downtime', verso: 'Période d\'indisponibilité d\'un service. Opposé : uptime. "Planned downtime 22h-23h Saturday."' },
       { id: 'ang_f14', recto: 'provisioning', verso: 'Allouer et configurer des ressources (VM, compte, espace disque) pour un utilisateur ou service.' },
       { id: 'ang_f15', recto: 'to mitigate', verso: 'Atténuer un risque — réduire sa probabilité ou son impact (pas nécessairement l\'éliminer).' },
+      { id: 'ang_f16', recto: 'Present Perfect — quand l\'utiliser ?', verso: 'have/has + participe passé. Résultat présent d\'une action passée, sans date précise. "I have already restarted the service."' },
+      { id: 'ang_f17', recto: 'will vs going to', verso: 'will = décision spontanée/prévision ("We will deploy tonight"). going to = plan déjà décidé ("I\'m going to reboot the server").' },
+      { id: 'ang_f18', recto: '3e personne du singulier (présent simple)', verso: 'he/she/it + verbe + s. "The server runs...", "The backup fails...".' },
+      { id: 'ang_f19', recto: 'run (irrégulier)', verso: 'ran / run — exécuter/tourner. "The script is running." / "I ran the script yesterday."' },
+      { id: 'ang_f20', recto: 'break (irrégulier)', verso: 'broke / broken — casser. "The update broke the driver."' },
+      { id: 'ang_f21', recto: 'Question fermée — structure', verso: 'Auxiliaire (Do/Does/Did/Is/Have) + sujet + verbe ? "Does the switch support VLAN tagging?"' },
+      { id: 'ang_f22', recto: 'Question ouverte — structure', verso: 'WH-word + auxiliaire + sujet + verbe ? "What does this error mean?"' },
+      { id: 'ang_f23', recto: 'Question tag', verso: 'Confirmation en fin de phrase : affirmatif → tag négatif. "The server is down, isn\'t it?"' },
+      { id: 'ang_f24', recto: 'hypervisor', verso: 'Hyperviseur — logiciel qui exécute des machines virtuelles. "Type 1 hypervisor runs directly on hardware."' },
+      { id: 'ang_f25', recto: 'failover', verso: 'Bascule automatique vers un système de secours en cas de panne. "Failover to the secondary node."' },
+      { id: 'ang_f26', recto: 'idempotent', verso: 'Qui produit le même résultat même rejoué plusieurs fois. "Ansible playbooks should be idempotent."' },
+      { id: 'ang_f27', recto: 'rack', verso: 'Baie de serveur. "The server is rack-mounted."' },
+      { id: 'ang_f28', recto: 'NIC', verso: 'Network Interface Card — carte réseau. "Install a NIC."' },
+      { id: 'ang_f29', recto: 'UPS', verso: 'Uninterruptible Power Supply — onduleur. "Connect to the UPS."' },
+      { id: 'ang_f30', recto: 'latency', verso: 'Latence — délai entre requête et réponse. "High latency causes delays."' },
+      { id: 'ang_f31', recto: 'firmware', verso: 'Micrologiciel intégré au matériel (BIOS, switch, routeur). "Update the firmware."' },
+      { id: 'ang_f32', recto: 'subnet', verso: 'Sous-réseau. "Create a /24 subnet."' },
+      { id: 'ang_f33', recto: 'vulnerability', verso: 'Vulnérabilité — faille exploitable. "Critical vulnerability CVE-2024-...".' },
+      { id: 'ang_f34', recto: 'endpoint', verso: 'Terminal/poste utilisateur, ou point d\'accès d\'une API. "Endpoint protection suite."' },
+      { id: 'ang_f35', recto: 'encryption', verso: 'Chiffrement. "End-to-end encryption."' },
+      { id: 'ang_f36', recto: 'snapshot', verso: 'Instantané — état figé d\'une VM/disque à un instant T. "Take a VM snapshot before update."' },
+      { id: 'ang_f37', recto: 'ETA', verso: 'Estimated Time of Arrival/resolution — délai estimé de résolution.' },
+      { id: 'ang_f38', recto: 'P1 / P2 / P3', verso: 'Priorité 1 (critique) à Priorité 3 (faible) — classification des tickets par urgence.' },
+      { id: 'ang_f39', recto: 'change freeze', verso: 'Gel des modifications — aucun changement en prod autorisé pendant une période sensible (release, fêtes).' },
+      { id: 'ang_f40', recto: 'known issue', verso: 'Problème connu et déjà documenté — pas besoin de ré-investiguer.' },
+      { id: 'ang_f41', recto: 'to deprecate', verso: 'Déprécier — signaler qu\'une fonctionnalité sera retirée, à ne plus utiliser. "This feature is deprecated."' },
+      { id: 'ang_f42', recto: 'to parse', verso: 'Analyser/interpréter une donnée structurée. "Parse the log file for errors."' },
+      { id: 'ang_f43', recto: 'to override', verso: 'Écraser/remplacer une valeur ou un comportement par défaut. "Override the default configuration."' },
+      { id: 'ang_f44', recto: 'to expose', verso: 'Exposer un port/service/API vers l\'extérieur. "Expose port 443 to the internet."' },
     ],
     qcm: [
       { id: 'ang_q1', question: 'What does "throughput" mean in networking?', options: [{ text: 'Maximum theoretical speed', correct: false }, { text: 'Actual data transfer rate measured', correct: true }, { text: 'Network latency', correct: false }, { text: 'Packet loss percentage', correct: false }], explication: 'Throughput = débit effectif mesuré. Bandwidth = capacité théorique. Throughput ≤ bandwidth toujours.', difficulty: 'normal' },
@@ -3684,6 +3903,26 @@ const MODULES = [
       { id: 'ang_q18', question: 'A "change freeze" means:', options: [{ text: 'The system is frozen/crashed', correct: false }, { text: 'No changes allowed during a critical period', correct: true }, { text: 'A type of backup procedure', correct: false }, { text: 'A network outage', correct: false }], explication: 'Change freeze = gel des modifications — période (release, fêtes) où aucun changement en prod n\'est autorisé.', difficulty: 'normal' },
       { id: 'ang_q19', question: 'In CompTIA exams, "LEAST" in a question means:', options: [{ text: 'Find the best solution', correct: false }, { text: 'Find the answer that is least likely or least recommended', correct: true }, { text: 'Find the simplest answer', correct: false }, { text: 'Find the fastest solution', correct: false }], explication: 'LEAST = la moins probable ou la moins recommandée. Piège courant — lire très attentivement.', difficulty: 'troubleshooter' },
       { id: 'ang_q20', question: 'What does "post-mortem" mean in IT incident management?', options: [{ text: 'Shutting down the server after failure', correct: false }, { text: 'A review after an incident to understand what happened and prevent recurrence', correct: true }, { text: 'A security audit type', correct: false }, { text: 'Deleting logs after an incident', correct: false }], explication: 'Post-mortem = analyse rétrospective après incident. Sans blâme (blameless). Causes → impact → actions correctives.', difficulty: 'difficile' },
+      { id: 'ang_q21', question: 'Choose the correct form: "The backup ___ every night at 2am."', options: [{ text: 'run', correct: false }, { text: 'runs', correct: true }, { text: 'is running', correct: false }, { text: 'ran', correct: false }], explication: 'Fait habituel/récurrent → Present Simple. 3e personne du singulier (it) → verbe + s : "runs".', difficulty: 'facile' },
+      { id: 'ang_q22', question: 'Choose the correct question: "___ the server down right now?"', options: [{ text: 'Does', correct: false }, { text: 'Do', correct: false }, { text: 'Is', correct: true }, { text: 'Did', correct: false }], explication: '"be" comme verbe principal s\'inverse directement avec le sujet, pas besoin de do/does. "Is the server down?"', difficulty: 'facile' },
+      { id: 'ang_q23', question: 'Which sentence correctly uses the Present Perfect?', options: [{ text: 'I have restart the service.', correct: false }, { text: 'I have restarted the service.', correct: true }, { text: 'I has restarted the service.', correct: false }, { text: 'I having restarted the service.', correct: false }], explication: 'Present Perfect = have/has + participe passé. "restarted" est le participe passé correct.', difficulty: 'normal' },
+      { id: 'ang_q24', question: 'What is the past simple of "to break"?', options: [{ text: 'breaked', correct: false }, { text: 'broken', correct: false }, { text: 'broke', correct: true }, { text: 'breaks', correct: false }], explication: 'break est irrégulier : break / broke / broken. "The update broke the driver."', difficulty: 'facile' },
+      { id: 'ang_q25', question: 'Which best expresses a planned, already-decided action?', options: [{ text: 'We will deploy the patch.', correct: false }, { text: 'We are going to deploy the patch.', correct: true }, { text: 'We deploy the patch.', correct: false }, { text: 'We deployed the patch.', correct: false }], explication: 'be going to = plan déjà décidé/intention. will = décision spontanée ou prévision générale.', difficulty: 'normal' },
+      { id: 'ang_q26', question: 'Which question is correctly formed?', options: [{ text: 'What means this error?', correct: false }, { text: 'What does this error mean?', correct: true }, { text: 'What this error does mean?', correct: false }, { text: 'Does what this error mean?', correct: false }], explication: 'Structure : WH-word + auxiliaire (does) + sujet (this error) + verbe (mean) ?', difficulty: 'normal' },
+      { id: 'ang_q27', question: 'Choose the correct question tag: "The service is running, ___?"', options: [{ text: 'is it', correct: false }, { text: "isn't it", correct: true }, { text: "doesn't it", correct: false }, { text: 'was it', correct: false }], explication: 'Affirmatif → tag négatif. Verbe "be" au présent → isn\'t it.', difficulty: 'normal' },
+      { id: 'ang_q28', question: 'Which is a polite, indirect way to ask "Can you restart it?"', options: [{ text: 'Restart it now.', correct: false }, { text: 'I was wondering if you could restart it.', correct: true }, { text: 'You restart it, right?', correct: false }, { text: 'Restart it, can you?', correct: false }], explication: 'Question indirecte/polie : pas d\'inversion, structure d\'affirmation cachée dans une phrase introductive.', difficulty: 'difficile' },
+      { id: 'ang_q29', question: 'What does "hypervisor" mean?', options: [{ text: 'A network monitoring tool', correct: false }, { text: 'Software that runs virtual machines', correct: true }, { text: 'A type of firewall', correct: false }, { text: 'A backup server', correct: false }], explication: 'Hypervisor = hyperviseur, logiciel/couche qui crée et exécute des machines virtuelles (VMware ESXi, Hyper-V...).', difficulty: 'normal' },
+      { id: 'ang_q30', question: 'What does "idempotent" mean in scripting/automation?', options: [{ text: 'Runs only once', correct: false }, { text: 'Produces the same result even if run multiple times', correct: true }, { text: 'Requires manual approval', correct: false }, { text: 'Cannot be undone', correct: false }], explication: 'Idempotent = même résultat quel que soit le nombre d\'exécutions. Propriété recherchée en Ansible/Terraform.', difficulty: 'difficile' },
+      { id: 'ang_q31', question: 'What does "NIC" stand for?', options: [{ text: 'Network Interface Card', correct: true }, { text: 'Network Internal Configuration', correct: false }, { text: 'New Internet Connection', correct: false }, { text: 'Node Identification Code', correct: false }], explication: 'NIC = Network Interface Card — carte réseau physique ou virtuelle.', difficulty: 'facile' },
+      { id: 'ang_q32', question: 'A "UPS" in a datacenter is used to:', options: [{ text: 'Speed up network traffic', correct: false }, { text: 'Provide backup power during an outage', correct: true }, { text: 'Cool down the servers', correct: false }, { text: 'Store backups', correct: false }], explication: 'UPS = Uninterruptible Power Supply — onduleur, alimentation de secours en cas de coupure.', difficulty: 'facile' },
+      { id: 'ang_q33', question: 'What is a "vulnerability" in cybersecurity?', options: [{ text: 'A confirmed attack', correct: false }, { text: 'A weakness that could be exploited', correct: true }, { text: 'A type of firewall rule', correct: false }, { text: 'A backup strategy', correct: false }], explication: 'Vulnerability = faille potentiellement exploitable, distincte d\'une attaque (exploit) déjà survenue.', difficulty: 'normal' },
+      { id: 'ang_q34', question: 'What does "P1" mean in ticket priority?', options: [{ text: 'Low priority, resolve within a month', correct: false }, { text: 'Critical priority, fastest resolution required', correct: true }, { text: 'Informational only, no action needed', correct: false }, { text: 'Pending user response', correct: false }], explication: 'P1 = priorité la plus haute (critique), généralement SLA < 1h.', difficulty: 'facile' },
+      { id: 'ang_q35', question: 'What is a "change freeze"?', options: [{ text: 'A server crash', correct: false }, { text: 'A period when no changes are allowed in production', correct: true }, { text: 'A scheduled reboot', correct: false }, { text: 'A type of backup', correct: false }], explication: 'Change freeze = gel des modifications, souvent avant une release ou pendant les fêtes.', difficulty: 'normal' },
+      { id: 'ang_q36', question: 'What does "to override a configuration" mean?', options: [{ text: 'Delete the configuration', correct: false }, { text: 'Replace a default value with a custom one', correct: true }, { text: 'Back up the configuration', correct: false }, { text: 'Encrypt the configuration', correct: false }], explication: 'Override = écraser/remplacer une valeur par défaut par une valeur personnalisée.', difficulty: 'normal' },
+      { id: 'ang_q37', question: 'What does "to expose a port" mean?', options: [{ text: 'Close the port', correct: false }, { text: 'Make the port accessible from outside', correct: true }, { text: 'Encrypt traffic on the port', correct: false }, { text: 'Monitor the port', correct: false }], explication: 'Expose = rendre un port/service accessible depuis l\'extérieur (internet ou un autre réseau).', difficulty: 'normal' },
+      { id: 'ang_q38', question: 'A "known issue" in a ticketing system is:', options: [{ text: 'A brand new, unreported bug', correct: false }, { text: 'A documented problem already identified', correct: true }, { text: 'A resolved ticket', correct: false }, { text: 'A security incident', correct: false }], explication: 'Known issue = problème déjà documenté, pas besoin de ré-investiguer depuis zéro.', difficulty: 'facile' },
+      { id: 'ang_q39', question: 'What does "to parse" mean in a scripting context?', options: [{ text: 'To delete data', correct: false }, { text: 'To analyze and interpret structured data', correct: true }, { text: 'To encrypt data', correct: false }, { text: 'To back up data', correct: false }], explication: 'Parse = analyser une donnée structurée (log, JSON, CSV) pour en extraire des informations.', difficulty: 'normal' },
+      { id: 'ang_q40', question: 'A "snapshot" of a virtual machine is:', options: [{ text: 'A full clone of the VM', correct: false }, { text: 'A saved state of the VM at a specific point in time', correct: true }, { text: 'A network diagram of the VM', correct: false }, { text: 'A performance report', correct: false }], explication: 'Snapshot = instantané, état figé réversible d\'une VM avant une opération risquée (update, test).', difficulty: 'normal' },
     ],
   }
 

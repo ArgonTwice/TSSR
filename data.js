@@ -3498,7 +3498,7 @@ const MODULES = [
     icon: '🇬🇧',
     color: '#3b82f6',
     desc: 'Vocabulaire IT, helpdesk, rédaction technique, certifications en anglais...',
-    topics: ['Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications', 'Email', 'Prononciation', 'Oral'],
+    topics: ['Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications', 'Email', 'Prononciation', 'Oral', 'Entretien', 'Réunions'],
     cours: [
       {
         id: 'vocabulaire-it',
@@ -3997,6 +3997,128 @@ Technician: Alright, I'm going to walk you through resetting the network
 </table>
 <p>En cas de doute sur un accent, ne jamais deviner : "Just to make sure I understood correctly, you said..." permet de reformuler et confirmer sans gêne.</p>`
       },
+      {
+        id: 'entretien-technique',
+        titre: 'Entretien d\'embauche technique en anglais',
+        content: `<h2>Réussir un entretien technique en anglais</h2>
+<h3>1. Se présenter (elevator pitch)</h3>
+<p>Structure en 3 temps : qui vous êtes, votre parcours, ce que vous recherchez.</p>
+<table><tr><th>Étape</th><th>Phrase type</th></tr>
+<tr><td>Qui je suis</td><td>"I'm currently studying to become a Systems and Network Technician."</td></tr>
+<tr><td>Mon parcours</td><td>"I have hands-on experience with Windows Server, Linux administration, and networking."</td></tr>
+<tr><td>Ce que je recherche</td><td>"I'm looking for an opportunity to apply my skills in a support/infrastructure role."</td></tr>
+</table>
+<h3>2. Parler de son expérience et ses compétences</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"I have experience in..."</td><td>"J'ai de l'expérience en..."</td></tr>
+<tr><td>"I am proficient in..."</td><td>"Je maîtrise..."</td></tr>
+<tr><td>"I have hands-on experience with..."</td><td>"J'ai une expérience pratique de..."</td></tr>
+<tr><td>"I am familiar with..."</td><td>"Je connais / j'ai des notions de..."</td></tr>
+<tr><td>"I completed an internship at..."</td><td>"J'ai fait un stage chez..."</td></tr>
+<tr><td>"I am a quick learner."</td><td>"J'apprends vite."</td></tr>
+<tr><td>"I work well under pressure."</td><td>"Je gère bien la pression."</td></tr>
+<tr><td>"I enjoy troubleshooting complex issues."</td><td>"J'aime résoudre des problèmes complexes."</td></tr>
+</table>
+<h3>3. La méthode STAR — répondre à une question comportementale</h3>
+<p>Utilisée pour répondre à des questions comme "Tell me about a time you solved a difficult problem."</p>
+<table><tr><th>Lettre</th><th>Signifie</th><th>Contenu</th></tr>
+<tr><td>S — Situation</td><td>Contexte</td><td>"During my internship, a production server went down unexpectedly."</td></tr>
+<tr><td>T — Task</td><td>Votre mission</td><td>"I was responsible for diagnosing the issue as quickly as possible."</td></tr>
+<tr><td>A — Action</td><td>Ce que vous avez fait</td><td>"I checked the logs, identified a disk space issue, and freed up space immediately."</td></tr>
+<tr><td>R — Result</td><td>Le résultat</td><td>"The server was back online within 20 minutes, with no data loss."</td></tr>
+</table>
+<h3>4. Questions techniques courantes en entretien TSSR</h3>
+<table><tr><th>Question</th><th>Ce qu'on évalue</th></tr>
+<tr><td>"What's the difference between TCP and UDP?"</td><td>Connaissances réseau fondamentales</td></tr>
+<tr><td>"How would you troubleshoot a slow network?"</td><td>Méthodologie de diagnostic</td></tr>
+<tr><td>"What is Active Directory used for?"</td><td>Connaissances Windows Server</td></tr>
+<tr><td>"How do you prioritize multiple incidents?"</td><td>Gestion du stress / organisation</td></tr>
+<tr><td>"Describe a time you had to explain something technical to a non-technical person."</td><td>Communication / pédagogie</td></tr>
+</table>
+<h3>5. Questions à poser en fin d'entretien</h3>
+<table><tr><th>Anglais</th><th>Objectif</th></tr>
+<tr><td>"What does a typical day look like in this role?"</td><td>Montrer un intérêt concret</td></tr>
+<tr><td>"What tools and technologies does the team use?"</td><td>Évaluer l'environnement technique</td></tr>
+<tr><td>"What are the next steps in the recruitment process?"</td><td>Clôturer professionnellement</td></tr>
+<tr><td>"Is there anything about my profile you'd like me to clarify?"</td><td>Ouvrir une dernière porte pour convaincre</td></tr>
+</table>
+<h3>Vocabulaire utile</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>strengths / weaknesses</td><td>points forts / points faibles</td></tr>
+<tr><td>background</td><td>parcours</td></tr>
+<tr><td>skillset</td><td>ensemble de compétences</td></tr>
+<tr><td>soft skills</td><td>compétences comportementales</td></tr>
+<tr><td>career goals</td><td>objectifs de carrière</td></tr>
+<tr><td>team player</td><td>esprit d'équipe</td></tr>
+<tr><td>problem solver</td><td>personne qui résout les problèmes efficacement</td></tr>
+</table>`
+      },
+      {
+        id: 'reunions-visio',
+        titre: 'Réunions &amp; visioconférences en anglais',
+        content: `<h2>Participer à une réunion en anglais</h2>
+<h3>1. Vocabulaire de réunion</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>agenda</td><td>ordre du jour</td></tr>
+<tr><td>minutes</td><td>compte-rendu de réunion</td></tr>
+<tr><td>action items</td><td>actions à réaliser suite à la réunion</td></tr>
+<tr><td>stakeholders</td><td>parties prenantes</td></tr>
+<tr><td>follow-up</td><td>suivi / relance</td></tr>
+<tr><td>to table a topic</td><td>reporter un sujet à plus tard</td></tr>
+<tr><td>to circle back</td><td>revenir sur un point plus tard</td></tr>
+<tr><td>deadline</td><td>date limite</td></tr>
+</table>
+<h3>2. Prendre la parole poliment</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"Can I just add something here?"</td><td>"Puis-je juste ajouter quelque chose ?"</td></tr>
+<tr><td>"Sorry to interrupt, but..."</td><td>"Désolé de vous interrompre, mais..."</td></tr>
+<tr><td>"I'd like to build on what [name] said."</td><td>"J'aimerais rebondir sur ce qu'a dit [nom]."</td></tr>
+<tr><td>"Could I come in here?"</td><td>"Puis-je intervenir ?"</td></tr>
+<tr><td>"Just to clarify..."</td><td>"Juste pour clarifier..."</td></tr>
+<tr><td>"Let's stay on topic."</td><td>"Restons sur le sujet."</td></tr>
+</table>
+<h3>3. Problèmes techniques en visioconférence</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"You're on mute."</td><td>"Vous êtes en muet."</td></tr>
+<tr><td>"Can everyone see my screen?"</td><td>"Est-ce que tout le monde voit mon écran ?"</td></tr>
+<tr><td>"The connection is a bit choppy."</td><td>"La connexion est un peu saccadée."</td></tr>
+<tr><td>"We lost you for a second, could you repeat that?"</td><td>"On vous a perdu un instant, pouvez-vous répéter ?"</td></tr>
+<tr><td>"I'll turn my camera off to save bandwidth."</td><td>"Je coupe ma caméra pour économiser de la bande passante."</td></tr>
+<tr><td>"Let me share my screen."</td><td>"Je partage mon écran."</td></tr>
+</table>
+<h3>4. Faire un compte-rendu (meeting minutes)</h3>
+<table><tr><th>Section</th><th>Contenu type</th></tr>
+<tr><td>Attendees</td><td>Liste des participants</td></tr>
+<tr><td>Agenda items discussed</td><td>Sujets abordés</td></tr>
+<tr><td>Decisions made</td><td>Décisions prises</td></tr>
+<tr><td>Action items</td><td>Qui fait quoi, avant quand</td></tr>
+<tr><td>Next meeting</td><td>Date de la prochaine réunion</td></tr>
+</table>
+<pre>Meeting Minutes — Infrastructure Team Sync
+Date: 2026-07-01
+Attendees: J. Dupont, A. Smith, M. Chen
+
+Agenda items discussed:
+- Server migration timeline
+- Backup policy review
+
+Decisions made:
+- Migration scheduled for the last weekend of July.
+
+Action items:
+- J. Dupont: prepare the migration checklist by July 10.
+- A. Smith: validate the new backup retention policy.
+
+Next meeting: July 8, 2026</pre>
+<h3>5. Clôturer une réunion</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>"Let's wrap up."</td><td>"Terminons/concluons."</td></tr>
+<tr><td>"To summarize..."</td><td>"Pour résumer..."</td></tr>
+<tr><td>"I'll send the action items by email."</td><td>"J'enverrai les actions par email."</td></tr>
+<tr><td>"Does anyone have any final questions?"</td><td>"Quelqu'un a-t-il une dernière question ?"</td></tr>
+<tr><td>"Thanks everyone, talk soon."</td><td>"Merci à tous, à bientôt."</td></tr>
+</table>`
+      },
     ],
     flashcards: [
       { id: 'ang_f1', recto: 'throughput', verso: 'Débit effectif mesuré (≤ bandwidth). "Network throughput is 800 Mbps on a 1 Gbps link."' },
@@ -4053,6 +4175,13 @@ Technician: Alright, I'm going to walk you through resetting the network
       { id: 'ang_f52', recto: '"Could you repeat that, please?"', verso: 'Demander une répétition poliment lors d\'un appel support.' },
       { id: 'ang_f53', recto: '"I\'m going to walk you through..."', verso: '"Je vais vous guider pas à pas dans..." — formule courante en support pour annoncer une procédure.' },
       { id: 'ang_f54', recto: '"Limited connectivity"', verso: 'Message Windows signalant une connexion réseau restreinte, sans accès internet complet.' },
+      { id: 'ang_f55', recto: 'Méthode STAR', verso: 'Situation, Task, Action, Result — structure pour répondre aux questions comportementales en entretien.' },
+      { id: 'ang_f56', recto: '"I am proficient in..."', verso: '"Je maîtrise..." — formule pour décrire une compétence technique en entretien.' },
+      { id: 'ang_f57', recto: 'elevator pitch', verso: 'Présentation courte et structurée de soi (qui, parcours, ce qu\'on recherche), généralement moins d\'une minute.' },
+      { id: 'ang_f58', recto: 'action items', verso: 'Actions concrètes à réaliser suite à une réunion, avec un responsable et une échéance.' },
+      { id: 'ang_f59', recto: '"You\'re on mute."', verso: '"Vous êtes en muet." — phrase incontournable en visioconférence.' },
+      { id: 'ang_f60', recto: 'meeting minutes', verso: 'Compte-rendu de réunion : participants, sujets discutés, décisions, actions, prochaine réunion.' },
+      { id: 'ang_f61', recto: '"Sorry to interrupt, but..."', verso: 'Formule polie pour prendre la parole en coupant quelqu\'un lors d\'une réunion.' },
     ],
     qcm: [
       { id: 'ang_q1', question: 'What does "throughput" mean in networking?', options: [{ text: 'Maximum theoretical speed', correct: false }, { text: 'Actual data transfer rate measured', correct: true }, { text: 'Network latency', correct: false }, { text: 'Packet loss percentage', correct: false }], explication: 'Throughput = débit effectif mesuré. Bandwidth = capacité théorique. Throughput ≤ bandwidth toujours.', difficulty: 'normal' },
@@ -4105,6 +4234,13 @@ Technician: Alright, I'm going to walk you through resetting the network
       { id: 'ang_q48', question: 'What does "Limited connectivity" mean in a Windows network status?', options: [{ text: 'The connection is encrypted', correct: false }, { text: 'The network connection is restricted, without full internet access', correct: true }, { text: 'The Wi-Fi signal is very strong', correct: false }, { text: 'The firewall is blocking all traffic', correct: false }], explication: 'Limited connectivity = connexion réseau active mais restreinte, souvent sans accès internet complet.', difficulty: 'normal' },
       { id: 'ang_q49', question: 'How should an acronym like "CPU" usually be pronounced?', options: [{ text: 'As a single word "keu-pu"', correct: false }, { text: 'Letter by letter: "C-P-U"', correct: true }, { text: 'It has no standard pronunciation', correct: false }, { text: 'Only in French', correct: false }], explication: 'La plupart des acronymes techniques se lisent lettre par lettre, sauf exceptions connues (RAM, RAID).', difficulty: 'facile' },
       { id: 'ang_q50', question: 'Which phrase is best to safely confirm you understood someone with a strong accent?', options: [{ text: 'Ignore it and move on', correct: false }, { text: '"Just to make sure I understood correctly, you said..."', correct: true }, { text: '"Can you speak proper English?"', correct: false }, { text: 'Guess and proceed', correct: false }], explication: 'Reformuler pour confirmer évite les malentendus sans mettre l\'interlocuteur mal à l\'aise.', difficulty: 'normal' },
+      { id: 'ang_q51', question: 'In the STAR method, what does the "T" stand for?', options: [{ text: 'Time', correct: false }, { text: 'Task', correct: true }, { text: 'Team', correct: false }, { text: 'Technology', correct: false }], explication: 'STAR = Situation, Task, Action, Result. "Task" décrit votre mission/responsabilité dans la situation.', difficulty: 'facile' },
+      { id: 'ang_q52', question: 'Which sentence correctly describes hands-on experience?', options: [{ text: '"I am familiar with the theory of networking."', correct: false }, { text: '"I have hands-on experience with Windows Server administration."', correct: true }, { text: '"I heard about Windows Server once."', correct: false }, { text: '"I would like to learn Windows Server."', correct: false }], explication: '"Hands-on experience" indique une pratique concrète, pas seulement théorique.', difficulty: 'facile' },
+      { id: 'ang_q53', question: 'What is a good question to ask at the end of a job interview?', options: [{ text: '"How much do you pay?"', correct: false }, { text: '"What does a typical day look like in this role?"', correct: true }, { text: '"When can I take vacation?"', correct: false }, { text: 'No question is a good idea', correct: false }], explication: 'Poser une question sur le quotidien du poste montre un intérêt concret pour le rôle.', difficulty: 'normal' },
+      { id: 'ang_q54', question: 'What does "action items" mean after a meeting?', options: [{ text: 'The agenda of the next meeting', correct: false }, { text: 'Concrete tasks to complete, usually with an owner and a deadline', correct: true }, { text: 'A list of attendees', correct: false }, { text: 'The meeting room booking', correct: false }], explication: 'Action items = tâches concrètes issues de la réunion, assignées à une personne avec une échéance.', difficulty: 'normal' },
+      { id: 'ang_q55', question: 'What is the polite way to tell someone their microphone is muted?', options: [{ text: '"Speak louder!"', correct: false }, { text: '"You\'re on mute."', correct: true }, { text: '"I can\'t hear anything, fix it."', correct: false }, { text: '"Your mic is broken."', correct: false }], explication: '"You\'re on mute" est la formule standard et neutre en visioconférence.', difficulty: 'facile' },
+      { id: 'ang_q56', question: 'What should "meeting minutes" typically include?', options: [{ text: 'Only the meeting duration', correct: false }, { text: 'Attendees, topics discussed, decisions, and action items', correct: true }, { text: 'A transcript of every word spoken', correct: false }, { text: 'Only the next meeting date', correct: false }], explication: 'Un bon compte-rendu couvre participants, sujets, décisions et actions à suivre.', difficulty: 'normal' },
+      { id: 'ang_q57', question: 'Which phrase politely interrupts someone in a meeting?', options: [{ text: '"Stop talking."', correct: false }, { text: '"Sorry to interrupt, but..."', correct: true }, { text: '"Wrong."', correct: false }, { text: '"Excuse me, that\'s not important."', correct: false }], explication: '"Sorry to interrupt, but..." permet de couper poliment sans paraître impoli.', difficulty: 'facile' },
     ],
   }
 

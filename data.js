@@ -1347,65 +1347,65 @@ const MODULES = [
   },
   {
     id: 'deploiement-windows',
-    titre: 'Deploiement Windows - Sysprep, Images et Automatisation',
+    titre: 'Déploiement Windows - Sysprep, Images et Automatisation',
     sections: [
 
-      { type: 'h2', content: '1. Pourquoi automatiser le deploiement' },
-      { type: 'p', content: 'Installer Windows manuellement machine par machine n\'est pas viable a l\'echelle d\'une entreprise. Le deploiement automatise permet de creer une image de reference (master) puis de la dupliquer sur des centaines de postes identiques, avec une configuration coherente et reproductible.' },
-      { type: 'table', headers: ['Methode', 'Usage', 'Outil principal'], rows: [
-        ['Installation manuelle', 'Quelques postes isoles', 'DVD/USB ISO'],
+      { type: 'h2', content: '1. Pourquoi automatiser le déploiement' },
+      { type: 'p', content: 'Installer Windows manuellement machine par machine n\'est pas viable à l\'échelle d\'une entreprise. Le déploiement automatisé permet de créer une image de référence (master) puis de la dupliquer sur des centaines de postes identiques, avec une configuration cohérente et reproductible.' },
+      { type: 'table', headers: ['Méthode', 'Usage', 'Outil principal'], rows: [
+        ['Installation manuelle', 'Quelques postes isolés', 'DVD/USB ISO'],
         ['Image disque (cloning)', 'Postes identiques en masse', 'Sysprep + imagex/DISM'],
-        ['Deploiement reseau PXE', 'Salles de classe, parc important', 'WDS (Windows Deployment Services)'],
-        ['Deploiement entreprise', 'Postes + serveurs + applications', 'MDT (Microsoft Deployment Toolkit) / SCCM'],
+        ['Déploiement réseau PXE', 'Salles de classe, parc important', 'WDS (Windows Deployment Services)'],
+        ['Déploiement entreprise', 'Postes + serveurs + applications', 'MDT (Microsoft Deployment Toolkit) / SCCM'],
         ['Cloud-init / Provisioning', 'VMs et cloud', 'Azure VM Image, Packer, Cloud-Init'],
       ]},
-      { type: 'info', content: '<strong>Principe cle :</strong> on installe et configure UNE fois un poste de reference (le "master"), puis on duplique cette installation sur tous les autres postes au lieu de tout refaire manuellement.' },
+      { type: 'info', content: '<strong>Principe clé :</strong> on installe et configure UNE fois un poste de référence (le "master"), puis on duplique cette installation sur tous les autres postes au lieu de tout refaire manuellement.' },
 
       { type: 'h2', content: '2. Sysprep - System Preparation Tool' },
-      { type: 'p', content: 'Sysprep est l\'outil Microsoft integre a Windows qui prepare une installation pour etre dupliquee (clonee) ou capturee en image. Sans Sysprep, deux machines clonees auraient le meme SID (Security Identifier), le meme nom NetBIOS de domaine machine, et des conflits en reseau et en Active Directory.' },
-      { type: 'table', headers: ['Probleme sans Sysprep', 'Consequence'], rows: [
-        ['SID machine identique sur tous les postes clones', 'Conflits de securite, problemes de jointure au domaine'],
-        ['GUID materiel et pilotes figes sur le master', 'Echec de demarrage sur du materiel different'],
-        ['Profil utilisateur du technicien present', 'Donnees et historique du master visibles partout'],
-        ['Activation Windows liee a une seule machine', 'Probleme de licence en masse'],
+      { type: 'p', content: 'Sysprep est l\'outil Microsoft intégré à Windows qui prépare une installation pour être dupliquée (clonée) ou capturée en image. Sans Sysprep, deux machines clonées auraient le même SID (Security Identifier), le même nom NetBIOS de domaine machine, et des conflits en réseau et en Active Directory.' },
+      { type: 'table', headers: ['Problème sans Sysprep', 'Conséquence'], rows: [
+        ['SID machine identique sur tous les postes clonés', 'Conflits de sécurité, problèmes de jointure au domaine'],
+        ['GUID matériel et pilotes figés sur le master', 'Échec de démarrage sur du matériel différent'],
+        ['Profil utilisateur du technicien présent', 'Données et historique du master visibles partout'],
+        ['Activation Windows liée à une seule machine', 'Problème de licence en masse'],
       ]},
       { type: 'code', content: '# ============================================================\n# SYSPREP -- EMPLACEMENT ET SYNTAXE\n# ============================================================\n# Sysprep se trouve toujours dans :\nC:\\Windows\\System32\\Sysprep\\sysprep.exe\n\n# Lancer Sysprep en mode interface graphique\nC:\\Windows\\System32\\Sysprep\\sysprep.exe\n\n# Lancer Sysprep en ligne de commande (recommande pour automatisation)\nC:\\Windows\\System32\\Sysprep\\sysprep.exe /generalize /oobe /shutdown\n\n# ============================================================\n# OPTIONS PRINCIPALES\n# ============================================================\n# /generalize\n#   Supprime les informations specifiques a la machine :\n#   SID, pilotes installes, GUID materiel\n#   OBLIGATOIRE avant de capturer une image destinee a plusieurs machines\n\n# /oobe\n#   Demarre l\'assistant "Out Of Box Experience" au prochain demarrage\n#   (ecran de bienvenue Windows, creation de compte, etc.)\n\n# /audit\n#   Demarre en mode audit (sans OOBE) -- permet d\'installer des\n#   pilotes ou applications supplementaires avant la capture finale\n\n# /shutdown\n#   Eteint la machine a la fin du traitement (pret pour capture image)\n\n# /reboot\n#   Redemarre au lieu d\'eteindre (utile pour tester avant capture)\n\n# /quiet\n#   Mode silencieux, aucune fenetre affichee\n\n# /unattend:fichier.xml\n#   Applique un fichier de reponses automatiques (voir section 4)\n\n# ============================================================\n# EXEMPLE COMPLET -- PREPARATION D\'UN MASTER\n# ============================================================\n# 1. Installer Windows normalement\n# 2. Installer toutes les applications communes (Office, navigateurs, antivirus)\n# 3. Configurer les parametres systeme standards\n# 4. Nettoyer le profil temporaire et les fichiers temp\n# 5. Lancer Sysprep en mode generalize + oobe + shutdown :\n\nC:\\Windows\\System32\\Sysprep\\sysprep.exe /generalize /oobe /shutdown /unattend:C:\\unattend.xml\n\n# La machine s\'eteint -- elle est maintenant prete pour la capture image' },
-      { type: 'warn', content: '<strong>Limite a connaitre :</strong> Sysprep ne peut etre execute qu\'un nombre limite de fois sur la meme installation (compteur interne, generalement autour de 1000 passages, mais en pratique on capture l\'image immediatement apres generalize sans relancer Windows entre temps).' },
+      { type: 'warn', content: '<strong>Limite à connaître :</strong> Sysprep ne peut être exécuté qu\'un nombre limité de fois sur la même installation (compteur interne, généralement autour de 1000 passages, mais en pratique on capture l\'image immédiatement après generalize sans relancer Windows entre temps).' },
 
-      { type: 'h2', content: '3. Capturer et deployer une image avec DISM' },
+      { type: 'h2', content: '3. Capturer et déployer une image avec DISM' },
       { type: 'p', content: 'DISM (Deployment Image Servicing and Management) est l\'outil en ligne de commande pour capturer, monter, modifier et appliquer des images Windows au format WIM (Windows Imaging Format).' },
       { type: 'code', content: '# ============================================================\n# CAPTURER UNE IMAGE APRES SYSPREP\n# ============================================================\n# Demarrer la machine sur un support WinPE (USB de demarrage Windows PE)\n# puis capturer le disque C: du master en image WIM\n\nDism /Capture-Image /ImageFile:D:\\images\\master-win11.wim /CaptureDir:C:\\ /Name:"Master Win11 Entreprise"\n\n# ============================================================\n# INFORMATIONS SUR UNE IMAGE WIM\n# ============================================================\nDism /Get-WimInfo /WimFile:D:\\images\\master-win11.wim\n\n# Lister le contenu detaille d\'un index dans l\'image\nDism /Get-ImageInfo /ImageFile:D:\\images\\master-win11.wim /Index:1\n\n# ============================================================\n# APPLIQUER (DEPLOYER) UNE IMAGE SUR UN NOUVEAU POSTE\n# ============================================================\n# Demarrer le nouveau poste sur WinPE, partitionner le disque,\n# puis appliquer l\'image :\n\ndiskpart\nselect disk 0\nclean\nconvert gpt\ncreate partition efi size=100\nformat quick fs=fat32 label="System"\nassign letter=S\ncreate partition msr size=16\ncreate partition primary\nformat quick fs=ntfs label="Windows"\nassign letter=C\nexit\n\nDism /Apply-Image /ImageFile:D:\\images\\master-win11.wim /Index:1 /ApplyDir:C:\\\n\n# Rendre le disque demarrable (boot loader)\nbcdboot C:\\Windows /s S: /f UEFI\n\n# ============================================================\n# MONTER UNE IMAGE POUR LA MODIFIER SANS LA DEPLOYER\n# ============================================================\nmkdir C:\\mount\nDism /Mount-Image /ImageFile:D:\\images\\master-win11.wim /Index:1 /MountDir:C:\\mount\n\n# Ajouter un pilote a l\'image montee\nDism /Image:C:\\mount /Add-Driver /Driver:C:\\pilotes\\reseau.inf\n\n# Ajouter une mise a jour (.msu ou .cab)\nDism /Image:C:\\mount /Add-Package /PackagePath:C:\\maj\\KB5012345.msu\n\n# Sauvegarder les modifications et demonter\nDism /Unmount-Image /MountDir:C:\\mount /Commit\n\n# Demonter SANS sauvegarder (annuler les modifications)\nDism /Unmount-Image /MountDir:C:\\mount /Discard' },
 
-      { type: 'h2', content: '4. Fichier de reponses automatiques (unattend.xml)' },
-      { type: 'p', content: 'Le fichier unattend.xml permet d\'automatiser entierement l\'installation : langue, fuseau horaire, nom d\'ordinateur, compte administrateur, jointure au domaine -- sans aucune intervention manuelle au premier demarrage.' },
+      { type: 'h2', content: '4. Fichier de réponses automatiques (unattend.xml)' },
+      { type: 'p', content: 'Le fichier unattend.xml permet d\'automatiser entièrement l\'installation : langue, fuseau horaire, nom d\'ordinateur, compte administrateur, jointure au domaine -- sans aucune intervention manuelle au premier démarrage.' },
       { type: 'code', content: '<?xml version="1.0" encoding="utf-8"?>\n<unattend xmlns="urn:schemas-microsoft-com:unattend">\n\n  <settings pass="oobeSystem">\n    <component name="Microsoft-Windows-Shell-Setup"\n               processorArchitecture="amd64"\n               publicKeyToken="31bf3856ad364e35"\n               language="neutral" versionScope="nonSxS">\n      <OOBE>\n        <HideEULAPage>true</HideEULAPage>\n        <NetworkLocation>Work</NetworkLocation>\n        <SkipUserOOBE>true</SkipUserOOBE>\n        <ProtectYourPC>3</ProtectYourPC>\n      </OOBE>\n      <ComputerName>*</ComputerName>\n      <TimeZone>Romance Standard Time</TimeZone>\n      <UserAccounts>\n        <AdministratorPassword>\n          <Value>P@ssw0rd123!</Value>\n          <PlainText>true</PlainText>\n        </AdministratorPassword>\n      </UserAccounts>\n    </component>\n\n    <component name="Microsoft-Windows-International-Core"\n               processorArchitecture="amd64"\n               publicKeyToken="31bf3856ad364e35"\n               language="neutral" versionScope="nonSxS">\n      <InputLocale>fr-FR</InputLocale>\n      <SystemLocale>fr-FR</SystemLocale>\n      <UILanguage>fr-FR</UILanguage>\n      <UserLocale>fr-FR</UserLocale>\n    </component>\n  </settings>\n\n  <settings pass="specialize">\n    <component name="Microsoft-Windows-UnattendedJoin"\n               processorArchitecture="amd64"\n               publicKeyToken="31bf3856ad364e35"\n               language="neutral" versionScope="nonSxS">\n      <Identification>\n        <Credentials>\n          <Domain>tssr.local</Domain>\n          <Password>P@ssw0rd123!</Password>\n          <Username>administrateur</Username>\n        </Credentials>\n        <JoinDomain>tssr.local</JoinDomain>\n        <MachineObjectOU>OU=Postes,DC=tssr,DC=local</MachineObjectOU>\n      </Identification>\n    </component>\n  </settings>\n\n</unattend>\n\n# ============================================================\n# CREER LE FICHIER FACILEMENT -- WINDOWS SYSTEM IMAGE MANAGER\n# ============================================================\n# WSIM (fourni avec l\'ADK Windows) genere ce XML visuellement\n# au lieu de l\'ecrire a la main\n# Telechargement : Assessment and Deployment Kit (ADK) Microsoft\n\n# ============================================================\n# UTILISER LE FICHIER AVEC SYSPREP\n# ============================================================\nsysprep /generalize /oobe /shutdown /unattend:C:\\unattend.xml' },
-      { type: 'info', content: 'Le fichier unattend.xml peut aussi etre place directement a la racine d\'une cle USB d\'installation (nomme autounattend.xml) pour automatiser une installation Windows complete depuis zero, sans meme passer par Sysprep.' },
+      { type: 'info', content: 'Le fichier unattend.xml peut aussi être placé directement à la racine d\'une clé USB d\'installation (nommé autounattend.xml) pour automatiser une installation Windows complète depuis zéro, sans même passer par Sysprep.' },
 
-      { type: 'h2', content: '5. WDS - Windows Deployment Services (deploiement reseau PXE)' },
-      { type: 'p', content: 'WDS permet de demarrer des postes vierges directement depuis le reseau (PXE boot) et d\'installer Windows sans support physique (DVD/USB). Ideal pour deployer rapidement de nombreux postes identiques (salle de classe, entreprise).' },
+      { type: 'h2', content: '5. WDS - Windows Deployment Services (déploiement réseau PXE)' },
+      { type: 'p', content: 'WDS permet de démarrer des postes vierges directement depuis le réseau (PXE boot) et d\'installer Windows sans support physique (DVD/USB). Idéal pour déployer rapidement de nombreux postes identiques (salle de classe, entreprise).' },
       { type: 'code', content: '# ============================================================\n# INSTALLATION DU ROLE WDS\n# ============================================================\nInstall-WindowsFeature WDS -IncludeManagementTools\n\n# Initialiser le serveur WDS\nWdsutil /Initialize-Server /RemInst:"D:\\RemoteInstall"\n\n# Demarrer le service\nWdsutil /Start-Server\n\n# ============================================================\n# AJOUTER UNE IMAGE DE DEMARRAGE (boot.wim) ET D\'INSTALLATION\n# ============================================================\n# Image de demarrage (issue du DVD/ISO sources\\boot.wim)\nWdsutil /Add-Image /ImageFile:"D:\\ISO\\sources\\boot.wim" /ImageType:Boot\n\n# Image d\'installation (le master capture avec Sysprep+DISM)\nWdsutil /Add-Image /ImageFile:"D:\\images\\master-win11.wim" /ImageType:Install\n\n# ============================================================\n# CONFIGURER LA REPONSE PXE\n# ============================================================\n# Repondre a tous les clients automatiquement (sans approbation manuelle)\nWdsutil /Set-Server /AnswerClients:All\n\n# Ou repondre uniquement aux clients connus (plus securise)\nWdsutil /Set-Server /AnswerClients:Known\n\n# ============================================================\n# COTE CLIENT -- DEMARRAGE PXE\n# ============================================================\n# Sur le poste a deployer :\n# 1. Activer le boot PXE dans le BIOS/UEFI\n# 2. Demarrer -- appuyer sur F12 (selon constructeur) pour boot reseau\n# 3. Le poste recoit l\'image boot.wim via PXE\n# 4. L\'assistant d\'installation Windows apparait\n# 5. Choisir l\'image d\'installation (le master) a appliquer\n\n# ============================================================\n# AJOUTER UN FICHIER DE REPONSES POUR AUTOMATISER COMPLETEMENT\n# ============================================================\n# Placer un fichier WdsClientUnattend.xml pour eviter toute saisie\n# manuelle lors du PXE boot (langue, partition, identifiants)\nWdsutil /Set-Server /WdsUnattend /Policy:Enabled' },
 
-      { type: 'h2', content: '6. MDT - Microsoft Deployment Toolkit (deploiement professionnel)' },
-      { type: 'p', content: 'MDT va plus loin que WDS seul : il orchestre l\'installation de l\'OS, des pilotes, des applications et des configurations via des "Task Sequences" (sequences de taches), avec une interface de gestion centralisee.' },
-      { type: 'table', headers: ['Concept MDT', 'Role'], rows: [
-        ['Deployment Share', 'Dossier partage contenant images, pilotes, applications, scripts'],
-        ['Task Sequence', 'Suite d\'etapes automatisees : partitionner, installer OS, joindre domaine, installer apps'],
-        ['Selection Profile', 'Filtre les pilotes/applications a inclure selon le modele de machine'],
-        ['CustomSettings.ini', 'Fichier de regles definissant le comportement par defaut du deploiement'],
-        ['LiteTouch', 'Deploiement avec intervention minimale (quelques clics)'],
-        ['ZeroTouch', 'Deploiement 100% automatise (necessite SCCM en plus de MDT)'],
+      { type: 'h2', content: '6. MDT - Microsoft Deployment Toolkit (déploiement professionnel)' },
+      { type: 'p', content: 'MDT va plus loin que WDS seul : il orchestre l\'installation de l\'OS, des pilotes, des applications et des configurations via des "Task Sequences" (séquences de tâches), avec une interface de gestion centralisée.' },
+      { type: 'table', headers: ['Concept MDT', 'Rôle'], rows: [
+        ['Deployment Share', 'Dossier partagé contenant images, pilotes, applications, scripts'],
+        ['Task Sequence', 'Suite d\'étapes automatisées : partitionner, installer OS, joindre domaine, installer apps'],
+        ['Selection Profile', 'Filtre les pilotes/applications à inclure selon le modèle de machine'],
+        ['CustomSettings.ini', 'Fichier de règles définissant le comportement par défaut du déploiement'],
+        ['LiteTouch', 'Déploiement avec intervention minimale (quelques clics)'],
+        ['ZeroTouch', 'Déploiement 100% automatisé (nécessite SCCM en plus de MDT)'],
       ]},
       { type: 'code', content: '# ============================================================\n# CREER UN DEPLOYMENT SHARE\n# ============================================================\n# Apres installation de MDT (interface graphique Deployment Workbench) :\n\n# 1. Deployment Workbench -> Clic droit "Deployment Shares" -> New Deployment Share\n# 2. Chemin : D:\\DeploymentShare\n# 3. Nom de partage : DeploymentShare$\n\n# ============================================================\n# IMPORTER UN SYSTEME D\'EXPLOITATION\n# ============================================================\n# Deployment Workbench -> Operating Systems -> Import Operating System\n# Type : Full set of source files (depuis ISO Windows monte)\n\n# ============================================================\n# AJOUTER UNE TASK SEQUENCE\n# ============================================================\n# Task Sequences -> New Task Sequence\n# ID : WIN11-STD\n# Template : Standard Client Task Sequence\n# Selectionner l\'OS importe -- definir cle produit/edition\n\n# ============================================================\n# PERSONNALISER CUSTOMSETTINGS.INI\n# ============================================================\n# Fichier : D:\\DeploymentShare\\Control\\CustomSettings.ini\n\n[Settings]\nPriority=Default\nProperties=MyCustomProperty\n\n[Default]\nOSInstall=Y\nSkipCapture=YES\nSkipAdminPassword=YES\nSkipProductKey=YES\nSkipComputerName=NO\nSkipDomainMembership=NO\nJoinDomain=tssr.local\nDomainAdmin=administrateur\nDomainAdminDomain=tssr.local\nDomainAdminPassword=P@ssw0rd123!\nMachineObjectOU=OU=Postes,DC=tssr,DC=local\nTimeZoneName=Romance Standard Time\nSkipTaskSequence=NO\nSkipFinalSummary=YES\n\n# ============================================================\n# METTRE A JOUR LE DEPLOYMENT SHARE (regenere boot.wim)\n# ============================================================\n# Deployment Workbench -> clic droit sur le Deployment Share -> Update Deployment Share\n\n# Le boot.wim genere peut ensuite etre importe dans WDS pour\n# combiner PXE boot + orchestration MDT complete' },
-      { type: 'info', content: '<strong>MDT + WDS</strong> est la combinaison standard en entreprise PME/ETI : WDS gere le démarrage réseau PXE, MDT orchestre l\'installation complète (OS + pilotes + applications + configuration). Pour de grands parcs (1000+ postes), on passe a SCCM/MECM (Configuration Manager) qui ajoute inventaire, conformite et deploiement a grande echelle.' },
+      { type: 'info', content: '<strong>MDT + WDS</strong> est la combinaison standard en entreprise PME/ETI : WDS gère le démarrage réseau PXE, MDT orchestre l\'installation complète (OS + pilotes + applications + configuration). Pour de grands parcs (1000+ postes), on passe à SCCM/MECM (Configuration Manager) qui ajoute inventaire, conformité et déploiement à grande échelle.' },
 
-      { type: 'h2', content: '7. Bonnes pratiques de deploiement' },
+      { type: 'h2', content: '7. Bonnes pratiques de déploiement' },
       { type: 'steps', items: [
-        { num: '1', title: 'Preparer un master propre', content: 'Installer uniquement les applications communes a TOUS les postes cibles. Ne jamais inclure de donnees personnelles ou de licences specifiques a une machine.', why: 'Un master "pollue" complique la maintenance et peut creer des conflits de licence ou de configuration sur les postes clones.' },
-        { num: '2', title: 'Toujours generalize avant capture', content: 'Lancer sysprep /generalize /oobe /shutdown juste avant de capturer l\'image. Ne jamais redemarrer Windows normalement apres generalize.', why: 'Apres generalize, Windows "oublie" son identite materielle. Le redemarrer normalement (hors capture) le force a regenerer un nouveau SID, ce qui peut fausser le master.' },
-        { num: '3', title: 'Tester le deploiement avant production', content: 'Deployer l\'image sur une VM ou un poste de test, verifier la jointure domaine, les pilotes, les applications, avant de deployer en masse.', why: 'Une erreur dans le master se repete sur TOUS les postes deployes -- un test prealable evite de devoir tout refaire.' },
-        { num: '4', title: 'Versionner les images', content: 'Nommer les images avec une date ou un numero de version : master-win11-2026-06.wim. Conserver les anciennes versions un certain temps.', why: 'Permet de revenir en arriere rapidement si une nouvelle image pose probleme, et de tracer l\'historique des deploiements.' },
-        { num: '5', title: 'Automatiser au maximum avec unattend.xml', content: 'Definir le fichier de reponses pour eviter toute saisie manuelle (langue, fuseau horaire, jointure domaine, compte admin).', why: 'Reduit les erreurs humaines et le temps de deploiement, surtout sur des dizaines/centaines de postes.' },
-        { num: '6', title: 'Documenter le master', content: 'Tenir une liste a jour des applications, pilotes et configurations incluses dans chaque version d\'image.', why: 'Indispensable pour la maintenance, le support technique et la conformite (audit logiciel).' },
+        { num: '1', title: 'Préparer un master propre', content: 'Installer uniquement les applications communes à TOUS les postes cibles. Ne jamais inclure de données personnelles ou de licences spécifiques à une machine.', why: 'Un master "pollué" complique la maintenance et peut créer des conflits de licence ou de configuration sur les postes clonés.' },
+        { num: '2', title: 'Toujours generalize avant capture', content: 'Lancer sysprep /generalize /oobe /shutdown juste avant de capturer l\'image. Ne jamais redémarrer Windows normalement après generalize.', why: 'Après generalize, Windows "oublie" son identité matérielle. Le redémarrer normalement (hors capture) le force à régénérer un nouveau SID, ce qui peut fausser le master.' },
+        { num: '3', title: 'Tester le déploiement avant production', content: 'Déployer l\'image sur une VM ou un poste de test, vérifier la jointure domaine, les pilotes, les applications, avant de déployer en masse.', why: 'Une erreur dans le master se répète sur TOUS les postes déployés -- un test préalable évite de devoir tout refaire.' },
+        { num: '4', title: 'Versionner les images', content: 'Nommer les images avec une date ou un numéro de version : master-win11-2026-06.wim. Conserver les anciennes versions un certain temps.', why: 'Permet de revenir en arrière rapidement si une nouvelle image pose problème, et de tracer l\'historique des déploiements.' },
+        { num: '5', title: 'Automatiser au maximum avec unattend.xml', content: 'Définir le fichier de réponses pour éviter toute saisie manuelle (langue, fuseau horaire, jointure domaine, compte admin).', why: 'Réduit les erreurs humaines et le temps de déploiement, surtout sur des dizaines/centaines de postes.' },
+        { num: '6', title: 'Documenter le master', content: 'Tenir une liste à jour des applications, pilotes et configurations incluses dans chaque version d\'image.', why: 'Indispensable pour la maintenance, le support technique et la conformité (audit logiciel).' },
       ]},
 
     ],
@@ -1692,30 +1692,30 @@ const MODULES = [
             ['Non-répudiation', 'Les actions ne peuvent pas être niées', 'Falsification de logs modification preuves', 'Journalisation signée horodatage HSM'],
             ['Traçabilité', 'Chaque action est enregistrée et attribuée', 'Effacement logs elevation de privilèges', 'SIEM logs centralisés auditd Windows event logs'],
           ]},
-          { type: "h2", content: "6. Evolution des pare-feu" },
-          { type: "p", content: "Le pare-feu a evolue du simple filtrage vers une securite multicouche." },
-          { type: "table", headers: ["Gen","Type","Fonctions","Exemple"], rows: [
-            ["1e (1988)","Filtre stateless","Inspection en-tetes","DEC SEAL"],
-            ["2e (1991)","Stateful","Etat connexions","Checkpoint"],
-            ["3e (2000)","Application/Proxy","Couche 7","Palo Alto"],
-            ["4e (2015)","NGFW","IPS, SSL, APP-ID","Fortinet"],
-            ["5e (2020+)","Zero Trust/SASE","Microsegmentation","Zscaler"],
+          { type: 'h2', content: '6. Évolution des pare-feu' },
+          { type: 'p', content: 'Le pare-feu a évolué du simple filtrage vers une sécurité multicouche.' },
+          { type: 'table', headers: ['Gén.','Type','Fonctions','Exemple'], rows: [
+            ['1e (1988)','Filtre stateless','Inspection en-têtes','DEC SEAL'],
+            ['2e (1991)','Stateful','État connexions','Checkpoint'],
+            ['3e (2000)','Application/Proxy','Couche 7','Palo Alto'],
+            ['4e (2015)','NGFW','IPS, SSL, APP-ID','Fortinet'],
+            ['5e (2020+)','Zero Trust/SASE','Microsegmentation','Zscaler'],
           ]},
-          { type: "h2", content: "7. Zero Trust" },
-          { type: "p", content: "Principe: Ne jamais faire confiance, toujours verifier. Aucun utilisateur/appareil n est fiable par defaut." },
-          { type: "table", headers: ["Principe","Application","Technologie"], rows: [
-            ["Verifier explicitement","Toujours auth","MFA, certif"],
-            ["Moindre privilege","Droits minimaux","RBAC, JIT"],
-            ["Microsegmentation","Isoler charges travail","Policies par workload"],
+          { type: 'h2', content: '7. Zero Trust' },
+          { type: 'p', content: 'Principe : ne jamais faire confiance, toujours vérifier. Aucun utilisateur/appareil n\'est fiable par défaut.' },
+          { type: 'table', headers: ['Principe','Application','Technologie'], rows: [
+            ['Vérifier explicitement','Toujours auth','MFA, certif'],
+            ['Moindre privilège','Droits minimaux','RBAC, JIT'],
+            ['Microsegmentation','Isoler charges travail','Policies par workload'],
           ]},
-          { type: "h2", content: "8. PKI et certificats" },
+          { type: 'h2', content: '8. PKI et certificats' },
           { type: 'diagram', module: 'securite', index: 1 },
-          { type: "p", content: "PKI (Public Key Infrastructure) = infrastructure de gestion des certificats numeriques. Utilisee pour HTTPS, VPN, signature, chiffrement." },
-          { type: "table", headers: ["Composant","Role","Exemple"], rows: [
-            ["CA (Autorite de certification)","Emet et signe les certificats","AD CS, Let s Encrypt"],
-            ["Certificat","Lien identite + cle publique","X.509"],
-            ["CRL/OCSP","Liste de revocation","Verifier validite"],
-            ["TPM","Module securise hardware","Stockage cle privee"],
+          { type: 'p', content: 'PKI (Public Key Infrastructure) = infrastructure de gestion des certificats numériques. Utilisée pour HTTPS, VPN, signature, chiffrement.' },
+          { type: 'table', headers: ['Composant','Rôle','Exemple'], rows: [
+            ['CA (Autorité de certification)','Émet et signe les certificats','AD CS, Let s Encrypt'],
+            ['Certificat','Lien identité + clé publique','X.509'],
+            ['CRL/OCSP','Liste de révocation','Vérifier validité'],
+            ['TPM','Module sécurisé hardware','Stockage clé privée'],
           ]},
           { type: "code", content: "# Commandes PKI Windows:\n# certlm.msc (certificats machine)\n# certmgr.msc (certificats utilisateur)\n# certreq -new -attrib \"CertificateTemplate:WebServer\" request.inf request.csr\n# certreq -submit -attrib \"CertificateTemplate:WebServer\" request.csr cert.cer" },
 
@@ -2030,33 +2030,33 @@ const MODULES = [
             ['Trap receiver', 'Reçoit les alertes push', 'SNMP Trap, syslog'],
           ]},
           { type: "h2", content: "6. SNMP et OID" },
-          { type: "p", content: "SNMP (Simple Network Management Protocol) est le protocole standard de supervision. SNMPv3 (crypte) remplace v1/v2c (clair)." },
+          { type: "p", content: "SNMP (Simple Network Management Protocol) est le protocole standard de supervision. SNMPv3 (chiffré) remplace v1/v2c (clair)." },
           { type: "table", headers: ["Concept","Description","Exemple"], rows: [
-            ["MIB","Base d informations de gestion","Structure arborescente"],
-            ["OID","Identifiant numerique unique","1.3.6.1.2.1.1.5.0 = hostname"],
-            ["TRAP","Notification automatique","Equipement envoie une alerte"],
-            ["GET","Requete de lecture","Serveur interroge un OID"],
-            ["SET","Requete d ecriture","Modification de configuration"],
+            ["MIB","Base d'informations de gestion","Structure arborescente"],
+            ["OID","Identifiant numérique unique","1.3.6.1.2.1.1.5.0 = hostname"],
+            ["TRAP","Notification automatique","Équipement envoie une alerte"],
+            ["GET","Requête de lecture","Serveur interroge un OID"],
+            ["SET","Requête d'écriture","Modification de configuration"],
           ]},
           { type: "code", content: "# Commandes SNMP:\nsnmpwalk -v2c -c public 192.168.1.1 system   # Parcourir la MIB system\nsnmpget -v3 -l authPriv -u admin -a SHA -A password -x AES -X password 192.168.1.1 sysName.0\nsnmptrap -v2c -c public localhost '' NET-SNMP-EXAMPLES-MIB::example-trap\n# OID CPU: .1.3.6.1.4.1.2021.11.9.0" },
-          { type: "h2", content: "7. Solutions de supervision comparaison" },
-          { type: "p", content: "Le marche de la supervision offre plusieurs solutions open source et proprietaires. Choisir selon la taille de l infrastructure." },
+          { type: "h2", content: "7. Solutions de supervision - comparaison" },
+          { type: "p", content: "Le marché de la supervision offre plusieurs solutions open source et propriétaires. Choisir selon la taille de l'infrastructure." },
           { type: "table", headers: ["Solution","Type","Points forts","Limites"], rows: [
-            ["Zabbix","Open source","Interface moderne, auto-decouverte, scalable","Complexe pour petits reseaux"],
-            ["Nagios","Open source","Reference historique, plugins communautaires","Configuration manuelle lourde"],
-            ["PRTG","Proprietaire","Facile, tout-en-un, licence capteurs","Cher pour grands parcs"],
-            ["Centreon","Open source (+ edition pro)","Edition web, supervision multi-site","Depend de Nagios en backend"],
-            ["Checkmk","Open source","Decouverte automatique, interface propre","Edition RAW gratuite limitee"],
+            ["Zabbix","Open source","Interface moderne, auto-découverte, scalable","Complexe pour petits réseaux"],
+            ["Nagios","Open source","Référence historique, plugins communautaires","Configuration manuelle lourde"],
+            ["PRTG","Propriétaire","Facile, tout-en-un, licence capteurs","Cher pour grands parcs"],
+            ["Centreon","Open source (+ édition pro)","Édition web, supervision multi-site","Dépend de Nagios en backend"],
+            ["Checkmk","Open source","Découverte automatique, interface propre","Édition RAW gratuite limitée"],
           ]},
-          { type: "h2", content: "8. Metriques essentielles a superviser" },
-          { type: "table", headers: ["Categorie","Metrique","Seuil alerte"], rows: [
+          { type: "h2", content: "8. Métriques essentielles à superviser" },
+          { type: "table", headers: ["Catégorie","Métrique","Seuil alerte"], rows: [
             ["CPU","Utilisation %","> 80% (warning), > 90% (critical)"],
-            ["Memoire","RAM utilisee %","> 85% (warning), > 95% (critical)"],
+            ["Mémoire","RAM utilisée %","> 85% (warning), > 95% (critical)"],
             ["Disque","Espace libre %","< 20% (warning), < 10% (critical)"],
-            ["Reseau","Bande passante","> 70% lien (warning), > 85% (critical)"],
-            ["Service","Disponibilite (ping/tcp)","3 echecs consecutifs"],
+            ["Réseau","Bande passante","> 70% lien (warning), > 85% (critical)"],
+            ["Service","Disponibilité (ping/tcp)","3 échecs consécutifs"],
           ]},
-          { type: "info", content: "Supervision = surveillance + alerte + reporting. Ne pas confondre supervision (proactive) et support (reactif). La supervision permet d anticiper les pannes." },
+          { type: "info", content: "Supervision = surveillance + alerte + reporting. Ne pas confondre supervision (proactive) et support (réactif). La supervision permet d'anticiper les pannes." },
           { type: 'table', headers: ['Composant', 'Rôle', 'Exemples'], rows: [
             ['NMS (Network Management System)', 'Collecte centralise stocke les métriques', 'Zabbix Nagios Prometheus PRTG'],
             ['Agent', 'Installé sur les hôtes -- remonte les métriques', 'Zabbix Agent node_exporter SNMP Agent'],
@@ -2478,7 +2478,7 @@ const MODULES = [
           ]},
           { type: "h2", content: "6. AWS vs Azure vs GCP (2025)" },
           { type: 'diagram', module: 'cloud', index: 1 },
-          { type: "p", content: "Le cloud est devenu le standard. AWS (31%) et Azure (23%) dominent. GCP (13%) croit le plus vite. 87% des entreprises sont multi-cloud." },
+          { type: "p", content: "Le cloud est devenu le standard. AWS (31%) et Azure (23%) dominent. GCP (13%) croît le plus vite. 87% des entreprises sont multi-cloud." },
           { type: "table", headers: ["Service","AWS","Azure","GCP"], rows: [
             ["Compute","EC2","VMs","Compute Engine"],
             ["Serverless","Lambda","Functions","Cloud Functions"],
@@ -2487,18 +2487,18 @@ const MODULES = [
             ["BDD relationnelle","RDS","SQL Database","Cloud SQL"],
             ["IA/ML","SageMaker","Azure ML","Vertex AI"],
           ]},
-          { type: "h2", content: "7. Modele de responsabilite partagee" },
-          { type: "p", content: "Dans le cloud, la securite est partagee: le fournisseur securise LE cloud, le client securise DANS le cloud." },
+          { type: "h2", content: "7. Modèle de responsabilité partagée" },
+          { type: "p", content: "Dans le cloud, la sécurité est partagée : le fournisseur sécurise LE cloud, le client sécurise DANS le cloud." },
           { type: "code", content: "# IaaS: Client gere de l OS aux donnees\n# PaaS: Client gere app + donnees\n# SaaS: Client gere uniquement les donnees\n\n# Bonnes pratiques cloud:\n# - IAM: acces au moindre privilege\n# - Chiffrement: at rest + in transit\n# - Logging: CloudTrail/Azure Monitor\n# - Cost management: tagging, budgets, reserved instances" },
           { type: "h2", content: "8. Supervision cloud (AIOps)" },
-          { type: "p", content: "La supervision moderne utilise l IA (AIOps) pour la detection predictive d anomalies et l auto-remediation." },
+          { type: "p", content: "La supervision moderne utilise l'IA (AIOps) pour la détection prédictive d'anomalies et l'auto-remédiation." },
           { type: "table", headers: ["Outil","Type","Usage TSSR"], rows: [
-            ["CloudWatch","AWS natif","Metriques, logs, alarmes EC2/RDS"],
+            ["CloudWatch","AWS natif","Métriques, logs, alarmes EC2/RDS"],
             ["Azure Monitor","Azure natif","Logs, alertes, Application Insights"],
-            ["Cloud Monitoring","GCP natif","Metriques, uptime checks"],
-            ["Datadog","Tiers multi-cloud","Dashboards unifies"],
-            ["Grafana + Prometheus","Open source","Metriques conteneurs K8s"],
-            ["Elastic Stack","Open source","Logs centralises (ELK)"],
+            ["Cloud Monitoring","GCP natif","Métriques, uptime checks"],
+            ["Datadog","Tiers multi-cloud","Dashboards unifiés"],
+            ["Grafana + Prometheus","Open source","Métriques conteneurs K8s"],
+            ["Elastic Stack","Open source","Logs centralisés (ELK)"],
           ]},
 
           { type: 'h2', content: '2. Les modèles de service' },
@@ -3367,79 +3367,79 @@ const MODULES = [
         id: 'support-essentiel',
         titre: 'Support Technique et Helpdesk',
         sections: [
-          { type: 'h2', content: '1. Le metier de Technicien Support' },
-          { type: 'p', content: 'Le support technique est la premiere ligne de defense du SI. Competences : ecoute active, methode de diagnostic, outils, documentation.' },
-          { type: 'table', headers: ['Competence', 'Description', 'Exemple'], rows: [
-            ['Ecoute active', 'Comprendre le problème avant d\'agir', 'Reformuler l\'incident'],
+          { type: 'h2', content: '1. Le métier de Technicien Support' },
+          { type: 'p', content: 'Le support technique est la première ligne de défense du SI. Compétences : écoute active, méthode de diagnostic, outils, documentation.' },
+          { type: 'table', headers: ['Compétence', 'Description', 'Exemple'], rows: [
+            ['Écoute active', 'Comprendre le problème avant d\'agir', 'Reformuler l\'incident'],
             ['Diagnostic méthodique', 'Suivre une procédure de résolution', 'OSI du bas vers le haut'],
             ['Documentation', 'Tracer chaque intervention', 'Ticket GLPI mis à jour'],
             ['Communication', 'Informer l\'utilisateur de l\'avancement', 'Email de statut ticket'],
           ]},
           { type: "h2", content: "6. Les niveaux de support ITIL" },
-          { type: "p", content: "Le support IT se structure en niveaux (N1/N2/N3) pour repartir les competences et garantir un traitement efficace des incidents." },
-          { type: "table", headers: ["Niveau","Acteur","Competences","Action"], rows: [
-            ["N0","Hotline/Accueil","Prise d appel, qualification","Enregistrer ticket, orienter"],
-            ["N1","Technicien helpdesk","Base (reset mdp, imprimante, office)","Resoudre 70% des incidents"],
-            ["N2","Technicien expert","Reseau, AD, applications metier","Diagnostic approfondi"],
-            ["N3","Ingenieur/Expert","Architecture, code, editeur","Developper correctif permanent"],
+          { type: "p", content: "Le support IT se structure en niveaux (N1/N2/N3) pour répartir les compétences et garantir un traitement efficace des incidents." },
+          { type: "table", headers: ["Niveau","Acteur","Compétences","Action"], rows: [
+            ["N0","Hotline/Accueil","Prise d'appel, qualification","Enregistrer ticket, orienter"],
+            ["N1","Technicien helpdesk","Base (reset mdp, imprimante, office)","Résoudre 70% des incidents"],
+            ["N2","Technicien expert","Réseau, AD, applications métier","Diagnostic approfondi"],
+            ["N3","Ingénieur/Expert","Architecture, code, éditeur","Développer correctif permanent"],
           ]},
-          { type: "info", content: "Le TSSR opere principalement en N1/N2. L escalade N3 est reservee aux cas critiques necessitant l editeur ou un developpement specifique." },
+          { type: "info", content: "Le TSSR opère principalement en N1/N2. L'escalade N3 est réservée aux cas critiques nécessitant l'éditeur ou un développement spécifique." },
           { type: "h2", content: "7. GLPI - Gestionnaire de parc et ticketing" },
-          { type: "p", content: "GLPI (Gestionnaire Libre de Parc Informatique) est la solution ITSM open source la plus utilisee en France. Elle permet la gestion des tickets, des actifs, des contrats et de la base de connaissances." },
+          { type: "p", content: "GLPI (Gestionnaire Libre de Parc Informatique) est la solution ITSM open source la plus utilisée en France. Elle permet la gestion des tickets, des actifs, des contrats et de la base de connaissances." },
           { type: "code", content: "# Installation GLPI sur Debian 12:\nsudo apt update && sudo apt install apache2 mariadb-server php php-{mysql,mbstring,curl,gd,xml,intl,zip,bz2,ldap,imap}\nsudo wget https://github.com/glpi-project/glpi/releases/download/11.0.7/glpi-11.0.7.tgz\nsudo tar xzf glpi-11.0.7.tgz -C /var/www/html/\nsudo chown -R www-data:www-data /var/www/html/glpi\nsudo mysql -e \"CREATE DATABASE glpi; GRANT ALL ON glpi.* TO glpi@localhost IDENTIFIED BY 'password';\"\n# Acces web: http://serveur/glpi (admin/glpi)" },
-          { type: "table", headers: ["Fonctionnalite","Description","Usage TSSR"], rows: [
-            ["Ticketing","Creation et suivi des incidents","Ticket = coeur du support"],
-            ["CMDB","Base de gestion des configurations","Lier tickets aux equipements"],
-            ["Inventaire","OCS Inventory / FusionInventory","Decouverte automatique du parc"],
-            ["Base de connaissances","Articles, FAQ, procedures","Autonomie N1"],
+          { type: "table", headers: ["Fonctionnalité","Description","Usage TSSR"], rows: [
+            ["Ticketing","Création et suivi des incidents","Ticket = cœur du support"],
+            ["CMDB","Base de gestion des configurations","Lier tickets aux équipements"],
+            ["Inventaire","OCS Inventory / FusionInventory","Découverte automatique du parc"],
+            ["Base de connaissances","Articles, FAQ, procédures","Autonomie N1"],
             ["SLA","Engagements de service","Priorisation des tickets"],
           ]},
-          { type: "h2", content: "8. Gestion des incidents - Modele ITIL" },
-          { type: "p", content: "Le cycle de vie d un incident ITIL: Identification -> Enregistrement -> Categorisation -> Priorisation -> Diagnostic -> Resolution -> Cloture." },
+          { type: "h2", content: "8. Gestion des incidents - Modèle ITIL" },
+          { type: "p", content: "Le cycle de vie d'un incident ITIL : Identification -> Enregistrement -> Catégorisation -> Priorisation -> Diagnostic -> Résolution -> Clôture." },
           { type: "code", content: "# Priorisation ITIL:\n# Urgence (faible/moyenne/haute) x Impact (individu/service/entreprise)\n# \n# Exemple: panne switch coeur = Urgence Haute x Impact Entreprise = Critique\n# Mot de passe oublie = Urgence Faible x Impact Individu = Faible\n# \n# SLA typiques:\n# Critique: reponse < 30min, resolution < 4h\n# Haute: reponse < 2h, resolution < 8h\n# Normale: reponse < 4h, resolution < 48h\n# Faible: reponse < 8h, resolution < 5j" },
           { type: 'table', headers: ['Compétence', 'Approche', 'Exemple'], rows: [
-            ['Ecoute active', 'Comprendre sans prejuger', 'User: pas de reseau -> DNS, DHCP, cable, serveur'],
-            ['Methode OSI descendant', 'Isoler couche par couche', 'L1 cable -> L2 switch -> L3 ping -> L4 port -> L7 app'],
+            ['Écoute active', 'Comprendre sans préjuger', 'User : pas de réseau -> DNS, DHCP, câble, serveur'],
+            ['Méthode OSI descendant', 'Isoler couche par couche', 'L1 câble -> L2 switch -> L3 ping -> L4 port -> L7 app'],
             ['Outils diagnostic', 'ping, tracert, nslookup', 'Test-NetConnection, Wireshark, netstat'],
           ]},
           { type: 'h2', content: '2. Gestion des tickets' },
           { type: 'table', headers: ['Statut', 'Action'], rows: [
-            ['Nouveau', 'Prendre le ticket ou reaffecter'],
-            ['Assigne', 'Contacter utilisateur, commencer diagnostic'],
-            ['En cours', 'Travailler et commenter regulierement'],
-            ['En attente', 'Preciser motif (pieces, tiers, utilisateur)'],
-            ['Resolu', 'Attendre confirmation utilisateur'],
-            ['Ferme', 'Ticket clos, satisfaction si applicable'],
+            ['Nouveau', 'Prendre le ticket ou réaffecter'],
+            ['Assigné', 'Contacter utilisateur, commencer diagnostic'],
+            ['En cours', 'Travailler et commenter régulièrement'],
+            ['En attente', 'Préciser motif (pièces, tiers, utilisateur)'],
+            ['Résolu', 'Attendre confirmation utilisateur'],
+            ['Fermé', 'Ticket clos, satisfaction si applicable'],
           ]},
           { type: 'h2', content: '3. Priorisation des incidents' },
-          { type: 'table', headers: ['Priorite', 'Reponse', 'Resolution', 'Exemple'], rows: [
+          { type: 'table', headers: ['Priorité', 'Réponse', 'Résolution', 'Exemple'], rows: [
             ['P1 Critique', '15 min', '4h', 'Service indisponible'],
             ['P2 Haute', '1h', '8h', 'Service critique lent'],
-            ['P3 Moyenne', '4h', '24h', 'Probleme recurrent'],
+            ['P3 Moyenne', '4h', '24h', 'Problème récurrent'],
             ['P4 Basse', '1 jour', '5 jours', 'Demande simple'],
           ]},
           { type: 'h2', content: '4. GLPI' },
           { type: 'p', content: 'GLPI = Gestion Libre de Parc Informatique. Open-source PHP/MySQL. CMDB, Helpdesk, base connaissances, contrats, licences.' },
           { type: 'table', headers: ['Fonction', 'Usage'], rows: [
-            ['CMDB', 'Inventaire equipements via FusionInventory'],
+            ['CMDB', 'Inventaire équipements via FusionInventory'],
             ['Helpdesk', 'Tickets incidents et demandes'],
-            ['Base connaissances', 'Resolutions connues'],
+            ['Base connaissances', 'Résolutions connues'],
             ['Contrats/Licences', 'Suivi garanties et licences'],
           ]},
           { type: 'h2', content: '5. Diagnostic OSI descendant' },
           { type: 'table', headers: ['Couche', 'Test', 'Causes'], rows: [
-            ['L1 Physique', 'Voyants link', 'Cable debranche, switch eteint'],
+            ['L1 Physique', 'Voyants link', 'Câble débranché, switch éteint'],
             ['L2 Liaison', 'ipconfig, show vlan', 'VLAN incorrect, port shutdown'],
-            ['L3 Reseau', 'ping, tracert', 'IP/masque faux, conflit IP'],
+            ['L3 Réseau', 'ping, tracert', 'IP/masque faux, conflit IP'],
             ['L4 Transport', 'Test-NetConnection', 'Firewall bloque port'],
-            ['L5-L7 App', 'netstat, Wireshark', 'Service arrete, cert expire'],
+            ['L5-L7 App', 'netstat, Wireshark', 'Service arrêté, cert expiré'],
           ]},
           { type: 'h2', content: '6. ITIL v4 pour TSSR' },
-          { type: 'table', headers: ['Pratique', 'Role'], rows: [
+          { type: 'table', headers: ['Pratique', 'Rôle'], rows: [
             ['Incidents', 'Restaurer service vite (P1 sous 15min)'],
-            ['Demandes', 'Requetes standard (creation compte)'],
-            ['Problemes', 'Cause racine (5 pourquoi)'],
-            ['Changements', 'Controler modifications (CAB)'],
+            ['Demandes', 'Requêtes standard (création compte)'],
+            ['Problèmes', 'Cause racine (5 pourquoi)'],
+            ['Changements', 'Contrôler modifications (CAB)'],
             ['Actifs CMDB', 'Maintenir inventaire GLPI'],
           ]},
         ],
@@ -3497,9 +3497,316 @@ const MODULES = [
     label: 'Anglais Technique',
     icon: '🇬🇧',
     color: '#3b82f6',
-    desc: 'Vocabulaire IT, helpdesk, rédaction technique, certifications en anglais...',
-    topics: ['Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications', 'Email', 'Prononciation', 'Oral', 'Entretien', 'Réunions', 'Sécurité', 'Cloud/DevOps', 'CV/LinkedIn'],
+    desc: 'Bases grammaticales, verbes, structure de phrase, vocabulaire IT, helpdesk, rédaction technique, certifications en anglais...',
+    topics: ['Bases', 'Grammaire', 'Vocabulaire', 'Helpdesk', 'Documentation', 'Certifications', 'Email', 'Prononciation', 'Oral', 'Entretien', 'Réunions', 'Sécurité', 'Cloud/DevOps', 'CV/LinkedIn'],
     cours: [
+      {
+        id: 'bases-pronoms-be-have',
+        titre: 'Bases essentielles — pronoms, to be & to have',
+        content: `<h2>Repartir de zéro — les fondations avant le technique</h2>
+<p>Avant d'attaquer le vocabulaire IT, ces bases doivent être automatiques : pronoms, verbe <em>to be</em> (être) et <em>to have</em> (avoir). Ce sont les deux verbes les plus utilisés en anglais — impossible de construire une phrase correcte sans eux.</p>
+<h3>1. L'alphabet et l'épellation</h3>
+<p>Savoir épeler est indispensable au téléphone (email, nom, référence de ticket).</p>
+<table><tr><th>Lettres</th><th>Prononciation approximative</th></tr>
+<tr><td>A B C D E</td><td>eï bi si di i</td></tr>
+<tr><td>F G H I J</td><td>ef dji eïtch aï djeï</td></tr>
+<tr><td>K L M N O</td><td>keï el em en ou</td></tr>
+<tr><td>P Q R S T</td><td>pi kyou ar es ti</td></tr>
+<tr><td>U V W X Y Z</td><td>you vi dabeul-you eks waï zi (US) / zed (UK)</td></tr>
+</table>
+<p><strong>Astuce :</strong> pour éviter toute confusion au téléphone, utilise l'alphabet OTAN (Alpha, Bravo, Charlie...) — voir le cours Prononciation.</p>
+<h3>2. Les pronoms personnels sujet</h3>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>I</td><td>je</td></tr>
+<tr><td>you</td><td>tu / vous (1 personne)</td></tr>
+<tr><td>he</td><td>il (personne)</td></tr>
+<tr><td>she</td><td>elle</td></tr>
+<tr><td>it</td><td>il/elle (chose, animal, machine)</td></tr>
+<tr><td>we</td><td>nous</td></tr>
+<tr><td>you</td><td>vous (plusieurs personnes)</td></tr>
+<tr><td>they</td><td>ils/elles</td></tr>
+</table>
+<p><strong>Piège fréquent :</strong> en anglais technique, un serveur, un fichier, un logiciel se disent toujours <strong>it</strong> — jamais he/she. "The server... it is down" (pas "he is down").</p>
+<p><strong>"I" s'écrit toujours en majuscule</strong>, où qu'il soit dans la phrase : "Yes, I know."</p>
+<h3>3. Pronoms compléments et adjectifs possessifs</h3>
+<table><tr><th>Sujet</th><th>Complément</th><th>Possessif (+ nom)</th><th>Pronom possessif</th></tr>
+<tr><td>I</td><td>me</td><td>my</td><td>mine</td></tr>
+<tr><td>you</td><td>you</td><td>your</td><td>yours</td></tr>
+<tr><td>he</td><td>him</td><td>his</td><td>his</td></tr>
+<tr><td>she</td><td>her</td><td>her</td><td>hers</td></tr>
+<tr><td>it</td><td>it</td><td>its</td><td>—</td></tr>
+<tr><td>we</td><td>us</td><td>our</td><td>ours</td></tr>
+<tr><td>they</td><td>them</td><td>their</td><td>theirs</td></tr>
+</table>
+<p>Exemples : "Send <strong>me</strong> the logs." / "This is <strong>my</strong> laptop." / "This laptop is <strong>mine</strong>."</p>
+<p><strong>Piège fréquent :</strong> <em>its</em> (possessif, sans apostrophe) ≠ <em>it's</em> (contraction de "it is"). "The server lost <strong>its</strong> connection." vs "<strong>It's</strong> down."</p>
+<h3>4. To be — le verbe être</h3>
+<table><tr><th>Personne</th><th>Affirmatif</th><th>Contraction</th><th>Négatif</th><th>Contraction négative</th></tr>
+<tr><td>I</td><td>I am</td><td>I'm</td><td>I am not</td><td>I'm not</td></tr>
+<tr><td>you</td><td>you are</td><td>you're</td><td>you are not</td><td>you aren't</td></tr>
+<tr><td>he/she/it</td><td>he is</td><td>he's</td><td>he is not</td><td>he isn't</td></tr>
+<tr><td>we</td><td>we are</td><td>we're</td><td>we are not</td><td>we aren't</td></tr>
+<tr><td>they</td><td>they are</td><td>they're</td><td>they are not</td><td>they aren't</td></tr>
+</table>
+<p>Question : on inverse simplement. "Are you the admin?" / "Is the server down?"</p>
+<p>Exemples IT : "I am a technician." / "The ticket is urgent." / "We are not connected to the VPN."</p>
+<h3>5. To have — le verbe avoir</h3>
+<table><tr><th>Personne</th><th>Affirmatif</th><th>Contraction</th><th>Négatif</th></tr>
+<tr><td>I / you / we / they</td><td>have</td><td>I've, you've...</td><td>don't have</td></tr>
+<tr><td>he / she / it</td><td>has</td><td>he's, she's...</td><td>doesn't have</td></tr>
+</table>
+<p><strong>Piège fréquent :</strong> "he's" peut être "he is" OU "he has" selon le contexte — se distingue par ce qui suit : "He's tired" (is) vs "He's finished" (has, present perfect).</p>
+<p><strong>have got</strong> (surtout britannique) = avoir, à l'oral : "I've got a problem with my laptop." = "I have a problem with my laptop."</p>
+<h3>6. This / That / These / Those</h3>
+<table><tr><th>Anglais</th><th>Usage</th><th>Exemple</th></tr>
+<tr><td>this</td><td>singulier, proche</td><td>"This server is mine."</td></tr>
+<tr><td>that</td><td>singulier, loin</td><td>"That server, over there, is down."</td></tr>
+<tr><td>these</td><td>pluriel, proche</td><td>"These cables are new."</td></tr>
+<tr><td>those</td><td>pluriel, loin</td><td>"Those switches need updating."</td></tr>
+</table>`
+      },
+      {
+        id: 'bases-articles-nombres-temps',
+        titre: 'Bases essentielles — articles, pluriels, nombres & temps',
+        content: `<h2>Articles, pluriels et repères temporels</h2>
+<h3>1. Les articles — a / an / the</h3>
+<table><tr><th>Article</th><th>Usage</th><th>Exemple</th></tr>
+<tr><td>a</td><td>devant un son consonne, singulier, non précis</td><td>"a server", "a user"</td></tr>
+<tr><td>an</td><td>devant un son voyelle (a/e/i/o/u ou "h" muet)</td><td>"an IP address", "an hour"</td></tr>
+<tr><td>the</td><td>chose précise, déjà connue/mentionnée</td><td>"the server we discussed"</td></tr>
+<tr><td>(pas d'article)</td><td>généralités, pluriel non précis, noms indénombrables</td><td>"Servers need maintenance." / "I need information."</td></tr>
+</table>
+<p><strong>Piège fréquent :</strong> "an" se choisit sur le <strong>son</strong>, pas la lettre : "a user" (son "you"), "an hour" (le h est muet), "an IP address" (son "aï").</p>
+<h3>2. Les pluriels</h3>
+<table><tr><th>Règle</th><th>Exemple singulier</th><th>Pluriel</th></tr>
+<tr><td>Régulier : +s</td><td>server, cable, laptop</td><td>servers, cables, laptops</td></tr>
+<tr><td>Se termine par -s,-x,-ch,-sh,-o : +es</td><td>box, switch</td><td>boxes, switches</td></tr>
+<tr><td>Consonne + y → -ies</td><td>company, policy</td><td>companies, policies</td></tr>
+<tr><td>Voyelle + y : +s</td><td>day, key</td><td>days, keys</td></tr>
+<tr><td>-f/-fe → -ves</td><td>shelf, life</td><td>shelves, lives</td></tr>
+</table>
+<p><strong>Pluriels irréguliers :</strong></p>
+<table><tr><th>Singulier</th><th>Pluriel</th></tr>
+<tr><td>man</td><td>men</td></tr>
+<tr><td>woman</td><td>women</td></tr>
+<tr><td>child</td><td>children</td></tr>
+<tr><td>person</td><td>people</td></tr>
+<tr><td>foot</td><td>feet</td></tr>
+<tr><td>tooth</td><td>teeth</td></tr>
+<tr><td>mouse</td><td>mice</td></tr>
+<tr><td>datum</td><td>data</td></tr>
+</table>
+<p><strong>Piège IT fréquent :</strong> le pluriel de "mouse" (souris d'ordinateur) est bien <strong>mice</strong> — "I need two new mice" (pas "mouses"). "Data" est déjà un pluriel (singulier rare : "datum") — en pratique on l'utilise souvent comme indénombrable : "The data is corrupted" (usage courant).</p>
+<h3>3. Les nombres</h3>
+<table><tr><th>Cardinaux</th><th></th><th>Ordinaux</th><th></th></tr>
+<tr><td>1 one</td><td>10 ten</td><td>1st first</td><td>10th tenth</td></tr>
+<tr><td>2 two</td><td>20 twenty</td><td>2nd second</td><td>20th twentieth</td></tr>
+<tr><td>3 three</td><td>30 thirty</td><td>3rd third</td><td>30th thirtieth</td></tr>
+<tr><td>4 four</td><td>100 a/one hundred</td><td>4th fourth</td><td>100th hundredth</td></tr>
+<tr><td>5 five</td><td>1,000 a/one thousand</td><td>5th fifth</td><td>1,000th thousandth</td></tr>
+<tr><td>12 twelve</td><td>1,000,000 a/one million</td><td>12th twelfth</td><td>1,000,000th millionth</td></tr>
+</table>
+<p>Usage IT : "a 64-bit system", "16 GB of RAM", "port 8080", "a /24 subnet", "the third attempt failed".</p>
+<h3>4. Jours, mois, saisons</h3>
+<table><tr><th>Jours</th><th>Mois</th><th>Saisons</th></tr>
+<tr><td>Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday</td><td>January, February, March, April, May, June, July, August, September, October, November, December</td><td>spring, summer, autumn/fall, winter</td></tr>
+</table>
+<p><strong>Majuscule obligatoire</strong> pour les jours et les mois en anglais (contrairement au français).</p>
+<h3>5. L'heure et les dates</h3>
+<table><tr><th>Format</th><th>Exemple</th></tr>
+<tr><td>Heure (US, 12h)</td><td>"The backup runs at 10:30 PM." (22h30)</td></tr>
+<tr><td>Heure (24h, technique)</td><td>"The maintenance window is 22:00–23:00 UTC."</td></tr>
+<tr><td>Date US</td><td>MM/DD/YYYY → 05/03/2026 = 3 mai 2026</td></tr>
+<tr><td>Date UK</td><td>DD/MM/YYYY → 05/03/2026 = 5 mars 2026</td></tr>
+</table>
+<p><strong>Piège critique en IT :</strong> un ticket, un log ou un certificat daté "05/03/2026" peut signifier deux dates différentes selon le pays d'origine du système. En cas de doute, préférer le format ISO 8601 non ambigu : <strong>YYYY-MM-DD</strong> (2026-05-03).</p>
+<h3>6. There is / there are + some / any</h3>
+<table><tr><th>Structure</th><th>Exemple</th></tr>
+<tr><td>There is + singulier/indénombrable</td><td>"There is a problem with the printer."</td></tr>
+<tr><td>There are + pluriel</td><td>"There are three open tickets."</td></tr>
+<tr><td>some (affirmatif)</td><td>"There are some updates available."</td></tr>
+<tr><td>any (négatif/question)</td><td>"There aren't any free ports." / "Is there any disk space left?"</td></tr>
+</table>`
+      },
+      {
+        id: 'structure-phrase-connecteurs',
+        titre: 'Structure de la phrase & connecteurs',
+        content: `<h2>Construire une phrase anglaise correcte</h2>
+<h3>1. L'ordre des mots — SVO obligatoire</h3>
+<p>Contrairement au français, l'ordre <strong>Sujet + Verbe + Objet (Complément)</strong> est presque toujours fixe en anglais — on ne peut pas le réarranger librement.</p>
+<table><tr><th>Correct</th><th>Incorrect (calque du français)</th></tr>
+<tr><td>"I checked the logs yesterday."</td><td>"Yesterday checked I the logs." ✗</td></tr>
+<tr><td>"The technician quickly restarted the server."</td><td>"The technician restarted quickly the server." ✗</td></tr>
+</table>
+<p><strong>Règle :</strong> l'adverbe de manière (quickly, carefully...) se place après l'objet, ou en tout début de phrase — jamais entre le verbe et son complément.</p>
+<h3>2. La place de l'adjectif</h3>
+<p>En anglais, l'adjectif se place <strong>toujours avant le nom</strong> (jamais après, contrairement au français).</p>
+<table><tr><th>Anglais</th><th>Français</th></tr>
+<tr><td>a critical error</td><td>une erreur critique</td></tr>
+<tr><td>a secure connection</td><td>une connexion sécurisée</td></tr>
+<tr><td>an old server</td><td>un vieux serveur / un serveur ancien</td></tr>
+</table>
+<h3>3. Les adverbes de fréquence</h3>
+<table><tr><th>Adverbe</th><th>Sens</th><th>Position</th></tr>
+<tr><td>always</td><td>toujours</td><td>avant le verbe, après "be"</td></tr>
+<tr><td>usually</td><td>généralement</td><td>idem</td></tr>
+<tr><td>often</td><td>souvent</td><td>idem</td></tr>
+<tr><td>sometimes</td><td>parfois</td><td>idem</td></tr>
+<tr><td>rarely</td><td>rarement</td><td>idem</td></tr>
+<tr><td>never</td><td>jamais</td><td>idem</td></tr>
+</table>
+<p>Exemples : "I <strong>always</strong> back up before an update." / "The server is <strong>rarely</strong> down."</p>
+<h3>4. Prépositions de lieu</h3>
+<table><tr><th>Préposition</th><th>Sens</th><th>Exemple</th></tr>
+<tr><td>in</td><td>dans (espace fermé)</td><td>"The file is in the folder."</td></tr>
+<tr><td>on</td><td>sur (surface)</td><td>"The application is on the server."</td></tr>
+<tr><td>at</td><td>à (point précis)</td><td>"We are at the data center."</td></tr>
+<tr><td>under</td><td>sous</td><td>"The cable runs under the floor."</td></tr>
+<tr><td>next to</td><td>à côté de</td><td>"The switch is next to the router."</td></tr>
+<tr><td>between</td><td>entre</td><td>"The firewall sits between the two networks."</td></tr>
+</table>
+<h3>5. Prépositions de temps</h3>
+<table><tr><th>Préposition</th><th>Usage</th><th>Exemple</th></tr>
+<tr><td>in</td><td>mois, année, durée longue</td><td>"in July", "in 2026", "in 10 minutes"</td></tr>
+<tr><td>on</td><td>jour, date</td><td>"on Monday", "on July 3rd"</td></tr>
+<tr><td>at</td><td>heure précise</td><td>"at 10 PM", "at midnight"</td></tr>
+</table>
+<h3>6. Comparatifs et superlatifs</h3>
+<table><tr><th>Type</th><th>Règle</th><th>Exemple</th></tr>
+<tr><td>Adjectif court (1 syllabe)</td><td>+er / the +est</td><td>fast → faster → the fastest</td></tr>
+<tr><td>Adjectif long (2+ syllabes)</td><td>more / the most</td><td>secure → more secure → the most secure</td></tr>
+<tr><td>Irréguliers</td><td>—</td><td>good → better → the best ; bad → worse → the worst</td></tr>
+</table>
+<p>Exemples IT : "This connection is faster than the previous one." / "SSD is the fastest storage option."</p>
+<h3>7. La négation</h3>
+<table><tr><th>Structure</th><th>Exemple</th></tr>
+<tr><td>be + not</td><td>"The server is not responding."</td></tr>
+<tr><td>don't/doesn't + verbe</td><td>"The router doesn't reply to ping."</td></tr>
+<tr><td>didn't + verbe</td><td>"The update didn't install."</td></tr>
+<tr><td>haven't/hasn't + participe</td><td>"We haven't received the logs."</td></tr>
+</table>
+<h3>8. Connecteurs logiques</h3>
+<table><tr><th>Connecteur</th><th>Sens</th><th>Exemple</th></tr>
+<tr><td>and</td><td>et</td><td>"Restart the service and check the logs."</td></tr>
+<tr><td>but</td><td>mais</td><td>"The patch installed but the issue persists."</td></tr>
+<tr><td>or</td><td>ou</td><td>"Reboot now or schedule it for tonight."</td></tr>
+<tr><td>because</td><td>parce que</td><td>"The backup failed because the disk was full."</td></tr>
+<tr><td>so</td><td>donc</td><td>"The disk was full, so the backup failed."</td></tr>
+<tr><td>if</td><td>si</td><td>"If the server doesn't respond, escalate the ticket."</td></tr>
+<tr><td>although / though</td><td>bien que / même si</td><td>"Although the fix worked, monitor it closely."</td></tr>
+</table>`
+      },
+      {
+        id: 'conjugaison-verbes-irreguliers-etendu',
+        titre: 'Conjugaison complète & verbes irréguliers étendus',
+        content: `<h2>Fiche de référence — conjugaison et verbes irréguliers</h2>
+<p>Ce cours complète le cours Grammaire — Les temps et les verbes avec une fiche de référence pour be/have/do et une liste étendue de verbes irréguliers classés par groupe de mémorisation.</p>
+<h3>1. Conjugaison complète — to be</h3>
+<table><tr><th>Temps</th><th>Affirmatif (he/she/it)</th><th>Négatif</th><th>Interrogatif</th></tr>
+<tr><td>Present Simple</td><td>is</td><td>is not / isn't</td><td>Is he...?</td></tr>
+<tr><td>Past Simple</td><td>was</td><td>was not / wasn't</td><td>Was he...?</td></tr>
+<tr><td>Present Perfect</td><td>has been</td><td>has not been</td><td>Has he been...?</td></tr>
+<tr><td>Future</td><td>will be</td><td>will not be / won't be</td><td>Will he be...?</td></tr>
+</table>
+<h3>2. Conjugaison complète — to have</h3>
+<table><tr><th>Temps</th><th>Affirmatif (he/she/it)</th><th>Négatif</th><th>Interrogatif</th></tr>
+<tr><td>Present Simple</td><td>has</td><td>doesn't have</td><td>Does he have...?</td></tr>
+<tr><td>Past Simple</td><td>had</td><td>didn't have</td><td>Did he have...?</td></tr>
+<tr><td>Present Perfect</td><td>has had</td><td>hasn't had</td><td>Has he had...?</td></tr>
+<tr><td>Future</td><td>will have</td><td>won't have</td><td>Will he have...?</td></tr>
+</table>
+<h3>3. Conjugaison complète — to do</h3>
+<table><tr><th>Temps</th><th>Affirmatif (he/she/it)</th><th>Négatif</th><th>Interrogatif</th></tr>
+<tr><td>Present Simple</td><td>does</td><td>doesn't do</td><td>Does he do...?</td></tr>
+<tr><td>Past Simple</td><td>did</td><td>didn't do</td><td>Did he do...?</td></tr>
+<tr><td>Present Perfect</td><td>has done</td><td>hasn't done</td><td>Has he done...?</td></tr>
+</table>
+<p><strong>Rappel :</strong> "do/does/did" est aussi l'auxiliaire utilisé pour former les questions et négations des autres verbes au présent/passé simple (voir le cours Poser une question).</p>
+<h3>4. Verbes irréguliers étendus — classés par mémorisation</h3>
+<p><strong>Groupe AAA — les 3 formes identiques</strong></p>
+<table><tr><th>Base</th><th>Past</th><th>Participe</th><th>Traduction</th></tr>
+<tr><td>put</td><td>put</td><td>put</td><td>mettre/placer</td></tr>
+<tr><td>cut</td><td>cut</td><td>cut</td><td>couper</td></tr>
+<tr><td>hit</td><td>hit</td><td>hit</td><td>frapper/atteindre</td></tr>
+<tr><td>let</td><td>let</td><td>let</td><td>laisser/autoriser</td></tr>
+<tr><td>read</td><td>read</td><td>read</td><td>lire (prononciation change au passé)</td></tr>
+<tr><td>spread</td><td>spread</td><td>spread</td><td>propager/étendre</td></tr>
+</table>
+<p><strong>Groupe ABB — past = participe</strong></p>
+<table><tr><th>Base</th><th>Past</th><th>Participe</th><th>Traduction</th></tr>
+<tr><td>get</td><td>got</td><td>got/gotten</td><td>obtenir/recevoir</td></tr>
+<tr><td>leave</td><td>left</td><td>left</td><td>quitter/laisser</td></tr>
+<tr><td>feel</td><td>felt</td><td>felt</td><td>ressentir</td></tr>
+<tr><td>meet</td><td>met</td><td>met</td><td>rencontrer</td></tr>
+<tr><td>pay</td><td>paid</td><td>paid</td><td>payer</td></tr>
+<tr><td>say</td><td>said</td><td>said</td><td>dire</td></tr>
+<tr><td>sell</td><td>sold</td><td>sold</td><td>vendre</td></tr>
+<tr><td>spend</td><td>spent</td><td>spent</td><td>dépenser/passer (du temps)</td></tr>
+<tr><td>stand</td><td>stood</td><td>stood</td><td>se tenir debout/résister</td></tr>
+<tr><td>tell</td><td>told</td><td>told</td><td>dire/raconter</td></tr>
+<tr><td>hold</td><td>held</td><td>held</td><td>tenir/maintenir</td></tr>
+<tr><td>hear</td><td>heard</td><td>heard</td><td>entendre</td></tr>
+<tr><td>buy</td><td>bought</td><td>bought</td><td>acheter</td></tr>
+<tr><td>catch</td><td>caught</td><td>caught</td><td>attraper/intercepter</td></tr>
+<tr><td>teach</td><td>taught</td><td>taught</td><td>enseigner</td></tr>
+<tr><td>lead</td><td>led</td><td>led</td><td>diriger/mener</td></tr>
+<tr><td>lend</td><td>lent</td><td>lent</td><td>prêter</td></tr>
+<tr><td>build</td><td>built</td><td>built</td><td>construire</td></tr>
+<tr><td>find</td><td>found</td><td>found</td><td>trouver</td></tr>
+</table>
+<p><strong>Groupe ABA — base = participe</strong></p>
+<table><tr><th>Base</th><th>Past</th><th>Participe</th><th>Traduction</th></tr>
+<tr><td>come</td><td>came</td><td>come</td><td>venir</td></tr>
+<tr><td>become</td><td>became</td><td>become</td><td>devenir</td></tr>
+<tr><td>run</td><td>ran</td><td>run</td><td>exécuter/tourner</td></tr>
+</table>
+<p><strong>Groupe ABC — trois formes différentes</strong></p>
+<table><tr><th>Base</th><th>Past</th><th>Participe</th><th>Traduction</th></tr>
+<tr><td>see</td><td>saw</td><td>seen</td><td>voir</td></tr>
+<tr><td>speak</td><td>spoke</td><td>spoken</td><td>parler</td></tr>
+<tr><td>wear</td><td>wore</td><td>worn</td><td>porter</td></tr>
+<tr><td>win</td><td>won</td><td>won</td><td>gagner</td></tr>
+<tr><td>choose</td><td>chose</td><td>chosen</td><td>choisir</td></tr>
+<tr><td>drive</td><td>drove</td><td>driven</td><td>conduire/piloter</td></tr>
+<tr><td>fall</td><td>fell</td><td>fallen</td><td>tomber/échouer</td></tr>
+<tr><td>forget</td><td>forgot</td><td>forgotten</td><td>oublier</td></tr>
+<tr><td>grow</td><td>grew</td><td>grown</td><td>grandir/croître</td></tr>
+<tr><td>rise</td><td>rose</td><td>risen</td><td>s'élever/augmenter</td></tr>
+<tr><td>steal</td><td>stole</td><td>stolen</td><td>voler/dérober</td></tr>
+<tr><td>throw</td><td>threw</td><td>thrown</td><td>lancer/jeter</td></tr>
+<tr><td>freeze</td><td>froze</td><td>frozen</td><td>geler/se figer</td></tr>
+<tr><td>hide</td><td>hid</td><td>hidden</td><td>cacher</td></tr>
+<tr><td>rebuild</td><td>rebuilt</td><td>rebuilt</td><td>reconstruire</td></tr>
+</table>
+<h3>5. Phrasal verbs indispensables en IT</h3>
+<table><tr><th>Phrasal verb</th><th>Sens</th><th>Exemple</th></tr>
+<tr><td>log in / log out</td><td>se connecter / se déconnecter</td><td>"Log in with your credentials."</td></tr>
+<tr><td>set up</td><td>configurer/installer</td><td>"Set up the new printer."</td></tr>
+<tr><td>back up</td><td>sauvegarder</td><td>"Back up the database before the update."</td></tr>
+<tr><td>shut down</td><td>éteindre</td><td>"Shut down the server for maintenance."</td></tr>
+<tr><td>plug in / unplug</td><td>brancher / débrancher</td><td>"Unplug the cable and plug it back in."</td></tr>
+<tr><td>turn on / turn off</td><td>allumer / éteindre</td><td>"Turn off the firewall temporarily."</td></tr>
+<tr><td>look into</td><td>examiner/enquêter sur</td><td>"I'll look into the issue."</td></tr>
+<tr><td>figure out</td><td>comprendre/résoudre</td><td>"We need to figure out the root cause."</td></tr>
+<tr><td>sort out</td><td>régler/résoudre</td><td>"The team sorted out the licensing issue."</td></tr>
+<tr><td>carry out</td><td>effectuer/réaliser</td><td>"Carry out a full system check."</td></tr>
+<tr><td>roll out</td><td>déployer</td><td>"Roll out the update to all clients."</td></tr>
+<tr><td>roll back</td><td>revenir en arrière</td><td>"Roll back the deployment."</td></tr>
+<tr><td>follow up</td><td>relancer/faire un suivi</td><td>"I'll follow up with the client tomorrow."</td></tr>
+<tr><td>check in / check out</td><td>enregistrer entrée/sortie (aussi Git : valider/récupérer)</td><td>"Check out the latest branch."</td></tr>
+</table>
+<h3>6. Pièges fréquents pour francophones (faux amis)</h3>
+<table><tr><th>Mot anglais</th><th>Piège</th><th>Sens réel</th></tr>
+<tr><td>actually</td><td>≠ actuellement</td><td>en fait / en réalité (actuellement = currently)</td></tr>
+<tr><td>eventually</td><td>≠ éventuellement</td><td>finalement / à terme (éventuellement = possibly)</td></tr>
+<tr><td>library</td><td>≠ librairie</td><td>bibliothèque (librairie = bookshop)</td></tr>
+<tr><td>achieve</td><td>≠ achever</td><td>réaliser/atteindre (achever = to complete/finish)</td></tr>
+<tr><td>delay</td><td>≠ délai</td><td>retard (délai = deadline/time frame)</td></tr>
+<tr><td>sensible</td><td>≠ sensible</td><td>raisonnable/sensé (sensible en français = sensitive)</td></tr>
+<tr><td>to support</td><td>verbe transitif direct</td><td>"This driver supports the device." (pas "supports to the device")</td></tr>
+<tr><td>to control</td><td>souvent = vérifier, pas seulement diriger</td><td>"Control the disk usage." = vérifier/surveiller</td></tr>
+</table>`
+      },
       {
         id: 'vocabulaire-it',
         titre: 'Vocabulaire IT — Les essentiels',
@@ -4371,6 +4678,30 @@ role where I can grow my infrastructure and security skills.</pre>
       { id: 'ang_f90', recto: 'automated (CV)', verso: 'Automatisé — verbe valorisant un gain de temps mesurable. "Automated user provisioning with PowerShell."' },
       { id: 'ang_f91', recto: 'Certifications (section CV)', verso: 'Section listant nom du certificat, organisme, date d\'obtention (ex: CompTIA Network+, 2026).' },
       { id: 'ang_f92', recto: 'Technical skills (section CV)', verso: 'Section organisée par catégories : OS, Networking, Cloud, Tools — pas une liste en vrac.' },
+      { id: 'ang_f93', recto: 'it (pronom pour une machine)', verso: 'Un serveur, un fichier, un logiciel se disent toujours "it", jamais he/she. "The server... it is down."' },
+      { id: 'ang_f94', recto: 'its vs it\'s', verso: 'its = possessif sans apostrophe ("its connection"). it\'s = contraction de "it is" ou "it has".' },
+      { id: 'ang_f95', recto: 'to be — négation contractée', verso: 'isn\'t / aren\'t / I\'m not. "The service isn\'t responding."' },
+      { id: 'ang_f96', recto: 'have vs have got', verso: 'Même sens (avoir), have got plus courant à l\'oral britannique. "I\'ve got a problem" = "I have a problem."' },
+      { id: 'ang_f97', recto: 'this / that / these / those', verso: 'this (singulier proche), that (singulier loin), these (pluriel proche), those (pluriel loin). "These cables are new."' },
+      { id: 'ang_f98', recto: 'a vs an', verso: 'Se choisit sur le SON, pas la lettre. "a user" (son "you"), "an hour" (h muet), "an IP address".' },
+      { id: 'ang_f99', recto: 'Pluriel de "mouse" (souris d\'ordinateur)', verso: 'mice — pluriel irrégulier. "I need two new mice", jamais "mouses".' },
+      { id: 'ang_f100', recto: 'data (singulier ou pluriel ?)', verso: 'Singulier rare "datum". En pratique traité comme indénombrable : "The data is corrupted" (usage courant).' },
+      { id: 'ang_f101', recto: 'Format de date ambigu 05/03', verso: 'US (MM/DD) = 3 mai, UK (DD/MM) = 5 mars. En cas de doute : format ISO 8601 (YYYY-MM-DD).' },
+      { id: 'ang_f102', recto: 'there is vs there are', verso: 'there is + singulier/indénombrable, there are + pluriel. "There are three open tickets."' },
+      { id: 'ang_f103', recto: 'Place de l\'adjectif en anglais', verso: 'Toujours avant le nom. "a critical error" (jamais "an error critical").' },
+      { id: 'ang_f104', recto: 'Place des adverbes de fréquence', verso: 'Avant le verbe principal, après "be". "I always back up before an update."' },
+      { id: 'ang_f105', recto: 'in / on / at (lieu)', verso: 'in = dans un espace fermé, on = sur une surface, at = à un point précis. "The app is on the server."' },
+      { id: 'ang_f106', recto: 'in / on / at (temps)', verso: 'in = mois/année/durée ("in July"), on = jour/date ("on Monday"), at = heure précise ("at 10 PM").' },
+      { id: 'ang_f107', recto: 'Comparatif d\'un adjectif long', verso: '2+ syllabes → more + adjectif. "This connection is more secure than the previous one."' },
+      { id: 'ang_f108', recto: 'good → better → the best', verso: 'Comparatif/superlatif irrégulier de "good". Idem : bad → worse → the worst.' },
+      { id: 'ang_f109', recto: 'to get (irrégulier)', verso: 'got / got (gotten en US) — obtenir/recevoir. "I got an error message."' },
+      { id: 'ang_f110', recto: 'to leave (irrégulier)', verso: 'left / left — quitter/laisser. "She left a comment on the ticket."' },
+      { id: 'ang_f111', recto: 'to catch (irrégulier)', verso: 'caught / caught — attraper/intercepter. "The firewall caught the intrusion."' },
+      { id: 'ang_f112', recto: 'phrasal verb: to roll out', verso: 'Déployer. "Roll out the update to all clients."' },
+      { id: 'ang_f113', recto: 'phrasal verb: to figure out', verso: 'Comprendre/résoudre. "We need to figure out the root cause."' },
+      { id: 'ang_f114', recto: 'faux ami : actually', verso: 'Signifie "en fait", pas "actuellement" (= currently).' },
+      { id: 'ang_f115', recto: 'faux ami : eventually', verso: 'Signifie "finalement", pas "éventuellement" (= possibly).' },
+      { id: 'ang_f116', recto: 'to support (verbe transitif)', verso: 'Se construit sans préposition. "This driver supports the device." (pas "supports to the device").' },
     ],
     qcm: [
       { id: 'ang_q1', question: 'What does "throughput" mean in networking?', options: [{ text: 'Maximum theoretical speed', correct: false }, { text: 'Actual data transfer rate measured', correct: true }, { text: 'Network latency', correct: false }, { text: 'Packet loss percentage', correct: false }], explication: 'Throughput = débit effectif mesuré. Bandwidth = capacité théorique. Throughput ≤ bandwidth toujours.', difficulty: 'normal' },
@@ -4462,6 +4793,30 @@ role where I can grow my infrastructure and security skills.</pre>
       { id: 'ang_q87', question: 'Which sentence best highlights automation skills on a CV?', options: [{ text: '"I sometimes use PowerShell."', correct: false }, { text: '"Automated user provisioning with PowerShell, saving 5 hours per week."', correct: true }, { text: '"PowerShell was used."', correct: false }, { text: '"I know some scripting."', correct: false }], explication: 'Quantifier le gain ("saving 5 hours per week") renforce l\'impact du verbe d\'action "Automated".', difficulty: 'normal' },
       { id: 'ang_q88', question: 'What should the "Certifications" section of a CV include?', options: [{ text: 'Only the certification name', correct: false }, { text: 'Certification name, issuing organization, and date obtained', correct: true }, { text: 'A description of the exam questions', correct: false }, { text: 'The study time spent', correct: false }], explication: 'Une section certifications complète mentionne nom, organisme et date d\'obtention.', difficulty: 'facile' },
       { id: 'ang_q89', question: 'How should "Technical skills" be organized on a CV?', options: [{ text: 'As one long unsorted list', correct: false }, { text: 'Grouped by category (OS, Networking, Cloud, Tools)', correct: true }, { text: 'In alphabetical order only', correct: false }, { text: 'Hidden at the end with no headings', correct: false }], explication: 'Organiser les compétences par catégorie facilite la lecture rapide par le recruteur ou l\'ATS.', difficulty: 'normal' },
+      { id: 'ang_q90', question: 'How do you refer to a server or a file in English?', options: [{ text: 'He/She', correct: false }, { text: 'It', correct: true }, { text: 'They', correct: false }, { text: 'You', correct: false }], explication: 'Un serveur, un fichier ou un logiciel se dit toujours "it" en anglais, jamais he/she.', difficulty: 'facile' },
+      { id: 'ang_q91', question: 'Which sentence is correct?', options: [{ text: '"The server lost it\'s connection."', correct: false }, { text: '"The server lost its connection."', correct: true }, { text: '"The server lost its\' connection."', correct: false }, { text: '"The server lost it connection."', correct: false }], explication: '"its" (possessif, sans apostrophe) — "it\'s" est la contraction de "it is/has".', difficulty: 'normal' },
+      { id: 'ang_q92', question: 'What is the negative contraction of "is not"?', options: [{ text: 'in\'t', correct: false }, { text: 'isn\'t', correct: true }, { text: 'isnt\'', correct: false }, { text: 'is\'nt', correct: false }], explication: '"is not" se contracte en "isn\'t".', difficulty: 'facile' },
+      { id: 'ang_q93', question: 'Choose the correct article: "___ IP address"', options: [{ text: 'a', correct: false }, { text: 'an', correct: true }, { text: 'the only', correct: false }, { text: '(no article)', correct: false }], explication: '"IP" se prononce avec un son voyelle ("aï pi") donc on utilise "an".', difficulty: 'normal' },
+      { id: 'ang_q94', question: 'What is the correct plural of "mouse" (computer device)?', options: [{ text: 'mouses', correct: false }, { text: 'mice', correct: true }, { text: 'mouse', correct: false }, { text: 'mices', correct: false }], explication: 'Pluriel irrégulier : mouse → mice, même pour la souris d\'ordinateur.', difficulty: 'facile' },
+      { id: 'ang_q95', question: 'A ticket is dated "05/03/2026" from a US-based system. What date is it?', options: [{ text: '5 March 2026', correct: false }, { text: '3 May 2026', correct: true }, { text: '3 March 2026', correct: false }, { text: 'Impossible to know without context', correct: false }], explication: 'Format US = MM/DD/YYYY → 05 (mois=mai) puis 03 (jour=3) → 3 mai 2026. D\'où l\'intérêt du format ISO 8601 pour éviter l\'ambiguïté.', difficulty: 'difficile' },
+      { id: 'ang_q96', question: 'Which sentence uses "there is/there are" correctly?', options: [{ text: '"There is three open tickets."', correct: false }, { text: '"There are three open tickets."', correct: true }, { text: '"There three are open tickets."', correct: false }, { text: '"Are there three open ticket."', correct: false }], explication: '"there are" + pluriel : "There are three open tickets."', difficulty: 'facile' },
+      { id: 'ang_q97', question: 'Which sentence has the adjective in the correct position?', options: [{ text: '"An error critical occurred."', correct: false }, { text: '"A critical error occurred."', correct: true }, { text: '"An error occurred critical."', correct: false }, { text: '"Critical an error occurred."', correct: false }], explication: 'En anglais, l\'adjectif se place toujours avant le nom : "a critical error".', difficulty: 'facile' },
+      { id: 'ang_q98', question: 'Where should the frequency adverb go: "I ___ back up before an update"?', options: [{ text: '"I always back up..."', correct: true }, { text: '"I back always up..."', correct: false }, { text: '"Always I back up..."', correct: false }, { text: '"I back up always..."', correct: false }], explication: 'L\'adverbe de fréquence se place avant le verbe principal : "I always back up..."', difficulty: 'normal' },
+      { id: 'ang_q99', question: 'Which preposition fits: "The application is ___ the server."', options: [{ text: 'in', correct: false }, { text: 'on', correct: true }, { text: 'at', correct: false }, { text: 'to', correct: false }], explication: '"on" s\'utilise pour une application installée sur un serveur (surface/support).', difficulty: 'normal' },
+      { id: 'ang_q100', question: 'Which preposition fits: "The maintenance is scheduled ___ Monday."', options: [{ text: 'in', correct: false }, { text: 'on', correct: true }, { text: 'at', correct: false }, { text: 'for', correct: false }], explication: '"on" s\'utilise pour un jour précis : "on Monday".', difficulty: 'facile' },
+      { id: 'ang_q101', question: 'What is the comparative form of "secure" (long adjective)?', options: [{ text: 'securer', correct: false }, { text: 'more secure', correct: true }, { text: 'most secure', correct: false }, { text: 'secure-er', correct: false }], explication: 'Les adjectifs longs (2+ syllabes) forment leur comparatif avec "more".', difficulty: 'facile' },
+      { id: 'ang_q102', question: 'What is the superlative of "good"?', options: [{ text: 'the goodest', correct: false }, { text: 'the most good', correct: false }, { text: 'the best', correct: true }, { text: 'the better', correct: false }], explication: '"good" est irrégulier : good → better → the best.', difficulty: 'facile' },
+      { id: 'ang_q103', question: 'Past tense of "get"?', options: [{ text: 'getted', correct: false }, { text: 'got', correct: true }, { text: 'gat', correct: false }, { text: 'gotten', correct: false }], explication: 'get → got (past simple), got/gotten (participe passé selon US/UK).', difficulty: 'normal' },
+      { id: 'ang_q104', question: 'Past participle of "catch"?', options: [{ text: 'catched', correct: false }, { text: 'caught', correct: true }, { text: 'catchen', correct: false }, { text: 'cauth', correct: false }], explication: 'catch → caught → caught, verbe irrégulier du groupe ABB.', difficulty: 'normal' },
+      { id: 'ang_q105', question: 'What does "roll out" mean in IT?', options: [{ text: 'To remove a feature', correct: false }, { text: 'To deploy something to users/systems', correct: true }, { text: 'To restart a service', correct: false }, { text: 'To delete old logs', correct: false }], explication: '"roll out" = déployer une mise à jour ou une fonctionnalité.', difficulty: 'facile' },
+      { id: 'ang_q106', question: 'What does "figure out" mean?', options: [{ text: 'To write documentation', correct: false }, { text: 'To understand or resolve something', correct: true }, { text: 'To delete a file', correct: false }, { text: 'To send an email', correct: false }], explication: '"figure out" = comprendre ou résoudre quelque chose, souvent après réflexion.', difficulty: 'facile' },
+      { id: 'ang_q107', question: 'Which sentence correctly uses "actually" (meaning "in fact")?', options: [{ text: '"Actually, I am working on the network module right now."', correct: false }, { text: '"Actually, the issue was a DNS problem, not the firewall."', correct: true }, { text: 'Both use it correctly', correct: false }, { text: 'Neither is correct', correct: false }], explication: '"actually" signifie "en fait" — un faux ami avec "actuellement" (qui se dit "currently").', difficulty: 'difficile' },
+      { id: 'ang_q108', question: 'Which sentence is correct?', options: [{ text: '"This driver supports to the device."', correct: false }, { text: '"This driver supports the device."', correct: true }, { text: '"This driver support the device."', correct: false }, { text: '"This driver is supporting to the device."', correct: false }], explication: '"to support" est transitif direct, pas de préposition : "supports the device."', difficulty: 'normal' },
+      { id: 'ang_q109', question: 'Which word means "bibliothèque" in English?', options: [{ text: 'library', correct: true }, { text: 'librairie', correct: false }, { text: 'bookshop', correct: false }, { text: 'archive', correct: false }], explication: '"library" = bibliothèque. "librairie" en français se traduit "bookshop"/"bookstore" — faux ami classique.', difficulty: 'normal' },
+      { id: 'ang_q110', question: 'How is the subject pronoun "I" always written?', options: [{ text: 'i, in lowercase', correct: false }, { text: 'I, always capitalized', correct: true }, { text: 'me, in lowercase', correct: false }, { text: 'my, always capitalized', correct: false }], explication: 'Le pronom sujet "I" s\'écrit toujours en majuscule, quelle que soit sa position dans la phrase.', difficulty: 'facile' },
+      { id: 'ang_q111', question: 'Which sentence correctly uses "have got"?', options: [{ text: '"I\'ve got a problem with my laptop."', correct: true }, { text: '"I have got to a problem."', correct: false }, { text: '"I got have a problem."', correct: false }, { text: '"I am got a problem."', correct: false }], explication: '"have got" = avoir (surtout britannique/oral) : "I\'ve got a problem" = "I have a problem".', difficulty: 'facile' },
+      { id: 'ang_q112', question: 'Which time preposition is correct: "The backup runs ___ 10 PM."', options: [{ text: 'in', correct: false }, { text: 'on', correct: false }, { text: 'at', correct: true }, { text: 'for', correct: false }], explication: '"at" s\'utilise pour une heure précise : "at 10 PM".', difficulty: 'facile' },
+      { id: 'ang_q113', question: 'What is the plural of "person"?', options: [{ text: 'persons (only)', correct: false }, { text: 'people', correct: true }, { text: 'persones', correct: false }, { text: 'peoples', correct: false }], explication: 'Pluriel irrégulier courant : person → people (persons existe mais est plus rare/formel).', difficulty: 'normal' },
     ],
   }
 
@@ -4571,115 +4926,115 @@ role where I can grow my infrastructure and security skills.</pre>
 
   {
     id: 'telephonie-voip',
-    label: 'Telephonie & VoIP',
-    desc: 'VoIP, PABX, SIP, ToIP, et convergence telephonie/reseau — maitriser la telephonie d entreprise.',
+    label: 'Téléphonie & VoIP',
+    desc: 'VoIP, PABX, SIP, ToIP, et convergence téléphonie/réseau — maîtriser la téléphonie d\'entreprise.',
     topics: ['VoIP','SIP','ToIP','PABX'],
     color: '#f59e0b',
     icon: '📞',
     cours: [{ id: 'voip-intro', titre: 'Téléphonie & VoIP', sections: [
-          { type: 'h2', content: '1. De la Telephonie Analogique a la VoIP' },
-          { type: 'p', content: 'La VoIP (Voice over IP) remplace progressivement le RTC (Reseau Telephonique Commute). Les appels sont numerises et transportes en paquets IP.' },
-          { type: 'table', headers: ['Critere','RTC','VoIP'], rows: [
+          { type: 'h2', content: '1. De la Téléphonie Analogique à la VoIP' },
+          { type: 'p', content: 'La VoIP (Voice over IP) remplace progressivement le RTC (Réseau Téléphonique Commuté). Les appels sont numérisés et transportés en paquets IP.' },
+          { type: 'table', headers: ['Critère','RTC','VoIP'], rows: [
             ['Support','Cuivre','IP'],
             ['Commutation','Circuit','Paquets'],
-            ['Cout','Eleve','Faible'],
-            ['Evolutivite','Limitee','Elastique'],
+            ['Coût','Élevé','Faible'],
+            ['Évolutivité','Limitée','Élastique'],
             ['Fin','2022-2025','Standard actuel'],
           ]},
           { type: 'h2', content: '2. Protocole SIP' },
-          { type: 'p', content: 'SIP (Session Initiation Protocol, RFC 3261) etablit et gere les sessions VoIP. Port 5060 (UDP/TCP) ou 5061 (TLS).' },
+          { type: 'p', content: 'SIP (Session Initiation Protocol, RFC 3261) établit et gère les sessions VoIP. Port 5060 (UDP/TCP) ou 5061 (TLS).' },
           { type: 'code', content: '# Messages SIP: INVITE -> ACK -> Communication RTP -> BYE' },
           { type: 'h2', content: '3. Architecture VoIP' },
           { type: 'table', headers: ['Composant','Role'], rows: [
-            ['IPBX','Central telephonique IP (Asterisk, 3CX)'],
-            ['Trunk SIP','Jonction vers operateur'],
-            ['SBC','Session Border Controller (securite)'],
+            ['IPBX','Central téléphonique IP (Asterisk, 3CX)'],
+            ['Trunk SIP','Jonction vers opérateur'],
+            ['SBC','Session Border Controller (sécurité)'],
             ['Telephone IP','Terminal (Yealink, Polycom)'],
             ['Codec','Compression audio (G.711, G.729, Opus)'],
           ]},
-          { type: 'h2', content: '4. Qualite de service (QoS) Voix' },
-          { type: 'p', content: 'La voix exige: latence < 150ms, gigue < 30ms, perte < 1%. DSCP EF (46) pour priorisation. VLAN voix dedie.' },
-          { type: 'h2', content: '5. Securite VoIP' },
+          { type: 'h2', content: '4. Qualité de service (QoS) Voix' },
+          { type: 'p', content: 'La voix exige : latence < 150ms, gigue < 30ms, perte < 1%. DSCP EF (46) pour priorisation. VLAN voix dédié.' },
+          { type: 'h2', content: '5. Sécurité VoIP' },
           { type: 'table', headers: ['Menace','Protection'], rows: [
             ['Ecoute','SRTP (chiffrement RTP)'],
             ['Spoofing','TLS + certificats'],
-            ['Deni de service','SBC, rate limiting'],
+            ['Déni de service','SBC, rate limiting'],
             ['Vishing','Sensibilisation'],
           ]},
           { type: "h2", content: "6. SIP Trunking" },
-          { type: "p", content: "Le trunk SIP remplace les lignes RTC/Numeris. Une seule liaison IP pour tous les canaux vocaux. Protocole SIP (port 5060) pour l etablissement des sessions." },
+          { type: "p", content: "Le trunk SIP remplace les lignes RTC/Numéris. Une seule liaison IP pour tous les canaux vocaux. Protocole SIP (port 5060) pour l'établissement des sessions." },
           { type: "table", headers: ["Technologie","Ancien (RTC)","Nouveau (SIP)"], rows: [
-            ["Support","Cuivre (ligne physique)","IP (reseau existant)"],
-            ["Canaux","Fixes (2, 10, 30)","Elastiques (illimite theorique)"],
-            ["Cout","Eleve (ligne + consommation)","Faible (forfait illimite)"],
-            ["Evolution","Changement materiel","Ajout canaux logiciel"],
-            ["Fonctionnalites","Voix seule","Voix + video + messagerie + CTI"],
+            ["Support","Cuivre (ligne physique)","IP (réseau existant)"],
+            ["Canaux","Fixes (2, 10, 30)","Élastiques (illimité théorique)"],
+            ["Coût","Élevé (ligne + consommation)","Faible (forfait illimité)"],
+            ["Évolution","Changement matériel","Ajout canaux logiciel"],
+            ["Fonctionnalités","Voix seule","Voix + vidéo + messagerie + CTI"],
           ]},
-          { type: "h2", content: "7. Securite VoIP avancee" },
-          { type: "p", content: "La VoIP est vulnerable: ecoute, spoofing, deni de service. Appliquer ces mesures:" },
+          { type: "h2", content: "7. Sécurité VoIP avancée" },
+          { type: "p", content: "La VoIP est vulnérable : écoute, spoofing, déni de service. Appliquer ces mesures :" },
           { type: "table", headers: ["Protection","Action","Protocole"], rows: [
             ["Chiffrement voix","Cryptage flux RTP","SRTP (AES)"],
             ["Chiffrement signalisation","Authentification SIP","TLS sur port 5061"],
-            ["VLAN voix","Isolement reseau","802.1Q VLAN dedie"],
+            ["VLAN voix","Isolement réseau","802.1Q VLAN dédié"],
             ["SBC","Session Border Controller","Filtrage, NAT traversal"],
             ["QoS","Priorisation paquets voix","DSCP EF (46) pour RTP"],
           ]},
           { type: "code", content: "# Configuration QoS Cisco pour VoIP:\nclass-map match-any VOIP\n match ip dscp ef\n match ip dscp af41\n!\npolicy-map QOS-VOIP\n class VOIP\n  priority percent 30\n!\ninterface GigabitEthernet0/1\n service-policy output QOS-VOIP\n\n# Ports VoIP:\n# SIP: 5060 (UDP/TCP), 5061 (TLS)\n# RTP: 16384-32767 (UDP)\n# Skinny (Cisco): 2000 (TCP)" },
           { type: "h2", content: "8. Codecs audio" },
-          { type: "table", headers: ["Codec","Debit","Qualite","Usage"], rows: [
-            ["G.711 (PCM)","64 kbps","Tres bonne","Reseau local (LAN)"],
+          { type: "table", headers: ["Codec","Débit","Qualité","Usage"], rows: [
+            ["G.711 (PCM)","64 kbps","Très bonne","Réseau local (LAN)"],
             ["G.729","8 kbps","Bonne","Lien WAN bas debit"],
-            ["G.722","48-64 kbps","Haute definition","HD Voice"],
+            ["G.722","48-64 kbps","Haute définition","HD Voice"],
             ["Opus","6-510 kbps","Variable","VoIP moderne, Teams"],
           ]},
     ]}],
     flashcards: [
       { id: 'voip_fc1', recto: 'Que signifie VoIP ?', verso: 'Voice over Internet Protocol' },
-      { id: 'voip_fc2', recto: 'Port SIP par defaut ?', verso: '5060 (UDP/TCP), 5061 (TLS)' },
-      { id: 'voip_fc3', recto: 'Qu est-ce qu un trunk SIP ?', verso: 'Jonction virtuelle IPBX-operateur' },
-      { id: 'voip_fc4', recto: 'Role du SBC ?', verso: 'Proxy de securite entreprise-operateur' },
-      { id: 'voip_fc5', recto: 'Codec recommande LAN ?', verso: 'G.711 (64 kbps, qualite proche CD)' },
+      { id: 'voip_fc2', recto: 'Port SIP par défaut ?', verso: '5060 (UDP/TCP), 5061 (TLS)' },
+      { id: 'voip_fc3', recto: 'Qu\'est-ce qu\'un trunk SIP ?', verso: 'Jonction virtuelle IPBX-opérateur' },
+      { id: 'voip_fc4', recto: 'Rôle du SBC ?', verso: 'Proxy de sécurité entreprise-opérateur' },
+      { id: 'voip_fc5', recto: 'Codec recommandé LAN ?', verso: 'G.711 (64 kbps, qualité proche CD)' },
       { id: 'voip_fc6', recto: 'Chiffrement flux audio VoIP ?', verso: 'SRTP (AES)' },
-      { id: 'voip_fc7', recto: 'DSCP priorite voix ?', verso: 'EF (46)' },
-      { id: 'voip_fc8', recto: 'Qu est-ce qu un IPBX ?', verso: 'Central telephonique IP' },
-      { id: 'voip_fc9', recto: 'Message SIP pour fin d appel ?', verso: 'BYE' },
+      { id: 'voip_fc7', recto: 'DSCP priorité voix ?', verso: 'EF (46)' },
+      { id: 'voip_fc8', recto: 'Qu\'est-ce qu\'un IPBX ?', verso: 'Central téléphonique IP' },
+      { id: 'voip_fc9', recto: 'Message SIP pour fin d\'appel ?', verso: 'BYE' },
       { id: 'voip_fc10', recto: 'Latence max VoIP ?', verso: '< 150ms aller simple' },
       { id: 'voip_fc11', recto: 'Codec HD pour la voix ?', verso: 'G.722 (48-64 kbps)' },
       { id: 'voip_fc12', recto: 'Gigue acceptable VoIP ?', verso: '< 30ms' },
-      { id: 'voip_fc13', recto: 'VLAN dedie voix: pourquoi ?', verso: 'Isolement et priorisation QoS' },
+      { id: 'voip_fc13', recto: 'VLAN dédié voix : pourquoi ?', verso: 'Isolement et priorisation QoS' },
       { id: 'voip_fc14', recto: 'Plage ports RTP ?', verso: '16384-32767 UDP' },
       { id: 'voip_fc15', recto: 'Protocole Cisco historique ?', verso: 'Skinny (SCCP)' },
       { id: 'voip_fc16', recto: 'Logiciel IPBX open source ?', verso: 'Asterisk (FreeSWITCH)' },
-      { id: 'voip_fc17', recto: 'Phishing vocal ?', verso: 'Vishing: appel pour soutirer infos' },
+      { id: 'voip_fc17', recto: 'Phishing vocal ?', verso: 'Vishing : appel pour soutirer infos' },
       { id: 'voip_fc18', recto: 'Taux perte paquets max voix ?', verso: '< 1%' },
-      { id: 'voip_fc19', recto: 'IPBX heberge populaire ?', verso: '3CX (cloud/hybride)' },
-      { id: 'voip_fc20', recto: 'STIR/SHAKEN sert a ?', verso: 'Authentifier les appels contre spoofing' },
+      { id: 'voip_fc19', recto: 'IPBX hébergé populaire ?', verso: '3CX (cloud/hybride)' },
+      { id: 'voip_fc20', recto: 'STIR/SHAKEN sert à ?', verso: 'Authentifier les appels contre spoofing' },
     ],
     qcm: [
       { id: 'voip_q1', difficulty: 'facile', question: 'Quel protocole transporte la voix ?', options: [{text:'SIP',correct:false},{text:'RTP',correct:true},{text:'HTTP',correct:false},{text:'FTP',correct:false}], explication: 'RTP transporte les flux audio. SIP ne fait que la signalisation.' },
-      { id: 'voip_q2', difficulty: 'normal', question: 'Port SIP chiffre ?', options: [{text:'5060',correct:false},{text:'5061',correct:true},{text:'443',correct:false},{text:'3389',correct:false}], explication: '5061 = SIP/TLS, 5060 = SIP non chiffre.' },
-      { id: 'voip_q3', difficulty: 'facile', question: 'QoS recommandee pour la voix ?', options: [{text:'AF11',correct:false},{text:'EF',correct:true},{text:'DF',correct:false},{text:'Aucune',correct:false}], explication: 'DSCP EF (46) = Expedited Forwarding = priorite absolue.' },
+      { id: 'voip_q2', difficulty: 'normal', question: 'Port SIP chiffré ?', options: [{text:'5060',correct:false},{text:'5061',correct:true},{text:'443',correct:false},{text:'3389',correct:false}], explication: '5061 = SIP/TLS, 5060 = SIP non chiffré.' },
+      { id: 'voip_q3', difficulty: 'facile', question: 'QoS recommandée pour la voix ?', options: [{text:'AF11',correct:false},{text:'EF',correct:true},{text:'DF',correct:false},{text:'Aucune',correct:false}], explication: 'DSCP EF (46) = Expedited Forwarding = priorité absolue.' },
       { id: 'voip_q4', difficulty: 'normal', question: 'Codec WAN bas debit ?', options: [{text:'G.711',correct:false},{text:'G.729',correct:true},{text:'G.722',correct:false},{text:'Opus',correct:false}], explication: 'G.729 = 8 kbps, bon compromis pour WAN.' },
-      { id: 'voip_q5', difficulty: 'normal', question: 'Equipement securite VoIP ?', options: [{text:'Switch',correct:false},{text:'SBC',correct:true},{text:'Routeur',correct:false},{text:'Firewall seul',correct:false}], explication: 'Le SBC est specifiquement concu pour la securite VoIP.' },
-      { id: 'voip_q6', difficulty: 'normal', question: 'Message SIP INVITE sert a ?', options: [{text:'Terminer appel',correct:false},{text:'Demander appel',correct:true},{text:'Enregistrer telephone',correct:false},{text:'Pinger serveur',correct:false}], explication: 'INVITE demarre la session. BYE termine. REGISTER enregistre.' },
-      { id: 'voip_q7', difficulty: 'normal', question: 'SRTP sert a ?', options: [{text:'Chiffrer signalisation',correct:false},{text:'Chiffrer flux audio',correct:true},{text:'Compresser voix',correct:false},{text:'Router appels',correct:false}], explication: 'SRTP chiffre RTP. SIPS/TLS chiffre la signalisation.' },
+      { id: 'voip_q5', difficulty: 'normal', question: 'Équipement sécurité VoIP ?', options: [{text:'Switch',correct:false},{text:'SBC',correct:true},{text:'Routeur',correct:false},{text:'Firewall seul',correct:false}], explication: 'Le SBC est spécifiquement conçu pour la sécurité VoIP.' },
+      { id: 'voip_q6', difficulty: 'normal', question: 'Message SIP INVITE sert à ?', options: [{text:'Terminer appel',correct:false},{text:'Demander appel',correct:true},{text:'Enregistrer téléphone',correct:false},{text:'Pinger serveur',correct:false}], explication: 'INVITE démarre la session. BYE termine. REGISTER enregistre.' },
+      { id: 'voip_q7', difficulty: 'normal', question: 'SRTP sert à ?', options: [{text:'Chiffrer signalisation',correct:false},{text:'Chiffrer flux audio',correct:true},{text:'Compresser voix',correct:false},{text:'Router appels',correct:false}], explication: 'SRTP chiffre RTP. SIPS/TLS chiffre la signalisation.' },
       { id: 'voip_q8', difficulty: 'normal', question: 'Latence acceptable VoIP ?', options: [{text:'< 500ms',correct:false},{text:'< 150ms',correct:true},{text:'< 1s',correct:false},{text:'< 50ms',correct:false}], explication: '< 150ms aller simple = seuil ITU-T G.114.' },
-      { id: 'voip_q9', difficulty: 'difficile', question: 'Avantage trunk SIP vs RTC ?', options: [{text:'Plus de cuivre',correct:false},{text:'Canaux elastiques',correct:true},{text:'Meilleur son analogique',correct:false},{text:'Pas d internet',correct:false}], explication: 'Canaux virtuels elastiques vs lignes physiques fixes.' },
-      { id: 'voip_q10', difficulty: 'normal', question: 'Codec HD VoIP ?', options: [{text:'G.711',correct:false},{text:'G.722',correct:true},{text:'G.729',correct:false},{text:'G.723',correct:false}], explication: 'G.722 = 48-64 kbps, haute definition (HD Voice).' },
-      { id: 'voip_q11', difficulty: 'difficile', question: 'VLAN voix: quel interet ?', options: [{text:'Gains cout',correct:false},{text:'Priorisation + isolation',correct:true},{text:'Chiffrement',correct:false},{text:'Redondance',correct:false}], explication: 'VLAN dedie = QoS + securite par isolation.' },
-      { id: 'voip_q12', difficulty: 'facile', question: 'Protocole historique Cisco SCCP ?', options: [{text:'Signalisation proprietaire',correct:true},{text:'Codec audio',correct:false},{text:'Protocole transport',correct:false},{text:'Chiffrement',correct:false}], explication: 'Skinny Client Control Protocol, remplace par SIP dans les gammes recentes.' },
-      { id: 'voip_q13', difficulty: 'normal', question: 'IPBX open source le plus connu ?', options: [{text:'3CX',correct:false},{text:'Asterisk',correct:true},{text:'Teams',correct:false},{text:'Cisco CM',correct:false}], explication: 'Asterisk est la reference open source depuis 1999.' },
-      { id: 'voip_q14', difficulty: 'normal', question: 'Gigue maximale VoIP ?', options: [{text:'< 200ms',correct:false},{text:'< 30ms',correct:true},{text:'< 1ms',correct:false},{text:'< 500ms',correct:false}], explication: 'La gigue doit rester sous 30ms pour eviter la degradation audio.' },
-      { id: 'voip_q15', difficulty: 'facile', question: 'Vishing c est quoi ?', options: [{text:'Chiffrement VoIP',correct:false},{text:'Phishing par telephone',correct:true},{text:'Protocole VoIP',correct:false},{text:'Logiciel telephonie',correct:false}], explication: 'Vishing = voice phishing, arnaque telephonique.' },
+      { id: 'voip_q9', difficulty: 'difficile', question: 'Avantage trunk SIP vs RTC ?', options: [{text:'Plus de cuivre',correct:false},{text:'Canaux élastiques',correct:true},{text:'Meilleur son analogique',correct:false},{text:'Pas d\'internet',correct:false}], explication: 'Canaux virtuels élastiques vs lignes physiques fixes.' },
+      { id: 'voip_q10', difficulty: 'normal', question: 'Codec HD VoIP ?', options: [{text:'G.711',correct:false},{text:'G.722',correct:true},{text:'G.729',correct:false},{text:'G.723',correct:false}], explication: 'G.722 = 48-64 kbps, haute définition (HD Voice).' },
+      { id: 'voip_q11', difficulty: 'difficile', question: 'VLAN voix : quel intérêt ?', options: [{text:'Gains coût',correct:false},{text:'Priorisation + isolation',correct:true},{text:'Chiffrement',correct:false},{text:'Redondance',correct:false}], explication: 'VLAN dédié = QoS + sécurité par isolation.' },
+      { id: 'voip_q12', difficulty: 'facile', question: 'Protocole historique Cisco SCCP ?', options: [{text:'Signalisation propriétaire',correct:true},{text:'Codec audio',correct:false},{text:'Protocole transport',correct:false},{text:'Chiffrement',correct:false}], explication: 'Skinny Client Control Protocol, remplacé par SIP dans les gammes récentes.' },
+      { id: 'voip_q13', difficulty: 'normal', question: 'IPBX open source le plus connu ?', options: [{text:'3CX',correct:false},{text:'Asterisk',correct:true},{text:'Teams',correct:false},{text:'Cisco CM',correct:false}], explication: 'Asterisk est la référence open source depuis 1999.' },
+      { id: 'voip_q14', difficulty: 'normal', question: 'Gigue maximale VoIP ?', options: [{text:'< 200ms',correct:false},{text:'< 30ms',correct:true},{text:'< 1ms',correct:false},{text:'< 500ms',correct:false}], explication: 'La gigue doit rester sous 30ms pour éviter la dégradation audio.' },
+      { id: 'voip_q15', difficulty: 'facile', question: 'Vishing c\'est quoi ?', options: [{text:'Chiffrement VoIP',correct:false},{text:'Phishing par téléphone',correct:true},{text:'Protocole VoIP',correct:false},{text:'Logiciel téléphonie',correct:false}], explication: 'Vishing = voice phishing, arnaque téléphonique.' },
       { id: 'voip_q16', difficulty: 'normal', question: 'Ports RTP dynamiques ?', options: [{text:'1024-65535',correct:false},{text:'16384-32767',correct:true},{text:'5060-5061',correct:false},{text:'80-443',correct:false}], explication: 'RFC 3550 recommande 16384-32767 pour RTP.' },
-      { id: 'voip_q17', difficulty: 'normal', question: 'STIR/SHAKEN contre quoi ?', options: [{text:'Virus',correct:false},{text:'Spoofing d appel',correct:true},{text:'Perte paquets',correct:false},{text:'Latence',correct:false}], explication: 'Authentifie l identite de l appelant (RFC 8224/8588).' },
-      { id: 'voip_q18', difficulty: 'normal', question: 'Message SIP REGISTER sert a ?', options: [{text:'Appeler',correct:false},{text:'Enregistrer terminal',correct:true},{text:'Terminer appel',correct:false},{text:'Transférer',correct:false}], explication: 'REGISTER enregistre l URI aupres du serveur SIP.' },
-      { id: 'voip_q19', difficulty: 'troubleshooter', question: 'Perte paquets max voix ?', options: [{text:'< 5%',correct:false},{text:'< 1%',correct:true},{text:'< 10%',correct:false},{text:'< 20%',correct:false}], explication: 'La voix tolere moins de 1% de perte sans degradation notable.' },
-      { id: 'voip_q20', difficulty: 'normal', question: 'Quel remplacement pour le RTC ?', options: [{text:'XDSL',correct:false},{text:'Trunk SIP',correct:true},{text:'VPN',correct:false},{text:'MPLS',correct:false}], explication: 'Le trunk SIP remplace les lignes RTC pour la telephonie d entreprise.' },
-      { id: 'voip_q21', difficulty: 'difficile', question: 'Protocole signalisation VoIP standardise IETF ?', options: [{ text: 'H.323', correct: false }, { text: 'SIP', correct: true }, { text: 'MGCP', correct: false }, { text: 'SCCP', correct: false }], explication: 'SIP est le standard IETF (RFC 3261).' },
-      { id: 'voip_q22', difficulty: 'difficile', question: 'Codec offrant meilleure qualite audio sur bande passante reduite ?', options: [{ text: 'G.711', correct: false }, { text: 'G.729', correct: true }, { text: 'GSM', correct: false }, { text: 'Opus', correct: false }], explication: 'G.729 compress a 8kbps. Opus flexible pour VoX.' },
-      { id: 'voip_q23', difficulty: 'troubleshooter', question: 'Appels VoIP hachures. Cause probable reseau ?', options: [{ text: 'CPU sature', correct: false }, { text: 'Perte de paquets/jitter eleve', correct: true }, { text: 'RAM insuffisante', correct: false }, { text: 'Disque plein', correct: false }], explication: 'VoIP sensible au jitter et pertes. QoS requis.' },
-      { id: 'voip_q24', difficulty: 'troubleshooter', question: 'Telephone IP ne senregistre plus sur IPBX. Verifier ?', options: [{ text: 'Etat IPBX', correct: false }, { text: 'Pare-feu port 5060 UDP', correct: true }, { text: 'Cable telephone', correct: false }, { text: 'Alimentation', correct: false }], explication: 'SIP ecoute sur 5060. Firewall peut bloquer.' }
+      { id: 'voip_q17', difficulty: 'normal', question: 'STIR/SHAKEN contre quoi ?', options: [{text:'Virus',correct:false},{text:'Spoofing d\'appel',correct:true},{text:'Perte paquets',correct:false},{text:'Latence',correct:false}], explication: 'Authentifie l\'identité de l\'appelant (RFC 8224/8588).' },
+      { id: 'voip_q18', difficulty: 'normal', question: 'Message SIP REGISTER sert à ?', options: [{text:'Appeler',correct:false},{text:'Enregistrer terminal',correct:true},{text:'Terminer appel',correct:false},{text:'Transférer',correct:false}], explication: 'REGISTER enregistre l\'URI auprès du serveur SIP.' },
+      { id: 'voip_q19', difficulty: 'troubleshooter', question: 'Perte paquets max voix ?', options: [{text:'< 5%',correct:false},{text:'< 1%',correct:true},{text:'< 10%',correct:false},{text:'< 20%',correct:false}], explication: 'La voix tolère moins de 1% de perte sans dégradation notable.' },
+      { id: 'voip_q20', difficulty: 'normal', question: 'Quel remplacement pour le RTC ?', options: [{text:'XDSL',correct:false},{text:'Trunk SIP',correct:true},{text:'VPN',correct:false},{text:'MPLS',correct:false}], explication: 'Le trunk SIP remplace les lignes RTC pour la téléphonie d\'entreprise.' },
+      { id: 'voip_q21', difficulty: 'difficile', question: 'Protocole signalisation VoIP standardisé IETF ?', options: [{ text: 'H.323', correct: false }, { text: 'SIP', correct: true }, { text: 'MGCP', correct: false }, { text: 'SCCP', correct: false }], explication: 'SIP est le standard IETF (RFC 3261).' },
+      { id: 'voip_q22', difficulty: 'difficile', question: 'Codec offrant meilleure qualité audio sur bande passante réduite ?', options: [{ text: 'G.711', correct: false }, { text: 'G.729', correct: true }, { text: 'GSM', correct: false }, { text: 'Opus', correct: false }], explication: 'G.729 compresse à 8kbps. Opus flexible pour VoX.' },
+      { id: 'voip_q23', difficulty: 'troubleshooter', question: 'Appels VoIP hachurés. Cause probable réseau ?', options: [{ text: 'CPU saturé', correct: false }, { text: 'Perte de paquets/jitter élevé', correct: true }, { text: 'RAM insuffisante', correct: false }, { text: 'Disque plein', correct: false }], explication: 'VoIP sensible au jitter et pertes. QoS requis.' },
+      { id: 'voip_q24', difficulty: 'troubleshooter', question: 'Téléphone IP ne s\'enregistre plus sur IPBX. Vérifier ?', options: [{ text: 'État IPBX', correct: false }, { text: 'Pare-feu port 5060 UDP', correct: true }, { text: 'Câble téléphone', correct: false }, { text: 'Alimentation', correct: false }], explication: 'SIP écoute sur 5060. Firewall peut bloquer.' }
     ],
   },
 
@@ -4775,97 +5130,97 @@ role where I can grow my infrastructure and security skills.</pre>
 
   {
     id: 'iot',
-    label: 'IoT & Objets Connectes',
-    desc: 'IoT, MQTT, LoRaWAN, capteurs, IIoT, securite des objets connectes et protocoles LPWAN.',
+    label: 'IoT & Objets Connectés',
+    desc: 'IoT, MQTT, LoRaWAN, capteurs, IIoT, sécurité des objets connectés et protocoles LPWAN.',
     topics: ['IoT','MQTT','LoRaWAN','LPWAN'],
     color: '#0ea5e9',
     icon: '🔌',
     cours: [{ id: 'iot-intro', titre: 'IoT & Objets Connectés', sections: [
           { type: 'h2', content: '1. Internet des Objets (IoT) - Introduction' },
-          { type: 'p', content: "L IoT (Internet of Things) designe le reseau d objets physiques connectes a Internet, capables de collecter et echanger des donnees. En 2025, on estime 18 milliards d appareils IoT dans le monde." },
+          { type: 'p', content: "L'IoT (Internet of Things) désigne le réseau d'objets physiques connectés à Internet, capables de collecter et échanger des données. En 2025, on estime 18 milliards d'appareils IoT dans le monde." },
           { type: 'table', headers: ['Domaine','Exemples','Protocoles'], rows: [
-            ['Smart Home','Thermostat, lumiere, serrure','Zigbee, Z-Wave, WiFi'],
-            ['Industrie (IIoT)','Capteurs, automates, maintenance predictive','MQTT, OPC-UA, Profinet'],
-            ['Sante','Montres connectees, piliers intelligents','BLE, MQTT, HL7 FHIR'],
-            ['Ville intelligente','Eclairage, parking, poubelles','LoRaWAN, NB-IoT, Sigfox'],
-            ['Transport','Vehicules connectes, flottes','MQTT, CAN bus, DSRC'],
+            ['Smart Home','Thermostat, lumière, serrure','Zigbee, Z-Wave, WiFi'],
+            ['Industrie (IIoT)','Capteurs, automates, maintenance prédictive','MQTT, OPC-UA, Profinet'],
+            ['Santé','Montres connectées, piliers intelligents','BLE, MQTT, HL7 FHIR'],
+            ['Ville intelligente','Éclairage, parking, poubelles','LoRaWAN, NB-IoT, Sigfox'],
+            ['Transport','Véhicules connectés, flottes','MQTT, CAN bus, DSRC'],
           ]},
           { type: 'h2', content: '2. Protocole MQTT' },
-          { type: 'p', content: "MQTT (Message Queuing Telemetry Transport) est le protocole standard IoT. Mode publish/subscribe leger via un broker central. RFC standardise par OASIS." },
+          { type: 'p', content: "MQTT (Message Queuing Telemetry Transport) est le protocole standard IoT. Mode publish/subscribe léger via un broker central. RFC standardisé par OASIS." },
           { type: 'code', content: "# Architecture MQTT:\n# Publisher (capteur) -> Broker (serveur) -> Subscriber (application)\n#\n# Topic hierarchique: maison/salon/temperature\n# Wildcard +: maison/+/temperature (1 niveau)\n# Wildcard #: maison/# (tous sous-niveaux)\n#\n# QoS 0: At most once (fire and forget)\n# QoS 1: At least once (ack requis)\n# QoS 2: Exactly once (4-way handshake)\n#\n# Ports MQTT:\n# 1883: non chiffre\n# 8883: TLS (MQTTS)" },
-          { type: 'h2', content: '3. Securite IoT' },
-          { type: 'p', content: 'La securite IoT est un defi majeur : appareils contraints, mises a jour complexes, protocoles legacy. Approche Zero Trust recommande.' },
+          { type: 'h2', content: '3. Sécurité IoT' },
+          { type: 'p', content: 'La sécurité IoT est un défi majeur : appareils contraints, mises à jour complexes, protocoles legacy. Approche Zero Trust recommandée.' },
           { type: 'table', headers: ['Menace','Impact','Protection'], rows: [
-            ['Mot de passe par defaut','Prise de controle','Changer mdp, desactiver comptes defaut'],
-            ['Firmware non mis a jour','Vulnerabilites connues','OTA updates, SBOM'],
-            ['Communications non chiffrees','Ecoute, modification','TLS 1.3, MQTTS (8883)'],
+            ['Mot de passe par défaut','Prise de contrôle','Changer mdp, désactiver comptes défaut'],
+            ['Firmware non mis à jour','Vulnérabilités connues','OTA updates, SBOM'],
+            ['Communications non chiffrées','Écoute, modification','TLS 1.3, MQTTS (8883)'],
             ['Botnets (Mirai)','DDoS massif','Segmentation VLAN, rate limiting'],
-            ['Donnees sensibles','Vol de donnees','Chiffrement de bout en bout'],
+            ['Données sensibles','Vol de données','Chiffrement de bout en bout'],
           ]},
-          { type: 'h2', content: '4. Reseaux LPWAN pour IoT' },
-          { type: 'table', headers: ['Technologie','Portee','Debit','Batterie','Usage'], rows: [
+          { type: 'h2', content: '4. Réseaux LPWAN pour IoT' },
+          { type: 'table', headers: ['Technologie','Portée','Débit','Batterie','Usage'], rows: [
             ['LoRaWAN','2-15 km','0.3-50 kbps','5-10 ans','Capteurs, compteurs'],
             ['NB-IoT (3GPP)','1-10 km','~200 kbps','5-10 ans','Industrie, parking'],
             ['Sigfox','3-50 km','100 bps-1 kbps','5-10 ans','Petits messages'],
             ['LTE-M','1-10 km','~1 Mbps','5-10 ans','Voix IoT, mobiles'],
           ]},
           { type: 'h2', content: '5. Hub IoT et plateformes cloud' },
-          { type: 'table', headers: ['Plateforme','Editeur','Points forts'], rows: [
-            ['AWS IoT Core','Amazon','MQTT, Regles, Greengrass,影子'],
-            ['Azure IoT Hub','Microsoft','Jumeau numerique, Edge, DPS'],
+          { type: 'table', headers: ['Plateforme','Éditeur','Points forts'], rows: [
+            ['AWS IoT Core','Amazon','MQTT, Règles, Greengrass, Device Shadow'],
+            ['Azure IoT Hub','Microsoft','Jumeau numérique, Edge, DPS'],
             ['Google Cloud IoT','Google','Cloud IoT Core, Edge TPU'],
             ['ThingSpeak','Open source','MATLAB analytics, capteurs'],
             ['Node-RED','Open source','Flow-based programming, dashboard'],
           ]},
-          { type: 'info', content: "Le TSSR rencontre l IoT principalement en entreprise: capteurs de temperature dans les serveurs, badgeuses, cameras IP, gestion de flotte. La securite et le depannage reseau de ces equipements font partie du quotidien." },
+          { type: 'info', content: "Le TSSR rencontre l'IoT principalement en entreprise : capteurs de température dans les serveurs, badgeuses, caméras IP, gestion de flotte. La sécurité et le dépannage réseau de ces équipements font partie du quotidien." },
     ]}],
     flashcards: [
-      { id: 'iot_fc1', recto: 'Que signifie IoT ?', verso: 'Internet of Things - objets connectes a Internet' },
-      { id: 'iot_fc2', recto: 'Protocole IoT le plus utilise ?', verso: 'MQTT (Message Queuing Telemetry Transport)' },
-      { id: 'iot_fc3', recto: 'Port MQTT non chiffre ?', verso: '1883' },
-      { id: 'iot_fc4', recto: 'Port MQTT chiffre ?', verso: '8883 (MQTT over TLS)' },
-      { id: 'iot_fc5', recto: 'Modele de communication MQTT ?', verso: 'Publish/Subscribe avec Broker central' },
+      { id: 'iot_fc1', recto: 'Que signifie IoT ?', verso: 'Internet of Things - objets connectés à Internet' },
+      { id: 'iot_fc2', recto: 'Protocole IoT le plus utilisé ?', verso: 'MQTT (Message Queuing Telemetry Transport)' },
+      { id: 'iot_fc3', recto: 'Port MQTT non chiffré ?', verso: '1883' },
+      { id: 'iot_fc4', recto: 'Port MQTT chiffré ?', verso: '8883 (MQTT over TLS)' },
+      { id: 'iot_fc5', recto: 'Modèle de communication MQTT ?', verso: 'Publish/Subscribe avec Broker central' },
       { id: 'iot_fc6', recto: 'QoS MQTT la plus fiable ?', verso: 'QoS 2 (Exactly once - 4 way handshake)' },
-      { id: 'iot_fc7', recto: 'Wildcard MQTT pour 1 niveau ?', verso: '+ (ex: maison/+/temperature)' },
+      { id: 'iot_fc7', recto: 'Wildcard MQTT pour 1 niveau ?', verso: '+ (ex: maison/+/température)' },
       { id: 'iot_fc8', recto: 'Wildcard MQTT multi-niveaux ?', verso: '# (ex: maison/#)' },
-      { id: 'iot_fc9', recto: 'LPWAN la plus longue portee ?', verso: 'Sigfox (3-50 km)' },
-      { id: 'iot_fc10', recto: 'LoRaWAN portee typique ?', verso: '2-15 km selon environnement' },
-      { id: 'iot_fc11', recto: 'Botnet IoT celebre ?', verso: 'Mirai (2016) - DDoS via camera IP' },
+      { id: 'iot_fc9', recto: 'LPWAN la plus longue portée ?', verso: 'Sigfox (3-50 km)' },
+      { id: 'iot_fc10', recto: 'LoRaWAN portée typique ?', verso: '2-15 km selon environnement' },
+      { id: 'iot_fc11', recto: 'Botnet IoT célèbre ?', verso: 'Mirai (2016) - DDoS via caméra IP' },
       { id: 'iot_fc12', recto: 'Protocole domotique Zigbee ?', verso: 'Reseau maillé basse consommation 2.4 GHz' },
-      { id: 'iot_fc13', recto: 'NB-IoT utilise quel reseau ?', verso: 'Reseau mobile 4G/5G (bande LTE)' },
+      { id: 'iot_fc13', recto: 'NB-IoT utilise quel réseau ?', verso: 'Réseau mobile 4G/5G (bande LTE)' },
       { id: 'iot_fc14', recto: 'MQTT Broker open source ?', verso: 'Mosquitto (Eclipse)' },
-      { id: 'iot_fc15', recto: 'Jumeau numerique (Digital Twin) ?', verso: 'Replique virtuelle d un objet physique' },
+      { id: 'iot_fc15', recto: 'Jumeau numérique (Digital Twin) ?', verso: 'Réplique virtuelle d\'un objet physique' },
       { id: 'iot_fc16', recto: 'SBOM dans IoT ?', verso: 'Software Bill of Materials - inventaire composants logiciels' },
-      { id: 'iot_fc17', recto: 'Risque securite IoT principal ?', verso: 'Mots de passe par defaut non changes' },
+      { id: 'iot_fc17', recto: 'Risque sécurité IoT principal ?', verso: 'Mots de passe par défaut non changés' },
       { id: 'iot_fc18', recto: 'MQTT QoS 0 signifie ?', verso: 'At most once - pas d ack, perte possible' },
-      { id: 'iot_fc19', recto: 'Node-RED c est quoi ?', verso: 'Outil flow-based programming pour IoT' },
-      { id: 'iot_fc20', recto: 'OTA update signifie ?', verso: 'Over-The-Air mise a jour firmware a distance' },
+      { id: 'iot_fc19', recto: 'Node-RED c\'est quoi ?', verso: 'Outil flow-based programming pour IoT' },
+      { id: 'iot_fc20', recto: 'OTA update signifie ?', verso: 'Over-The-Air mise à jour firmware à distance' },
     ],
     qcm: [
-      { id: 'iot_q1', difficulty: 'facile', question: 'Modele de communication MQTT ?', options: [{text:'Client-Serveur',correct:false},{text:'Publish/Subscribe',correct:true},{text:'Peer-to-Peer',correct:false},{text:'Broadcast',correct:false}], explication: 'MQTT utilise le mode publish/subscribe via un broker central.' },
-      { id: 'iot_q2', difficulty: 'normal', question: 'Port MQTT TLS ?', options: [{text:'1883',correct:false},{text:'8883',correct:true},{text:'443',correct:false},{text:'8080',correct:false}], explication: '8883 = MQTT over TLS. 1883 = MQTT non chiffre.' },
+      { id: 'iot_q1', difficulty: 'facile', question: 'Modèle de communication MQTT ?', options: [{text:'Client-Serveur',correct:false},{text:'Publish/Subscribe',correct:true},{text:'Peer-to-Peer',correct:false},{text:'Broadcast',correct:false}], explication: 'MQTT utilise le mode publish/subscribe via un broker central.' },
+      { id: 'iot_q2', difficulty: 'normal', question: 'Port MQTT TLS ?', options: [{text:'1883',correct:false},{text:'8883',correct:true},{text:'443',correct:false},{text:'8080',correct:false}], explication: '8883 = MQTT over TLS. 1883 = MQTT non chiffré.' },
       { id: 'iot_q3', difficulty: 'normal', question: 'QoS MQTT la plus fiable ?', options: [{text:'QoS 0',correct:false},{text:'QoS 2',correct:true},{text:'QoS 1',correct:false},{text:'QoS 3',correct:false}], explication: 'QoS 2 = Exactly once, 4-way handshake, fiable mais lent.' },
       { id: 'iot_q4', difficulty: 'normal', question: 'Wildcard MQTT pour 1 niveau ?', options: [{text:'*',correct:false},{text:'+',correct:true},{text:'#',correct:false},{text:'?',correct:false}], explication: '+ = 1 niveau. # = multi-niveaux.' },
-      { id: 'iot_q5', difficulty: 'normal', question: 'Quel botnet IoT a fait trembler Internet en 2016 ?', options: [{text:'Stuxnet',correct:false},{text:'Mirai',correct:true},{text:'WannaCry',correct:false},{text:'NotPetya',correct:false}], explication: 'Mirai a infecte des cameras IP pour lancer des DDoS massifs.' },
-      { id: 'iot_q6', difficulty: 'facile', question: 'Protocole LPWAN le plus deploye ?', options: [{text:'WiFi',correct:false},{text:'LoRaWAN',correct:true},{text:'Bluetooth',correct:false},{text:'Zigbee',correct:false}], explication: 'LoRaWAN (Long Range Wide Area Network) domine le LPWAN.' },
-      { id: 'iot_q7', difficulty: 'normal', question: 'Broker MQTT open source ?', options: [{text:'Apache',correct:false},{text:'Mosquitto',correct:true},{text:'Nginx',correct:false},{text:'MySQL',correct:false}], explication: 'Mosquitto (Eclipse) est le broker MQTT open source de reference.' },
+      { id: 'iot_q5', difficulty: 'normal', question: 'Quel botnet IoT a fait trembler Internet en 2016 ?', options: [{text:'Stuxnet',correct:false},{text:'Mirai',correct:true},{text:'WannaCry',correct:false},{text:'NotPetya',correct:false}], explication: 'Mirai a infecté des caméras IP pour lancer des DDoS massifs.' },
+      { id: 'iot_q6', difficulty: 'facile', question: 'Protocole LPWAN le plus déployé ?', options: [{text:'WiFi',correct:false},{text:'LoRaWAN',correct:true},{text:'Bluetooth',correct:false},{text:'Zigbee',correct:false}], explication: 'LoRaWAN (Long Range Wide Area Network) domine le LPWAN.' },
+      { id: 'iot_q7', difficulty: 'normal', question: 'Broker MQTT open source ?', options: [{text:'Apache',correct:false},{text:'Mosquitto',correct:true},{text:'Nginx',correct:false},{text:'MySQL',correct:false}], explication: 'Mosquitto (Eclipse) est le broker MQTT open source de référence.' },
       { id: 'iot_q8', difficulty: 'normal', question: 'MQTT QoS 0 = ?', options: [{text:'At most once',correct:true},{text:'At least once',correct:false},{text:'Exactly once',correct:false},{text:'Never',correct:false}], explication: 'QoS 0 = fire and forget, pas de garantie.' },
-      { id: 'iot_q9', difficulty: 'normal', question: 'IoT dans l industrie s appelle ?', options: [{text:'IoT',correct:false},{text:'IIoT',correct:true},{text:'AIoT',correct:false},{text:'IoE',correct:false}], explication: 'IIoT = Industrial Internet of Things.' },
-      { id: 'iot_q10', difficulty: 'normal', question: 'Portee Sigfox ?', options: [{text:'100m',correct:false},{text:'3-50 km',correct:true},{text:'1 km',correct:false},{text:'10 m',correct:false}], explication: 'Sigfox offre la plus longue portee (3-50 km) au prix d un debit tres faible.' },
-      { id: 'iot_q11', difficulty: 'normal', question: 'Mesure securite IoT prioritaire ?', options: [{text:'Chiffrement fort',correct:false},{text:'Changer mots de passe par defaut',correct:true},{text:'Pare-feu',correct:false},{text:'VPN',correct:false}], explication: 'Le premier vecteur d attaque IoT = mots de passe par defaut.' },
-      { id: 'iot_q12', difficulty: 'normal', question: 'Jumeau numerique sert a ?', options: [{text:'Dupliquer des donnees',correct:false},{text:'Simuler le comportement d un objet physique',correct:true},{text:'Chiffrer les communications',correct:false},{text:'Gerer les acces',correct:false}], explication: 'Digital Twin = replique virtuelle pour test et maintenance predictive.' },
-      { id: 'iot_q13', difficulty: 'normal', question: 'NB-IoT utilise ?', options: [{text:'Bande ISM libre',correct:false},{text:'Reseau mobile LTE',correct:true},{text:'Satellite',correct:false},{text:'Fibre optique',correct:false}], explication: 'NB-IoT est un standard 3GPP utilisant les bandes LTE.' },
+      { id: 'iot_q9', difficulty: 'normal', question: 'IoT dans l\'industrie s\'appelle ?', options: [{text:'IoT',correct:false},{text:'IIoT',correct:true},{text:'AIoT',correct:false},{text:'IoE',correct:false}], explication: 'IIoT = Industrial Internet of Things.' },
+      { id: 'iot_q10', difficulty: 'normal', question: 'Portée Sigfox ?', options: [{text:'100m',correct:false},{text:'3-50 km',correct:true},{text:'1 km',correct:false},{text:'10 m',correct:false}], explication: 'Sigfox offre la plus longue portée (3-50 km) au prix d\'un débit très faible.' },
+      { id: 'iot_q11', difficulty: 'normal', question: 'Mesure sécurité IoT prioritaire ?', options: [{text:'Chiffrement fort',correct:false},{text:'Changer mots de passe par défaut',correct:true},{text:'Pare-feu',correct:false},{text:'VPN',correct:false}], explication: 'Le premier vecteur d\'attaque IoT = mots de passe par défaut.' },
+      { id: 'iot_q12', difficulty: 'normal', question: 'Jumeau numérique sert à ?', options: [{text:'Dupliquer des données',correct:false},{text:'Simuler le comportement d\'un objet physique',correct:true},{text:'Chiffrer les communications',correct:false},{text:'Gérer les accès',correct:false}], explication: 'Digital Twin = réplique virtuelle pour test et maintenance prédictive.' },
+      { id: 'iot_q13', difficulty: 'normal', question: 'NB-IoT utilise ?', options: [{text:'Bande ISM libre',correct:false},{text:'Réseau mobile LTE',correct:true},{text:'Satellite',correct:false},{text:'Fibre optique',correct:false}], explication: 'NB-IoT est un standard 3GPP utilisant les bandes LTE.' },
       { id: 'iot_q14', difficulty: 'normal', question: 'MQTT fonctionne sur ?', options: [{text:'TCP',correct:true},{text:'UDP',correct:false},{text:'ICMP',correct:false},{text:'SCTP',correct:false}], explication: 'MQTT utilise TCP. MQTT-SN pour UDP.' },
-      { id: 'iot_q15', difficulty: 'normal', question: 'Camera IP est un equipement ?', options: [{text:'Reseau classique',correct:false},{text:'IoT',correct:true},{text:'Audio',correct:false},{text:'Stockage',correct:false}], explication: 'Les cameras IP sont des objets connectes IoT.' },
+      { id: 'iot_q15', difficulty: 'normal', question: 'Caméra IP est un équipement ?', options: [{text:'Réseau classique',correct:false},{text:'IoT',correct:true},{text:'Audio',correct:false},{text:'Stockage',correct:false}], explication: 'Les caméras IP sont des objets connectés IoT.' },
       { id: 'iot_q16', difficulty: 'normal', question: 'SBOM dans IoT sert a ?', options: [{text:'Sauvegarder',correct:false},{text:'Lister composants logiciels',correct:true},{text:'Chiffrer',correct:false},{text:'Surveiller',correct:false}], explication: 'SBOM = Software Bill of Materials, inventaire des composants logiciels.' },
-      { id: 'iot_q17', difficulty: 'normal', question: 'Node-RED utilise quel paradigme ?', options: [{text:'Orient objet',correct:false},{text:'Flow-based programming',correct:true},{text:'Fonctionnel',correct:false},{text:'Procedural',correct:false}], explication: 'Node-RED = flow-based, connecte des noeuds par fils.' },
-      { id: 'iot_q18', difficulty: 'troubleshooter', question: 'Topologie Zigbee ?', options: [{text:'Etoile',correct:false},{text:'Maille (mesh)',correct:true},{text:'Bus',correct:false},{text:'Anneau',correct:false}], explication: 'Zigbee forme un reseau maille auto-gerant.' },
-      { id: 'iot_q19', difficulty: 'normal', question: 'Digital Twin est aussi appele ?', options: [{text:'Jumeau numerique',correct:true},{text:'Ombre numerique',correct:false},{text:'IA miroir',correct:false},{text:'Clone',correct:false}], explication: 'Digital Twin = jumeau numerique, replique virtuelle.' },
-      { id: 'iot_q20', difficulty: 'normal', question: 'MQTT sur TCP : port 1883 fait partie de ?', options: [{text:'Ports well-known',correct:false},{text:'Ports enregistres',correct:true},{text:'Ports ephemeres',correct:false},{text:'Ports systeme',correct:false}], explication: 'Les ports 1024-49151 sont des ports enregistres (registered).' },
+      { id: 'iot_q17', difficulty: 'normal', question: 'Node-RED utilise quel paradigme ?', options: [{text:'Orienté objet',correct:false},{text:'Flow-based programming',correct:true},{text:'Fonctionnel',correct:false},{text:'Procedural',correct:false}], explication: 'Node-RED = flow-based, connecte des nœuds par fils.' },
+      { id: 'iot_q18', difficulty: 'troubleshooter', question: 'Topologie Zigbee ?', options: [{text:'Étoile',correct:false},{text:'Maille (mesh)',correct:true},{text:'Bus',correct:false},{text:'Anneau',correct:false}], explication: 'Zigbee forme un réseau maillé auto-gérant.' },
+      { id: 'iot_q19', difficulty: 'normal', question: 'Digital Twin est aussi appelé ?', options: [{text:'Jumeau numérique',correct:true},{text:'Ombre numérique',correct:false},{text:'IA miroir',correct:false},{text:'Clone',correct:false}], explication: 'Digital Twin = jumeau numérique, réplique virtuelle.' },
+      { id: 'iot_q20', difficulty: 'normal', question: 'MQTT sur TCP : port 1883 fait partie de ?', options: [{text:'Ports well-known',correct:false},{text:'Ports enregistrés',correct:true},{text:'Ports éphémères',correct:false},{text:'Ports système',correct:false}], explication: 'Les ports 1024-49151 sont des ports enregistrés (registered).' },
       { id: 'iot_q21', difficulty: 'difficile', question: 'Protocole IoT leger base publish/subscribe ?', options: [{ text: 'HTTP', correct: false }, { text: 'MQTT', correct: true }, { text: 'SOAP', correct: false }, { text: 'FTP', correct: false }], explication: 'MQTT = Message Queue Telemetry Transport.' },
-      { id: 'iot_q22', difficulty: 'difficile', question: 'Portee technologique LPWAN comme LoRaWAN ?', options: [{ text: '<10m', correct: false }, { text: '<100m', correct: false }, { text: '1-10km', correct: false }, { text: '>10km', correct: true }], explication: 'LoRaWAN peut atteindre 15-20km en zone degagee.' },
-      { id: 'iot_q23', difficulty: 'troubleshooter', question: 'Capteur IoT LoRaWAN ne remonte plus de donnees. Verifier ?', options: [{ text: 'Batterie', correct: false }, { text: 'Gateway abonnee (OTAA/ABP)', correct: true }, { text: 'Serveur application', correct: false }, { text: 'DNS', correct: false }], explication: 'Deveui/Appkey doivent correspondre sur le serveur reseau.' },
-      { id: 'iot_q24', difficulty: 'troubleshooter', question: 'MQTT broker refuse connexion client. Cause frequente ?', options: [{ text: 'Mot de passe errone', correct: false }, { text: 'Client ID duplique', correct: true }, { text: 'Version MQTT', correct: false }, { text: 'Certificat', correct: false }], explication: 'Client ID doit etre unique sur le broker.' }
+      { id: 'iot_q22', difficulty: 'difficile', question: 'Portée technologique LPWAN comme LoRaWAN ?', options: [{ text: '<10m', correct: false }, { text: '<100m', correct: false }, { text: '1-10km', correct: false }, { text: '>10km', correct: true }], explication: 'LoRaWAN peut atteindre 15-20km en zone dégagée.' },
+      { id: 'iot_q23', difficulty: 'troubleshooter', question: 'Capteur IoT LoRaWAN ne remonte plus de données. Vérifier ?', options: [{ text: 'Batterie', correct: false }, { text: 'Gateway abonnée (OTAA/ABP)', correct: true }, { text: 'Serveur application', correct: false }, { text: 'DNS', correct: false }], explication: 'Deveui/Appkey doivent correspondre sur le serveur réseau.' },
+      { id: 'iot_q24', difficulty: 'troubleshooter', question: 'MQTT broker refuse connexion client. Cause fréquente ?', options: [{ text: 'Mot de passe erroné', correct: false }, { text: 'Client ID dupliqué', correct: true }, { text: 'Version MQTT', correct: false }, { text: 'Certificat', correct: false }], explication: 'Client ID doit être unique sur le broker.' }
     ],
   },
 

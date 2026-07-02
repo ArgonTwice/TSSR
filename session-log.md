@@ -1,3 +1,58 @@
+## 📋 Récap — 2026-07-01 (session 24)
+
+### Fait :
+- `data.js` : module **Anglais Technique** — 3 nouveaux cours (securite-anglais, cloud-devops-anglais, cv-linkedin-anglais) — 12→15 cours, flashcards 61→92, QCM 57→89, topics enrichis — commit `93b5981`
+- `style.css` : fix **écrans examen/leaderboard décalés** — `#terminal-fs-screen` avait `display:flex` inconditionnel (sélecteur ID plus prioritaire que `.screen{display:none}`), gardait 100vh dans le flux même inactif et poussait `#examen-screen` (Leaderboard, Examen blanc, Révision éclair/du jour) d'une pleine hauteur d'écran → `display:none` par défaut, `flex` seulement avec `.active`
+- `app.js` : fix **typographie dégradée partout** — `sanitizeText()` remplaçait tirets longs (—/–), points de suspension, guillemets typographiques et puces par de l'ASCII pur dans tout le contenu rendu (titres, tableaux, listes) ; conservé le nettoyage des caractères de dessin de boîte/flèches (utile ASCII art/code), retiré le reste — commit `8580acb`
+- `sw.js` : bump cache `tssr-v27` → `tssr-v29` (v28 pour data.js, v29 pour le fix visuel)
+- Checkup visuel complet via Chrome + serveur HTTP local (plusieurs ports pour contourner le cache agressif de Chrome pendant les tests)
+- Tentative de vérification des règles Firestore via navigation Chrome automatisée — bloquée (redirection systématique vers l'overview, clic/capture refusés sur `console.firebase.google.com`), confirmé également non fonctionnel côté utilisateur → reporté, à faire manuellement dans la console (Firestore Database → Règles)
+- Test mobile/responsive : resize de fenêtre ne change pas le viewport réel dans cet environnement (pas de vérification visuelle fiable possible) ; CSS `@media (max-width:768px)` inspecté manuellement, cohérent (sidebar tiroir, mobile-header 56px, padding-top assorti)
+- Audit du contenu `data.js` : repérage d'un problème d'accents manquants bien plus large qu'estimé au premier passage (~193 occurrences, pas ~90) — décision utilisateur : **reporté entièrement** à une prochaine session
+
+### État :
+PWA déployée, tout poussé sur `main`/`gh-pages` (commits `93b5981`, `8580acb`). Anglais Technique à 15 cours/92 FC/89 QCM. Bugs visuels leaderboard + typo corrigés et vérifiés en local. Vérification Firestore et accents manquants non traités, à reprendre.
+
+### À reprendre :
+- [ ] **Accents manquants dans data.js** (~193 occurrences, contenu prose uniquement — pas les blocs de code/CLI) sur 9 modules : Windows Server (cours déploiement Sysprep), Sécurité (`securite-fondamentaux-avances`), Supervision (`supervision-concepts`), Zabbix (`zabbix-complet`), ITIL/GLPI (`itil-glpi-supervision`), Cloud (`cloud-fondamentaux`), Support (`support-essentiel`), VoIP (`telephonie-voip`), IoT (`iot`)
+- [ ] Vérifier règles Firestore (collection `notes`, `allow read, write: if true`) — à faire manuellement dans la console, l'automatisation Chrome ne fonctionne pas sur ce domaine
+- [ ] Railway CLI installé mais pas authentifié — `railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`, puis update URLs `fetch('/api/auto-summarize')` dans `app.js`
+- [ ] Tester sync temps réel Notes entre 2 ordis
+- [ ] Re-uploader les fichiers HTML/PDF uploadés avant session 17
+- [ ] Test mobile/responsive réel (téléphone ou DevTools) — non vérifiable via l'automatisation dans cet environnement
+
+### Contexte express :
+> Session en 2 temps : (1) enrichissement Anglais Technique (3 cours, +31 FC, +32 QCM) ; (2) checkup visuel complet demandé par l'utilisateur — 2 bugs trouvés et corrigés (leaderboard/examen décalés à cause de `#terminal-fs-screen`, typographie ASCII-fiée par `sanitizeText()`). Audit du contenu a révélé un problème d'accents manquants bien plus vaste que prévu (~193 occurrences/9 modules), reporté à la demande de l'utilisateur.
+
+---
+
+## 📋 Récap — 2026-07-01 (session 23)
+
+### Fait :
+- `app.js` + `firebase-notes.js` : refonte onglet Notes — sélecteur d'identité (dropdown), sync temps réel Firestore (`listenToAllMembers`/`saveMemberData` au lieu de localStorage par pseudo), vue lecture seule par membre, tab Résumé agrégé local — commit `47daaeb`
+- Fix : éditeur ne s'affichait pas au chargement initial (`showPerson(cur)` jamais appelé avant interaction) → rendu direct + resync sur premier snapshot Firestore
+- Fix : clé IndexedDB des PDF volumineux (`pdf-idb`) mise à `null` avant stockage → fichier illisible même pour l'uploadeur ; clé conservée (chaîne courte, sans risque pour la limite Firestore 950 Ko)
+- Fix : fichiers texte tombaient dans le message "trop volumineux" au lieu d'un aperçu → branche dédiée ajoutée
+- Suppression code mort : `autoGenerateSummary`/`regenerateAutoSummary` (jamais appelées, la seconde référençait une méthode Firestore supprimée) + `saveSummary`/`listenToSummary` dans `firebase-notes.js`
+- Tests Playwright (chromium headless installé en local) sur l'app servie via `python -m http.server` — 3 fixes vérifiés en conditions réelles (Firestore live) sans écrire de données pour rester safe vis-à-vis des vraies notes des collègues
+- `data.js` : module `anglais-technique` passé de 4 à **12 cours** — grammaire (temps/verbes/modaux/irréguliers, formation de questions), glossaire complémentaire (cloud/virtualisation/stockage/AD/scripting), email professionnel, prononciation (alphabet OTAN, lecture IP/version, mots-pièges), compréhension orale (dialogue support annoté, accents), entretien technique (méthode STAR), réunions/visioconférences — flashcards 15→61, QCM 20→57 — commits `a6fbf27`, `0e5f615`, `a8c042a`
+- `sw.js` : bump cache `tssr-v24` → `tssr-v27` (un bump par commit `data.js`)
+
+### État :
+PWA déployée, tout poussé sur `main` → `gh-pages`. Onglet Notes refondu et testé (identité + sync live + fix PDF/texte). Module Anglais Technique très complet (12 cours, 61 FC, 57 QCM).
+
+### À reprendre :
+- [ ] Railway CLI installé mais pas authentifié — `railway login` à faire par l'utilisateur (flow OAuth navigateur), puis `railway init` + `variables set ANTHROPIC_API_KEY` + `up`, puis mettre à jour les URLs `fetch('/api/auto-summarize')` dans `app.js`
+- [ ] Vérifier règles Firestore (collection `notes`, `allow read, write: if true`)
+- [ ] Tester sync temps réel Notes entre 2 ordis
+- [ ] Re-uploader les fichiers HTML/PDF uploadés avant session 17
+- [ ] Pseudo "Test" pas ajouté à `KNOWN_MEMBERS` (proposé, pas fait) — permettrait de tester sauvegarde/upload Notes sans risquer les vraies données des collègues
+
+### Contexte express :
+> Session double : (1) fix + test réel du rendu Notes (identité, sync Firestore live, PDF IndexedDB, aperçu texte) via Playwright headless local, sans toucher aux vraies données partagées ; (2) enrichissement massif du module Anglais Technique (grammaire complète, vocabulaire élargi, email pro, prononciation, oral, entretien, réunions). 4 commits poussés (`47daaeb`, `a6fbf27`, `0e5f615`, `a8c042a`).
+
+---
+
 ## 📋 Récap — 2026-06-30 (session 22)
 
 ### Fait :

@@ -5774,7 +5774,7 @@ function cliExecWindows(cmd, args, raw) {
       if (all) {
         out(`   Nom de l'hôte. . . . . . . . . . . : ${cliState.host}
    Suffixe DNS principal  . . . . . . : tssr.local
-   Type de nÃÂud . . . . . . . . . . . : Hybride
+   Type de nœud . . . . . . . . . . . : Hybride
    Routage IP activé. . . . . . . . . : Non`);
       }
       out(`Carte Ethernet Ethernet :

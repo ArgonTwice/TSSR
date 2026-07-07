@@ -1394,8 +1394,8 @@ function renderNotes(m, el) {
       previewEl.style.display = 'block';
       const ifr = document.createElement('iframe');
       ifr.className = 'file-preview-iframe';
-      ifr.setAttribute('sandbox', 'allow-scripts');
-      ifr.srcdoc = f.content;
+      ifr.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
+      ifr.srcdoc = makeLinksClickable(f.content);
       previewEl.appendChild(ifr);
     } else if (f.content && f.kind === 'pdf') {
       previewEl.className = 'file-item-preview file-item-preview--render';
@@ -1490,15 +1490,22 @@ function renderNotes(m, el) {
       const ta = area.querySelector('#notes-ta');
       const statusEl = area.querySelector('#ns-status');
       let t;
+      const flushSave = async () => {
+        clearTimeout(t);
+        store.set(`notes_${m.id}_${myId}`, ta.value);
+        const res = await saveMyData(ta.value);
+        statusEl.textContent = res.success ? '✓ Synchronisé' : '⚠ Local seulement';
+      };
       ta.addEventListener('input', () => {
         statusEl.textContent = '…';
         clearTimeout(t);
-        t = setTimeout(async () => {
-          store.set(`notes_${m.id}_${myId}`, ta.value);
-          const res = await saveMyData(ta.value);
-          statusEl.textContent = res.success ? '✓ Synchronisé' : '⚠ Local seulement';
-        }, 800);
+        t = setTimeout(flushSave, 800);
       });
+      // Sauvegarde immediate si on quitte le champ ou l'onglet avant la fin du debounce (evite de perdre les dernieres frappes)
+      ta.addEventListener('blur', flushSave);
+      if (window._noteUnloadHandler) window.removeEventListener('beforeunload', window._noteUnloadHandler);
+      window._noteUnloadHandler = () => { store.set(`notes_${m.id}_${myId}`, ta.value); saveMyData(ta.value); };
+      window.addEventListener('beforeunload', window._noteUnloadHandler);
       const filesList = area.querySelector('#files-list');
 
       const deleteMyFile = async (f, cardEl) => {
@@ -1663,8 +1670,8 @@ function setupFileUpload(moduleId, coursId, onFileReady) {
           previewEl.className = 'file-item-preview file-item-preview--render';
           const ifr = document.createElement('iframe');
           ifr.className = 'file-preview-iframe';
-          ifr.setAttribute('sandbox', 'allow-scripts');
-          ifr.srcdoc = raw;
+          ifr.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
+          ifr.srcdoc = makeLinksClickable(raw);
           previewEl.appendChild(ifr);
           previewEl.style.display = 'block';
         } else if (kind === 'pdf' || kind === 'pdf-idb') {
@@ -1750,8 +1757,8 @@ function openFileFullscreen(file) {
       iframe.src = url;
     })();
   } else {
-    iframe.setAttribute('sandbox', 'allow-scripts');
-    iframe.srcdoc = file.content;
+    iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox');
+    iframe.srcdoc = makeLinksClickable(file.content);
   }
 
   const close = () => overlay.remove();
@@ -1863,6 +1870,17 @@ async function extractFileContent(file) {
   } catch (_) {
     throw new Error('Format non supporte: ' + (type || file.name));
   }
+}
+
+function makeLinksClickable(html) {
+  try {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('a[href]').forEach(a => {
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener noreferrer');
+    });
+    return doc.documentElement.outerHTML;
+  } catch (_) { return html; }
 }
 
 function sanitizeHtmlContent(html) {

@@ -1,14 +1,5 @@
 // app.js — TSSR Study App
 
-// Force SW cache refresh for data.js fix (BOM parasites)
-if ('caches' in window) {
-  caches.keys().then(keys => {
-    keys.filter(k => k !== 'tssr-v24').forEach(k => {
-      caches.delete(k);
-      console.log('Old cache deleted:', k);
-    });
-  });
-}
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
     regs.forEach(reg => reg.update());
@@ -1877,19 +1868,20 @@ function makeLinksClickable(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     doc.querySelectorAll('a[href]').forEach(a => {
       const href = a.getAttribute('href') || '';
-      // Pattern menu JS classique : href="#" + onclick="show('section')" sans preventDefault.
-      // Le clic execute bien le JS puis le navigateur suit quand meme le "#", ce qui remonte
-      // en haut du document (= retour visuel au menu). On neutralise la navigation par defaut.
-      if (href === '#' && a.hasAttribute('onclick')) {
-        const onclick = a.getAttribute('onclick') || '';
-        if (!/preventDefault/.test(onclick)) {
-          a.setAttribute('onclick', 'event.preventDefault();' + onclick);
-        }
+      if (href.startsWith('javascript:')) return;
+      // Ancres internes (#section, #id...) : dans une iframe srcdoc, l'URL de base pour
+      // resoudre "#id" est celle de la page PARENTE (pas le document interne) - le navigateur
+      // navigue donc hors de l'iframe vers l'app elle-meme au lieu de defiler localement.
+      // On neutralise la navigation par defaut et on scrolle manuellement vers la cible.
+      if (href.startsWith('#')) {
+        const existing = a.getAttribute('onclick') || '';
+        const id = href.slice(1);
+        const scrollJs = id
+          ? `var _t=document.getElementById(${JSON.stringify(id)});if(_t)_t.scrollIntoView({behavior:'smooth',block:'start'});`
+          : '';
+        a.setAttribute('onclick', 'event.preventDefault();' + existing + scrollJs);
         return;
       }
-      // Ancres internes (#section) : laisser le defilement se faire dans le document,
-      // ne pas forcer un nouvel onglet a chaque clic.
-      if (href.startsWith('#') || href.startsWith('javascript:')) return;
       a.setAttribute('target', '_blank');
       a.setAttribute('rel', 'noopener noreferrer');
     });

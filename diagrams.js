@@ -138,26 +138,26 @@ s.appendChild(_ln(170,85,230,85,"#3b82f6","2"));s.appendChild(_ln(370,85,430,85,
 s.appendChild(_rx(30,130,140,50,"#a855f7",{opacity:"0.12",stroke:"#a855f7"}));s.appendChild(_tx(100,148,"Base de donnees","#a855f7",{size:"13",weight:"bold"}));s.appendChild(_tx(100,170,"PostgreSQL/MySQL","#94a3b8",{size:"9"}));
 s.appendChild(_ln(100,110,100,130,"#64748b","1"));s.appendChild(_rx(230,130,340,50,"#475569",{opacity:"0.15",stroke:"#475569"}));s.appendChild(_tx(400,148,"Perimetres surveilles","#e2e8f0",{size:"13",weight:"bold"}));s.appendChild(_tx(400,170,"CPU - Memoire - Disque - Reseau - Services - Logs - Temperature","#94a3b8",{size:"9"}));
 s.appendChild(_ln(500,110,500,130,"#64748b","1"));s.appendChild(_rx(30,200,540,75,"#0f1424",{rx:6}));s.appendChild(_tx(300,218,"Flux de donnees","#64748b",{size:"12",weight:"bold"}));
-[["Agent -> Proxy -> Server -> DB","Collecte periodique (push/poll)","#3b82f6",45,235],["Trigger + Action","Seuils -> Alerte -> Escalade","#f59e0b",45,258],["Notification","Email, Telegram, SMS, Webhook","#00e5a0",340,235],["Graph + Dashboard","Grafana/Zabbix UI","#00e5a0",340,258]].forEach(function(d){s.appendChild(_rx(d[2],parseInt(d[3])+12,250,20,d[2],{opacity:"0.08",stroke:d[2]}));s.appendChild(_tx(170,parseInt(d[3])+20,d[0],d[2],{size:"10",anchor:"middle"}));s.appendChild(_tx(170,parseInt(d[3])+32,d[1],"#64748b",{size:"8",anchor:"middle"}))});
+[["Agent -> Proxy -> Server -> DB","Collecte periodique (push/poll)","#3b82f6",45,235],["Trigger + Action","Seuils -> Alerte -> Escalade","#f59e0b",45,258],["Notification","Email, Telegram, SMS, Webhook","#00e5a0",340,235],["Graph + Dashboard","Grafana/Zabbix UI","#00e5a0",340,258]].forEach(function(d){s.appendChild(_rx(d[3],d[4],250,20,d[2],{opacity:"0.08",stroke:d[2]}));s.appendChild(_tx(parseInt(d[3])+125,parseInt(d[4])+9,d[0],d[2],{size:"9",anchor:"middle"}));s.appendChild(_tx(parseInt(d[3])+125,parseInt(d[4])+19,d[1],"#64748b",{size:"7",anchor:"middle"}))});
 return s}}];MODULE_DIAGRAMS.documentation = [{title:"PRA / PCA - Reprise et Continuite",build(){
 var s=_svg("svg",{viewBox:"0 0 600 300"});s.style.cssText="width:100%;max-width:600px;height:auto";
 s.appendChild(_rx(10,10,580,290,"#0f1424",{stroke:"#1e293b",rx:8}));
 s.appendChild(_tx(300,35,"PRA & PCA - Plan de Reprise et Continuite","#f59e0b",{size:"15",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
 [["PCA (Continuite)","Service quasi-immediat (RTO<1h)","Bascule site secondaire (actif/actif)","#3b82f6",40,62],["PRA (Reprise)","Reprise en <24-48h","Replication site secondaire (actif/passif)","#f59e0b",40,127],["Sauvegarde","Jours a semaines","Restaurer depuis bande/cloud","#00e5a0",40,192]].forEach(function(d){
-s.appendChild(_rx(d[3],parseInt(d[4]),220,55,d[3],{opacity:"0.1",stroke:d[3],rx:6}));
-s.appendChild(_tx(150,parseInt(d[4])+16,d[0],d[3],{size:"12",anchor:"middle",weight:"bold"}));
-s.appendChild(_tx(150,parseInt(d[4])+32,d[1],"#e2e8f0",{size:"9",anchor:"middle"}));
-s.appendChild(_tx(150,parseInt(d[4])+46,d[2],"#94a3b8",{size:"9",anchor:"middle"}))});
+s.appendChild(_rx(d[4],parseInt(d[5]),220,55,d[3],{opacity:"0.1",stroke:d[3],rx:6}));
+s.appendChild(_tx(150,parseInt(d[5])+16,d[0],d[3],{size:"12",anchor:"middle",weight:"bold"}));
+s.appendChild(_tx(150,parseInt(d[5])+32,d[1],"#e2e8f0",{size:"9",anchor:"middle"}));
+s.appendChild(_tx(150,parseInt(d[5])+46,d[2],"#94a3b8",{size:"9",anchor:"middle"}))});
 s.appendChild(_rx(290,62,270,185,"#475569",{opacity:"0.08",stroke:"#475569",rx:6}));s.appendChild(_tx(425,78,"Metriques cles","#a855f7",{size:"12",weight:"bold"}));
-[["RTO","Recovery Time Objectif","Temps max d arret","#3b82f6",305,92],["RPO","Recovery Point Objectif","Age max des donnees perdues","#f59e0b",305,132],["MTD","Maximum Tolerable Downtime","Duree max avant faillite","#00e5a0",305,172],["SLA","Service Level Agreement","Contrat de niveau de service","#a855f7",305,212]].forEach(function(d){s.appendChild(_rx(d[4],parseInt(d[5]),240,30,d[4],{opacity:"0.08",stroke:d[4]}));s.appendChild(_tx(425,parseInt(d[5])+14,d[0],d[4],{size:"13",weight:"bold",anchor:"middle"}));s.appendChild(_tx(425,parseInt(d[5])+28,d[1]+": "+d[2],"#94a3b8",{size:"8",anchor:"middle"}))});
+[["RTO","Recovery Time Objectif","Temps max d arret","#3b82f6",305,92],["RPO","Recovery Point Objectif","Age max des donnees perdues","#f59e0b",305,132],["MTD","Maximum Tolerable Downtime","Duree max avant faillite","#00e5a0",305,172],["SLA","Service Level Agreement","Contrat de niveau de service","#a855f7",305,212]].forEach(function(d){s.appendChild(_rx(d[4],parseInt(d[5]),240,30,d[3],{opacity:"0.08",stroke:d[3]}));s.appendChild(_tx(425,parseInt(d[5])+14,d[0],d[3],{size:"13",weight:"bold",anchor:"middle"}));s.appendChild(_tx(425,parseInt(d[5])+28,d[1]+": "+d[2],"#94a3b8",{size:"8",anchor:"middle"}))});
 s.appendChild(_ln(40,265,560,265));s.appendChild(_tx(300,282,"Cout: PCA > PRA > Sauvegarde | RTO,RPO definis dans le PCA/PRA","#64748b",{size:"10"}));
 return s}}];MODULE_DIAGRAMS["scripting-avance"] = [{title:"Pipeline CI/CD - Integration et Deploiement Continus",build(){
 var s=_svg("svg",{viewBox:"0 0 600 300"});s.style.cssText="width:100%;max-width:600px;height:auto";
 s.appendChild(_rx(10,10,580,290,"#0f1424",{stroke:"#1e293b",rx:8}));
 s.appendChild(_tx(300,35,"Pipeline CI/CD","#00e5a0",{size:"16",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
 [["1. Code","Git push","Developpeur -> Depot (GitHub/GitLab)","#3b82f6",20,62,80,55],["2. Build","npm build / mvn","Compilation + gestion dependances","#f59e0b",130,62,100,55],["3. Test","CI pipeline","Tests unitaires + integration + lint","#ef4444",260,62,130,55],["4. Artifact","Docker image / JAR","Empaquetage et versionnage","#a855f7",180,142,150,55],["5. Staging","Deploiement pre-prod","Tests d acceptation + validation","#00e5a0",110,212,150,55],["6. Production","Deploiement final","Zero-downtime, rollback ready","#f59e0b",290,212,150,55]].forEach(function(d){
-s.appendChild(_rx(d[4],parseInt(d[5]),d[6],parseInt(d[7]),d[4],{opacity:"0.1",stroke:d[4],rx:6}));
-s.appendChild(_tx(parseInt(d[4])+parseInt(d[6])/2,parseInt(d[5])+16,d[0],d[4],{size:"11",anchor:"middle",weight:"bold"}));
+s.appendChild(_rx(d[4],parseInt(d[5]),d[6],parseInt(d[7]),d[3],{opacity:"0.1",stroke:d[3],rx:6}));
+s.appendChild(_tx(parseInt(d[4])+parseInt(d[6])/2,parseInt(d[5])+16,d[0],d[3],{size:"11",anchor:"middle",weight:"bold"}));
 s.appendChild(_tx(parseInt(d[4])+parseInt(d[6])/2,parseInt(d[5])+30,d[1],"#e2e8f0",{size:"9",anchor:"middle"}));
 s.appendChild(_tx(parseInt(d[4])+parseInt(d[6])/2,parseInt(d[5])+44,d[2],"#94a3b8",{size:"8",anchor:"middle"}))});
 s.appendChild(_ln(100,90,130,90,"#3b82f6","2"));s.appendChild(_ln(230,90,260,90,"#f59e0b","2"));s.appendChild(_ln(390,90,180,142,"#ef4444","2"));
@@ -186,7 +186,7 @@ s.appendChild(_rx(485,92,70,22,"#3b82f6",{opacity:"0.15"}));s.appendChild(_tx(52
 s.appendChild(_rx(485,124,70,22,"#00e5a0",{opacity:"0.15"}));s.appendChild(_tx(520,140,"VLAN 20","#e2e8f0",{size:"10",anchor:"middle"}));
 s.appendChild(_rx(485,156,70,22,"#f59e0b",{opacity:"0.15"}));s.appendChild(_tx(520,172,"VLAN 30","#e2e8f0",{size:"10",anchor:"middle"}));
 s.appendChild(_ln(40,210,560,210));s.appendChild(_tx(300,235,"Un port trunk transporte plusieurs VLANs via le tag 802.1Q dans l entete Ethernet","#64748b",{size:"10"}));
-[["Access Port","Un seul VLAN, pas de tag","#3b82f6",40,248],["Trunk Port","Plusieurs VLANs + tag 802.1Q","#a855f7",300,248]].forEach(function(d){s.appendChild(_rx(d[2],parseInt(d[3])-10,220,20,d[2],{opacity:"0.06"}));s.appendChild(_tx(150,parseInt(d[3])-2,d[0],d[2],{size:"10",anchor:"middle",weight:"bold"}));s.appendChild(_tx(150,parseInt(d[3])+12,d[1],"#94a3b8",{size:"8",anchor:"middle"}))});
+[["Access Port","Un seul VLAN, pas de tag","#3b82f6",40,248],["Trunk Port","Plusieurs VLANs + tag 802.1Q","#a855f7",300,248]].forEach(function(d){s.appendChild(_rx(d[3],parseInt(d[4])-10,220,20,d[2],{opacity:"0.06"}));s.appendChild(_tx(parseInt(d[3])+110,parseInt(d[4])-2,d[0],d[2],{size:"10",anchor:"middle",weight:"bold"}));s.appendChild(_tx(parseInt(d[3])+110,parseInt(d[4])+12,d[1],"#94a3b8",{size:"8",anchor:"middle"}))});
 return s}});MODULE_DIAGRAMS.securite.push({title:"TLS Handshake - Echange securise",build(){
 var s=_svg("svg",{viewBox:"0 0 600 300"});s.style.cssText="width:100%;max-width:600px;height:auto";
 s.appendChild(_rx(10,10,580,290,"#0f1424",{stroke:"#1e293b",rx:8}));
@@ -215,8 +215,8 @@ if(i<3)s.appendChild(_ln(70,d[4]+45,70,d[4]+55,d[3],"2"))});
 s.appendChild(_rx(460,55,110,210,"#0f1424",{rx:5,stroke:"#1e293b"}));
 s.appendChild(_tx(515,75,"Règles","#a855f7",{size:"11",weight:"bold"}));s.appendChild(_ln(460,82,570,82,"#1e293b","1"));
 [["Last wins","Dernière GPO l emporte","#f59e0b",98],["Block inh.","Bloque héritage parent","#ef4444",132],["Enforced","Force enfants","#3b82f6",166],["Loopback","Politique utilisateur","#00e5a0",200],["WMI filter","Condition sur objet","#a855f7",234]].forEach(function(d){
-s.appendChild(_tx(515,d[2],d[0],d[1],{size:"9",weight:"bold"}));
-s.appendChild(_tx(515,d[2]+12,d[3],"#64748b",{size:"8"}))});
+s.appendChild(_tx(515,d[3],d[0],d[2],{size:"9",weight:"bold"}));
+s.appendChild(_tx(515,d[3]+12,d[1],"#64748b",{size:"8"}))});
 s.appendChild(_tx(300,265,"Local < Site < Domaine < OU - La derniere GPO appliquee gagne","#64748b",{size:"10"}));
 return s}}];MODULE_DIAGRAMS["scripting-avance"].push({title:"Bash vs PowerShell - Comparatif",build(){
 var s=_svg("svg",{viewBox:"0 0 600 290"});s.style.cssText="width:100%;max-width:600px;height:auto";
@@ -237,15 +237,15 @@ var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:
 s.appendChild(_rx(10,10,580,270,"#0f1424",{stroke:"#1e293b",rx:8}));
 s.appendChild(_tx(300,35,"Architectures de stockage","#00e5a0",{size:"16",weight:"bold"}));s.appendChild(_ln(40,48,560,48));
 [["DAS","Direct Attached","SATA / SAS / USB","Local uniquement","Rapide mais isolé","#3b82f6",30,60],["NAS","Network Attached Storage","NFS / SMB / CIFS","Partage réseau (fichiers)","Multi-clients, simple","#f59e0b",218,60],["SAN","Storage Area Network","Fibre Channel / iSCSI","Réseau dédié (blocs LUN)","Très haute perf / BDD","#00e5a0",406,60]].forEach(function(d){
-s.appendChild(_rx(d[6],parseInt(d[7]),178,170,d[4],{opacity:"0.08",stroke:d[4],rx:6}));
-s.appendChild(_tx(d[6]+89,parseInt(d[7])+18,d[0],d[4],{size:"15",weight:"bold"}));
+s.appendChild(_rx(d[6],parseInt(d[7]),178,170,d[5],{opacity:"0.08",stroke:d[5],rx:6}));
+s.appendChild(_tx(d[6]+89,parseInt(d[7])+18,d[0],d[5],{size:"15",weight:"bold"}));
 s.appendChild(_tx(d[6]+89,parseInt(d[7])+36,d[1],"#94a3b8",{size:"9"}));
-s.appendChild(_rx(d[6]+8,parseInt(d[7])+48,162,22,d[4],{opacity:"0.15",stroke:d[4]}));
-s.appendChild(_tx(d[6]+89,parseInt(d[7])+63,d[2],d[4],{size:"10",weight:"bold"}));
+s.appendChild(_rx(d[6]+8,parseInt(d[7])+48,162,22,d[5],{opacity:"0.15",stroke:d[5]}));
+s.appendChild(_tx(d[6]+89,parseInt(d[7])+63,d[2],d[5],{size:"10",weight:"bold"}));
 s.appendChild(_rx(d[6]+8,parseInt(d[7])+78,162,22,"#475569",{opacity:"0.3"}));
 s.appendChild(_tx(d[6]+89,parseInt(d[7])+93,d[3],"#e2e8f0",{size:"9"}));
 s.appendChild(_rx(d[6]+8,parseInt(d[7])+108,162,20,"#475569",{opacity:"0.15"}));
-s.appendChild(_tx(d[6]+89,parseInt(d[7])+122,d[5],"#94a3b8",{size:"9"}))});
+s.appendChild(_tx(d[6]+89,parseInt(d[7])+122,d[4],"#94a3b8",{size:"9"}))});
 s.appendChild(_tx(300,255,"DAS: serveur isolé | NAS: partages fichiers PME | SAN: BDD virtualisation haute perf","#64748b",{size:"10"}));
 return s}});MODULE_DIAGRAMS.messagerie.push({title:"SPF DKIM DMARC - Authentification email",build(){
 var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:600px;height:auto";
@@ -258,7 +258,7 @@ s.appendChild(_tx(d[4]+130,parseInt(d[5])+32,d[1],"#94a3b8",{size:"9"}));
 s.appendChild(_tx(d[4]+130,parseInt(d[5])+50,d[2],"#e2e8f0",{size:"9"}))});
 s.appendChild(_rx(306,56,258,206,"#0f1424",{rx:5,stroke:"#1e293b"}));
 s.appendChild(_tx(435,74,"DNS TXT records","#a855f7",{size:"11",weight:"bold"}));s.appendChild(_ln(306,82,564,82,"#1e293b","1"));
-[["v=spf1 mx include:... ~all","#3b82f6",96],["_domainkey: TXT (cle publique)","#00e5a0",130],["_dmarc: p=quarantine; rua=...","#ef4444",164],["Résultat DMARC","#a855f7",200],["none -> passe","#64748b",218],["quarantine -> spam","#f59e0b",236],["reject -> bloque","#ef4444",254]].forEach(function(d){s.appendChild(_tx(435,d[1],d[0],d[2],{size:"9"}))});
+[["v=spf1 mx include:... ~all","#3b82f6",96],["_domainkey: TXT (cle publique)","#00e5a0",130],["_dmarc: p=quarantine; rua=...","#ef4444",164],["Résultat DMARC","#a855f7",200],["none -> passe","#64748b",218],["quarantine -> spam","#f59e0b",236],["reject -> bloque","#ef4444",254]].forEach(function(d){s.appendChild(_tx(435,d[2],d[0],d[1],{size:"9"}))});
 return s}});MODULE_DIAGRAMS.virtualisation.push({title:"VM vs Conteneur - Architecture comparee",build(){
 var s=_svg("svg",{viewBox:"0 0 600 280"});s.style.cssText="width:100%;max-width:600px;height:auto";
 s.appendChild(_rx(10,10,580,270,"#0f1424",{stroke:"#1e293b",rx:8}));

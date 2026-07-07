@@ -1876,6 +1876,10 @@ function makeLinksClickable(html) {
   try {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     doc.querySelectorAll('a[href]').forEach(a => {
+      const href = a.getAttribute('href') || '';
+      // Ancres internes (#section) : laisser le defilement se faire dans le document,
+      // ne pas forcer un nouvel onglet a chaque clic.
+      if (href.startsWith('#') || href.startsWith('javascript:')) return;
       a.setAttribute('target', '_blank');
       a.setAttribute('rel', 'noopener noreferrer');
     });

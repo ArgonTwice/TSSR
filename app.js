@@ -1877,6 +1877,16 @@ function makeLinksClickable(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     doc.querySelectorAll('a[href]').forEach(a => {
       const href = a.getAttribute('href') || '';
+      // Pattern menu JS classique : href="#" + onclick="show('section')" sans preventDefault.
+      // Le clic execute bien le JS puis le navigateur suit quand meme le "#", ce qui remonte
+      // en haut du document (= retour visuel au menu). On neutralise la navigation par defaut.
+      if (href === '#' && a.hasAttribute('onclick')) {
+        const onclick = a.getAttribute('onclick') || '';
+        if (!/preventDefault/.test(onclick)) {
+          a.setAttribute('onclick', 'event.preventDefault();' + onclick);
+        }
+        return;
+      }
       // Ancres internes (#section) : laisser le defilement se faire dans le document,
       // ne pas forcer un nouvel onglet a chaque clic.
       if (href.startsWith('#') || href.startsWith('javascript:')) return;

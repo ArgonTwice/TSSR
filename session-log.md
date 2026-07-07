@@ -1,3 +1,32 @@
+## 📋 Récap — 2026-07-07 (session 26)
+
+### Fait :
+- `gameshell.html` : refonte complète — 30 missions plates → **6 niveaux à débloquer** (5 missions chacun), écran de sélection avec cadenas/étoiles, énoncés reformulés en objectifs (ne révèlent plus la commande), indice **verrouillé** (débloqué après 2 échecs, stock de 2/niveau, compteur visible), système d'étoiles (★★★ = 0 indice + ≤2 échecs), **pénalité copier-coller** (paste détecté → plafond ★★ sur le niveau), migration de l'ancienne sauvegarde `{step}` vers le nouveau format, reprise mi-niveau persistée
+- `netrunner.html` : refonte v3 — même logique que GameShell (3 missions à débloquer, indice verrouillé après 2 échecs, étoiles selon rapidité + pénalité indices) tout en gardant le chrono et le leaderboard qui font son identité — testé de bout en bout en direct (aide verrouillée → débloquée → victoire ★★★ 22s → nouveau record)
+- `app.js` : Notes — bouton ✕ pour **supprimer un fichier** uploadé (PDF/HTML/TXT) de ses propres notes, avec confirmation + nettoyage du blob IndexedDB (`PdfStore.remove()` ajouté, référencé mais manquant)
+- `app.js` : Notes — fix **liens cliquables** dans les aperçus HTML — le sandbox iframe (`allow-scripts` seul) bloquait toute navigation ; ajout `allow-popups allow-popups-to-escape-sandbox` + réécriture auto de chaque `<a href>` en `target="_blank" rel="noopener noreferrer"` (fonction `makeLinksClickable`), appliqué aux 3 endroits de rendu HTML
+- `app.js` : Notes — **sauvegarde auto renforcée** — flush immédiat au `blur` du champ + tentative sur `beforeunload`, pour ne plus perdre les dernières frappes en changeant d'onglet/de collègue avant la fin du debounce (800ms)
+- Firestore (console, manuel par l'utilisateur) : **règles corrigées** — l'ancienne règle était le mode test par défaut avec **expiration au 17/07/2026** (10 jours), remplacée par une règle scopée à la collection `notes` (`allow read, write: if true`) sans limite de temps ; lecture reconfirmée fonctionnelle en direct contre le projet `tssr-pwa` (aucune erreur de permission) après publication — TODO ouvert depuis la session 17, enfin clos
+- `sw.js` : bump cache `tssr-v30` → `tssr-v31` → `tssr-v32` → `tssr-v33`
+- 2 commits poussés sur `main` (`1982e57`, `66e1b5c`) → déployés sur GitHub Pages
+- Mémoire globale : 2 fiches créées (`firebase-console-blocked` — l'automatisation Chrome ne peut pas accéder à console.firebase.google.com, confirmé 2 fois ; `tssr-notes-firestore-sync` — état de la vérification lecture/écriture Firestore)
+
+### État :
+PWA déployée, tout poussé (commits `1982e57`, `66e1b5c`). GameShell et NetRunner refondus en systèmes de niveaux avec aide réduite et anti-triche (copier-coller). Notes : suppression de fichiers, liens HTML cliquables, sauvegarde auto robuste. Règles Firestore corrigées et vérifiées en lecture (écriture non testée pour ne pas polluer les vraies notes des collègues).
+
+### À reprendre :
+- [ ] **Vérifier l'écriture Firestore en conditions réelles** — ouvrir l'app sur 2 ordis, taper une note sur l'un, confirmer qu'elle apparaît sur l'autre (la lecture est confirmée, l'écriture est probable mais jamais testée directement)
+- [ ] Envisager d'ajouter un pseudo "Test" dans `KNOWN_MEMBERS` pour permettre de tester sync/upload sans risquer les vraies données des collègues
+- [ ] Railway CLI non authentifié — `railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`
+- [ ] Re-uploader fichiers HTML/PDF uploadés avant session 17
+- [ ] Test mobile/responsive réel (téléphone ou DevTools)
+- [ ] Idée : chrono/leaderboard partagé Firestore pour GameShell (actuellement localStorage seul, comme NetRunner)
+
+### Contexte express :
+> Session à 3 volets : (1) refonte GameShell + NetRunner en systèmes de niveaux avec aide verrouillée et pénalité anti-copier-coller (demande explicite : "moins d'aide") ; (2) amélioration Notes — suppression de fichiers, fix liens HTML cliquables (bug sandbox iframe), sauvegarde auto renforcée ; (3) résolution d'un TODO ouvert depuis 5 sessions — règles Firestore corrigées manuellement par l'utilisateur via la console (guidé pas à pas car l'automatisation Chrome est bloquée sur ce domaine), avec découverte que l'ancienne règle allait expirer dans 10 jours. 2 commits poussés et déployés.
+
+---
+
 ## 📋 Récap — 2026-07-02 (session 25)
 
 ### Fait :

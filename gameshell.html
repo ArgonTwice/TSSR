@@ -23,6 +23,9 @@
     #hdr-l strong{color:var(--g)}
     #hdr-m{font-size:11px;color:var(--gd);flex:1;text-align:center;letter-spacing:1px}
     #hdr-r{font-size:12px;color:var(--gd);white-space:nowrap}
+    #hdr-r .stars{color:var(--y)}
+    #hdr-r .hints-on{color:var(--g)}
+    #hdr-r .hints-off{color:#333}
     /* Layout */
     #main{flex:1;display:flex;overflow:hidden}
     /* Terminal */
@@ -60,30 +63,38 @@
     }
     .pnl-progress{height:3px;background:var(--gdk);flex-shrink:0}
     .pnl-progress-fill{height:100%;background:var(--g);transition:width .4s}
-    .pnl-missions{padding:8px 0;flex:1}
+    .pnl-levels{padding:8px 0;flex:1}
+    .pl{
+      display:flex;align-items:center;gap:8px;
+      padding:7px 14px;font-size:11px;font-weight:700;letter-spacing:1px;
+      border-left:2px solid transparent;cursor:default;
+    }
+    .pl.unlocked{cursor:pointer}
+    .pl.unlocked:hover{background:rgba(0,255,136,.05)}
+    .pl.locked{color:#2a2a2a}
+    .pl.done{color:var(--gd)}
+    .pl.active{color:var(--g);border-left-color:var(--g);background:rgba(0,255,136,.06)}
+    .pl-stars{margin-left:auto;color:var(--y);font-weight:400}
+    .pl-lock{margin-left:auto;color:#2a2a2a}
     .pm{
       display:flex;align-items:flex-start;gap:8px;
-      padding:5px 14px;font-size:11px;line-height:1.4;
+      padding:4px 14px 4px 26px;font-size:11px;line-height:1.4;
       border-left:2px solid transparent;
     }
-    .pm.done {color:var(--gd);border-left-color:var(--gd)}
-    .pm.current{color:var(--g);border-left-color:var(--g);background:rgba(0,255,136,.06)}
+    .pm.done {color:var(--gd)}
+    .pm.current{color:var(--g);background:rgba(0,255,136,.04)}
     .pm.todo {color:#333}
-    .pm-num{min-width:22px;font-weight:700}
+    .pm-num{min-width:16px;font-weight:700}
     .pm-txt{flex:1}
     .pm-check{min-width:14px;text-align:center}
-    .pnl-level{
-      padding:4px 14px;font-size:10px;font-weight:700;letter-spacing:1px;
-      color:var(--y);border-top:1px solid var(--gdk);margin-top:4px;
-    }
     /* Overlays */
     .ov{
       position:fixed;inset:0;display:flex;flex-direction:column;
       align-items:center;justify-content:center;
-      z-index:500;padding:32px;text-align:center;
+      z-index:500;padding:32px;text-align:center;overflow-y:auto;
     }
     .h{display:none!important}
-    #ov-win{background:rgba(0,0,0,.93);color:var(--g)}
+    #ov-win,#ov-select{background:rgba(0,0,0,.93);color:var(--g);font-family:'Courier New',Courier,monospace}
     .ov-ttl{font-size:clamp(18px,4vw,30px);letter-spacing:6px;font-weight:bold;margin-bottom:10px;text-shadow:0 0 20px currentColor}
     .ov-sub{font-size:12px;color:#555;letter-spacing:1px;margin-bottom:14px}
     .ov-flags{font-size:13px;line-height:2.2;letter-spacing:2px;text-shadow:0 0 8px var(--g);margin:10px 0}
@@ -94,6 +105,25 @@
       transition:background .15s,box-shadow .15s;
     }
     .ob:hover{background:rgba(255,255,255,.08);box-shadow:0 0 10px currentColor}
+    /* Level select */
+    #lvl-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,220px));
+      gap:14px;justify-content:center;max-width:760px;margin-top:8px;
+    }
+    .lvl-card{
+      border:1px solid var(--gdk);padding:16px 12px;text-align:center;
+      background:rgba(0,255,136,.02);transition:border-color .15s,box-shadow .15s;
+    }
+    .lvl-card.unlocked{cursor:pointer;border-color:var(--gd)}
+    .lvl-card.unlocked:hover{border-color:var(--g);box-shadow:0 0 14px rgba(0,255,136,.25)}
+    .lvl-card.next{border-color:var(--g);animation:pulse 1.6s infinite}
+    .lvl-card.locked{opacity:.35;filter:grayscale(1)}
+    @keyframes pulse{0%,100%{box-shadow:0 0 4px rgba(0,255,136,.2)}50%{box-shadow:0 0 18px rgba(0,255,136,.5)}}
+    .lvl-emoji{font-size:26px;margin-bottom:6px}
+    .lvl-num{font-size:10px;letter-spacing:3px;color:var(--gd);margin-bottom:4px}
+    .lvl-name{font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:6px}
+    .lvl-stars{font-size:13px;color:var(--y);letter-spacing:2px;min-height:18px}
+    .lvl-stars .off{color:#222}
     /* Boot */
     #boot{
       position:fixed;inset:0;background:#0a0f0a;color:var(--g);
@@ -126,9 +156,9 @@
 <!-- App -->
 <div id="app">
   <div id="hdr">
-    <div id="hdr-l"><strong id="hm">MISSION 1/30</strong> — <span id="hn">…</span></div>
+    <div id="hdr-l"><strong id="hm">NIVEAU 1</strong> — <span id="hn">…</span></div>
     <div id="hdr-m">🐧 GameShell TSSR — Terminal Linux</div>
-    <div id="hdr-r" id="hp">0 / 30</div>
+    <div id="hdr-r"></div>
   </div>
   <div id="main">
     <div id="term-wrap">
@@ -140,81 +170,108 @@
       </div>
     </div>
     <div id="panel">
-      <div class="pnl-hdr">MISSIONS</div>
+      <div class="pnl-hdr">NIVEAUX</div>
       <div class="pnl-progress"><div class="pnl-progress-fill" id="pbar" style="width:0%"></div></div>
-      <div class="pnl-missions" id="pmlist"></div>
+      <div class="pnl-levels" id="pmlist"></div>
     </div>
   </div>
+</div>
+
+<!-- Sélection de niveau -->
+<div id="ov-select" class="ov h">
+  <div class="ov-ttl">GAMESHELL</div>
+  <div class="ov-sub">Choisis ton niveau — termine un niveau pour débloquer le suivant</div>
+  <div id="lvl-grid"></div>
+  <button class="ob" id="btn-reset-all" onclick="fullReset()">[ TOUT RÉINITIALISER ]</button>
 </div>
 
 <!-- Victory -->
 <div id="ov-win" class="ov h">
   <div class="ov-ttl">🏆 MAÎTRE DU TERMINAL</div>
-  <div class="ov-sub">30 missions accomplies — Tu maîtrises Linux.</div>
-  <div class="ov-flags">
-    <div>🌱 Niveau 1 — Découverte</div>
-    <div>📁 Niveau 2 — Fichiers</div>
-    <div>🔍 Niveau 3 — Exploration</div>
-    <div>🔐 Niveau 4 — Permissions</div>
-    <div>⚙️ Niveau 5 — Processus</div>
-    <div>🏆 Niveau 6 — Maître du terminal</div>
-  </div>
+  <div class="ov-sub">6 niveaux terminés — Tu maîtrises Linux.</div>
+  <div class="ov-flags" id="win-flags"></div>
   <button class="ob" onclick="restart()">[ RECOMMENCER ]</button>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════
-// MISSIONS
+// NIVEAUX & MISSIONS
+// Les énoncés décrivent l'OBJECTIF, pas la commande.
+// L'indice est verrouillé : 2 échecs pour le débloquer, stock de 2 par niveau.
 // ═══════════════════════════════════════════════
 const LEVELS = [
-  { at: 5,  emoji: '🌱', label: 'Niv.1 — Découverte' },
-  { at: 10, emoji: '📁', label: 'Niv.2 — Fichiers' },
-  { at: 15, emoji: '🔍', label: 'Niv.3 — Exploration' },
-  { at: 20, emoji: '🔐', label: 'Niv.4 — Permissions' },
-  { at: 25, emoji: '⚙️', label: 'Niv.5 — Processus' },
-  { at: 30, emoji: '🏆', label: 'Niv.6 — Maître' },
+  {
+    emoji: '🌱', title: 'Découverte',
+    intro: 'Les bases : savoir où tu es, regarder autour de toi, te déplacer.',
+    missions: [
+      { instr:'Affiche le chemin absolu du répertoire où tu te trouves.',                       hint:'pwd',                                  check:c=>/^pwd$/i.test(c.trim()),                                                                    tip:'pwd = Print Working Directory. Affiche le chemin absolu où tu te trouves.' },
+      { instr:'Liste le contenu du répertoire courant.',                                        hint:'ls',                                   check:c=>/^ls(\s|$)/i.test(c.trim()),                                                               tip:'ls liste les fichiers et dossiers. -l = détails, -a = fichiers cachés.' },
+      { instr:'Déplace-toi dans /etc.',                                                         hint:'cd /etc',                              check:c=>/^cd\s+\/etc(\/|$|\s|)$/.test(c.trim()),                                                   tip:'/etc contient les fichiers de configuration système.' },
+      { instr:'Reviens dans ton répertoire personnel.',                                         hint:'cd ~',                                 check:c=>/^cd\s*$/.test(c.trim())||/^cd\s+(~|\/home\/)/.test(c.trim()),                             tip:'~ est un alias vers /home/tssr. cd sans argument fait la même chose.' },
+      { instr:'Liste TOUS les fichiers du répertoire, y compris les cachés.',                   hint:'ls -a',                                check:c=>/^ls\b.*-[a-zA-Z]*a/.test(c.trim()),                                                       tip:'Les fichiers cachés commencent par un point : .bashrc, .profile…' },
+    ],
+  },
+  {
+    emoji: '📁', title: 'Fichiers',
+    intro: 'Créer, remplir et lire des fichiers et des dossiers.',
+    missions: [
+      { instr:'Crée un dossier nommé "mission".',                                               hint:'mkdir mission',                        check:c=>/^mkdir\s+mission$/.test(c.trim()),                                                         tip:'mkdir = Make Directory. mkdir -p a/b/c crée toute l\'arborescence.' },
+      { instr:'Entre dans le dossier "mission".',                                               hint:'cd mission',                           check:c=>/^cd\s+mission$/.test(c.trim()),                                                            tip:'Tu es maintenant dans /home/tssr/mission.' },
+      { instr:'Crée un fichier VIDE nommé "objectif.txt".',                                     hint:'touch objectif.txt',                   check:c=>/^touch\s+objectif\.txt$/.test(c.trim()),                                                   tip:'touch crée un fichier vide ou met à jour sa date de modification.' },
+      { instr:'Écris le mot GameShell dans objectif.txt, en une seule commande.',               hint:'echo "GameShell" > objectif.txt',      check:c=>/^echo\b/.test(c.trim())&&c.includes('>')&&/objectif\.txt/.test(c),                        tip:'> redirige stdout vers un fichier (écrase). >> ajoute sans écraser.' },
+      { instr:'Affiche le contenu de objectif.txt dans le terminal.',                           hint:'cat objectif.txt',                     check:c=>/^cat\s+objectif\.txt/.test(c.trim()),                                                      tip:'cat = concatenate. Pour les gros fichiers, préfère less.' },
+    ],
+  },
+  {
+    emoji: '🔍', title: 'Exploration',
+    intro: 'Fouiller le système : lire, filtrer, compter, copier.',
+    missions: [
+      { instr:'Affiche le nom de cette machine (il est stocké dans un fichier de /etc).',       hint:'cat /etc/hostname',                    check:c=>/^cat\b/.test(c.trim())&&/hostname/.test(c),                                               tip:'/etc/hostname contient le nom court de la machine.' },
+      { instr:'Affiche uniquement les lignes de /etc/passwd qui contiennent "tssr".',           hint:'grep "tssr" /etc/passwd',              check:c=>/^grep\b/.test(c.trim())&&/\/etc\/passwd/.test(c),                                         tip:'/etc/passwd : login:x:UID:GID:gecos:home:shell.' },
+      { instr:'Compte le nombre de lignes de /etc/passwd.',                                     hint:'wc -l /etc/passwd',                    check:c=>/^wc\b/.test(c.trim())&&c.includes('/etc/passwd'),                                         tip:'wc = word count. -l lignes, -w mots, -c octets.' },
+      { instr:'Affiche seulement le DÉBUT de /etc/passwd (les premières lignes).',              hint:'head -3 /etc/passwd',                  check:c=>/^head\b/.test(c.trim())&&c.includes('/etc/passwd'),                                       tip:'head affiche le début. tail fait l\'inverse. tail -f suit en temps réel.' },
+      { instr:'Copie objectif.txt vers un nouveau fichier sauvegarde.txt.',                     hint:'cp objectif.txt sauvegarde.txt',       check:c=>/^cp\s+objectif\.txt\s+sauvegarde\.txt/.test(c.trim()),                                     tip:'cp copie un fichier. cp -r pour les répertoires.' },
+    ],
+  },
+  {
+    emoji: '🔐', title: 'Permissions',
+    intro: 'Droits, propriétaires et liens : le contrôle d\'accès Linux.',
+    missions: [
+      { instr:'Liste le répertoire en affichant les permissions de chaque fichier.',            hint:'ls -l',                                check:c=>/^ls\b.*-[a-zA-Z]*l/.test(c.trim()),                                                       tip:'Format : -rw-r--r-- 1 user group size date nom.' },
+      { instr:'Rends objectif.txt exécutable.',                                                 hint:'chmod +x objectif.txt',                check:c=>/^chmod\b/.test(c.trim())&&/\+x/.test(c)&&/objectif\.txt/.test(c),                         tip:'+x ajoute l\'exécution pour tous. r=4, w=2, x=1.' },
+      { instr:'Applique les permissions 644 à sauvegarde.txt.',                                 hint:'chmod 644 sauvegarde.txt',             check:c=>/^chmod\s+644\s+sauvegarde\.txt/.test(c.trim()),                                            tip:'644 = rw-r--r-- : propriétaire lit+écrit, groupe et autres lisent.' },
+      { instr:'Liste permissions ET fichiers cachés, en une seule commande.',                   hint:'ls -la',                               check:c=>/^ls\b/.test(c.trim())&&(/-[a-zA-Z]*l/.test(c)&&/-[a-zA-Z]*a/.test(c)||/^ls\s+-(la|al)$/.test(c.trim())), tip:'-l + -a : tout voir, y compris . et ..' },
+      { instr:'Crée un lien symbolique "lien.txt" qui pointe vers objectif.txt.',               hint:'ln -s objectif.txt lien.txt',          check:c=>/^ln\s+-s\b/.test(c.trim())&&/objectif\.txt/.test(c),                                      tip:'Un lien symbolique est un raccourci. Supprimer le lien ne touche pas la cible.' },
+    ],
+  },
+  {
+    emoji: '⚙️', title: 'Processus & Réseau',
+    intro: 'Ce qui tourne sur la machine : processus, services, ports, interfaces.',
+    missions: [
+      { instr:'Affiche TOUS les processus du système, dans un format détaillé.',                hint:'ps aux',                               check:c=>/^ps\b/.test(c.trim())&&/aux/.test(c),                                                     tip:'a = tous users, u = format lisible, x = sans terminal. PID = identifiant.' },
+      { instr:'Affiche uniquement les processus liés à bash (enchaîne deux commandes).',        hint:'ps aux | grep bash',                   check:c=>/^ps\b/.test(c.trim())&&/\|\s*grep\b/.test(c)&&/bash/.test(c),                             tip:'Le pipe | enchaîne : stdout de gauche → stdin de droite.' },
+      { instr:'Vérifie l\'état du service SSH.',                                                hint:'systemctl status ssh',                 check:c=>/^(sudo\s+)?systemctl\s+status\s+(ssh|sshd)/i.test(c.trim()),                              tip:'systemd gère les services. "Active: running" = opérationnel.' },
+      { instr:'Liste les ports en écoute sur la machine.',                                      hint:'ss -tlnp',                             check:c=>/^netstat\b/.test(c.trim())||/^ss\b/.test(c.trim()),                                       tip:'-t TCP, -l listening, -n numérique. Port 22 = SSH, 80 = HTTP, 443 = HTTPS.' },
+      { instr:'Affiche la configuration réseau des interfaces.',                                hint:'ip a',                                 check:c=>/^ip\s+(a|addr)\b/i.test(c.trim())||/^ifconfig\b/i.test(c.trim()),                          tip:'ip addr remplace ifconfig. lo = loopback, eth0 = carte réseau.' },
+    ],
+  },
+  {
+    emoji: '🏆', title: 'Maître',
+    intro: 'Redirections, recherche et pipes : les armes de l\'admin sys.',
+    missions: [
+      { instr:'Liste le contenu de /root SANS afficher le message d\'erreur (redirige-le).',    hint:'ls /root 2>/dev/null',                 check:c=>/2>\s*\/dev\/null/.test(c),                                                                tip:'2>/dev/null envoie stderr dans le néant. Utile dans les scripts.' },
+      { instr:'Trouve tous les fichiers .txt présents sur le système.',                         hint:'find / -name "*.txt" 2>/dev/null',     check:c=>/^find\b/.test(c.trim())&&/-name\b/.test(c)&&/\.txt/.test(c),                              tip:'find parcourt récursivement. -type f fichiers, -mtime +7 modifiés >7j.' },
+      { instr:'Affiche /etc/passwd trié par ordre alphabétique.',                               hint:'sort /etc/passwd',                     check:c=>/^sort\b/.test(c.trim()),                                                                   tip:'sort trie les lignes. -r = inverse, -n = numérique, -t: -k3 = tri sur champ 3.' },
+      { instr:'Trie /etc/passwd PUIS élimine les doublons, en un seul enchaînement.',           hint:'sort /etc/passwd | uniq',              check:c=>/^sort\b/.test(c.trim())&&/\|\s*uniq\b/.test(c),                                           tip:'uniq supprime les lignes consécutives identiques — toujours après sort.' },
+      { instr:'Défi final — extrais les logins des utilisateurs en bash : filtre /etc/passwd sur "bash", garde le 1er champ (séparateur :), et trie le résultat.', hint:'cat /etc/passwd | grep bash | cut -d: -f1 | sort', check:c=>/grep\b/.test(c)&&/cut\b/.test(c)&&/sort\b/.test(c)&&(c.match(/\|/g)||[]).length>=2, tip:'🎮 Parfait ! grep filtre, cut extrait, sort trie. Le pipe fondamental des admins sys.' },
+    ],
+  },
 ];
 
-const MISSIONS = [
-  // Niveau 1
-  { instr:'⭐ Mission 1/30 — Affiche ton répertoire courant.',                         hint:'pwd',                                         check:c=>/^pwd$/i.test(c.trim()),                                                                    tip:'pwd = Print Working Directory. Affiche le chemin absolu où tu te trouves.' },
-  { instr:'Mission 2/30 — Liste le contenu du répertoire courant.',                    hint:'ls',                                          check:c=>/^ls(\s|$)/i.test(c.trim()),                                                               tip:'ls liste les fichiers et dossiers. -l = détails, -a = fichiers cachés.' },
-  { instr:'Mission 3/30 — Déplace-toi dans /etc.',                                    hint:'cd /etc',                                     check:c=>/^cd\s+\/etc(\/|$|\s|)$/.test(c.trim()),                                                   tip:'/etc contient les fichiers de configuration système.' },
-  { instr:'Mission 4/30 — Reviens dans ton home avec le raccourci ~.',                 hint:'cd ~',                                        check:c=>/^cd\s*(~|\/home\/)/.test(c.trim()),                                                       tip:'~ est un alias vers /home/tssr. cd sans argument fait la même chose.' },
-  { instr:'Mission 5/30 — Liste TOUS les fichiers, y compris les cachés (.).',         hint:'ls -a',                                       check:c=>/^ls\b.*-[a-zA-Z]*a/.test(c.trim()),                                                       tip:'Les fichiers cachés commencent par un point : .bashrc, .profile…' },
-  // Niveau 2
-  { instr:'⭐ Mission 6/30 — Crée un dossier nommé "mission".',                        hint:'mkdir mission',                               check:c=>/^mkdir\s+mission$/.test(c.trim()),                                                         tip:'mkdir = Make Directory. mkdir -p a/b/c crée toute l\'arborescence.' },
-  { instr:'Mission 7/30 — Entre dans le dossier "mission".',                           hint:'cd mission',                                  check:c=>/^cd\s+mission$/.test(c.trim()),                                                            tip:'Tu es maintenant dans /home/tssr/mission.' },
-  { instr:'Mission 8/30 — Crée un fichier vide nommé "objectif.txt".',                 hint:'touch objectif.txt',                          check:c=>/^touch\s+objectif\.txt$/.test(c.trim()),                                                   tip:'touch crée un fichier vide ou met à jour sa date de modification.' },
-  { instr:'Mission 9/30 — Écris "GameShell" dans objectif.txt avec echo et >.',        hint:'echo "GameShell" > objectif.txt',             check:c=>/^echo\b/.test(c.trim())&&c.includes('>')&&/objectif\.txt/.test(c),                        tip:'> redirige stdout vers un fichier (écrase). >> ajoute sans écraser.' },
-  { instr:'Mission 10/30 — Affiche le contenu de objectif.txt avec cat.',              hint:'cat objectif.txt',                            check:c=>/^cat\s+objectif\.txt/.test(c.trim()),                                                      tip:'cat = concatenate. Pour les gros fichiers, préfère less.' },
-  // Niveau 3
-  { instr:'⭐ Mission 11/30 — Affiche le nom de cette machine via /etc/hostname.',     hint:'cat /etc/hostname',                           check:c=>/^cat\b/.test(c.trim())&&/hostname/.test(c),                                               tip:'/etc/hostname contient le nom court de la machine.' },
-  { instr:'Mission 12/30 — Cherche "tssr" dans /etc/passwd avec grep.',               hint:'grep "tssr" /etc/passwd',                     check:c=>/^grep\b/.test(c.trim())&&/\/etc\/passwd/.test(c),                                         tip:'/etc/passwd : login:x:UID:GID:gecos:home:shell.' },
-  { instr:'Mission 13/30 — Compte les lignes de /etc/passwd avec wc -l.',             hint:'wc -l /etc/passwd',                           check:c=>/^wc\b/.test(c.trim())&&c.includes('/etc/passwd'),                                         tip:'wc = word count. -l lignes, -w mots, -c octets.' },
-  { instr:'Mission 14/30 — Affiche les 3 premières lignes de /etc/passwd avec head.', hint:'head -3 /etc/passwd',                         check:c=>/^head\b/.test(c.trim())&&c.includes('/etc/passwd'),                                       tip:'head affiche le début. tail fait l\'inverse. tail -f suit en temps réel.' },
-  { instr:'Mission 15/30 — Copie objectif.txt en sauvegarde.txt avec cp.',            hint:'cp objectif.txt sauvegarde.txt',              check:c=>/^cp\s+objectif\.txt\s+sauvegarde\.txt/.test(c.trim()),                                     tip:'cp copie un fichier. cp -r pour les répertoires.' },
-  // Niveau 4
-  { instr:'⭐ Mission 16/30 — Affiche les permissions des fichiers avec ls -l.',      hint:'ls -l',                                       check:c=>/^ls\b.*-[a-zA-Z]*l/.test(c.trim()),                                                       tip:'Format : -rw-r--r-- 1 user group size date nom.' },
-  { instr:'Mission 17/30 — Rends objectif.txt exécutable avec chmod +x.',             hint:'chmod +x objectif.txt',                       check:c=>/^chmod\b/.test(c.trim())&&/\+x/.test(c)&&/objectif\.txt/.test(c),                         tip:'+x ajoute l\'exécution pour tous. r=4, w=2, x=1.' },
-  { instr:'Mission 18/30 — Mets les permissions 644 sur sauvegarde.txt.',             hint:'chmod 644 sauvegarde.txt',                    check:c=>/^chmod\s+644\s+sauvegarde\.txt/.test(c.trim()),                                            tip:'644 = rw-r--r-- : propriétaire lit+écrit, groupe et autres lisent.' },
-  { instr:'Mission 19/30 — Affiche permissions ET fichiers cachés avec ls -la.',       hint:'ls -la',                                      check:c=>/^ls\b/.test(c.trim())&&(/-[a-zA-Z]*l/.test(c)&&/-[a-zA-Z]*a/.test(c)||/^ls\s+-(la|al)$/.test(c.trim())), tip:'-l + -a : tout voir, y compris . et ..' },
-  { instr:'Mission 20/30 — Crée un lien symbolique "lien.txt" vers objectif.txt.',    hint:'ln -s objectif.txt lien.txt',                 check:c=>/^ln\s+-s\b/.test(c.trim())&&/objectif\.txt/.test(c),                                      tip:'Un lien symbolique est un raccourci. Supprimer le lien ne touche pas la cible.' },
-  // Niveau 5
-  { instr:'⭐ Mission 21/30 — Affiche tous les processus avec ps aux.',               hint:'ps aux',                                      check:c=>/^ps\b/.test(c.trim())&&/aux/.test(c),                                                     tip:'a = tous users, u = format lisible, x = sans terminal. PID = identifiant.' },
-  { instr:'Mission 22/30 — Filtre les processus bash : ps aux | grep bash.',          hint:'ps aux | grep bash',                          check:c=>/^ps\b/.test(c.trim())&&/\|\s*grep\b/.test(c)&&/bash/.test(c),                             tip:'Le pipe | enchaîne : stdout de gauche → stdin de droite.' },
-  { instr:'Mission 23/30 — Vérifie l\'état du service SSH avec systemctl status.',    hint:'systemctl status ssh',                        check:c=>/^(sudo\s+)?systemctl\s+status\s+(ssh|sshd)/i.test(c.trim()),                              tip:'systemd gère les services. "Active: running" = opérationnel.' },
-  { instr:'Mission 24/30 — Affiche les ports ouverts avec netstat ou ss.',            hint:'netstat -tlnp',                               check:c=>/^netstat\b/.test(c.trim())||/^ss\b/.test(c.trim()),                                       tip:'-t TCP, -l listening, -n numérique. Port 22 = SSH, 80 = HTTP, 443 = HTTPS.' },
-  { instr:'Mission 25/30 — Affiche la configuration réseau avec ip a.',               hint:'ip a',                                        check:c=>/^ip\s+(a|addr)\b/i.test(c.trim())||/^ifconfig\b/i.test(c.trim()),                          tip:'ip addr remplace ifconfig. lo = loopback, eth0 = carte réseau.' },
-  // Niveau 6
-  { instr:'⭐ Mission 26/30 — Lance "ls /root 2>/dev/null" pour ignorer les erreurs.',hint:'ls /root 2>/dev/null',                        check:c=>/2>\s*\/dev\/null/.test(c),                                                                tip:'2>/dev/null envoie stderr dans le néant. Utile dans les scripts.' },
-  { instr:'Mission 27/30 — Trouve tous les fichiers .txt avec find.',                 hint:'find / -name "*.txt" 2>/dev/null',            check:c=>/^find\b/.test(c.trim())&&/-name\b/.test(c)&&/\.txt/.test(c),                              tip:'find parcourt récursivement. -type f fichiers, -mtime +7 modifiés >7j.' },
-  { instr:'Mission 28/30 — Trie /etc/passwd alphabétiquement avec sort.',             hint:'sort /etc/passwd',                            check:c=>/^sort\b/.test(c.trim()),                                                                   tip:'sort trie les lignes. -r = inverse, -n = numérique, -t: -k3 = tri sur champ 3.' },
-  { instr:'Mission 29/30 — Combine sort et uniq pour supprimer les doublons.',        hint:'sort /etc/passwd | uniq',                     check:c=>/^sort\b/.test(c.trim())&&/\|\s*uniq\b/.test(c),                                           tip:'uniq supprime les lignes consécutives identiques — toujours après sort.' },
-  { instr:'Mission 30/30 🏆 — Pipe ultime : cat /etc/passwd | grep bash | cut -d: -f1 | sort', hint:'cat /etc/passwd | grep bash | cut -d: -f1 | sort', check:c=>/grep\b/.test(c)&&/cut\b/.test(c)&&/sort\b/.test(c)&&(c.match(/\|/g)||[]).length>=2, tip:'🎮 Parfait ! grep filtre, cut extrait, sort trie. Pipe fondamental des admins sys.' },
-];
-
+const HINTS_PER_LEVEL = 2;   // stock d'indices par niveau
+const FAILS_TO_UNLOCK = 2;   // échecs requis avant de pouvoir utiliser un indice
 const SAVE_KEY = 'tssr_gameshell_progress';
+const TOTAL = LEVELS.reduce((n, l) => n + l.missions.length, 0);
 
 // ═══════════════════════════════════════════════
 // DOM
@@ -227,21 +284,53 @@ const hpEl    = document.getElementById('hdr-r');
 const pbarEl  = document.getElementById('pbar');
 const pmlistEl= document.getElementById('pmlist');
 const ovWin   = document.getElementById('ov-win');
+const ovSelect= document.getElementById('ov-select');
+const lvlGrid = document.getElementById('lvl-grid');
+const winFlags= document.getElementById('win-flags');
 const bootEl  = document.getElementById('boot');
 const bootMsg = document.getElementById('boot-msg');
 
 // ═══════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════
-let step = 0;
+let lvl = 0;            // niveau en cours
+let mis = 0;            // mission en cours dans le niveau
+let playing = false;    // un niveau est actif
+let hintsLeft = HINTS_PER_LEVEL;
+let fails = 0;          // échecs sur la mission courante
+let lvlErrors = 0;      // échecs cumulés sur le niveau
+let lvlHints = 0;       // indices utilisés sur le niveau
+let lvlPasted = false;  // copier-coller détecté sur le niveau → étoiles plafonnées à 2
+let unlocked = 1;       // nombre de niveaux débloqués
+let stars = LEVELS.map(() => 0);
 const history = [];
 let histIdx = -1;
 
 function save() {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ step })); } catch {}
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      v: 2, unlocked, stars,
+      pos: playing ? { lvl, mis, hintsLeft, lvlErrors, lvlHints, lvlPasted } : null,
+    }));
+  } catch {}
 }
 function load() {
-  try { const d = JSON.parse(localStorage.getItem(SAVE_KEY)); return d?.step ?? 0; } catch { return 0; }
+  try {
+    const d = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!d) return;
+    if (d.v === 2) {
+      unlocked = Math.min(Math.max(d.unlocked || 1, 1), LEVELS.length);
+      if (Array.isArray(d.stars)) stars = LEVELS.map((_, i) => d.stars[i] | 0);
+      return d.pos || null;
+    }
+    // Migration ancien format { step } (0..30)
+    if (typeof d.step === 'number') {
+      const done = Math.floor(d.step / 5);
+      unlocked = Math.min(done + 1, LEVELS.length);
+      for (let i = 0; i < done; i++) stars[i] = 2;
+    }
+  } catch {}
+  return null;
 }
 
 // ═══════════════════════════════════════════════
@@ -258,61 +347,128 @@ function sc() { document.getElementById('term').scrollTop = 999999; }
 function pr(t, c)  { const el = mkLn(c); el.innerHTML = t; }
 function blank()   { mkLn(''); }
 function sep()     { pr('─'.repeat(54), 'sep'); }
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
 // ═══════════════════════════════════════════════
-// PANEL
+// HEADER + PANEL
 // ═══════════════════════════════════════════════
+function starStr(n) {
+  return '★'.repeat(n) + '<span class="off">' + '☆'.repeat(3 - n) + '</span>';
+}
+function renderHeader() {
+  const totalStars = stars.reduce((a, b) => a + b, 0);
+  if (playing) {
+    hmEl.textContent = 'NIVEAU ' + (lvl + 1) + ' · MISSION ' + (mis + 1) + '/' + LEVELS[lvl].missions.length;
+    hnEl.textContent = LEVELS[lvl].emoji + ' ' + LEVELS[lvl].title;
+    const dots = '<span class="hints-on">' + '●'.repeat(hintsLeft) + '</span><span class="hints-off">' + '●'.repeat(HINTS_PER_LEVEL - hintsLeft) + '</span>';
+    hpEl.innerHTML = '<span class="stars">★ ' + totalStars + '/' + (LEVELS.length * 3) + '</span> · indices ' + dots;
+  } else {
+    hmEl.textContent = 'GAMESHELL';
+    hnEl.textContent = 'Sélection de niveau';
+    hpEl.innerHTML = '<span class="stars">★ ' + totalStars + '/' + (LEVELS.length * 3) + '</span>';
+  }
+}
+
 function renderPanel() {
-  const pct = Math.round(step / MISSIONS.length * 100);
-  pbarEl.style.width = pct + '%';
-  hpEl.textContent = step + ' / ' + MISSIONS.length;
-  hmEl.textContent = 'MISSION ' + Math.min(step + 1, MISSIONS.length) + '/' + MISSIONS.length;
-  hnEl.textContent = step < MISSIONS.length ? shortInstr(MISSIONS[step].instr) : 'Terminé !';
+  let doneCount = 0;
+  stars.forEach((s, i) => { if (s > 0) doneCount += LEVELS[i].missions.length; });
+  if (playing && stars[lvl] === 0) doneCount += mis;
+  pbarEl.style.width = Math.round(doneCount / TOTAL * 100) + '%';
 
   let html = '';
-  let prevLevel = 0;
-  MISSIONS.forEach((m, i) => {
-    const lvl = LEVELS.find(l => i < l.at && (i === 0 || LEVELS[LEVELS.indexOf(l) - 1]?.at <= i));
-    if (lvl && lvl.at !== prevLevel) {
-      html += `<div class="pnl-level">${lvl.emoji} ${lvl.label}</div>`;
-      prevLevel = lvl.at;
+  LEVELS.forEach((L, i) => {
+    const isLocked = i >= unlocked;
+    const isDone = stars[i] > 0;
+    const isActive = playing && i === lvl;
+    const cls = isActive ? 'active' : isLocked ? 'locked' : isDone ? 'done unlocked' : 'unlocked';
+    const right = isLocked
+      ? '<span class="pl-lock">🔒</span>'
+      : '<span class="pl-stars">' + '★'.repeat(stars[i]) + '</span>';
+    html += `<div class="pl ${cls}" data-lvl="${i}"><span>${L.emoji}</span><span>Niv.${i + 1} — ${L.title}</span>${right}</div>`;
+    if (isActive) {
+      L.missions.forEach((m, j) => {
+        const mcls = j < mis ? 'done' : j === mis ? 'current' : 'todo';
+        const check = j < mis ? '✓' : j === mis ? '▶' : '';
+        const txt = j <= mis ? escHtml(m.instr).slice(0, 34) : '···';
+        html += `<div class="pm ${mcls}"><span class="pm-num">${j + 1}</span><span class="pm-txt">${txt}</span><span class="pm-check">${check}</span></div>`;
+      });
     }
-    const cls = i < step ? 'done' : i === step ? 'current' : 'todo';
-    const check = i < step ? '✓' : i === step ? '▶' : '';
-    html += `<div class="pm ${cls}"><span class="pm-num">${i + 1}</span><span class="pm-txt">${shortInstr(m.instr)}</span><span class="pm-check">${check}</span></div>`;
   });
   pmlistEl.innerHTML = html;
-
-  // Scroll panel to current mission
-  const cur = pmlistEl.querySelector('.current');
-  if (cur) cur.scrollIntoView({ block: 'nearest' });
-}
-
-function shortInstr(s) {
-  return s.replace(/^⭐\s+/, '').replace(/^Mission \d+\/30\s*—\s*/,'').slice(0, 38);
+  pmlistEl.querySelectorAll('.pl.unlocked').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = +el.dataset.lvl;
+      if (!playing || i !== lvl) startLevel(i);
+    });
+  });
+  renderHeader();
 }
 
 // ═══════════════════════════════════════════════
-// PROMPT
+// LEVEL SELECT
 // ═══════════════════════════════════════════════
+function renderSelect() {
+  let html = '';
+  LEVELS.forEach((L, i) => {
+    const isLocked = i >= unlocked;
+    const isNext = i === unlocked - 1 && stars[i] === 0;
+    const cls = isLocked ? 'locked' : 'unlocked' + (isNext ? ' next' : '');
+    html += `<div class="lvl-card ${cls}" data-lvl="${i}">
+      <div class="lvl-emoji">${isLocked ? '🔒' : L.emoji}</div>
+      <div class="lvl-num">NIVEAU ${i + 1}</div>
+      <div class="lvl-name">${L.title}</div>
+      <div class="lvl-stars">${isLocked ? '&nbsp;' : starStr(stars[i])}</div>
+    </div>`;
+  });
+  lvlGrid.innerHTML = html;
+  lvlGrid.querySelectorAll('.lvl-card.unlocked, .lvl-card.next').forEach(el => {
+    el.addEventListener('click', () => startLevel(+el.dataset.lvl));
+  });
+}
+function openSelect() {
+  playing = false;
+  renderSelect();
+  renderPanel();
+  ovSelect.classList.remove('h');
+}
+
+// ═══════════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════════
+function startLevel(i, resume) {
+  if (i >= unlocked) return;
+  ovSelect.classList.add('h');
+  ovWin.classList.add('h');
+  lvl = i;
+  if (!resume) {
+    mis = 0; hintsLeft = HINTS_PER_LEVEL; fails = 0; lvlErrors = 0; lvlHints = 0; lvlPasted = false;
+  }
+  playing = true;
+  save();
+  outEl.innerHTML = '';
+  const L = LEVELS[lvl];
+  sep();
+  pr(`  ${L.emoji} <span style="color:var(--g);font-weight:bold">NIVEAU ${lvl + 1} — ${L.title.toUpperCase()}</span>`, 'sys');
+  pr(`  ${escHtml(L.intro)}`, 'sys');
+  pr(`  <span style="color:#555">${HINTS_PER_LEVEL} indices max · un indice se débloque après ${FAILS_TO_UNLOCK} échecs · <strong>help</strong> pour les commandes</span>`, '');
+  sep();
+  renderPanel();
+  showObjective();
+  cmdEl.focus();
+}
+
 function promptStr() {
   return '<span style="color:var(--g)">tssr@debian-srv</span><span style="color:#555">:</span><span style="color:var(--b)">~</span><span style="color:#aaa">$</span>&nbsp;';
 }
 
-// ═══════════════════════════════════════════════
-// SHOW OBJECTIVE
-// ═══════════════════════════════════════════════
 function showObjective() {
-  if (step >= MISSIONS.length) return;
-  const m = MISSIONS[step];
+  if (!playing) return;
+  const m = LEVELS[lvl].missions[mis];
   blank();
-  pr(`<span style="color:var(--y)">[OBJECTIF]</span> ${escHtml(m.instr)}`, '');
-  pr(`<span style="color:#444">Indice : <code style="color:var(--g)">${escHtml(m.hint)}</code> · <span style="color:#444">tape <strong>hint</strong> pour afficher l\'indice · <strong>help</strong> pour les commandes</span>`, '');
+  pr(`<span style="color:var(--y)">[MISSION ${mis + 1}/${LEVELS[lvl].missions.length}]</span> ${escHtml(m.instr)}`, '');
   blank();
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // ═══════════════════════════════════════════════
@@ -342,6 +498,15 @@ cmdEl.addEventListener('keydown', e => {
   }
 });
 
+cmdEl.addEventListener('paste', () => {
+  if (!playing || lvlPasted) return;
+  lvlPasted = true;
+  save();
+  blank();
+  pr(`<span style="color:#ff5555">📋 Copier-coller détecté — étoiles plafonnées à ★★ sur ce niveau. Tape les commandes toi-même, technicien.</span>`);
+  blank();
+});
+
 const KNOWN = new Set([
   'ls','cd','pwd','cat','mkdir','touch','rm','cp','mv','echo','grep','wc',
   'head','tail','chmod','chown','ln','find','sort','uniq','cut','sed','awk',
@@ -361,83 +526,142 @@ function handle(raw) {
   if (norm === 'help') { showHelp(); return; }
   if (norm === 'hint') { showHint(); return; }
   if (norm === 'progress') { showProgress(); return; }
-  if (norm === 'reset') { doReset(); return; }
+  if (norm === 'niveaux' || norm === 'levels' || norm === 'menu') { openSelect(); return; }
+  if (norm === 'reset') { doResetLevel(); return; }
 
-  if (step >= MISSIONS.length) {
-    pr('Toutes les missions sont complétées ! Tape <strong>reset</strong> pour recommencer.', 'sys');
+  if (!playing) {
+    pr('Aucun niveau actif. Tape <strong>niveaux</strong> pour choisir un niveau.', 'sys');
     return;
   }
 
-  const m = MISSIONS[step];
+  const L = LEVELS[lvl];
+  const m = L.missions[mis];
   if (m.check(trimmed)) {
-    // success
     blank();
     if (m.tip) pr(`<span style="color:var(--y)">💡 ${escHtml(m.tip)}</span>`);
-    step++;
+    mis++;
+    fails = 0;
     save();
 
-    // Level badge
-    const badge = LEVELS.find(l => l.at === step);
-    if (badge) {
-      blank();
-      pr(`<div class="badge">${badge.emoji} <strong>${badge.label}</strong> — NIVEAU COMPLÉTÉ !</div>`);
-    }
+    if (mis >= L.missions.length) { completeLevel(); return; }
 
     renderPanel();
-
-    if (step >= MISSIONS.length) {
-      blank(); sep();
-      pr(`<span style="color:var(--g);font-weight:bold">🏆 MISSION ACCOMPLIE — 30/30</span>\nTu maîtrises le terminal Linux, technicien.`, 'ok');
-      sep(); blank();
-      setTimeout(() => ovWin.classList.remove('h'), 1200);
-      return;
-    }
-
     blank(); sep();
-    pr(`<span style="color:var(--g)">✅ Étape ${step}/30 validée !</span>`, '');
+    pr(`<span style="color:var(--g)">✅ Mission ${mis}/${L.missions.length} validée !</span>`, '');
     showObjective();
   } else {
+    fails++;
+    lvlErrors++;
+    save();
     blank();
     const first = norm.split(/\s/)[0];
     if (KNOWN.has(first)) {
-      pr(`<span style="color:#ff5555">✗ Commande reconnue mais pas ce qu\'on cherche. Tape <strong>hint</strong> pour l\'indice.</span>`);
+      pr(`<span style="color:#ff5555">✗ Commande valide, mais ce n'est pas l'objectif.</span>`);
     } else {
       pr(`<span style="color:#ff5555">bash: ${escHtml(first)}: commande introuvable</span>`);
+    }
+    if (fails === FAILS_TO_UNLOCK && hintsLeft > 0) {
+      pr(`<span style="color:#555">Un indice est disponible (<strong>hint</strong>) — il t'en reste ${hintsLeft} pour ce niveau.</span>`);
     }
     blank();
   }
 }
 
+function computeStars() {
+  let s;
+  if (lvlHints === 0 && lvlErrors <= 2) s = 3;
+  else if (lvlHints <= 1 && lvlErrors <= 6) s = 2;
+  else s = 1;
+  return lvlPasted ? Math.min(s, 2) : s;
+}
+
+function completeLevel() {
+  const L = LEVELS[lvl];
+  const earned = computeStars();
+  stars[lvl] = Math.max(stars[lvl], earned);
+  unlocked = Math.max(unlocked, Math.min(lvl + 2, LEVELS.length));
+  playing = false;
+  save();
+  renderPanel();
+
+  blank(); sep();
+  pr(`<div class="badge">${L.emoji} <strong>NIVEAU ${lvl + 1} — ${L.title.toUpperCase()}</strong> TERMINÉ · ${'★'.repeat(earned)}${'☆'.repeat(3 - earned)}</div>`);
+  pr(`<span style="color:#555">${lvlErrors} échec(s) · ${lvlHints} indice(s) utilisé(s)${lvlPasted ? ' · 📋 copier-coller détecté (max ★★)' : ''}</span>`);
+  sep(); blank();
+
+  const allDone = stars.every(s => s > 0);
+  if (allDone && lvl === LEVELS.length - 1) {
+    winFlags.innerHTML = LEVELS.map((l, i) =>
+      `<div>${l.emoji} Niveau ${i + 1} — ${l.title} · <span style="color:var(--y)">${'★'.repeat(stars[i])}${'☆'.repeat(3 - stars[i])}</span></div>`
+    ).join('');
+    setTimeout(() => ovWin.classList.remove('h'), 1200);
+  } else {
+    setTimeout(openSelect, 1500);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// META COMMANDES
+// ═══════════════════════════════════════════════
 function showHelp() {
   blank();
   pr(`<span style="color:var(--b)">Commandes disponibles :</span>
-  <span style="color:var(--g)">hint</span>     — affiche l'indice de la mission courante
+  <span style="color:var(--g)">hint</span>     — utilise un indice (débloqué après ${FAILS_TO_UNLOCK} échecs, ${HINTS_PER_LEVEL} max par niveau)
+  <span style="color:var(--g)">niveaux</span>  — retourne à la sélection de niveau
   <span style="color:var(--g)">progress</span> — affiche ta progression
-  <span style="color:var(--g)">reset</span>    — remet à zéro et recommence
+  <span style="color:var(--g)">reset</span>    — recommence le niveau en cours
   <span style="color:var(--g)">Ctrl+L</span>   — efface le terminal
   <span style="color:var(--g)">↑ / ↓</span>   — historique des commandes`);
   blank();
 }
 
 function showHint() {
-  if (step >= MISSIONS.length) return;
+  if (!playing) return;
   blank();
-  pr(`<span style="color:var(--y)">[INDICE] → <code style="color:var(--g)">${escHtml(MISSIONS[step].hint)}</code></span>`);
+  if (hintsLeft <= 0) {
+    pr(`<span style="color:#ff5555">✗ Plus d'indices pour ce niveau. Débrouille-toi, technicien.</span>`);
+  } else if (fails < FAILS_TO_UNLOCK) {
+    pr(`<span style="color:#555">🔒 Indice verrouillé — essaie encore (${fails}/${FAILS_TO_UNLOCK} échecs).</span>`);
+  } else {
+    hintsLeft--;
+    lvlHints++;
+    save();
+    renderHeader();
+    pr(`<span style="color:var(--y)">[INDICE] → <code style="color:var(--g)">${escHtml(LEVELS[lvl].missions[mis].hint)}</code></span> <span style="color:#555">(${hintsLeft} restant${hintsLeft > 1 ? 's' : ''})</span>`);
+  }
   blank();
 }
 
 function showProgress() {
   blank();
-  pr(`<span style="color:var(--b)">Progression : ${step}/30 (${Math.round(step/30*100)}%)</span>`);
+  const totalStars = stars.reduce((a, b) => a + b, 0);
+  pr(`<span style="color:var(--b)">Progression — ★ ${totalStars}/${LEVELS.length * 3}</span>`);
+  LEVELS.forEach((L, i) => {
+    const st = i >= unlocked ? '🔒 verrouillé' : stars[i] > 0 ? '★'.repeat(stars[i]) + '☆'.repeat(3 - stars[i]) : 'débloqué — non terminé';
+    pr(`  ${L.emoji} Niv.${i + 1} ${L.title} — ${st}`);
+  });
   blank();
 }
 
-function doReset() {
-  step = 0;
+function doResetLevel() {
+  if (!playing) { pr('Aucun niveau actif. Tape <strong>niveaux</strong> pour choisir un niveau.', 'sys'); return; }
+  startLevel(lvl);
+}
+
+function fullReset() {
+  if (!confirm('Réinitialiser toute la progression (niveaux, étoiles) ?')) return;
+  unlocked = 1;
+  stars = LEVELS.map(() => 0);
+  playing = false;
   try { localStorage.removeItem(SAVE_KEY); } catch {}
   outEl.innerHTML = '';
+  renderSelect();
   renderPanel();
-  start();
+}
+
+function restart() {
+  ovWin.classList.add('h');
+  openSelect();
 }
 
 // ═══════════════════════════════════════════════
@@ -446,34 +670,31 @@ function doReset() {
 function start() {
   sep();
   pr(`  <span style="color:var(--g)">GAMESHELL TSSR</span> · Terminal Linux`, 'sys');
-  pr(`  30 missions pour maîtriser la ligne de commande`, 'sys');
+  pr(`  ${LEVELS.length} niveaux · ${TOTAL} missions · gagne des étoiles, débloque les niveaux`, 'sys');
   sep(); blank();
 
-  const saved = load();
-  if (saved > 0 && saved < MISSIONS.length) {
-    step = saved;
-    pr(`<span style="color:var(--g)">▶ Reprise depuis la mission ${step + 1}/30 — progression restaurée.</span>\n<span style="color:#555">Tape <strong>reset</strong> pour recommencer depuis le début.</span>`);
+  const pos = load();
+  if (pos && pos.lvl < LEVELS.length && pos.mis < LEVELS[pos.lvl].missions.length) {
+    lvl = pos.lvl; mis = pos.mis;
+    hintsLeft = pos.hintsLeft ?? HINTS_PER_LEVEL;
+    lvlErrors = pos.lvlErrors | 0;
+    lvlHints = pos.lvlHints | 0;
+    lvlPasted = !!pos.lvlPasted;
+    fails = 0;
+    startLevel(lvl, true);
+    pr(`<span style="color:var(--g)">▶ Reprise — niveau ${lvl + 1}, mission ${mis + 1}.</span>`, '');
   } else {
-    step = 0;
-    pr(`Bienvenue, technicien. Ton terminal est ton arme.\nRéponds à chaque mission avec la bonne commande.\nTape <strong>hint</strong> pour un indice · <strong>help</strong> pour les commandes disponibles.`, 'ctx');
+    openSelect();
   }
-
-  renderPanel();
-  showObjective();
   cmdEl.focus();
-}
-
-function restart() {
-  ovWin.classList.add('h');
-  doReset();
 }
 
 // ═══════════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════════
 const BOOT_MSGS = [
-  'INITIALISATION GAMESHELL v1.0...',
-  'CHARGEMENT DES MISSIONS...',
+  'INITIALISATION GAMESHELL v2.0...',
+  'CHARGEMENT DES NIVEAUX...',
   'CONNEXION AU SERVEUR DEBIAN...',
   'VÉRIFICATION PROGRESSION...',
   'TERMINAL PRÊT',

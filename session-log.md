@@ -1,3 +1,29 @@
+## 📋 Récap — 2026-07-02 (session 25)
+
+### Fait :
+- `data.js` : correction **~220 accents manquants** sur les 7 modules restants de l'audit session 24 — `deploiement-windows` (~35), `securite-fondamentaux-avances` (~20, sous-section Zero Trust/PKI), `supervision-concepts` (~20, sous-section SNMP/métriques), `cloud-fondamentaux` (~13, sous-section AWS vs Azure vs GCP), `support-essentiel` (~35), `telephonie-voip` (~55, cours+FC+QCM), `iot` (~45, cours+FC+QCM) — fork dédié, quelques apostrophes manquantes corrigées au passage (même pattern de corruption)
+- `data.js` : `zabbix-complet` et `itil-glpi-supervision` vérifiés déjà propres — audit accents des 9 modules **terminé**
+- `data.js` : fix caractères chinois orphelins `影子` dans IoT (ligne AWS IoT Core) → `Device Shadow`
+- `data.js` : module **Anglais Technique** — 4 nouveaux cours fondamentaux niveau 6ème/A1 (`bases-pronoms-be-have`, `bases-articles-nombres-temps`, `structure-phrase-connecteurs`, `conjugaison-verbes-irreguliers-etendu`) — pronoms/to be/to have, articles/pluriels/nombres/heure/dates, ordre des mots SVO/prépositions/comparatifs/connecteurs, conjugaison complète be/have/do + verbes irréguliers étendus classés par groupe (AAA/ABA/ABB/ABC) + phrasal verbs IT + faux amis — 15→19 cours, flashcards 92→116, QCM 89→113, topic "Bases" ajouté
+- `sw.js` : bump cache `tssr-v29` → `tssr-v30`
+- Commit unique `5e3f29a` (accents + Anglais Technique + SW) poussé sur `main` → déployé sur GitHub Pages
+- Note technique : conflit d'écriture concurrente sur `data.js` entre le fork accents et l'édition manuelle Anglais Technique géré sans perte de données (détection de drift + resynchronisation des deux côtés)
+
+### État :
+PWA déployée, tout poussé (commit `5e3f29a`). Audit accents des 9 modules identifiés en session 24 entièrement traité. Anglais Technique désormais complet du niveau débutant absolu jusqu'au technique avancé : 19 cours, 116 FC, 113 QCM.
+
+### À reprendre :
+- [ ] Vérifier règles Firestore (collection `notes`) — manuel, console
+- [ ] Railway CLI non authentifié — `railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`
+- [ ] Tester sync temps réel Notes entre 2 ordis
+- [ ] Re-uploader fichiers HTML/PDF uploadés avant session 17
+- [ ] Test mobile/responsive réel (téléphone ou DevTools)
+
+### Contexte express :
+> Session en deux volets menés en parallèle : fork de correction des ~220 accents manquants sur 7 modules (clôturant l'audit ouvert en session 24), et enrichissement manuel du module Anglais Technique avec 4 cours de bases grammaticales niveau 6ème (demande explicite : "blinder" le module avec verbes/structure/bases). Un conflit d'écriture concurrente sur `data.js` a été détecté et résolu sans casse. Tout commité en un seul commit et déployé sur `main`.
+
+---
+
 ## 📋 Récap — 2026-07-01 (session 24)
 
 ### Fait :

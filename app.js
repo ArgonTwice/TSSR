@@ -666,7 +666,7 @@ function renderGameshell(el) {
 function renderNetrunner(el) {
   el.innerHTML = `
   <div style="padding:0 0 16px">
-    <div class="info-box" style="margin-bottom:16px">NetRunner 2.0 — 20 missions PowerShell progressives. Lance le terminal et tape <strong>tp netrunner</strong> pour commencer.</div>
+    <div class="info-box" style="margin-bottom:16px">NetRunner — infiltration PowerShell/CMD en 3 missions à débloquer. Gagne des étoiles (rapidité + zéro indice), le chrono compte. Choisis ta mission ci-dessous.</div>
   </div>
   <div style="width:100%;height:calc(100vh - 420px);min-height:460px;">
     <iframe src="netrunner.html" style="width:100%;height:100%;border:none;border-radius:8px;" title="NetRunner — Jeu PowerShell"></iframe>
@@ -1371,7 +1371,7 @@ function renderNotes(m, el) {
   let membersData = {};
   let myFiles = [];
 
-  function makeFileCard(f) {
+  function makeFileCard(f, onDelete) {
     const div = document.createElement('div');
     div.className = 'file-item';
     const icon = f.kind === 'pdf' || f.kind === 'pdf-idb' ? '[PDF]'
@@ -1380,11 +1380,15 @@ function renderNotes(m, el) {
       <div class="file-item-header">
         <span class="file-icon">${icon}</span>
         <span class="file-name">${escHtml(f.filename)}</span>
+        ${onDelete ? '<button class="file-remove-btn" aria-label="Supprimer ce fichier">✕</button>' : ''}
       </div>
       <div class="file-item-preview" style="display:none"></div>
       <div class="file-actions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>`;
     const previewEl = div.querySelector('.file-item-preview');
     const actionsEl = div.querySelector('.file-actions');
+    if (onDelete) {
+      div.querySelector('.file-remove-btn').addEventListener('click', () => onDelete(f, div));
+    }
     if (f.content && f.kind === 'html') {
       previewEl.className = 'file-item-preview file-item-preview--render';
       previewEl.style.display = 'block';
@@ -1495,13 +1499,23 @@ function renderNotes(m, el) {
           statusEl.textContent = res.success ? '✓ Synchronisé' : '⚠ Local seulement';
         }, 800);
       });
+      const filesList = area.querySelector('#files-list');
+
+      const deleteMyFile = async (f, cardEl) => {
+        if (!confirm(`Supprimer « ${f.filename} » de tes notes ?`)) return;
+        myFiles = myFiles.filter(x => x !== f);
+        cardEl.remove();
+        if (f.kind === 'pdf-idb' && f.content) { try { await PdfStore.remove(f.content); } catch {} }
+        const res = await saveMyData(ta.value);
+        statusEl.textContent = res.success ? '✓ Synchronisé' : '⚠ Local seulement';
+      };
+
       setupFileUpload(m.id, 'notes', async fileEntry => {
         myFiles = [...myFiles, fileEntry];
         const res = await saveMyData(ta.value);
         statusEl.textContent = res.success ? '✓ Synchronisé' : '⚠ Fichier trop volumineux pour Firestore';
       });
-      const filesList = area.querySelector('#files-list');
-      myFiles.forEach(f => filesList.appendChild(makeFileCard(f)));
+      myFiles.forEach(f => filesList.appendChild(makeFileCard(f, deleteMyFile)));
     } else {
       const data  = membersData[person];
       const txt   = data?.text || '';
@@ -1772,6 +1786,14 @@ const PdfStore = {
     return new Promise((res, rej) => {
       const r = db.transaction('pdfs', 'readonly').objectStore('pdfs').get(key);
       r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  },
+  async remove(key) {
+    const db = await this._open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction('pdfs', 'readwrite');
+      tx.objectStore('pdfs').delete(key);
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error);
     });
   },
 };

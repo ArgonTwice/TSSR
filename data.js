@@ -2845,6 +2845,7 @@ const MODULES = [
     color: '#10b981',
     desc: 'Python administration, Regex, SQL, MySQL, PowerShell avancé...',
     topics: ['Python', 'Regex', 'SQL', 'MySQL', 'PowerShell', 'API REST'],
+    bashlab: true,
     cours: [
 
       {

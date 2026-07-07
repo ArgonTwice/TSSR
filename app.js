@@ -267,7 +267,7 @@ function renderNav() {
   const sq = sidebarSearchQuery;
   const isTermActive = state.currentScreen === 'terminal-fs';
   const isTermOpen   = state.openAccordion === 'terminals';
-  const termKeywords = ['terminaux','terminal','linux','powershell','cmd','gameshell','netrunner'];
+  const termKeywords = ['terminaux','terminal','linux','powershell','cmd','gameshell','netrunner','bashlab','script lab','scripting'];
   const termVisible  = !sq || termKeywords.some(k => k.includes(sq));
 
   if (termVisible) {
@@ -289,6 +289,7 @@ function renderNav() {
       { id: 'cmd',       label: 'Terminal Windows (CMD)' },
       { id: 'gameshell', label: 'GameShell' },
       { id: 'netrunner', label: 'NetRunner' },
+      { id: 'bashlab',   label: 'Script Lab' },
     ];
     const termPanel = document.createElement('div');
     termPanel.className = 'nav-accordion' + (isTermOpen ? ' open' : '');
@@ -552,6 +553,7 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
     linux_cli:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5L6 7L3.5 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="9" x2="10.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
     windows_cli: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 5.5L5.5 7.5L3 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.5" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
     gameshell:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 5L6 7L3.5 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="9" x2="10.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+    bashlab:     '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 4.5L4.5 7L3.5 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 4.5L5.5 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="7.5" y1="9.5" x2="10.5" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
     netrunner:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 5.5L5.5 7.5L3 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><line x1="6.5" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
     cisco_cli:   '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><circle cx="3.5" cy="7" r=".8" fill="currentColor"/><circle cx="6" cy="7" r=".8" fill="currentColor"/><circle cx="8.5" cy="7" r=".8" fill="currentColor"/><circle cx="11" cy="7" r=".8" fill="currentColor"/></svg>',
     flashcards:  '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="3" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="var(--bg)"/><line x1="5" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="5" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
@@ -564,6 +566,7 @@ function openModule(moduleId, skipHistory = false, directCours = null) {
   if (m.cisco_cli)          tabs.push({ id: 'cisco_cli',   label: 'IOS CLI',        cli: true,  color: '#e84040' });
   if (m.id === 'linux' && m.gameshell)   tabs.push({ id: 'gameshell',  label: 'Pratique',       cli: true, color: '#00e5a0' });
   if (m.id === 'windows' && m.netrunner) tabs.push({ id: 'netrunner',  label: 'Jeu PowerShell', cli: true, color: '#0ea5e9' });
+  if (m.id === 'scripting-avance' && m.bashlab) tabs.push({ id: 'bashlab', label: 'Script Lab', cli: true, color: '#10b981' });
   if (m.flashcards && m.flashcards.length) tabs.push({ id: 'flashcards', label: 'Cartes',   cli: false });
   if (m.qcm && m.qcm.length)              tabs.push({ id: 'qcm',        label: 'QCM',      cli: false });
   if (m.outils) tabs.push({ id: 'outils', label: 'Outils', cli: false });
@@ -639,6 +642,7 @@ function renderTabContent(tabId) {
   else if (tabId === 'cisco_cli')   renderCLI('cisco', m, el);
   else if (tabId === 'gameshell')    renderGameshell(el);
   else if (tabId === 'netrunner')    renderNetrunner(el);
+  else if (tabId === 'bashlab')      renderBashlab(el);
   else if (tabId === 'flashcards')  renderFlashcards(m, el);
   else if (tabId === 'qcm')         renderQCM(m, el);
   else if (tabId === 'outils')      renderOutils(m, el);
@@ -650,6 +654,17 @@ function renderGameshell(el) {
   el.innerHTML = `
   <div style="width:100%;height:calc(100vh - 280px);min-height:500px;">
     <iframe src="gameshell.html" style="width:100%;height:100%;border:none;border-radius:8px;" title="GameShell — Terminal Linux"></iframe>
+  </div>`;
+}
+
+// ===== BASHLAB =====
+function renderBashlab(el) {
+  el.innerHTML = `
+  <div style="padding:0 0 16px">
+    <div class="info-box" style="margin-bottom:16px">Script Lab — écris de vrais scripts bash multi-lignes (variables, conditions, boucles, fonctions), exécute-les dans un mini-interpréteur et valide la mission. Même principe que GameShell : niveaux à débloquer, indices verrouillés, étoiles.</div>
+  </div>
+  <div style="width:100%;height:calc(100vh - 280px);min-height:560px;">
+    <iframe src="bashlab.html" style="width:100%;height:100%;border:none;border-radius:8px;" title="Script Lab — Scripting Bash"></iframe>
   </div>`;
 }
 
@@ -6272,6 +6287,7 @@ const TERMINAL_META = {
   cmd:       { icon: 'CMD', label: 'Terminal Windows (CMD)', sublabel: 'cmd.exe — Windows 10/Server', color: '#9ca3af', cls: 'tfs-cmd' },
   gameshell: { icon: '[>]', label: 'GameShell',              sublabel: '40 missions Linux',           color: '#00e5a0', cls: 'tfs-linux' },
   netrunner: { icon: 'NR', label: 'NetRunner',              sublabel: 'Jeu PowerShell/CMD',          color: '#0ea5e9', cls: 'tfs-netrunner' },
+  bashlab:   { icon: '[$]', label: 'Script Lab',            sublabel: 'Scripting Bash',              color: '#10b981', cls: 'tfs-linux' },
 };
 
 function openTerminalFullscreen(type) {
@@ -6296,7 +6312,7 @@ function openTerminalFullscreen(type) {
           <div class="tfs-sub">${meta.sublabel}</div>
         </div>
       </div>
-      ${type !== 'gameshell' && type !== 'netrunner' ? `<div class="tfs-hints">
+      ${type !== 'gameshell' && type !== 'netrunner' && type !== 'bashlab' ? `<div class="tfs-hints">
         <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}"> historique</span>
         <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}">Tab complétion</span>
         <span class="tfs-hint" style="border-color:${meta.color}44;color:${meta.color}"><code>tp</code> pour les TP</span>
@@ -6315,6 +6331,8 @@ function openTerminalFullscreen(type) {
     renderGameshell(fsContent);
   } else if (type === 'netrunner') {
     renderNetrunner(fsContent);
+  } else if (type === 'bashlab') {
+    renderBashlab(fsContent);
   } else {
     renderCLI(type, null, fsContent);
   }

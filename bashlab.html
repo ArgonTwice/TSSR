@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Script Lab — TSSR</title>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--g:#00ff88;--gd:#00994d;--gdk:#001a0d;--r:#ff4466;--b:#3b82f6;--y:#ffaa00}
+    html,body{height:100%;background:#0a0f0a;overflow:hidden}
+    body::after{
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+      background:repeating-linear-gradient(0deg,transparent 0,transparent 1px,rgba(0,0,0,.04) 1px,rgba(0,0,0,.04) 2px);
+    }
+    #app{height:100vh;display:flex;flex-direction:column;color:var(--g);font-family:'Courier New',Courier,monospace;font-size:14px}
+    /* Header */
+    #hdr{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:5px 16px;border-bottom:1px solid var(--gdk);
+      background:rgba(0,255,136,.03);flex-shrink:0;gap:8px;min-height:38px;
+    }
+    #hdr-l{font-size:12px;color:var(--gd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #hdr-l strong{color:var(--g)}
+    #hdr-m{font-size:11px;color:var(--gd);flex:1;text-align:center;letter-spacing:1px}
+    #hdr-r{font-size:12px;color:var(--gd);white-space:nowrap}
+    #hdr-r .stars{color:var(--y)}
+    #hdr-r .hints-on{color:var(--g)}
+    #hdr-r .hints-off{color:#333}
+    /* Layout */
+    #main{flex:1;display:flex;overflow:hidden}
+    #work{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+    #objective{padding:10px 16px;border-bottom:1px solid var(--gdk);font-size:12px;line-height:1.5;flex-shrink:0;max-height:120px;overflow-y:auto}
+    #objective .lbl{color:var(--y);font-weight:bold;margin-right:6px}
+    #split{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+    #editor-wrap{flex:1 1 55%;display:flex;flex-direction:column;overflow:hidden;border-bottom:1px solid var(--gdk);min-height:120px}
+    #editor-bar{display:flex;align-items:center;gap:8px;padding:6px 12px;background:rgba(0,255,136,.02);flex-shrink:0}
+    #editor-bar .fname{font-size:11px;color:var(--gd)}
+    #editor-bar .spacer{flex:1}
+    .btn{
+      background:transparent;border:1px solid var(--gd);color:var(--g);font:inherit;font-size:11px;
+      padding:5px 12px;cursor:pointer;letter-spacing:1px;border-radius:2px;transition:background .15s;
+    }
+    .btn:hover{background:rgba(0,255,136,.08)}
+    .btn-run{border-color:var(--g);font-weight:bold}
+    .btn-run:hover{background:rgba(0,255,136,.15);box-shadow:0 0 8px rgba(0,255,136,.3)}
+    #editor{
+      flex:1;background:#060a06;color:var(--g);border:none;outline:none;resize:none;
+      font:13px/1.5 'Courier New',Courier,monospace;padding:10px 14px;tab-size:2;white-space:pre;overflow:auto;caret-color:var(--g);
+    }
+    #console-wrap{flex:1 1 45%;display:flex;flex-direction:column;overflow:hidden;min-height:100px}
+    #console-bar{display:flex;align-items:center;gap:8px;padding:6px 12px;background:rgba(0,255,136,.02);flex-shrink:0;font-size:11px;color:var(--gd)}
+    #console{flex:1;overflow-y:auto;padding:8px 14px;background:#0a0f0a}
+    #console::-webkit-scrollbar,#editor::-webkit-scrollbar,#objective::-webkit-scrollbar{width:3px}
+    #console::-webkit-scrollbar-thumb,#editor::-webkit-scrollbar-thumb{background:var(--gdk)}
+    .ln{line-height:1.6;white-space:pre-wrap;word-break:break-word;min-height:1em;font-size:13px}
+    .ln-ok {color:var(--g)}
+    .ln-err{color:#ff5555}
+    .ln-sys{color:var(--b)}
+    .ln-tip{color:var(--y)}
+    .ln-ctx{color:#777;font-style:italic}
+    .ln-sep{color:var(--gdk)}
+    .ln-out{color:#cfcfcf}
+    /* Side panel */
+    #panel{
+      width:260px;border-left:1px solid var(--gdk);overflow-y:auto;flex-shrink:0;
+      background:rgba(0,255,136,.02);display:flex;flex-direction:column;
+    }
+    #panel::-webkit-scrollbar{width:3px}
+    #panel::-webkit-scrollbar-thumb{background:var(--gdk)}
+    .pnl-hdr{
+      padding:10px 14px;border-bottom:1px solid var(--gdk);
+      font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gd);flex-shrink:0;
+    }
+    .pnl-progress{height:3px;background:var(--gdk);flex-shrink:0}
+    .pnl-progress-fill{height:100%;background:var(--g);transition:width .4s}
+    .pnl-levels{padding:8px 0;flex:1}
+    .pl{
+      display:flex;align-items:center;gap:8px;
+      padding:7px 14px;font-size:11px;font-weight:700;letter-spacing:1px;
+      border-left:2px solid transparent;cursor:default;
+    }
+    .pl.unlocked{cursor:pointer}
+    .pl.unlocked:hover{background:rgba(0,255,136,.05)}
+    .pl.locked{color:#2a2a2a}
+    .pl.done{color:var(--gd)}
+    .pl.active{color:var(--g);border-left-color:var(--g);background:rgba(0,255,136,.06)}
+    .pl-stars{margin-left:auto;color:var(--y);font-weight:400}
+    .pl-lock{margin-left:auto;color:#2a2a2a}
+    .pm{
+      display:flex;align-items:flex-start;gap:8px;
+      padding:4px 14px 4px 26px;font-size:11px;line-height:1.4;
+      border-left:2px solid transparent;
+    }
+    .pm.done {color:var(--gd)}
+    .pm.current{color:var(--g);background:rgba(0,255,136,.04)}
+    .pm.todo {color:#333}
+    .pm-num{min-width:16px;font-weight:700}
+    .pm-txt{flex:1}
+    .pm-check{min-width:14px;text-align:center}
+    /* Overlays */
+    .ov{
+      position:fixed;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      z-index:500;padding:32px;text-align:center;overflow-y:auto;
+    }
+    .h{display:none!important}
+    #ov-win,#ov-select{background:rgba(0,0,0,.93);color:var(--g);font-family:'Courier New',Courier,monospace}
+    .ov-ttl{font-size:clamp(18px,4vw,30px);letter-spacing:6px;font-weight:bold;margin-bottom:10px;text-shadow:0 0 20px currentColor}
+    .ov-sub{font-size:12px;color:#555;letter-spacing:1px;margin-bottom:14px}
+    .ov-flags{font-size:13px;line-height:2.2;letter-spacing:2px;text-shadow:0 0 8px var(--g);margin:10px 0}
+    .ob{
+      display:inline-block;margin:14px 6px 0;padding:9px 26px;
+      background:transparent;border:1px solid currentColor;color:inherit;
+      font:inherit;font-size:13px;cursor:pointer;letter-spacing:3px;
+      transition:background .15s,box-shadow .15s;
+    }
+    .ob:hover{background:rgba(255,255,255,.08);box-shadow:0 0 10px currentColor}
+    /* Level select */
+    #lvl-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,220px));
+      gap:14px;justify-content:center;max-width:760px;margin-top:8px;
+    }
+    .lvl-card{
+      border:1px solid var(--gdk);padding:16px 12px;text-align:center;
+      background:rgba(0,255,136,.02);transition:border-color .15s,box-shadow .15s;
+    }
+    .lvl-card.unlocked{cursor:pointer;border-color:var(--gd)}
+    .lvl-card.unlocked:hover{border-color:var(--g);box-shadow:0 0 14px rgba(0,255,136,.25)}
+    .lvl-card.next{border-color:var(--g);animation:pulse 1.6s infinite}
+    .lvl-card.locked{opacity:.35;filter:grayscale(1)}
+    @keyframes pulse{0%,100%{box-shadow:0 0 4px rgba(0,255,136,.2)}50%{box-shadow:0 0 18px rgba(0,255,136,.5)}}
+    .lvl-emoji{font-size:26px;margin-bottom:6px}
+    .lvl-num{font-size:10px;letter-spacing:3px;color:var(--gd);margin-bottom:4px}
+    .lvl-name{font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:6px}
+    .lvl-stars{font-size:13px;color:var(--y);letter-spacing:2px;min-height:18px}
+    .lvl-stars .off{color:#222}
+    /* Boot */
+    #boot{
+      position:fixed;inset:0;background:#0a0f0a;color:var(--g);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      z-index:1000;font-family:'Courier New',monospace;
+    }
+    #boot-art{font-size:clamp(4px,.9vw,10px);line-height:1.2;text-shadow:0 0 8px var(--g);margin-bottom:22px;white-space:pre}
+    #boot-msg{font-size:13px;letter-spacing:2px;color:var(--gd);min-height:20px}
+    /* Badge */
+    .badge{
+      display:inline-block;border:1px solid var(--g);padding:4px 16px;
+      margin:8px 0;border-radius:4px;color:var(--g);letter-spacing:1px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Boot -->
+<div id="boot">
+  <div id="boot-art">
+ ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗    ██╗      █████╗ ██████╗
+ ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝    ██║     ██╔══██╗██╔══██╗
+ ███████╗██║     ██████╔╝██║██████╔╝   ██║       ██║     ███████║██████╔╝
+ ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║       ██║     ██╔══██║██╔══██╗
+ ███████║╚██████╗██║  ██║██║██║        ██║       ███████╗██║  ██║██████╔╝
+ ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝       ╚══════╝╚═╝  ╚═╝╚═════╝</div>
+  <div id="boot-msg">&nbsp;</div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div id="hdr">
+    <div id="hdr-l"><strong id="hm">NIVEAU 1</strong> — <span id="hn">…</span></div>
+    <div id="hdr-m">📜 Script Lab TSSR — Scripting Bash</div>
+    <div id="hdr-r"></div>
+  </div>
+  <div id="main">
+    <div id="work">
+      <div id="objective"></div>
+      <div id="split">
+        <div id="editor-wrap">
+          <div id="editor-bar">
+            <span class="fname">script.sh</span>
+            <div class="spacer"></div>
+            <button class="btn" id="btn-hint">💡 indice</button>
+            <button class="btn" id="btn-reset-mission">↺ réinitialiser</button>
+            <button class="btn btn-run" id="btn-run">▶ exécuter (Ctrl+Entrée)</button>
+          </div>
+          <textarea id="editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+        <div id="console-wrap">
+          <div id="console-bar">SORTIE DU SCRIPT</div>
+          <div id="console"><div id="out"></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="panel">
+      <div class="pnl-hdr">NIVEAUX</div>
+      <div class="pnl-progress"><div class="pnl-progress-fill" id="pbar" style="width:0%"></div></div>
+      <div class="pnl-levels" id="pmlist"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Sélection de niveau -->
+<div id="ov-select" class="ov h">
+  <div class="ov-ttl">SCRIPT LAB</div>
+  <div class="ov-sub">Écris de vrais scripts bash — variables, conditions, boucles, fonctions</div>
+  <div id="lvl-grid"></div>
+  <button class="ob" id="btn-reset-all" onclick="fullReset()">[ TOUT RÉINITIALISER ]</button>
+</div>
+
+<!-- Victory -->
+<div id="ov-win" class="ov h">
+  <div class="ov-ttl">🏆 SCRIPT MASTER</div>
+  <div class="ov-sub">4 niveaux terminés — tu sais écrire des scripts bash complets.</div>
+  <div class="ov-flags" id="win-flags"></div>
+  <button class="ob" onclick="restart()">[ RECOMMENCER ]</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// MINI-INTERPRÉTEUR BASH
+// Sous-ensemble volontairement limité : variables, echo/printf/read,
+// arithmétique $(( )), if/elif/else, for/while, fonctions, un jeu de
+// commandes simulées (fichiers, ls, cat, grep, wc, seq, date...).
+// Chaque bloc (if/for/while/fonction) doit être écrit sur plusieurs lignes
+// (then/do/fi/done sur leur propre ligne ou en fin de ligne "; then"/"; do").
+// ═══════════════════════════════════════════════
+class BashError extends Error {}
+class ExitSignal { constructor(code) { this.code = code; } }
+class ReturnSignal { constructor(code) { this.code = code; } }
+class BreakSignal {}
+class ContinueSignal {}
+
+function stripComment(line) {
+  let inS = false, inD = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === "'" && !inD) inS = !inS;
+    else if (c === '"' && !inS) inD = !inD;
+    else if (c === '#' && !inS && !inD && (i === 0 || /\s/.test(line[i - 1]))) return line.slice(0, i);
+  }
+  return line;
+}
+
+function expandVar(str, i, scope) {
+  i++;
+  if (i >= str.length) return ['$', i];
+  if (str[i] === '{') {
+    let depth = 1, j = i + 1;
+    while (j < str.length && depth > 0) { if (str[j] === '{') depth++; else if (str[j] === '}') depth--; j++; }
+    return [expandBraceExpr(str.slice(i + 1, j - 1), scope), j];
+  }
+  if (str[i] === '(' && str[i + 1] === '(') {
+    let depth = 2, j = i + 2;
+    while (j < str.length && depth > 0) { if (str[j] === '(') depth++; else if (str[j] === ')') depth--; j++; }
+    return [String(evalArith(str.slice(i + 2, j - 2), scope)), j];
+  }
+  if (str[i] === '(') {
+    let depth = 1, j = i + 1;
+    while (j < str.length && depth > 0) { if (str[j] === '(') depth++; else if (str[j] === ')') depth--; j++; }
+    return [captureExec(str.slice(i + 1, j - 1), scope), j];
+  }
+  if (str[i] === '?') return [String(scope.lastExit || 0), i + 1];
+  if (str[i] === '#') return [String((scope.positional || []).length), i + 1];
+  if (str[i] === '@' || str[i] === '*') return [(scope.positional || []).join(' '), i + 1];
+  if (/[0-9]/.test(str[i])) {
+    const n = +str[i];
+    const val = n === 0 ? 'script.sh' : ((scope.positional || [])[n - 1] ?? '');
+    return [val, i + 1];
+  }
+  let j = i;
+  while (j < str.length && /[A-Za-z0-9_]/.test(str[j])) j++;
+  if (j === i) return ['$', i];
+  const name = str.slice(i, j);
+  return [scope.vars[name] !== undefined ? String(scope.vars[name]) : '', j];
+}
+function expandBraceExpr(inner, scope) {
+  let m;
+  if ((m = inner.match(/^(\w+):-(.*)$/))) {
+    const v = scope.vars[m[1]];
+    return (v !== undefined && v !== '') ? String(v) : expandWord(m[2], scope);
+  }
+  if ((m = inner.match(/^(\w+):=(.*)$/))) {
+    let v = scope.vars[m[1]];
+    if (v === undefined || v === '') { v = expandWord(m[2], scope); scope.vars[m[1]] = v; }
+    return String(v);
+  }
+  if ((m = inner.match(/^#(\w+)$/))) return String(String(scope.vars[m[1]] || '').length);
+  const v = scope.vars[inner];
+  return v !== undefined ? String(v) : '';
+}
+function tokenizeAndExpand(str, scope) {
+  const words = [];
+  let i = 0;
+  while (i < str.length) {
+    while (i < str.length && /\s/.test(str[i])) i++;
+    if (i >= str.length) break;
+    let word = '';
+    while (i < str.length && !/\s/.test(str[i])) {
+      const c = str[i];
+      if (c === "'") { i++; while (i < str.length && str[i] !== "'") { word += str[i]; i++; } i++; }
+      else if (c === '"') {
+        i++;
+        while (i < str.length && str[i] !== '"') {
+          if (str[i] === '$') { const [v, ni] = expandVar(str, i, scope); word += v; i = ni; }
+          else if (str[i] === '\\' && i + 1 < str.length) { word += str[i + 1]; i += 2; }
+          else { word += str[i]; i++; }
+        }
+        i++;
+      } else if (c === '$') { const [v, ni] = expandVar(str, i, scope); word += v; i = ni; }
+      else if (c === '\\' && i + 1 < str.length) { word += str[i + 1]; i += 2; }
+      else { word += c; i++; }
+    }
+    words.push(word);
+  }
+  return words;
+}
+function expandWord(str, scope) { return tokenizeAndExpand(str, scope).join(' '); }
+
+function evalArith(expr, scope) {
+  let s = expr.replace(/\$(\w+)/g, (_, name) => String(scope.vars[name] ?? 0));
+  const toks = s.match(/\d+\.?\d*|[A-Za-z_]\w*|\*\*|<=|>=|==|!=|[-+*/%()<>]/g) || [];
+  let pos = 0;
+  const peek = () => toks[pos];
+  const next = () => toks[pos++];
+  function parseExpr() { return parseCompare(); }
+  function parseCompare() {
+    let l = parseAdd();
+    while (['<', '>', '<=', '>=', '==', '!='].includes(peek())) {
+      const op = next(); const r = parseAdd();
+      l = op === '<' ? (l < r ? 1 : 0) : op === '>' ? (l > r ? 1 : 0) : op === '<=' ? (l <= r ? 1 : 0) : op === '>=' ? (l >= r ? 1 : 0) : op === '==' ? (l === r ? 1 : 0) : (l !== r ? 1 : 0);
+    }
+    return l;
+  }
+  function parseAdd() {
+    let l = parseMul();
+    while (peek() === '+' || peek() === '-') { const op = next(); const r = parseMul(); l = op === '+' ? l + r : l - r; }
+    return l;
+  }
+  function parseMul() {
+    let l = parseUnary();
+    while (peek() === '*' || peek() === '/' || peek() === '%' || peek() === '**') { const op = next(); const r = parseUnary(); l = op === '*' ? l * r : op === '/' ? Math.trunc(l / r) : op === '%' ? l % r : Math.pow(l, r); }
+    return l;
+  }
+  function parseUnary() {
+    if (peek() === '-') { next(); return -parseUnary(); }
+    if (peek() === '+') { next(); return parseUnary(); }
+    return parsePrimary();
+  }
+  function parsePrimary() {
+    const t = next();
+    if (t === '(') { const v = parseExpr(); next(); return v; }
+    if (t === undefined) return 0;
+    if (/^\d/.test(t)) return parseFloat(t);
+    if (/^[A-Za-z_]/.test(t)) return parseFloat(scope.vars[t]) || 0;
+    return 0;
+  }
+  try { return Math.trunc(parseExpr()); } catch (e) { return 0; }
+}
+
+function resolvePath(p, scope) {
+  if (!p) return scope.fs.cwd;
+  if (p.startsWith('/')) return normalizePath(p);
+  return normalizePath(scope.fs.cwd + '/' + p);
+}
+function normalizePath(p) {
+  const parts = p.split('/').filter(Boolean);
+  const stack = [];
+  for (const part of parts) { if (part === '.') continue; if (part === '..') stack.pop(); else stack.push(part); }
+  return '/' + stack.join('/');
+}
+function fsMkdir(fs, path, recursive) {
+  if (fs.entries[path]) return recursive ? { ok: true } : { ok: false, error: path + ': File exists' };
+  const parent = path.substring(0, path.lastIndexOf('/')) || '/';
+  if (!fs.entries[parent] && parent !== '/') { if (!recursive) return { ok: false, error: 'No such file or directory' }; fsMkdir(fs, parent, true); }
+  fs.entries[path] = { type: 'dir' };
+  return { ok: true };
+}
+function fsTouch(fs, path) {
+  const parent = path.substring(0, path.lastIndexOf('/')) || '/';
+  if (!fs.entries[parent]) return { ok: false, error: 'No such file or directory' };
+  if (!fs.entries[path]) fs.entries[path] = { type: 'file', content: '' };
+  return { ok: true };
+}
+function fsWrite(fs, path, content, append) {
+  const parent = path.substring(0, path.lastIndexOf('/')) || '/';
+  if (!fs.entries[parent]) return { ok: false, error: 'No such file or directory' };
+  if (append && fs.entries[path] && fs.entries[path].type === 'file') fs.entries[path].content += content;
+  else fs.entries[path] = { type: 'file', content };
+  return { ok: true };
+}
+function fsRead(fs, path) {
+  const e = fs.entries[path];
+  if (!e) return { ok: false, error: 'No such file or directory' };
+  if (e.type !== 'file') return { ok: false, error: 'Is a directory' };
+  return { ok: true, content: e.content };
+}
+function fsRemove(fs, path, recursive) {
+  if (!fs.entries[path]) return { ok: false, error: 'No such file or directory' };
+  if (fs.entries[path].type === 'dir') {
+    const children = Object.keys(fs.entries).filter(k => k.startsWith(path + '/'));
+    if (children.length && !recursive) return { ok: false, error: 'Is a directory' };
+    children.forEach(k => delete fs.entries[k]);
+  }
+  delete fs.entries[path];
+  return { ok: true };
+}
+function fsList(fs, path) {
+  if (!fs.entries[path] && path !== '/') return { ok: false, error: 'No such file or directory' };
+  const prefix = path === '/' ? '/' : path + '/';
+  const names = new Set();
+  Object.keys(fs.entries).forEach(k => { if (k.startsWith(prefix) && k !== path) { const name = k.slice(prefix.length).split('/')[0]; if (name) names.add(name); } });
+  return { ok: true, list: [...names].sort() };
+}
+function fsExists(fs, path, type) {
+  const e = fs.entries[path];
+  if (!e) return false;
+  if (type === 'f') return e.type === 'file';
+  if (type === 'd') return e.type === 'dir';
+  return true;
+}
+function fsCopy(fs, src, dst) {
+  const e = fs.entries[src];
+  if (!e) return { ok: false, error: 'No such file or directory' };
+  if (e.type === 'dir') return { ok: false, error: 'omitting directory' };
+  fs.entries[dst] = { type: 'file', content: e.content };
+  return { ok: true };
+}
+function fsMove(fs, src, dst) {
+  const e = fs.entries[src];
+  if (!e) return { ok: false, error: 'No such file or directory' };
+  fs.entries[dst] = e; delete fs.entries[src];
+  return { ok: true };
+}
+function mockDate(fmt) {
+  const map = { '%Y': '2026', '%m': '07', '%d': '07', '%H': '14', '%M': '30', '%S': '00', '%F': '2026-07-07', '%A': 'mardi', '%j': '188' };
+  if (!fmt) return 'mar. 07 juil. 2026 14:30:00 CEST';
+  return fmt.replace(/^\+/, '').replace(/%[YmdHMSFAj]/g, m => map[m] || m);
+}
+
+function extractRedirection(text) {
+  let inS = false, inD = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === "'" && !inD) inS = !inS;
+    else if (c === '"' && !inS) inD = !inD;
+    if (!inS && !inD && c === '>') {
+      const append = text[i + 1] === '>';
+      return { cmdPart: text.slice(0, i).trim(), redir: { append, target: text.slice(i + (append ? 2 : 1)).trim() } };
+    }
+  }
+  return { cmdPart: text, redir: null };
+}
+
+function runCommand(words, scope, redir) {
+  const [cmd, ...args] = words;
+  let out = [], code = 0;
+  switch (cmd) {
+    case 'echo': {
+      let a = args.slice();
+      while (a[0] && /^-[ne]+$/.test(a[0])) a.shift();
+      out.push(a.join(' ').replace(/\\n/g, '\n').replace(/\\t/g, '\t'));
+      break;
+    }
+    case 'printf': {
+      let fmt = args[0] || '', rest = args.slice(1), i2 = 0;
+      out.push(fmt.replace(/%s|%d/g, () => rest[i2++] ?? '').replace(/\\n/g, '\n').replace(/\\t/g, '\t'));
+      break;
+    }
+    case 'read': {
+      const varName = args[0] || 'REPLY';
+      scope.vars[varName] = (scope.stdin && scope.stdin.length) ? scope.stdin.shift() : '';
+      break;
+    }
+    case 'true': code = 0; break;
+    case 'false': code = 1; break;
+    case 'exit': throw new ExitSignal(args[0] !== undefined ? (parseInt(args[0]) || 0) : 0);
+    case 'return': throw new ReturnSignal(args[0] !== undefined ? (parseInt(args[0]) || 0) : 0);
+    case 'break': throw new BreakSignal();
+    case 'continue': throw new ContinueSignal();
+    case 'mkdir': {
+      let a = args.slice(), p = false;
+      if (a[0] === '-p') { p = true; a.shift(); }
+      for (const path of a) { const r = fsMkdir(scope.fs, resolvePath(path, scope), p); if (!r.ok) { out.push('mkdir: ' + r.error); code = 1; } }
+      break;
+    }
+    case 'touch': for (const path of args) { const r = fsTouch(scope.fs, resolvePath(path, scope)); if (!r.ok) { out.push('touch: ' + r.error); code = 1; } } break;
+    case 'rm': {
+      let a = args.slice(), recursive = false, force = false;
+      a = a.filter(x => { if (/^-[rf]+$/.test(x)) { if (x.includes('r')) recursive = true; if (x.includes('f')) force = true; return false; } return true; });
+      for (const path of a) { const r = fsRemove(scope.fs, resolvePath(path, scope), recursive); if (!r.ok && !force) { out.push('rm: ' + r.error); code = 1; } }
+      break;
+    }
+    case 'rmdir': for (const path of args) { const r = fsRemove(scope.fs, resolvePath(path, scope), false); if (!r.ok) { out.push('rmdir: ' + r.error); code = 1; } } break;
+    case 'ls': {
+      let a = args.filter(x => !x.startsWith('-'));
+      const path = a[0] ? resolvePath(a[0], scope) : scope.fs.cwd;
+      const r = fsList(scope.fs, path);
+      if (!r.ok) { out.push('ls: ' + r.error); code = 2; } else out.push(r.list.join('  '));
+      break;
+    }
+    case 'cat': for (const path of args) { const r = fsRead(scope.fs, resolvePath(path, scope)); if (!r.ok) { out.push('cat: ' + r.error); code = 1; } else out.push(r.content); } break;
+    case 'cp': {
+      if (args.length < 2) { out.push('cp: arguments manquants'); code = 1; break; }
+      const r = fsCopy(scope.fs, resolvePath(args[0], scope), resolvePath(args[1], scope));
+      if (!r.ok) { out.push('cp: ' + r.error); code = 1; }
+      break;
+    }
+    case 'mv': {
+      if (args.length < 2) { out.push('mv: arguments manquants'); code = 1; break; }
+      const r = fsMove(scope.fs, resolvePath(args[0], scope), resolvePath(args[1], scope));
+      if (!r.ok) { out.push('mv: ' + r.error); code = 1; }
+      break;
+    }
+    case 'wc': {
+      let a = args.filter(x => x !== '-l');
+      const path = a[0] ? resolvePath(a[0], scope) : null;
+      let content = '';
+      if (path) { const r = fsRead(scope.fs, path); if (!r.ok) { out.push('wc: ' + r.error); code = 1; break; } content = r.content; }
+      const lines = content ? content.split('\n').filter((l, idx, arr) => !(idx === arr.length - 1 && l === '')).length : 0;
+      out.push(String(lines));
+      break;
+    }
+    case 'grep': {
+      let a = args.slice(), ignoreCase = false;
+      a = a.filter(x => { if (x === '-i') { ignoreCase = true; return false; } return true; });
+      const pattern = a[0], path = a[1] ? resolvePath(a[1], scope) : null;
+      let content = '';
+      if (path) { const r = fsRead(scope.fs, path); if (!r.ok) { out.push('grep: ' + r.error); code = 2; break; } content = r.content; }
+      let re;
+      try { re = new RegExp(pattern, ignoreCase ? 'i' : ''); } catch (e) { re = new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')); }
+      const matches = content.split('\n').filter(l => re.test(l));
+      if (matches.length) out.push(matches.join('\n'));
+      code = matches.length ? 0 : 1;
+      break;
+    }
+    case 'seq': {
+      let a = args.map(Number), start = 1, end = 1, step = 1;
+      if (a.length === 1) end = a[0];
+      else if (a.length === 2) { start = a[0]; end = a[1]; }
+      else if (a.length === 3) { start = a[0]; step = a[1]; end = a[2]; }
+      const arr = [];
+      if (step > 0) for (let x = start; x <= end; x += step) arr.push(x);
+      else if (step < 0) for (let x = start; x >= end; x += step) arr.push(x);
+      out.push(arr.join('\n'));
+      break;
+    }
+    case 'pwd': out.push(scope.fs.cwd); break;
+    case 'cd': {
+      const target = args[0] ? resolvePath(args[0], scope) : '/home/tssr';
+      if (fsExists(scope.fs, target, 'd')) scope.fs.cwd = target;
+      else { out.push('cd: ' + args[0] + ': Aucun fichier ou dossier de ce type'); code = 1; }
+      break;
+    }
+    case 'basename': out.push((args[0] || '').replace(/\/+$/, '').split('/').pop() || '/'); break;
+    case 'dirname': { const parts = (args[0] || '').replace(/\/+$/, '').split('/'); parts.pop(); out.push(parts.join('/') || '/'); break; }
+    case 'date': out.push(mockDate(args[0] || '')); break;
+    case 'hostname': out.push('tssr-lab'); break;
+    case 'whoami': out.push('tssr'); break;
+    case 'sleep': break;
+    default: {
+      if (scope.functions[cmd]) { callFunction(cmd, args, scope); return; }
+      out.push('bash: ' + cmd + ': commande introuvable');
+      code = 127;
+    }
+  }
+  if (redir) {
+    const text = out.join('\n') + (out.length ? '\n' : '');
+    fsWrite(scope.fs, resolvePath(redir.target, scope), text, redir.append);
+  } else {
+    for (const line of out) scope.stdout.push(line);
+  }
+  scope.lastExit = code;
+}
+function callFunction(name, args, scope) {
+  scope.constructsUsed.add('function');
+  const saved = scope.positional;
+  scope.positional = args;
+  let exitCode = 0;
+  try { execBlock(scope.functions[name], scope); }
+  catch (e) { if (e instanceof ReturnSignal) exitCode = e.code; else { scope.positional = saved; throw e; } }
+  scope.positional = saved;
+  scope.lastExit = exitCode;
+}
+function captureExec(cmdStr, scope) {
+  const saved = scope.stdout, buffer = [];
+  scope.stdout = buffer;
+  try { execLine(cmdStr, scope); } catch (e) {}
+  scope.stdout = saved;
+  return buffer.join('\n');
+}
+function splitTopLevel(text) {
+  const parts = [];
+  let cur = '', sep = '', inS = false, inD = false, i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    if (c === "'" && !inD) inS = !inS;
+    else if (c === '"' && !inS) inD = !inD;
+    if (!inS && !inD) {
+      if (c === ';') { parts.push({ sep, text: cur.trim() }); cur = ''; sep = ';'; i++; continue; }
+      if (c === '&' && text[i + 1] === '&') { parts.push({ sep, text: cur.trim() }); cur = ''; sep = '&&'; i += 2; continue; }
+      if (c === '|' && text[i + 1] === '|') { parts.push({ sep, text: cur.trim() }); cur = ''; sep = '||'; i += 2; continue; }
+    }
+    cur += c; i++;
+  }
+  if (cur.trim()) parts.push({ sep, text: cur.trim() });
+  return parts.filter(p => p.text);
+}
+function execLine(text, scope) {
+  for (const p of splitTopLevel(text)) {
+    if (p.sep === '&&' && scope.lastExit !== 0) continue;
+    if (p.sep === '||' && scope.lastExit === 0) continue;
+    execSimple(p.text, scope);
+  }
+}
+function execSimple(text, scope) {
+  if (!text) return;
+  const asg = text.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/s);
+  if (asg) { scope.vars[asg[1]] = expandWord(asg[2], scope); scope.lastExit = 0; return; }
+  const { cmdPart, redir } = extractRedirection(text);
+  const words = tokenizeAndExpand(cmdPart, scope);
+  if (words.length === 0) { scope.lastExit = 0; return; }
+  runCommand(words, scope, redir);
+}
+function evalCond(condStr, scope) {
+  let s = condStr.trim();
+  let m = s.match(/^\[\[\s*([\s\S]*)\s*\]\]$/) || s.match(/^\[\s*([\s\S]*)\s*\]$/);
+  if (m) return evalTest(m[1], scope);
+  if (/^test\s+/.test(s)) return evalTest(s.replace(/^test\s+/, ''), scope);
+  execSimple(s, scope);
+  return scope.lastExit === 0;
+}
+function evalTest(inner, scope) {
+  let s = inner.trim(), neg = false;
+  if (s.startsWith('!')) { neg = true; s = s.slice(1).trim(); }
+  const words = tokenizeAndExpand(s, scope);
+  let result;
+  if (words.length === 2 && words[0] === '-z') result = words[1] === '';
+  else if (words.length === 2 && words[0] === '-n') result = words[1] !== '';
+  else if (words.length === 2 && words[0] === '-f') result = fsExists(scope.fs, resolvePath(words[1], scope), 'f');
+  else if (words.length === 2 && words[0] === '-d') result = fsExists(scope.fs, resolvePath(words[1], scope), 'd');
+  else if (words.length === 2 && words[0] === '-e') result = fsExists(scope.fs, resolvePath(words[1], scope), 'e');
+  else if (words.length === 3 && (words[1] === '=' || words[1] === '==')) result = words[0] === words[2];
+  else if (words.length === 3 && words[1] === '!=') result = words[0] !== words[2];
+  else if (words.length === 3 && ['-eq', '-ne', '-lt', '-le', '-gt', '-ge'].includes(words[1])) {
+    const a = parseFloat(words[0]) || 0, b = parseFloat(words[2]) || 0;
+    result = { '-eq': a === b, '-ne': a !== b, '-lt': a < b, '-le': a <= b, '-gt': a > b, '-ge': a >= b }[words[1]];
+  }
+  else if (words.length === 1) result = words[0] !== '';
+  else result = false;
+  return neg ? !result : result;
+}
+function expandForList(listExpr, scope) {
+  let s = listExpr.trim();
+  let m = s.match(/^\{(-?\d+)\.\.(-?\d+)\}$/);
+  if (m) {
+    let a = +m[1], b = +m[2], arr = [];
+    if (a <= b) for (let x = a; x <= b; x++) arr.push(String(x)); else for (let x = a; x >= b; x--) arr.push(String(x));
+    return arr;
+  }
+  const words = tokenizeAndExpand(s, scope);
+  return words.join(' ').split(/\s+/).filter(Boolean);
+}
+
+function parseBlock(lines, startIdx, enders) {
+  const nodes = [];
+  let i = startIdx;
+  while (i < lines.length) {
+    const line = stripComment(lines[i]).trim();
+    if (!line) { i++; continue; }
+    const firstWord = line.split(/\s+/)[0];
+    if (enders.includes(firstWord)) return { nodes, nextIdx: i, enderWord: firstWord };
+    if (/^if\b/.test(line)) { const r = parseIf(lines, i); nodes.push(r.node); i = r.nextIdx; continue; }
+    if (/^for\b/.test(line)) { const r = parseFor(lines, i); nodes.push(r.node); i = r.nextIdx; continue; }
+    if (/^while\b/.test(line)) { const r = parseWhile(lines, i); nodes.push(r.node); i = r.nextIdx; continue; }
+    const funcMatch = line.match(/^(?:function\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*\(\)\s*\{?\s*$/);
+    if (funcMatch) {
+      let j = i, hasBrace = /\{\s*$/.test(line);
+      if (!hasBrace) { const nxt = stripComment(lines[i + 1] || '').trim(); if (nxt === '{') { j = i + 1; hasBrace = true; } }
+      if (hasBrace) { const r = parseFunc(lines, j, funcMatch[1]); nodes.push(r.node); i = r.nextIdx; continue; }
+    }
+    nodes.push({ type: 'line', text: line, lineNo: i + 1 });
+    i++;
+  }
+  return { nodes, nextIdx: i, enderWord: null };
+}
+function parseIf(lines, i) {
+  let line = stripComment(lines[i]).trim();
+  let condPart = line.replace(/^if\s+/, '');
+  let hasThenInline = /;\s*then\s*$/.test(condPart);
+  condPart = condPart.replace(/;\s*then\s*$/, '');
+  let j = i + 1;
+  if (!hasThenInline) {
+    const nxt = stripComment(lines[j] || '').trim();
+    if (nxt === 'then') j++; else throw new BashError('Attendu "then" après "if" (ligne ' + (i + 1) + ')');
+  }
+  const branches = [];
+  let result = parseBlock(lines, j, ['elif', 'else', 'fi']);
+  branches.push({ cond: condPart, body: result.nodes });
+  let k = result.nextIdx;
+  while (result.enderWord === 'elif') {
+    let eline = stripComment(lines[k]).trim();
+    let econd = eline.replace(/^elif\s+/, '').replace(/;\s*then\s*$/, '');
+    let hasThen = /;\s*then\s*$/.test(eline);
+    let ek = k + 1;
+    if (!hasThen) { const nxt = stripComment(lines[ek] || '').trim(); if (nxt === 'then') ek++; else throw new BashError('Attendu "then" après "elif" (ligne ' + (k + 1) + ')'); }
+    result = parseBlock(lines, ek, ['elif', 'else', 'fi']);
+    branches.push({ cond: econd, body: result.nodes });
+    k = result.nextIdx;
+  }
+  let elseBody = null;
+  if (result.enderWord === 'else') { result = parseBlock(lines, k + 1, ['fi']); elseBody = result.nodes; k = result.nextIdx; }
+  return { node: { type: 'if', branches, elseBody }, nextIdx: k + 1 };
+}
+function parseFor(lines, i) {
+  let line = stripComment(lines[i]).trim();
+  let m = line.match(/^for\s+(\w+)\s+in\s+([\s\S]*?)(;\s*do\s*)?$/);
+  if (!m) throw new BashError('Syntaxe "for" invalide (ligne ' + (i + 1) + ')');
+  const varName = m[1];
+  let listPart = m[2];
+  let hasDoInline = /;\s*do\s*$/.test(line);
+  let j = i + 1;
+  if (!hasDoInline) { const nxt = stripComment(lines[j] || '').trim(); if (nxt === 'do') j++; else throw new BashError('Attendu "do" après "for" (ligne ' + (i + 1) + ')'); }
+  const result = parseBlock(lines, j, ['done']);
+  return { node: { type: 'for', varName, listExpr: listPart, body: result.nodes }, nextIdx: result.nextIdx + 1 };
+}
+function parseWhile(lines, i) {
+  let line = stripComment(lines[i]).trim();
+  let condPart = line.replace(/^while\s+/, '');
+  let hasDoInline = /;\s*do\s*$/.test(condPart);
+  condPart = condPart.replace(/;\s*do\s*$/, '');
+  let j = i + 1;
+  if (!hasDoInline) { const nxt = stripComment(lines[j] || '').trim(); if (nxt === 'do') j++; else throw new BashError('Attendu "do" après "while" (ligne ' + (i + 1) + ')'); }
+  const result = parseBlock(lines, j, ['done']);
+  return { node: { type: 'while', cond: condPart, body: result.nodes }, nextIdx: result.nextIdx + 1 };
+}
+function parseFunc(lines, i, name) {
+  const result = parseBlock(lines, i + 1, ['}']);
+  return { node: { type: 'func', name, body: result.nodes }, nextIdx: result.nextIdx + 1 };
+}
+function execBlock(nodes, scope) {
+  for (const node of nodes) {
+    scope.steps++;
+    if (scope.steps > scope.maxSteps) throw new BashError('Trop d\'itérations — boucle infinie ? Script interrompu.');
+    execNode(node, scope);
+  }
+}
+function execNode(node, scope) {
+  if (node.type === 'line') { execLine(node.text, scope); return; }
+  if (node.type === 'if') {
+    scope.constructsUsed.add('if');
+    for (const br of node.branches) { if (evalCond(br.cond, scope)) { execBlock(br.body, scope); return; } }
+    if (node.elseBody) execBlock(node.elseBody, scope);
+    return;
+  }
+  if (node.type === 'for') {
+    scope.constructsUsed.add('for');
+    for (const item of expandForList(node.listExpr, scope)) {
+      scope.vars[node.varName] = item;
+      try { execBlock(node.body, scope); } catch (e) { if (e instanceof BreakSignal) break; if (e instanceof ContinueSignal) continue; throw e; }
+    }
+    return;
+  }
+  if (node.type === 'while') {
+    scope.constructsUsed.add('while');
+    let guard = 0;
+    while (evalCond(node.cond, scope)) {
+      guard++;
+      if (guard > 2000) throw new BashError('Boucle "while" trop longue — vérifie ta condition d\'arrêt.');
+      try { execBlock(node.body, scope); } catch (e) { if (e instanceof BreakSignal) break; if (e instanceof ContinueSignal) continue; throw e; }
+    }
+    return;
+  }
+  if (node.type === 'func') { scope.functions[node.name] = node.body; return; }
+}
+function runScript(code, mission) {
+  const scope = {
+    vars: {}, positional: (mission && mission.args) || [], lastExit: 0,
+    functions: {}, fs: { cwd: '/home/tssr', entries: {} },
+    stdin: ((mission && mission.stdin) || []).slice(),
+    stdout: [], constructsUsed: new Set(), steps: 0, maxSteps: 6000,
+  };
+  scope.fs.entries['/'] = { type: 'dir' };
+  scope.fs.entries['/home'] = { type: 'dir' };
+  scope.fs.entries['/home/tssr'] = { type: 'dir' };
+  if (mission && mission.seed) mission.seed(scope.fs);
+  let error = null, exitCode = 0;
+  try {
+    const ast = parseBlock(code.split('\n'), 0, []).nodes;
+    execBlock(ast, scope);
+  } catch (e) {
+    if (e instanceof ExitSignal) exitCode = e.code;
+    else if (e instanceof BashError) error = e.message;
+    else if (e instanceof ReturnSignal || e instanceof BreakSignal || e instanceof ContinueSignal) {}
+    else error = 'Erreur interne : ' + e.message;
+  }
+  return { stdout: scope.stdout, vars: scope.vars, fs: scope.fs, exitCode: exitCode || scope.lastExit, error, constructsUsed: scope.constructsUsed };
+}
+
+// ═══════════════════════════════════════════════
+// NIVEAUX & MISSIONS
+// ═══════════════════════════════════════════════
+function outHas(r, re) {
+  const s = r.stdout.join('\n');
+  return re instanceof RegExp ? re.test(s) : s.toLowerCase().includes(String(re).toLowerCase());
+}
+const LEVELS = [
+  {
+    emoji: '🌱', title: 'Variables & Sorties',
+    intro: 'Déclarer des variables, les afficher, lire une saisie utilisateur.',
+    missions: [
+      {
+        instr: 'Crée une variable MESSAGE contenant le texte "Bonjour depuis mon script", puis affiche-la avec echo.',
+        starter: '# Ecris ton script ici\n',
+        hint: 'MESSAGE="Bonjour depuis mon script"\necho "$MESSAGE"',
+        tip: 'Une variable se déclare SANS espace autour du = et s\'utilise avec $ devant son nom.',
+        verify: r => !r.error && r.vars.MESSAGE === 'Bonjour depuis mon script' && outHas(r, 'bonjour depuis mon script'),
+      },
+      {
+        instr: 'Lis un prénom saisi par l\'utilisateur (commande read) dans une variable PRENOM, puis affiche "Bienvenue, <prénom> !".',
+        starter: '',
+        hint: 'read PRENOM\necho "Bienvenue, $PRENOM !"',
+        tip: 'read lit une ligne saisie au clavier (ici simulée) et la stocke dans la variable donnée.',
+        stdin: ['Camille'],
+        verify: r => !r.error && r.vars.PRENOM === 'Camille' && outHas(r, /bienvenue,\s*camille\s*!/i),
+      },
+      {
+        instr: 'Calcule 15 + 27 avec l\'arithmétique bash $(( )) dans une variable TOTAL, puis affiche "Resultat: <total>".',
+        starter: '',
+        hint: 'TOTAL=$((15+27))\necho "Resultat: $TOTAL"',
+        tip: '$(( expression )) évalue une expression arithmétique entière. Pas de $ devant les noms de variables à l\'intérieur.',
+        verify: r => !r.error && String(r.vars.TOTAL) === '42' && outHas(r, '42'),
+      },
+      {
+        instr: 'Affiche la valeur de la variable NIVEAU avec une valeur par défaut "debutant" si elle n\'est pas définie, via ${NIVEAU:-debutant}.',
+        starter: '',
+        hint: 'echo "${NIVEAU:-debutant}"',
+        tip: '${VAR:-defaut} affiche VAR si elle existe et n\'est pas vide, sinon "defaut" — très utilisé pour sécuriser un script.',
+        verify: r => !r.error && r.stdout.join('\n').trim().toLowerCase() === 'debutant',
+      },
+      {
+        instr: 'Crée PRENOM="Jean" et NOM="Dupont" puis une variable FULL qui les concatène SANS espace ("JeanDupont"). Affiche FULL.',
+        starter: 'PRENOM="Jean"\nNOM="Dupont"\n',
+        hint: 'PRENOM="Jean"\nNOM="Dupont"\nFULL="$PRENOM$NOM"\necho "$FULL"',
+        tip: 'Coller deux variables sans espace entre elles les concatène directement : "$A$B".',
+        verify: r => !r.error && r.vars.FULL === 'JeanDupont' && outHas(r, 'jeandupont'),
+      },
+    ],
+  },
+  {
+    emoji: '🔀', title: 'Conditions',
+    intro: 'Prendre des décisions dans un script avec if / elif / else et test.',
+    missions: [
+      {
+        instr: 'La variable AGE vaut 16. Affiche "majeur" si AGE >= 18, sinon "mineur".',
+        starter: 'AGE=16\n',
+        hint: 'AGE=16\nif [ $AGE -ge 18 ]; then\n  echo "majeur"\nelse\n  echo "mineur"\nfi',
+        tip: '-ge = greater or equal. Le corps du if doit être sur des lignes séparées, "fi" seul sur sa ligne.',
+        verify: r => !r.error && r.constructsUsed.has('if') && outHas(r, /^mineur$/m),
+      },
+      {
+        instr: 'Un fichier "rapport.txt" existe déjà dans le dossier courant. Vérifie sa présence avec -f : affiche "Rapport present" s\'il existe, "Rapport manquant" sinon.',
+        starter: '',
+        seed: fs => { fs.entries['/home/tssr/rapport.txt'] = { type: 'file', content: 'donnees' }; },
+        hint: 'if [ -f rapport.txt ]; then\n  echo "Rapport present"\nelse\n  echo "Rapport manquant"\nfi',
+        tip: '-f teste l\'existence d\'un FICHIER (pas un dossier). -d teste un dossier.',
+        verify: r => !r.error && r.constructsUsed.has('if') && outHas(r, /rapport present/i) && !outHas(r, /rapport manquant/i),
+      },
+      {
+        instr: 'La variable REPONSE est vide (""). Teste-la avec -z : affiche "Aucune reponse" si elle est vide, sinon affiche son contenu.',
+        starter: 'REPONSE=""\n',
+        hint: 'REPONSE=""\nif [ -z "$REPONSE" ]; then\n  echo "Aucune reponse"\nelse\n  echo "$REPONSE"\nfi',
+        tip: '-z (zero length) est vrai si la chaîne est vide. -n est vrai si elle est non vide.',
+        verify: r => !r.error && r.constructsUsed.has('if') && outHas(r, /aucune reponse/i),
+      },
+      {
+        instr: 'La variable NOTE vaut 65. Ecris une chaine elif : "Excellent" si NOTE >= 80, "Moyen" si NOTE >= 50, "Insuffisant" sinon.',
+        starter: 'NOTE=65\n',
+        hint: 'NOTE=65\nif [ $NOTE -ge 80 ]; then\n  echo "Excellent"\nelif [ $NOTE -ge 50 ]; then\n  echo "Moyen"\nelse\n  echo "Insuffisant"\nfi',
+        tip: 'elif s\'écrit "elif [ cond ]; then" — chaque branche est testée dans l\'ordre, la première vraie l\'emporte.',
+        verify: r => !r.error && r.constructsUsed.has('if') && outHas(r, /^moyen$/im),
+      },
+      {
+        instr: 'La variable UTILISATION vaut 92 (pourcentage disque). Si UTILISATION >= 90, affiche "ALERTE DISQUE", sinon affiche "Disque ok".',
+        starter: 'UTILISATION=92\n',
+        hint: 'UTILISATION=92\nif [ $UTILISATION -ge 90 ]; then\n  echo "ALERTE DISQUE"\nelse\n  echo "Disque ok"\nfi',
+        tip: 'Ce pattern (seuil critique -> alerte) est très courant dans les scripts de supervision.',
+        verify: r => !r.error && r.constructsUsed.has('if') && outHas(r, /alerte disque/i),
+      },
+    ],
+  },
+  {
+    emoji: '🔁', title: 'Boucles',
+    intro: 'Répéter des actions avec for et while — la base de l\'automatisation.',
+    missions: [
+      {
+        instr: 'Affiche chaque service de la liste "ssh apache mysql cron" précédé de "Verification: " (une ligne par service), avec une boucle for.',
+        starter: '',
+        hint: 'for svc in ssh apache mysql cron; do\n  echo "Verification: $svc"\ndone',
+        tip: 'for VAR in mot1 mot2 mot3; do ... done itère sur une liste de mots séparés par des espaces.',
+        verify: r => !r.error && r.constructsUsed.has('for') && ['ssh', 'apache', 'mysql', 'cron'].every(s => outHas(r, 'verification: ' + s)),
+      },
+      {
+        instr: 'Calcule la somme des entiers de 1 à 10 avec une boucle for sur {1..10}, stocke le résultat dans TOTAL, puis affiche "Somme: <total>".',
+        starter: '',
+        hint: 'TOTAL=0\nfor i in {1..10}; do\n  TOTAL=$((TOTAL+i))\ndone\necho "Somme: $TOTAL"',
+        tip: '{1..10} génère la séquence 1 2 3 ... 10. Pratique pour compter sans "seq".',
+        verify: r => !r.error && r.constructsUsed.has('for') && String(r.vars.TOTAL) === '55' && outHas(r, '55'),
+      },
+      {
+        instr: 'Avec une boucle while, affiche "compte: 1" à "compte: 5" (une ligne par nombre), en incrémentant un compteur.',
+        starter: '',
+        hint: 'i=1\nwhile [ $i -le 5 ]; do\n  echo "compte: $i"\n  i=$((i+1))\ndone',
+        tip: 'N\'oublie jamais d\'incrémenter le compteur DANS la boucle, sinon elle ne s\'arrête jamais !',
+        verify: r => !r.error && r.constructsUsed.has('while') && [1, 2, 3, 4, 5].every(n => outHas(r, 'compte: ' + n)),
+      },
+      {
+        instr: 'Le dossier courant contient plusieurs fichiers .log. Liste-les avec ls, puis affiche "Fichier trouve: <nom>" pour chacun avec une boucle for.',
+        starter: '',
+        seed: fs => {
+          fs.entries['/home/tssr/access.log'] = { type: 'file', content: '' };
+          fs.entries['/home/tssr/error.log'] = { type: 'file', content: '' };
+          fs.entries['/home/tssr/system.log'] = { type: 'file', content: '' };
+        },
+        hint: 'for f in $(ls); do\n  echo "Fichier trouve: $f"\ndone',
+        tip: '$(ls) exécute ls et récupère son résultat comme une liste de mots — très utilisé pour traiter des fichiers en boucle.',
+        verify: r => !r.error && r.constructsUsed.has('for') && ['access.log', 'error.log', 'system.log'].every(f => outHas(r, 'fichier trouve: ' + f)),
+      },
+      {
+        instr: 'Avec une boucle for sur {1..10}, affiche uniquement les nombres impairs (utilise if + continue). Format : "impair: <n>".',
+        starter: '',
+        hint: 'for i in {1..10}; do\n  if [ $(( i % 2 )) -eq 0 ]; then\n    continue\n  fi\n  echo "impair: $i"\ndone',
+        tip: 'continue passe directement au tour suivant de la boucle sans exécuter le reste du corps.',
+        verify: r => !r.error && r.constructsUsed.has('for') && [1, 3, 5, 7, 9].every(n => outHas(r, 'impair: ' + n)) && ![2, 4, 6, 8, 10].some(n => outHas(r, 'impair: ' + n)),
+      },
+    ],
+  },
+  {
+    emoji: '⚙️', title: 'Fonctions & Mini-projets',
+    intro: 'Structurer un script avec des fonctions et combiner tout ce que tu as appris.',
+    missions: [
+      {
+        instr: 'Ecris une fonction "saluer" qui prend un prénom en $1 et affiche "Salut, <prenom> !". Appelle-la avec "Marc".',
+        starter: '',
+        hint: 'saluer() {\n  echo "Salut, $1 !"\n}\nsaluer Marc',
+        tip: 'Dans une fonction, $1 $2... sont les arguments passés lors de l\'appel, pas ceux du script.',
+        verify: r => !r.error && r.constructsUsed.has('function') && outHas(r, /salut,\s*marc\s*!/i),
+      },
+      {
+        instr: 'Ecris une fonction "est_pair" qui prend un nombre en $1 et fait "return 0" s\'il est pair, "return 1" sinon. Utilise-la dans un if pour afficher "pair" ou "impair" pour le nombre 8.',
+        starter: '',
+        hint: 'est_pair() {\n  if [ $(( $1 % 2 )) -eq 0 ]; then\n    return 0\n  else\n    return 1\n  fi\n}\nif est_pair 8; then\n  echo "pair"\nelse\n  echo "impair"\nfi',
+        tip: 'return code 0 = succès (vrai dans un if), tout code différent de 0 = échec (faux dans un if).',
+        verify: r => !r.error && r.constructsUsed.has('function') && r.constructsUsed.has('if') && outHas(r, /^pair$/m),
+      },
+      {
+        instr: 'Mini-projet : trois fichiers "log1.txt" "log2.txt" "log3.txt" existent déjà. Écris un script qui, pour chacun, crée une COPIE dans le dossier "backup" (à créer) avec le même nom, et affiche "Sauvegarde: <nom>" à chaque copie.',
+        starter: '',
+        seed: fs => {
+          fs.entries['/home/tssr/log1.txt'] = { type: 'file', content: 'a' };
+          fs.entries['/home/tssr/log2.txt'] = { type: 'file', content: 'b' };
+          fs.entries['/home/tssr/log3.txt'] = { type: 'file', content: 'c' };
+        },
+        hint: 'mkdir -p backup\nfor f in log1.txt log2.txt log3.txt; do\n  cp $f backup/$f\n  echo "Sauvegarde: $f"\ndone',
+        tip: 'mkdir -p évite une erreur si le dossier existe déjà. cp copie un fichier vers une destination.',
+        verify: r => !r.error && r.constructsUsed.has('for') &&
+          ['log1.txt', 'log2.txt', 'log3.txt'].every(f => r.fs.entries['/home/tssr/backup/' + f] && outHas(r, 'sauvegarde: ' + f)),
+      },
+      {
+        instr: 'Défi final : écris une fonction "verifier_seuil" qui prend une VALEUR en $1 et un SEUIL en $2, et affiche "DEPASSEMENT" si VALEUR > SEUIL, "OK" sinon. Teste-la en boucle sur les valeurs 45, 78, 92 avec un seuil de 80.',
+        starter: '',
+        hint: 'verifier_seuil() {\n  if [ $1 -gt $2 ]; then\n    echo "DEPASSEMENT"\n  else\n    echo "OK"\n  fi\n}\nfor v in 45 78 92; do\n  verifier_seuil $v 80\ndone',
+        tip: 'Combiner fonction + boucle : le grand classique des scripts de supervision (vérifier plusieurs valeurs avec la même logique).',
+        verify: r => {
+          if (r.error || !r.constructsUsed.has('function') || !r.constructsUsed.has('for')) return false;
+          const lines = r.stdout.join('\n').toUpperCase();
+          const okCount = (lines.match(/\bOK\b/g) || []).length;
+          const depCount = (lines.match(/DEPASSEMENT/g) || []).length;
+          return depCount === 1 && okCount >= 2;
+        },
+      },
+    ],
+  },
+];
+
+const HINTS_PER_LEVEL = 2;
+const FAILS_TO_UNLOCK = 2;
+const SAVE_KEY = 'tssr_bashlab_progress';
+const TOTAL = LEVELS.reduce((n, l) => n + l.missions.length, 0);
+
+// ═══════════════════════════════════════════════
+// DOM
+// ═══════════════════════════════════════════════
+const outEl = document.getElementById('out');
+const consoleEl = document.getElementById('console');
+const editorEl = document.getElementById('editor');
+const objectiveEl = document.getElementById('objective');
+const hmEl = document.getElementById('hm');
+const hnEl = document.getElementById('hn');
+const hpEl = document.getElementById('hdr-r');
+const pbarEl = document.getElementById('pbar');
+const pmlistEl = document.getElementById('pmlist');
+const ovWin = document.getElementById('ov-win');
+const ovSelect = document.getElementById('ov-select');
+const lvlGrid = document.getElementById('lvl-grid');
+const winFlags = document.getElementById('win-flags');
+const bootEl = document.getElementById('boot');
+const bootMsg = document.getElementById('boot-msg');
+const btnRun = document.getElementById('btn-run');
+const btnHint = document.getElementById('btn-hint');
+const btnResetMission = document.getElementById('btn-reset-mission');
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let lvl = 0, mis = 0, playing = false;
+let hintsLeft = HINTS_PER_LEVEL, fails = 0, lvlErrors = 0, lvlHints = 0, lvlPasted = false;
+let unlocked = 1;
+let stars = LEVELS.map(() => 0);
+
+function save() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      v: 1, unlocked, stars,
+      pos: playing ? { lvl, mis, hintsLeft, lvlErrors, lvlHints, lvlPasted } : null,
+    }));
+  } catch {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if (!d) return null;
+    unlocked = Math.min(Math.max(d.unlocked || 1, 1), LEVELS.length);
+    if (Array.isArray(d.stars)) stars = LEVELS.map((_, i) => d.stars[i] | 0);
+    return d.pos || null;
+  } catch { return null; }
+}
+
+// ═══════════════════════════════════════════════
+// OUTPUT
+// ═══════════════════════════════════════════════
+function mkLn(cls) { const el = document.createElement('div'); el.className = 'ln' + (cls ? ' ln-' + cls : ''); outEl.appendChild(el); sc(); return el; }
+function sc() { consoleEl.scrollTop = 999999; }
+function pr(t, c) { const el = mkLn(c); el.innerHTML = t; }
+function blank() { mkLn(''); }
+function sep() { pr('─'.repeat(48), 'sep'); }
+function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// ═══════════════════════════════════════════════
+// HEADER + PANEL
+// ═══════════════════════════════════════════════
+function starStr(n) { return '★'.repeat(n) + '<span class="off">' + '☆'.repeat(3 - n) + '</span>'; }
+function renderHeader() {
+  const totalStars = stars.reduce((a, b) => a + b, 0);
+  if (playing) {
+    hmEl.textContent = 'NIVEAU ' + (lvl + 1) + ' · MISSION ' + (mis + 1) + '/' + LEVELS[lvl].missions.length;
+    hnEl.textContent = LEVELS[lvl].emoji + ' ' + LEVELS[lvl].title;
+    const dots = '<span class="hints-on">' + '●'.repeat(hintsLeft) + '</span><span class="hints-off">' + '●'.repeat(HINTS_PER_LEVEL - hintsLeft) + '</span>';
+    hpEl.innerHTML = '<span class="stars">★ ' + totalStars + '/' + (LEVELS.length * 3) + '</span> · indices ' + dots;
+  } else {
+    hmEl.textContent = 'SCRIPT LAB';
+    hnEl.textContent = 'Sélection de niveau';
+    hpEl.innerHTML = '<span class="stars">★ ' + totalStars + '/' + (LEVELS.length * 3) + '</span>';
+  }
+}
+function renderPanel() {
+  let doneCount = 0;
+  stars.forEach((s, i) => { if (s > 0) doneCount += LEVELS[i].missions.length; });
+  if (playing && stars[lvl] === 0) doneCount += mis;
+  pbarEl.style.width = Math.round(doneCount / TOTAL * 100) + '%';
+
+  let html = '';
+  LEVELS.forEach((L, i) => {
+    const isLocked = i >= unlocked, isDone = stars[i] > 0, isActive = playing && i === lvl;
+    const cls = isActive ? 'active' : isLocked ? 'locked' : isDone ? 'done unlocked' : 'unlocked';
+    const right = isLocked ? '<span class="pl-lock">🔒</span>' : '<span class="pl-stars">' + '★'.repeat(stars[i]) + '</span>';
+    html += `<div class="pl ${cls}" data-lvl="${i}"><span>${L.emoji}</span><span>Niv.${i + 1} — ${L.title}</span>${right}</div>`;
+    if (isActive) {
+      L.missions.forEach((m, j) => {
+        const mcls = j < mis ? 'done' : j === mis ? 'current' : 'todo';
+        const check = j < mis ? '✓' : j === mis ? '▶' : '';
+        const txt = j <= mis ? escHtml(m.instr).slice(0, 34) : '···';
+        html += `<div class="pm ${mcls}"><span class="pm-num">${j + 1}</span><span class="pm-txt">${txt}</span><span class="pm-check">${check}</span></div>`;
+      });
+    }
+  });
+  pmlistEl.innerHTML = html;
+  pmlistEl.querySelectorAll('.pl.unlocked').forEach(el => {
+    el.addEventListener('click', () => { const i = +el.dataset.lvl; if (!playing || i !== lvl) startLevel(i); });
+  });
+  renderHeader();
+}
+
+// ═══════════════════════════════════════════════
+// LEVEL SELECT
+// ═══════════════════════════════════════════════
+function renderSelect() {
+  let html = '';
+  LEVELS.forEach((L, i) => {
+    const isLocked = i >= unlocked, isNext = i === unlocked - 1 && stars[i] === 0;
+    const cls = isLocked ? 'locked' : 'unlocked' + (isNext ? ' next' : '');
+    html += `<div class="lvl-card ${cls}" data-lvl="${i}">
+      <div class="lvl-emoji">${isLocked ? '🔒' : L.emoji}</div>
+      <div class="lvl-num">NIVEAU ${i + 1}</div>
+      <div class="lvl-name">${L.title}</div>
+      <div class="lvl-stars">${isLocked ? '&nbsp;' : starStr(stars[i])}</div>
+    </div>`;
+  });
+  lvlGrid.innerHTML = html;
+  lvlGrid.querySelectorAll('.lvl-card.unlocked, .lvl-card.next').forEach(el => el.addEventListener('click', () => startLevel(+el.dataset.lvl)));
+}
+function openSelect() { playing = false; renderSelect(); renderPanel(); ovSelect.classList.remove('h'); }
+
+// ═══════════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════════
+function startLevel(i, resume) {
+  if (i >= unlocked) return;
+  ovSelect.classList.add('h'); ovWin.classList.add('h');
+  lvl = i;
+  if (!resume) { mis = 0; hintsLeft = HINTS_PER_LEVEL; fails = 0; lvlErrors = 0; lvlHints = 0; lvlPasted = false; }
+  playing = true;
+  save();
+  outEl.innerHTML = '';
+  const L = LEVELS[lvl];
+  sep();
+  pr(`  ${L.emoji} <span style="color:var(--g);font-weight:bold">NIVEAU ${lvl + 1} — ${L.title.toUpperCase()}</span>`, 'sys');
+  pr(`  ${escHtml(L.intro)}`, 'sys');
+  pr(`  <span style="color:#555">${HINTS_PER_LEVEL} indices max · un indice se débloque après ${FAILS_TO_UNLOCK} échecs</span>`, '');
+  sep();
+  renderPanel();
+  showObjective();
+  loadMissionCode();
+  editorEl.focus();
+}
+function showObjective() {
+  if (!playing) return;
+  const m = LEVELS[lvl].missions[mis];
+  objectiveEl.innerHTML = `<span class="lbl">[MISSION ${mis + 1}/${LEVELS[lvl].missions.length}]</span>${escHtml(m.instr)}`;
+}
+function loadMissionCode() {
+  const m = LEVELS[lvl].missions[mis];
+  editorEl.value = m.starter || '';
+  blank();
+}
+
+// ═══════════════════════════════════════════════
+// EXÉCUTION
+// ═══════════════════════════════════════════════
+function runMission() {
+  if (!playing) return;
+  const m = LEVELS[lvl].missions[mis];
+  const code = editorEl.value;
+  const r = runScript(code, m);
+
+  sep();
+  if (r.error) {
+    pr(`<span style="color:#ff5555">✗ Erreur : ${escHtml(r.error)}</span>`);
+  } else if (r.stdout.length === 0) {
+    pr(`<span style="color:#777">(aucune sortie)</span>`);
+  } else {
+    r.stdout.forEach(line => pr(escHtml(line), 'out'));
+  }
+  blank();
+
+  if (m.verify(r)) {
+    if (m.tip) pr(`<span style="color:var(--y)">💡 ${escHtml(m.tip)}</span>`);
+    mis++; fails = 0;
+    save();
+    if (mis >= LEVELS[lvl].missions.length) { completeLevel(); return; }
+    renderPanel();
+    blank(); sep();
+    pr(`<span style="color:var(--g)">✅ Mission ${mis}/${LEVELS[lvl].missions.length} validée !</span>`);
+    showObjective();
+    loadMissionCode();
+  } else {
+    fails++; lvlErrors++;
+    save();
+    pr(`<span style="color:#ff5555">✗ Ce n'est pas encore ça — regarde la sortie ci-dessus et compare avec ce qui est demandé.</span>`);
+    if (fails === FAILS_TO_UNLOCK && hintsLeft > 0) {
+      pr(`<span style="color:#555">Un indice est disponible (bouton 💡) — il t'en reste ${hintsLeft} pour ce niveau.</span>`);
+    }
+    blank();
+  }
+}
+
+function computeStars() {
+  let s;
+  if (lvlHints === 0 && lvlErrors <= 2) s = 3;
+  else if (lvlHints <= 1 && lvlErrors <= 6) s = 2;
+  else s = 1;
+  return lvlPasted ? Math.min(s, 2) : s;
+}
+function completeLevel() {
+  const L = LEVELS[lvl];
+  const earned = computeStars();
+  stars[lvl] = Math.max(stars[lvl], earned);
+  unlocked = Math.max(unlocked, Math.min(lvl + 2, LEVELS.length));
+  playing = false;
+  save();
+  renderPanel();
+
+  blank(); sep();
+  pr(`<div class="badge">${L.emoji} <strong>NIVEAU ${lvl + 1} — ${L.title.toUpperCase()}</strong> TERMINÉ · ${'★'.repeat(earned)}${'☆'.repeat(3 - earned)}</div>`);
+  pr(`<span style="color:#555">${lvlErrors} échec(s) · ${lvlHints} indice(s) utilisé(s)${lvlPasted ? ' · 📋 copier-coller détecté (max ★★)' : ''}</span>`);
+  sep(); blank();
+
+  const allDone = stars.every(s => s > 0);
+  if (allDone && lvl === LEVELS.length - 1) {
+    winFlags.innerHTML = LEVELS.map((l, i) => `<div>${l.emoji} Niveau ${i + 1} — ${l.title} · <span style="color:var(--y)">${'★'.repeat(stars[i])}${'☆'.repeat(3 - stars[i])}</span></div>`).join('');
+    setTimeout(() => ovWin.classList.remove('h'), 1200);
+  } else {
+    setTimeout(openSelect, 1500);
+  }
+}
+
+function showHint() {
+  if (!playing) return;
+  blank();
+  if (hintsLeft <= 0) {
+    pr(`<span style="color:#ff5555">✗ Plus d'indices pour ce niveau. Débrouille-toi, technicien.</span>`);
+  } else if (fails < FAILS_TO_UNLOCK) {
+    pr(`<span style="color:#555">🔒 Indice verrouillé — essaie encore (${fails}/${FAILS_TO_UNLOCK} échecs).</span>`);
+  } else {
+    hintsLeft--; lvlHints++;
+    save();
+    renderHeader();
+    pr(`<span style="color:var(--y)">[INDICE] Exemple de solution :</span>`);
+    pr(`<pre style="color:var(--g);white-space:pre-wrap;margin:4px 0 0">${escHtml(LEVELS[lvl].missions[mis].hint)}</pre>`);
+    pr(`<span style="color:#555">(${hintsLeft} indice(s) restant(s))</span>`);
+  }
+  blank();
+}
+function doResetMission() {
+  if (!playing) return;
+  loadMissionCode();
+  blank();
+  pr(`<span style="color:#555">↺ Script réinitialisé.</span>`);
+  blank();
+}
+function fullReset() {
+  if (!confirm('Réinitialiser toute la progression (niveaux, étoiles) ?')) return;
+  unlocked = 1; stars = LEVELS.map(() => 0); playing = false;
+  try { localStorage.removeItem(SAVE_KEY); } catch {}
+  outEl.innerHTML = '';
+  renderSelect(); renderPanel();
+}
+function restart() { ovWin.classList.add('h'); openSelect(); }
+
+// ═══════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════
+btnRun.addEventListener('click', runMission);
+btnHint.addEventListener('click', showHint);
+btnResetMission.addEventListener('click', doResetMission);
+editorEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runMission(); }
+  else if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = editorEl.selectionStart, en = editorEl.selectionEnd;
+    editorEl.value = editorEl.value.slice(0, s) + '  ' + editorEl.value.slice(en);
+    editorEl.selectionStart = editorEl.selectionEnd = s + 2;
+  }
+});
+editorEl.addEventListener('paste', () => {
+  if (!playing || lvlPasted) return;
+  lvlPasted = true;
+  save();
+  blank();
+  pr(`<span style="color:#ff5555">📋 Copier-coller détecté — étoiles plafonnées à ★★ sur ce niveau. Écris le code toi-même, technicien.</span>`);
+  blank();
+});
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function start() {
+  sep();
+  pr(`  <span style="color:var(--g)">SCRIPT LAB TSSR</span> · Scripting Bash`, 'sys');
+  pr(`  ${LEVELS.length} niveaux · ${TOTAL} missions · écris de vrais scripts, exécute-les, gagne des étoiles`, 'sys');
+  sep(); blank();
+
+  const pos = load();
+  if (pos && pos.lvl < LEVELS.length && pos.mis < LEVELS[pos.lvl].missions.length) {
+    lvl = pos.lvl; mis = pos.mis;
+    hintsLeft = pos.hintsLeft ?? HINTS_PER_LEVEL;
+    lvlErrors = pos.lvlErrors | 0; lvlHints = pos.lvlHints | 0; lvlPasted = !!pos.lvlPasted;
+    fails = 0;
+    startLevel(lvl, true);
+    pr(`<span style="color:var(--g)">▶ Reprise — niveau ${lvl + 1}, mission ${mis + 1}.</span>`);
+  } else {
+    openSelect();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+const BOOT_MSGS = [
+  'INITIALISATION SCRIPT LAB v1.0...',
+  'CHARGEMENT DE L\'INTERPRETEUR BASH...',
+  'PREPARATION DU SYSTEME DE FICHIERS SIMULE...',
+  'VERIFICATION PROGRESSION...',
+  'ENVIRONNEMENT PRET',
+  '',
+  '▶ BIENVENUE, TECHNICIEN',
+];
+let bi = 0;
+function bootStep() {
+  if (bi >= BOOT_MSGS.length) { setTimeout(() => { bootEl.classList.add('h'); start(); }, 300); return; }
+  bootMsg.textContent = BOOT_MSGS[bi++] || ' ';
+  setTimeout(bootStep, bi === BOOT_MSGS.length ? 500 : 220);
+}
+setTimeout(bootStep, 150);
+</script>
+</body>
+</html>

@@ -1,3 +1,38 @@
+## 📋 Récap — 2026-07-08 (session 29)
+
+### Fait :
+- **Refonte de TOUS les cours** (demande utilisateur : "détails au maximum, mets des dessins, schémas etc., sans toucher les Notes et les Terminaux") — 22 modules / 94 cours passés en revue
+- **37 nouveaux schémas SVG inline dessinés** (dark theme, cohérents avec l'app) → de 24 à **61 schémas SVG au total** dans `data.js`, répartis en 8 lots/commits :
+  - **Numération/Réseaux** : poids binaires, quartets hex, structure UTF-8, portes logiques, VLSM, résolution DNS récursive, router-on-a-stick, STP, canaux WiFi 2.4GHz, handshake TCP + sections complément à 2, addition binaire/overflow, umask/SetUID/sticky, lois De Morgan, méthode nombre magique (`8c5e808`)
+  - **Linux/ServeurLinux** : chaîne de boot, flux stdin/stdout/stderr, auth clé SSH, reverse proxy Nginx, Samba+AD Kerberos, stack Docker Compose, push Ansible + tables targets systemd, Apache vs Nginx, NFS vs SMB (`fd2a5d5`)
+  - **Windows/WS** : infra PME type, tickets Kerberos, chaîne AGDLP, circuit WSUS test/prod, 3 vSwitch Hyper-V, déploiement Sysprep/DISM/WDS + sections Kerberos détaillé/klist/SPN, mécanismes GPO, types zones DNS, DHCP/failover (`c9d6439`)
+  - **Virtualisation/Stockage** : cluster vSphere, cycle de vie Docker, iSCSI initiator/target/LUN, couches LVM PV/VG/LV, règle 3-2-1-1-0 (`a7ccae8`) — a aussi retiré un diagramme FHS dupliqué dans linux-fondamentaux
+  - **Sécurité/Cisco** : défense en profondeur multicouche, phases pentest, symétrique vs asymétrique + HTTPS hybride, chaîne PKI 3 niveaux, modes IOS, OSPF multi-area, eBGP/iBGP dual-homed (`5f67ef3`)
+  - **Supervision/Cloud** : pull vs push, écosystème Prometheus, responsabilité IaaS/PaaS/SaaS, hiérarchie Azure, identité hybride AAD Connect (`23a9929`)
+  - **Messagerie/Scripting** : SPF/DKIM/DMARC, stack mail MUA/MTA/MDA, Paramiko audit parallèle, anatomie script bash, relation PK/FK users-tickets (`c52f8d3`)
+  - **AD-avancé/Doc/Support/Git/VoIP/ITSM/IoT** : trusts (sens/transitivité), SSO ADFS SAML, tiering AD, timeline RPO/RTO, escalade support N0-N3, matrice priorisation ITIL, 3 zones Git + remote, appel SIP INVITE/RTP/BYE, MQTT pub/sub (`2cc15d8`)
+- **Non touché** comme demandé : Notes (Firebase) et Terminaux (GameShell, NetRunner, Script Lab)
+- Fix mineur au passage : emoji corrompu `U+1F4BB` (💻) dans le cours Numération ; suppression du BOM UTF-8 dans index.html/404.html/sw.js
+- **Versions bumpées** : `data.js?v=5` → `?v=13` ; cache SW `tssr-v40` → `tssr-v48`
+- Récap session 28 (qui traînait non commité, `M session-log.md`) committé au passage (`a0f174b`)
+- 9 commits poussés sur `main` (`a0f174b` → `2cc15d8`)
+
+### État :
+PWA déployée, tout poussé. Tous les cours enrichis de schémas SVG dessinés. Validation : `data.js` parse OK (22 modules/94 cours), **61 SVG validés en XML strict par parseur à pile (0 erreur)**, `app.js` gère bien le type `svg` (`.schema-svg-wrapper`). Vérification visuelle en direct NON faite (extension Chrome non connectée cette session).
+
+### À reprendre :
+- [ ] **Confirmer le rendu visuel des schémas** après déploiement (hard-refresh) — sur ordi de bureau et mobile
+- [ ] Accents manquants QCM/tableaux — chantier toujours ouvert (jamais traité, tentative auto avait corrompu du contenu)
+- [ ] Vérifier l'écriture Firestore en conditions réelles (2 ordis) — toujours non testé
+- [ ] Railway CLI non authentifié — `railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`
+- [ ] Re-uploader fichiers HTML/PDF d'avant session 17
+- [ ] Test mobile/responsive réel
+
+### Contexte express :
+> Session mono-objectif dense : refonte complète du contenu pédagogique des 22 modules avec ajout de 37 schémas SVG dessinés (architectures, flux, comparatifs), en 8 lots thématiques committés séparément. Notes et Terminaux laissés intacts comme demandé. Chaque lot validé (parse data.js + XML strict des SVG) avant commit. Un léger pattern de SVG construit par concaténation JS (`+ ...map...`) a été utilisé sur 2 schémas (responsabilité cloud puis remplacé par du statique ; matrice ITIL conservée) — tous validés. Aucune vérification navigateur en direct possible (extension Chrome déconnectée).
+
+---
+
 ## 📋 Récap — 2026-07-07 (session 28)
 
 ### Fait :

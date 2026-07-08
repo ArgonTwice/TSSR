@@ -1,3 +1,56 @@
+## 📋 Récap — 2026-07-07 (session 28)
+
+### Fait :
+- **Audit code global** (demande utilisateur) : mojibake corrigé dans `data.js`/`app.js` (`×`, `HÔTE`, `CONTRÔLE`, `nœud`, `≠`, 24 coins de cadres ASCII-art `┌┐└┘` remplacés par `+`, 3 flèches, symboles math/emoji `☃😀∧∨`) ; `sw.js` — précache `app.js` désynchronisé (`?v=4` alors qu'`index.html` chargeait `?v=5`) corrigé — commit `2f6312b`
+- Tentative de fix automatique des accents manquants dans les QCM/tableaux (jamais traité par les sessions 24-25, qui ne couvraient que le contenu "cours") → script trop agressif a corrompu du contenu réel (flags CLI comme `dism /Capture-Image`, code Python `capture_output`, "these" anglais traduit en "thèse") → **annulé** (`git checkout`), seul le fix mojibake sûr conservé — **ce chantier accents QCM reste entièrement à refaire, prudemment, module par module**
+- **7 diagrammes SVG cassés trouvés et corrigés** dans `diagrams.js` (indices de tableau décalés dans `_tx()`/`_rx()`, 4 provoquaient un crash `c.forEach is not a function` à l'ouverture du cours : GPO, Supervision/Zabbix, PRA/PCA, VLAN Trunking ; 3 affichaient de mauvaises couleurs sans crash : RPO/RTO, pipeline CI/CD, DAS/NAS/SAN) — tous les 19 diagrammes du fichier passés en revue — commit `f3c4320`
+- **Vrai bug racine trouvé** derrière les soucis de cache récurrents depuis plusieurs sessions : `app.js` contenait du code oublié depuis la session 24 (`tssr-v24` en dur) qui **supprimait le cache actif à chaque chargement de page** — supprimé
+- **Bug de fond des liens internes** dans les fichiers HTML uploadés (Notes) : `href="#id"` (sommaires, tables des matières) redirigeait vers l'accueil du site — cause : dans une iframe `srcdoc`, l'URL de base pour résoudre `#id` est celle de la page **parente**, pas le document interne → `makeLinksClickable` réécrit maintenant TOUS les liens internes en scroll JS manuel (`preventDefault` + `scrollIntoView`) — corrige tous les fichiers uploadés, pas seulement celui d'Axel — bump `data.js`/`diagrams.js` en `?v=5` (jamais fait malgré les fixes précédents) — commit `86f3295`
+- **Script Lab** (nouvel outil, demande utilisateur "terminal Linux pour scripting façon GameShell") : `bashlab.html` — mini-interpréteur bash JS complet (variables, `$(( ))`, `if/elif/else`, `for`/`while`, fonctions avec `$1 return`, `${VAR:-defaut}`, système de fichiers simulé, `read`/`mkdir`/`cat`/`cp`/`ls`/`grep`/`wc`...) + éditeur multi-lignes + terminal de sortie ; 19 missions sur 4 niveaux (Variables → Conditions → Boucles → Fonctions/Mini-projets) ; même système que GameShell (niveaux à débloquer, indices verrouillés, étoiles, pénalité copier-coller) ; validé par 69 tests automatisés (interpréteur + missions) avant intégration ; intégré en onglet dans Scripting & BDD **et** dans la sidebar Terminaux (accordéon, à côté de GameShell/NetRunner) — commit `9cf8ff5`
+- Cours **"Scripting Bash — Guide Complet"** ajouté dans Scripting & BDD (juste après Python) : 13 sections — structure de script, variables/expansion de paramètres, E/S, tests, conditions, boucles, fonctions, tableaux, arguments/`getopts`, gestion d'erreurs (`set -e`/`trap`/pièges), tableau de ~28 commandes de référence, script d'exemple complet (sauvegarde avec rotation), glossaire de 24 termes — commit `965d7e2`
+- Tout poussé sur `main` (`2f6312b` → `965d7e2`, 5 commits)
+
+### État :
+PWA déployée. Cache navigateur enfin fiabilisé (bug racine `tssr-v24` éliminé + versions `data.js`/`diagrams.js` synchronisées) — un hard-refresh normal devrait suffire après chaque déploiement pour tous les collègues. Notes : tous les liens internes des fichiers HTML uploadés fonctionnent désormais correctement (fix générique, pas un correctif au cas par cas). Module Scripting & BDD enrichi d'un outil de pratique complet (Script Lab, 19 missions) et d'un cours de référence Bash complet.
+
+### À reprendre :
+- [ ] **Accents manquants dans les QCM/tableaux** (pas juste le contenu "cours") — chantier identifié mais PAS traité (tentative automatique a corrompu du contenu, annulée) — à refaire module par module avec vérification manuelle, jamais en masse
+- [ ] Caractères de dessin de boîte/symboles mathématiques encore corrompus dans d'autres blocs ASCII-art potentiels (audit fait sur les occurrences trouvées cette session, pas garanti exhaustif)
+- [ ] Confirmer avec les collègues que Script Lab et les diagrammes réparés s'affichent bien après déploiement (cache maintenant fiabilisé, devrait être immédiat)
+- [ ] Vérifier l'écriture Firestore en conditions réelles (2 ordis) — toujours non testé
+- [ ] Railway CLI non authentifié — `railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`
+- [ ] Re-uploader fichiers HTML/PDF uploadés avant session 17
+- [ ] Test mobile/responsive réel (téléphone ou DevTools)
+
+### Contexte express :
+> Session dense en plusieurs temps : (1) audit code demandé par l'utilisateur ayant révélé et corrigé un bug de cache racine (code mort depuis session 24) et 7 diagrammes SVG cassés jamais signalés ; (2) diagnostic approfondi d'un nouveau bug de lien (Notes) révélant une subtilité méconnue des iframes `srcdoc` (résolution d'URL contre la page parente) — fix générique appliqué ; (3) construction de "Script Lab", un vrai mini-interpréteur bash en JS avec 19 missions, testé exhaustivement avant intégration (leçon tirée d'une tentative de fix accents ratée plus tôt dans la session) ; (4) cours Bash complet en complément. 5 commits poussés, rien en attente côté commit.
+
+---
+
+## 📋 Récap — 2026-07-07 (session 27)
+
+### Fait :
+- `app.js` : Notes — bug remonté par l'utilisateur : les liens dans les HTML uploadés ne réagissaient pas au clic → 1er correctif (`makeLinksClickable`, ajout `target="_blank"` sur tous les `<a href>`) trop large, cassait les ancres internes (`#section`) qui ouvraient un nouvel onglet à chaque clic → corrigé pour exclure les href commençant par `#` ou `javascript:` (commit `c922610`, SW v34)
+- Diagnostic du vrai bug restant (utilisateur : "reste sur la même fenêtre mais retourne au menu de mon site") : fichier réel de Fouad récupéré depuis Firestore (module `scripting-avance`, `shell_script_guide.html`) pour inspection — menu latéral en `<a href="#" onclick="show('section')">`, fonction `show(id)` sans `preventDefault()`/`return false` → le JS change bien de section mais le navigateur suit quand même le `#`, remontant en haut du document (= retour visuel au menu)
+- `app.js` : `makeLinksClickable` — neutralise ce pattern précis (`href="#"` + attribut `onclick` présent) en injectant `event.preventDefault();` automatiquement, sans toucher au contenu des fichiers uploadés — testé en direct sur le vrai fichier de Fouad (clic dans le menu bascule correctement de section, plus de retour au menu) — commit `bca4b32`, SW v35
+- `index.html` + `404.html` : bump `app.js?v=4` → `v=5` (cache navigateur qui servait une version obsolète pendant les tests, même après rechargement — corrigé pour que les collègues récupèrent bien la dernière version après déploiement)
+- Note technique : lecture Firestore utilisée pour diagnostic (fichiers réels de Fouad) mais aucune écriture de données de test dans la base partagée — le classificateur de sécurité bloque ce type d'action et c'est voulu
+
+### État :
+PWA déployée, tout poussé (commits `c922610`, `bca4b32`). Bug des liens HTML dans Notes entièrement résolu en 3 itérations (ancres internes puis pattern menu JS `href="#"` sans preventDefault). Cache `app.js` bumpé en v5.
+
+### À reprendre :
+- [ ] Confirmer avec l'utilisateur que le menu du fichier de Fouad fonctionne bien après déploiement
+- [ ] Vérifier l'écriture Firestore en conditions réelles (2 ordis, une note tapée sur l'un doit apparaître sur l'autre) — toujours non testé
+- [ ] Railway CLI non authentifié — `railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`
+- [ ] Re-uploader fichiers HTML/PDF uploadés avant session 17
+- [ ] Test mobile/responsive réel (téléphone ou DevTools)
+
+### Contexte express :
+> Session courte de suivi post-déploiement : l'utilisateur a signalé que les liens des HTML uploadés dans Notes ne marchaient toujours pas correctement après le fix de la session 26. Diagnostic en 2 temps — d'abord un bug évident (ancres `#section` ouvrant un nouvel onglet, sur-correction du fix précédent), puis un bug plus subtil découvert en inspectant le vrai fichier d'un collègue (Fouad) directement depuis Firestore : pattern menu JS `href="#" + onclick` sans `preventDefault()`. Fix générique appliqué (fonctionne pour tout fichier uploadé avec ce pattern très courant), testé en conditions réelles sur le fichier concerné. 2 commits poussés.
+
+---
+
 ## 📋 Récap — 2026-07-07 (session 26)
 
 ### Fait :

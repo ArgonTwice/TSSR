@@ -650,8 +650,2032 @@ const MODULES = [
           { type: 'code', content: '# 1. AP autonome (standalone) -- OK pour 1-3 APs\n# 2. Contrôleur WiFi (WLC) -- roaming transparent, gestion centralisée\n#    Exemples : Cisco WLC, Aruba Mobility Controller\n# 3. Cloud WiFi -- Cisco Meraki, Ubiquiti UniFi, Aruba Central\n\n# Placement des APs :\n# Recouvrement recommandé : 15-20% entre cellules\n# Puissance TX basse = moins d\'interférences entre APs\n# 1 AP pour 20-30 utilisateurs actifs (bureaux)\n# 1 AP pour 100-200 utilisateurs passifs (amphi)' },
         ],
       },
+      {
+        "id": "ccp4-ports-protocoles-enrich",
+        "titre": "CCP4 — Ports, Protocoles et Acronymes (Fiche de révision)",
+        "sections": [
+          {
+            "type": "h2",
+            "content": "Essentiels pour l'examen TSSR"
+          },
+          {
+            "type": "info",
+            "content": "<strong>⚠️ CRITIQUE</strong> : Ces informations sont demandées à CHAQUE examen TSSR !"
+          },
+          {
+            "type": "h2",
+            "content": "PORTS ET PROTOCOLES - À CONNAÎTRE PAR CŒUR"
+          },
+          {
+            "type": "h3",
+            "content": "Ports les plus importants pour l'examen"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Port",
+              "Protocole",
+              "Type",
+              "Service/Utilisation"
+            ],
+            "rows": [
+              [
+                "<strong>20</strong>",
+                "FTP-DATA",
+                "TCP",
+                "Transfert de données FTP"
+              ],
+              [
+                "<strong>21</strong>",
+                "FTP",
+                "TCP",
+                "Contrôle FTP (File Transfer Protocol)"
+              ],
+              [
+                "<strong>22</strong>",
+                "SSH",
+                "TCP",
+                "Secure Shell (connexion sécurisée)"
+              ],
+              [
+                "<strong>23</strong>",
+                "Telnet",
+                "TCP",
+                "Connexion non sécurisée (obsolète)"
+              ],
+              [
+                "<strong>25</strong>",
+                "SMTP",
+                "TCP",
+                "Envoi d'emails (Simple Mail Transfer Protocol)"
+              ],
+              [
+                "<strong>53</strong>",
+                "DNS",
+                "TCP/UDP",
+                "Domain Name System (résolution noms)"
+              ],
+              [
+                "<strong>67</strong>",
+                "DHCP Server",
+                "UDP",
+                "Serveur DHCP"
+              ],
+              [
+                "<strong>68</strong>",
+                "DHCP Client",
+                "UDP",
+                "Client DHCP"
+              ],
+              [
+                "<strong>69</strong>",
+                "TFTP",
+                "UDP",
+                "Trivial FTP (transfert fichiers simple)"
+              ],
+              [
+                "<strong>80</strong>",
+                "HTTP",
+                "TCP",
+                "Web non sécurisé"
+              ],
+              [
+                "<strong>110</strong>",
+                "POP3",
+                "TCP",
+                "Réception emails (Post Office Protocol)"
+              ],
+              [
+                "<strong>123</strong>",
+                "NTP",
+                "UDP",
+                "Network Time Protocol (synchronisation temps)"
+              ],
+              [
+                "<strong>143</strong>",
+                "IMAP",
+                "TCP",
+                "Réception emails (Internet Message Access Protocol)"
+              ],
+              [
+                "<strong>161</strong>",
+                "SNMP",
+                "UDP",
+                "Supervision réseau (Simple Network Management Protocol)"
+              ],
+              [
+                "<strong>162</strong>",
+                "SNMP Trap",
+                "UDP",
+                "Alertes SNMP"
+              ],
+              [
+                "<strong>389</strong>",
+                "LDAP",
+                "TCP",
+                "Annuaire (Lightweight Directory Access Protocol)"
+              ],
+              [
+                "<strong>443</strong>",
+                "HTTPS",
+                "TCP",
+                "Web sécurisé (HTTP + SSL/TLS)"
+              ],
+              [
+                "<strong>445</strong>",
+                "SMB",
+                "TCP",
+                "Partage de fichiers Windows (Server Message Block)"
+              ],
+              [
+                "<strong>465</strong>",
+                "SMTPS",
+                "TCP",
+                "SMTP sécurisé (obsolète, utiliser 587)"
+              ],
+              [
+                "<strong>514</strong>",
+                "Syslog",
+                "UDP",
+                "Logs système"
+              ],
+              [
+                "<strong>587</strong>",
+                "SMTP",
+                "TCP",
+                "SMTP moderne pour envoi emails (STARTTLS)"
+              ],
+              [
+                "<strong>636</strong>",
+                "LDAPS",
+                "TCP",
+                "LDAP sécurisé (LDAP + SSL)"
+              ],
+              [
+                "<strong>993</strong>",
+                "IMAPS",
+                "TCP",
+                "IMAP sécurisé (IMAP + SSL/TLS)"
+              ],
+              [
+                "<strong>995</strong>",
+                "POP3S",
+                "TCP",
+                "POP3 sécurisé (POP3 + SSL/TLS)"
+              ],
+              [
+                "<strong>1433</strong>",
+                "MS SQL",
+                "TCP",
+                "Microsoft SQL Server"
+              ],
+              [
+                "<strong>1521</strong>",
+                "Oracle",
+                "TCP",
+                "Oracle Database"
+              ],
+              [
+                "<strong>2049</strong>",
+                "NFS",
+                "TCP/UDP",
+                "Network File System (partage Linux)"
+              ],
+              [
+                "<strong>3306</strong>",
+                "MySQL",
+                "TCP",
+                "Base de données MySQL/MariaDB"
+              ],
+              [
+                "<strong>3389</strong>",
+                "RDP",
+                "TCP",
+                "Remote Desktop Protocol (Bureau à distance Windows)"
+              ],
+              [
+                "<strong>3724</strong>",
+                "WoW",
+                "TCP",
+                "World of Warcraft (exemple jeu)"
+              ],
+              [
+                "<strong>5432</strong>",
+                "PostgreSQL",
+                "TCP",
+                "Base de données PostgreSQL"
+              ],
+              [
+                "<strong>8080</strong>",
+                "HTTP-Alt",
+                "TCP",
+                "HTTP alternatif (souvent proxy/web)"
+              ],
+              [
+                "<strong>8443</strong>",
+                "HTTPS-Alt",
+                "TCP",
+                "HTTPS alternatif"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Mnémotechnique pour les ports ESSENTIELS"
+          },
+          {
+            "type": "code",
+            "content": "22 = SSH → \"22 c'est l'âge pour conduire secure\"\n25 = SMTP → \"25 décembre = on envoie des cartes (mails)\"\n53 = DNS → \"53 régions, chacune a son nom\"\n80 = HTTP → \"8-0 = H-ttp (ressemble au H)\"\n110 = POP3 → \"110 = police, on récupère (mails)\"\n143 = IMAP → \"1-4-3 = I LOVE YOU = j'aime avoir mes mails partout\"\n443 = HTTPS → \"443 + 80 = HTTPS + HTTP\"\n3389 = RDP → \"3389 = Windows à distance\""
+          },
+          {
+            "type": "h2",
+            "content": "PROTOCOLES DE MESSAGERIE - DIFFÉRENCES IMPORTANTES"
+          },
+          {
+            "type": "h3",
+            "content": "POP3 vs IMAP (question FRÉQUENTE à l'examen)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Caractéristique",
+              "POP3 (Port 110/995)",
+              "IMAP (Port 143/993)"
+            ],
+            "rows": [
+              [
+                "<strong>Téléchargement</strong>",
+                "Télécharge ET supprime du serveur",
+                "Garde sur le serveur"
+              ],
+              [
+                "<strong>Synchronisation</strong>",
+                "❌ Pas de synchro",
+                "✅ Synchro multi-appareils"
+              ],
+              [
+                "<strong>Accès hors ligne</strong>",
+                "✅ Oui (emails locaux)",
+                "⚠️ Limité"
+              ],
+              [
+                "<strong>Gestion serveur</strong>",
+                "❌ Faible",
+                "✅ Forte (dossiers, flags)"
+              ],
+              [
+                "<strong>Usage disque local</strong>",
+                "📈 Beaucoup",
+                "📉 Peu"
+              ],
+              [
+                "<strong>Usage disque serveur</strong>",
+                "📉 Peu",
+                "📈 Beaucoup"
+              ],
+              [
+                "<strong>Meilleur pour</strong>",
+                "1 seul appareil, espace serveur limité",
+                "Multi-appareils, accès web"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "SMTP (envoi) vs POP3/IMAP (réception)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>SMTP (25/587/465)</strong> : Protocole d'ENVOI d'emails",
+              "Port 25 : Serveur à serveur",
+              "Port 587 : Client à serveur (moderne, recommandé)",
+              "Port 465 : SMTPS (obsolète)"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>POP3/IMAP</strong> : Protocoles de RÉCEPTION d'emails",
+              "Utilisés par le client pour récupérer les emails depuis le serveur"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Configuration client de messagerie (question d'examen)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Paramètres à configurer</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Serveur SMTP</strong> (envoi) : smtp.example.com, port 587, STARTTLS",
+              "<strong>Serveur POP3 ou IMAP</strong> (réception) : imap.example.com, port 993, SSL",
+              "<strong>Identifiants</strong> : adresse email + mot de passe",
+              "<strong>Type de sécurité</strong> : SSL/TLS ou STARTTLS"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "PROTOCOLES DE SÉCURITÉ"
+          },
+          {
+            "type": "h3",
+            "content": "Cryptage et Authentification"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Protocole",
+              "Port",
+              "Utilisation",
+              "Sécurité"
+            ],
+            "rows": [
+              [
+                "<strong>SSH</strong>",
+                "22",
+                "Connexion sécurisée, SFTP",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>Telnet</strong>",
+                "23",
+                "Connexion non sécurisée",
+                "❌ En clair (DANGER)"
+              ],
+              [
+                "<strong>SFTP</strong>",
+                "22",
+                "Transfert fichiers sécurisé (via SSH)",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>FTPS</strong>",
+                "990",
+                "FTP sécurisé (FTP + SSL/TLS)",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>HTTPS</strong>",
+                "443",
+                "HTTP sécurisé (HTTP + SSL/TLS)",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>LDAPS</strong>",
+                "636",
+                "LDAP sécurisé (LDAP + SSL)",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>RDP</strong>",
+                "3389",
+                "Bureau à distance (peut être chiffré)",
+                "⚠️ Configurable"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "SSL/TLS"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>SSL</strong> (Secure Sockets Layer) : Ancien protocole (obsolète)",
+              "<strong>TLS</strong> (Transport Layer Security) : Remplaçant moderne de SSL",
+              "<strong>Versions actuelles</strong> : TLS 1.2 et TLS 1.3 (à connaître pour l'exam)",
+              "<strong>Utilisation</strong> : HTTPS, SMTPS, IMAPS, POP3S, FTPS, LDAPS"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "VPN - Protocoles"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>PPTP</strong> : Point-to-Point Tunneling Protocol (obsolète, faible sécurité)",
+              "<strong>L2TP</strong> : Layer 2 Tunneling Protocol (souvent avec IPsec)",
+              "<strong>IPsec</strong> : Internet Protocol Security (VPN site-à-site)",
+              "<strong>OpenVPN</strong> : Open source, très utilisé",
+              "<strong>WireGuard</strong> : Moderne, performant",
+              "<strong>SSL VPN</strong> : VPN via SSL/TLS (accès via navigateur)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "PROTOCOLES RÉSEAU"
+          },
+          {
+            "type": "h3",
+            "content": "Suite TCP/IP"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Couche OSI",
+              "Couche TCP/IP",
+              "Protocoles",
+              "Rôle"
+            ],
+            "rows": [
+              [
+                "7-6-5 (Application, Présentation, Session)",
+                "<strong>Application</strong>",
+                "HTTP, FTP, SMTP, DNS, DHCP",
+                "Services utilisateur"
+              ],
+              [
+                "4 (Transport)",
+                "<strong>Transport</strong>",
+                "TCP, UDP",
+                "Fiabilité, ports"
+              ],
+              [
+                "3 (Réseau)",
+                "<strong>Internet</strong>",
+                "IP, ICMP, ARP",
+                "Adressage, routage"
+              ],
+              [
+                "2-1 (Liaison, Physique)",
+                "<strong>Accès réseau</strong>",
+                "Ethernet, Wi-Fi",
+                "Transmission physique"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "TCP vs UDP (TRÈS IMPORTANT)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Caractéristique",
+              "TCP (Transmission Control Protocol)",
+              "UDP (User Datagram Protocol)"
+            ],
+            "rows": [
+              [
+                "<strong>Connexion</strong>",
+                "✅ Orienté connexion (handshake)",
+                "❌ Sans connexion"
+              ],
+              [
+                "<strong>Fiabilité</strong>",
+                "✅ Garantit la livraison",
+                "❌ Pas de garantie"
+              ],
+              [
+                "<strong>Ordre</strong>",
+                "✅ Ordre préservé",
+                "❌ Pas d'ordre garanti"
+              ],
+              [
+                "<strong>Vitesse</strong>",
+                "🐢 Plus lent",
+                "🐇 Plus rapide"
+              ],
+              [
+                "<strong>Overhead</strong>",
+                "📈 Plus lourd",
+                "📉 Léger"
+              ],
+              [
+                "<strong>Cas d'usage</strong>",
+                "Web, Email, FTP, SSH",
+                "DNS, Streaming, VoIP, Jeux"
+              ],
+              [
+                "<strong>Exemple</strong>",
+                "Téléchargement fichier",
+                "Streaming vidéo"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Mnémotechnique</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>TCP</strong> = \"<strong>T</strong>rès <strong>C</strong>omplètement <strong>P</strong>récis\" → pour ce qui doit arriver intact",
+              "<strong>UDP</strong> = \"<strong>U</strong>ltra <strong>D</strong>irect <strong>P</strong>ide\" → pour ce qui doit être rapide"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Protocoles importants"
+          },
+          {
+            "type": "p",
+            "content": "#### DNS (Domain Name System) - Port 53 UDP/TCP"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Rôle</strong> : Résoudre noms de domaine → adresses IP",
+              "<strong>Exemple</strong> : google.com → 142.250.185.46",
+              "<strong>Types d'enregistrements</strong> :",
+              "<strong>A</strong> : IPv4",
+              "<strong>AAAA</strong> : IPv6",
+              "<strong>MX</strong> : Serveur mail",
+              "<strong>CNAME</strong> : Alias",
+              "<strong>PTR</strong> : Résolution inverse (IP → nom)",
+              "<strong>NS</strong> : Serveur de noms",
+              "<strong>TXT</strong> : Texte (SPF, DKIM, etc.)"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "#### DHCP (Dynamic Host Configuration Protocol) - Port 67/68 UDP"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Rôle</strong> : Attribution automatique d'IP aux clients",
+              "<strong>Processus DORA</strong> :"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>D</strong>iscover : Client cherche serveur DHCP",
+              "<strong>O</strong>ffer : Serveur propose une IP",
+              "<strong>R</strong>equest : Client demande l'IP proposée",
+              "<strong>A</strong>cknowledge : Serveur confirme"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Informations fournies</strong> :",
+              "Adresse IP",
+              "Masque de sous-réseau",
+              "Passerelle par défaut",
+              "Serveurs DNS",
+              "Durée de bail (lease time)"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "#### ICMP (Internet Control Message Protocol)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Rôle</strong> : Messages de contrôle et d'erreur",
+              "<strong>Commandes</strong> :",
+              "<code>ping</code> : Test de connectivité (echo request/reply)",
+              "<code>traceroute</code> : Tracer le chemin des paquets"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "#### ARP (Address Resolution Protocol)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Rôle</strong> : Résoudre adresse IP → adresse MAC",
+              "<strong>Commande</strong> : <code>arp -a</code> (afficher table ARP)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "PORTS SPÉCIAUX ET PLAGES"
+          },
+          {
+            "type": "h3",
+            "content": "Plages de ports"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>0-1023</strong> : Ports <strong>bien connus</strong> (well-known) - Services système",
+              "<strong>1024-49151</strong> : Ports <strong>enregistrés</strong> (registered) - Applications",
+              "<strong>49152-65535</strong> : Ports <strong>dynamiques/privés</strong> (ephemeral) - Connexions temporaires"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Ports à éviter en production"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Telnet (23)</strong> : Non sécurisé, utiliser SSH",
+              "<strong>HTTP (80)</strong> : Non chiffré, utiliser HTTPS",
+              "<strong>FTP (21)</strong> : Identifiants en clair, utiliser SFTP/FTPS",
+              "<strong>SNMP v1/v2 (161)</strong> : Faible sécurité, utiliser SNMPv3"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "ACRONYMES ESSENTIELS - À CONNAÎTRE"
+          },
+          {
+            "type": "h3",
+            "content": "Sécurité et Réglementation"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>ANSSI</strong> : Agence Nationale de la Sécurité des Systèmes d'Information",
+              "<strong>CNIL</strong> : Commission Nationale de l'Informatique et des Libertés",
+              "<strong>RGPD</strong> : Règlement Général sur la Protection des Données",
+              "<strong>PSSI</strong> : Politique de Sécurité des Systèmes d'Information",
+              "<strong>RSSI</strong> : Responsable de la Sécurité des Systèmes d'Information",
+              "<strong>DPO</strong> : Data Protection Officer (Délégué à la Protection des Données)",
+              "<strong>2FA</strong> : Two-Factor Authentication (Authentification à deux facteurs)",
+              "<strong>MFA</strong> : Multi-Factor Authentication",
+              "<strong>PKI/IGC</strong> : Public Key Infrastructure / Infrastructure de Gestion de Clés",
+              "<strong>DEEE</strong> : Déchets d'Équipements Électriques et Électroniques"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Réseau et Infrastructure"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>LAN</strong> : Local Area Network",
+              "<strong>WAN</strong> : Wide Area Network",
+              "<strong>MAN</strong> : Metropolitan Area Network",
+              "<strong>PAN</strong> : Personal Area Network",
+              "<strong>VLAN</strong> : Virtual Local Area Network",
+              "<strong>VPN</strong> : Virtual Private Network",
+              "<strong>DMZ</strong> : Demilitarized Zone (Zone démilitarisée)",
+              "<strong>NAT</strong> : Network Address Translation",
+              "<strong>PAT</strong> : Port Address Translation",
+              "<strong>DHCP</strong> : Dynamic Host Configuration Protocol",
+              "<strong>DNS</strong> : Domain Name System",
+              "<strong>DDNS</strong> : Dynamic DNS",
+              "<strong>QoS</strong> : Quality of Service",
+              "<strong>ACL</strong> : Access Control List",
+              "<strong>SNMP</strong> : Simple Network Management Protocol",
+              "<strong>NTP</strong> : Network Time Protocol",
+              "<strong>RADIUS</strong> : Remote Authentication Dial-In User Service",
+              "<strong>802.1X</strong> : Norme d'authentification réseau"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Systèmes et Services"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>OS</strong> : Operating System",
+              "<strong>AD</strong> : Active Directory",
+              "<strong>DC</strong> : Domain Controller (Contrôleur de domaine)",
+              "<strong>OU</strong> : Organizational Unit",
+              "<strong>GPO</strong> : Group Policy Object (Stratégie de groupe)",
+              "<strong>LDAP</strong> : Lightweight Directory Access Protocol",
+              "<strong>NTFS</strong> : New Technology File System",
+              "<strong>FAT32</strong> : File Allocation Table 32",
+              "<strong>EXT4</strong> : Fourth Extended File System",
+              "<strong>XFS</strong> : X File System",
+              "<strong>LVM</strong> : Logical Volume Manager",
+              "<strong>RAID</strong> : Redundant Array of Independent Disks",
+              "<strong>NAS</strong> : Network Attached Storage",
+              "<strong>SAN</strong> : Storage Area Network",
+              "<strong>NFS</strong> : Network File System",
+              "<strong>SMB/CIFS</strong> : Server Message Block / Common Internet File System",
+              "<strong>iSCSI</strong> : Internet Small Computer Systems Interface",
+              "<strong>UEFI</strong> : Unified Extensible Firmware Interface",
+              "<strong>BIOS</strong> : Basic Input/Output System",
+              "<strong>GRUB</strong> : Grand Unified Bootloader"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Virtualisation et Cloud"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>VM</strong> : Virtual Machine",
+              "<strong>VDI</strong> : Virtual Desktop Infrastructure",
+              "<strong>HA</strong> : High Availability (Haute disponibilité)",
+              "<strong>DRS</strong> : Distributed Resource Scheduler",
+              "<strong>HCI</strong> : Hyper-Converged Infrastructure",
+              "<strong>IaaS</strong> : Infrastructure as a Service",
+              "<strong>PaaS</strong> : Platform as a Service",
+              "<strong>SaaS</strong> : Software as a Service",
+              "<strong>IaC</strong> : Infrastructure as Code"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "ITIL et Gestion"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>ITIL</strong> : Information Technology Infrastructure Library",
+              "<strong>ITSM</strong> : IT Service Management",
+              "<strong>SLA</strong> : Service Level Agreement",
+              "<strong>KPI</strong> : Key Performance Indicator",
+              "<strong>CMDB</strong> : Configuration Management Database",
+              "<strong>MCO</strong> : Maintien en Condition Opérationnelle",
+              "<strong>DSI</strong> : Direction des Systèmes d'Information",
+              "<strong>MSP</strong> : Managed Service Provider",
+              "<strong>GLPI</strong> : Gestionnaire Libre de Parc Informatique"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Sauvegarde et Continuité"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>PRA</strong> : Plan de Reprise d'Activité",
+              "<strong>PCA</strong> : Plan de Continuité d'Activité",
+              "<strong>RTO</strong> : Recovery Time Objective (Temps de reprise)",
+              "<strong>RPO</strong> : Recovery Point Objective (Perte de données acceptable)",
+              "<strong>PRI</strong> : Plan de Reprise Informatique"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Développement et BDD"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>SQL</strong> : Structured Query Language",
+              "<strong>NoSQL</strong> : Not Only SQL",
+              "<strong>SGBD</strong> : Système de Gestion de Base de Données",
+              "<strong>CRUD</strong> : Create, Read, Update, Delete",
+              "<strong>API</strong> : Application Programming Interface",
+              "<strong>REST</strong> : Representational State Transfer",
+              "<strong>JSON</strong> : JavaScript Object Notation",
+              "<strong>XML</strong> : eXtensible Markup Language",
+              "<strong>HTTP</strong> : HyperText Transfer Protocol",
+              "<strong>HTML</strong> : HyperText Markup Language",
+              "<strong>CSS</strong> : Cascading Style Sheets",
+              "<strong>DevOps</strong> : Development + Operations",
+              "<strong>CI/CD</strong> : Continuous Integration / Continuous Deployment"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Divers"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>BYOD</strong> : Bring Your Own Device",
+              "<strong>MDM</strong> : Mobile Device Management",
+              "<strong>IoT</strong> : Internet of Things",
+              "<strong>USB</strong> : Universal Serial Bus",
+              "<strong>CPU</strong> : Central Processing Unit",
+              "<strong>GPU</strong> : Graphics Processing Unit",
+              "<strong>RAM</strong> : Random Access Memory",
+              "<strong>ROM</strong> : Read-Only Memory",
+              "<strong>SSD</strong> : Solid State Drive",
+              "<strong>HDD</strong> : Hard Disk Drive",
+              "<strong>MAC</strong> : Media Access Control (adresse physique)",
+              "<strong>IP</strong> : Internet Protocol",
+              "<strong>URL</strong> : Uniform Resource Locator",
+              "<strong>URI</strong> : Uniform Resource Identifier",
+              "<strong>UID</strong> : User IDentifier",
+              "<strong>GID</strong> : Group IDentifier",
+              "<strong>PID</strong> : Process IDentifier"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "QUESTIONS TYPES D'EXAMEN"
+          },
+          {
+            "type": "h3",
+            "content": "Format habituel"
+          },
+          {
+            "type": "p",
+            "content": "<strong>\"Citez les ports (numéro) et types (TCP/UDP) des protocoles suivants :\"</strong>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "FTP : 21 (TCP) + 20 (TCP data)",
+              "SSH : 22 (TCP)",
+              "SMTP : 25 (TCP) / 587 (TCP moderne)",
+              "DNS : 53 (UDP/TCP)",
+              "DHCP : 67-68 (UDP)",
+              "HTTP : 80 (TCP)",
+              "HTTPS : 443 (TCP)",
+              "POP3 : 110 (TCP)",
+              "IMAP : 143 (TCP)",
+              "SNMP : 161-162 (UDP)",
+              "LDAP : 389 (TCP)",
+              "SMB : 445 (TCP)",
+              "RDP : 3389 (TCP)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Questions fréquentes"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Quelle est la différence entre POP3 et IMAP ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ POP3 télécharge et supprime, IMAP synchronise"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Quels sont les protocoles utilisés dans un VPN ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ IPsec, L2TP, OpenVPN, PPTP, SSL VPN"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Quelle est la différence entre TCP et UDP ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ TCP est fiable mais lent, UDP est rapide mais sans garantie"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Que signifie RGPD et CNIL ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ RGPD = protection données EU, CNIL = autorité française"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Citez 3 types de Cloud ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ IaaS, PaaS, SaaS"
+          },
+          {
+            "type": "h2",
+            "content": "EXERCICE D'AUTO-ÉVALUATION"
+          },
+          {
+            "type": "h3",
+            "content": "Test rapide (à faire sans regarder)"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "Port HTTPS : 443_____",
+              "Port SSH : 22_____",
+              "Port DNS : 53_____",
+              "Port SMTP : 25, 587, 465, 2525_____",
+              "Port RDP : 3389_____",
+              "Port MySQL : 3306_____",
+              "Port LDAP : 389_____",
+              "Port SNMP : 161/162_____",
+              "Différence POP3/IMAP : _____",
+              "Différence TCP/UDP : _____"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Réponses</strong> : 1) 443, 2) 22, 3) 53, 4) 25/587, 5) 3389, 6) 3306, 7) 389, 8) 161, 9) POP3 télécharge, IMAP synchronise, 10) TCP fiable/lent, UDP rapide/non fiable"
+          },
+          {
+            "type": "h2",
+            "content": "ASTUCE RÉVISION RAPIDE"
+          },
+          {
+            "type": "h3",
+            "content": "Technique de mémorisation"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Écris 10 fois</strong> la liste des 20 ports principaux",
+              "<strong>Récite à voix haute</strong> ports + protocoles + utilisation",
+              "<strong>Crée des flash cards</strong> : port d'un côté, protocole de l'autre",
+              "<strong>Teste-toi</strong> tous les jours pendant 5 minutes",
+              "<strong>Associe à des images mentales</strong> (ex: 22 = paire de chaussettes SSH)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Juste avant l'examen"
+          },
+          {
+            "type": "p",
+            "content": "📌 Relis cette page en 10 minutes chrono !"
+          },
+          {
+            "type": "p",
+            "content": "<strong>🎓 Maîtriser cette fiche = Gagner facilement 10-15 points à l'examen ! 💪</strong>"
+          }
+        ]
+      },
+      {
+        "id": "ccp4-subnetting-cidr-enrich",
+        "titre": "CCP4 — Réseau, Subnetting et CIDR (Fiche de révision)",
+        "sections": [
+          {
+            "type": "h2",
+            "content": "Méthode RAPIDE pour l'examen TSSR"
+          },
+          {
+            "type": "info",
+            "content": "<strong>⚠️ CRITIQUE</strong> : Le subnetting tombe à TOUS les examens ! Maîtrise cette méthode = points faciles"
+          },
+          {
+            "type": "h2",
+            "content": "MÉTHODE ULTRA-RAPIDE DE SUBNETTING"
+          },
+          {
+            "type": "h3",
+            "content": "Étape 1 : Mémoriser les puissances de 2"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Exposant",
+              "Valeur",
+              "Hôtes utilisables"
+            ],
+            "rows": [
+              [
+                "2^1",
+                "2",
+                "0"
+              ],
+              [
+                "2^2",
+                "4",
+                "2"
+              ],
+              [
+                "2^3",
+                "8",
+                "6"
+              ],
+              [
+                "2^4",
+                "16",
+                "14"
+              ],
+              [
+                "2^5",
+                "32",
+                "30"
+              ],
+              [
+                "2^6",
+                "64",
+                "62"
+              ],
+              [
+                "2^7",
+                "128",
+                "126"
+              ],
+              [
+                "2^8",
+                "256",
+                "254"
+              ],
+              [
+                "2^9",
+                "512",
+                "510"
+              ],
+              [
+                "2^10",
+                "1024",
+                "1022"
+              ],
+              [
+                "2^11",
+                "2048",
+                "2046"
+              ],
+              [
+                "2^12",
+                "4096",
+                "4094"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : Hôtes utilisables = 2^n - 2 (enlever adresse réseau et broadcast)"
+          },
+          {
+            "type": "h3",
+            "content": "Étape 2 : Table de correspondance CIDR"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "CIDR",
+              "Masque",
+              "Bloc",
+              "Hôtes",
+              "Binaire (derniers octets)"
+            ],
+            "rows": [
+              [
+                "<strong>/8</strong>",
+                "255.0.0.0",
+                "16 777 216",
+                "16 777 214",
+                "00000000.00000000.00000000"
+              ],
+              [
+                "<strong>/9</strong>",
+                "255.128.0.0",
+                "8 388 608",
+                "8 388 606",
+                "10000000.00000000.00000000"
+              ],
+              [
+                "<strong>/10</strong>",
+                "255.192.0.0",
+                "4 194 304",
+                "4 194 302",
+                "11000000.00000000.00000000"
+              ],
+              [
+                "<strong>/11</strong>",
+                "255.224.0.0",
+                "2 097 152",
+                "2 097 150",
+                "11100000.00000000.00000000"
+              ],
+              [
+                "<strong>/12</strong>",
+                "255.240.0.0",
+                "1 048 576",
+                "1 048 574",
+                "11110000.00000000.00000000"
+              ],
+              [
+                "<strong>/13</strong>",
+                "255.248.0.0",
+                "524 288",
+                "524 286",
+                "11111000.00000000.00000000"
+              ],
+              [
+                "<strong>/14</strong>",
+                "255.252.0.0",
+                "262 144",
+                "262 142",
+                "11111100.00000000.00000000"
+              ],
+              [
+                "<strong>/15</strong>",
+                "255.254.0.0",
+                "131 072",
+                "131 070",
+                "11111110.00000000.00000000"
+              ],
+              [
+                "<strong>/16</strong>",
+                "255.255.0.0",
+                "65 536",
+                "65 534",
+                "11111111.00000000.00000000"
+              ],
+              [
+                "<strong>/17</strong>",
+                "255.255.128.0",
+                "32 768",
+                "32 766",
+                "11111111.10000000.00000000"
+              ],
+              [
+                "<strong>/18</strong>",
+                "255.255.192.0",
+                "16 384",
+                "16 382",
+                "11111111.11000000.00000000"
+              ],
+              [
+                "<strong>/19</strong>",
+                "255.255.224.0",
+                "8 192",
+                "8 190",
+                "11111111.11100000.00000000"
+              ],
+              [
+                "<strong>/20</strong>",
+                "255.255.240.0",
+                "4 096",
+                "4 094",
+                "11111111.11110000.00000000"
+              ],
+              [
+                "<strong>/21</strong>",
+                "255.255.248.0",
+                "2 048",
+                "2 046",
+                "11111111.11111000.00000000"
+              ],
+              [
+                "<strong>/22</strong>",
+                "255.255.252.0",
+                "1 024",
+                "1 022",
+                "11111111.11111100.00000000"
+              ],
+              [
+                "<strong>/23</strong>",
+                "255.255.254.0",
+                "512",
+                "510",
+                "11111111.11111110.00000000"
+              ],
+              [
+                "<strong>/24</strong>",
+                "255.255.255.0",
+                "256",
+                "254",
+                "11111111.11111111.00000000"
+              ],
+              [
+                "<strong>/25</strong>",
+                "255.255.255.128",
+                "128",
+                "126",
+                "11111111.11111111.10000000"
+              ],
+              [
+                "<strong>/26</strong>",
+                "255.255.255.192",
+                "64",
+                "62",
+                "11111111.11111111.11000000"
+              ],
+              [
+                "<strong>/27</strong>",
+                "255.255.255.224",
+                "32",
+                "30",
+                "11111111.11111111.11100000"
+              ],
+              [
+                "<strong>/28</strong>",
+                "255.255.255.240",
+                "16",
+                "14",
+                "11111111.11111111.11110000"
+              ],
+              [
+                "<strong>/29</strong>",
+                "255.255.255.248",
+                "8",
+                "6",
+                "11111111.11111111.11111000"
+              ],
+              [
+                "<strong>/30</strong>",
+                "255.255.255.252",
+                "4",
+                "2",
+                "11111111.11111111.11111100"
+              ],
+              [
+                "<strong>/31</strong>",
+                "255.255.255.254",
+                "2",
+                "2*",
+                "11111111.11111111.11111110"
+              ],
+              [
+                "<strong>/32</strong>",
+                "255.255.255.255",
+                "1",
+                "0",
+                "11111111.11111111.11111111"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Note /31</strong> : Cas spécial (RFC 3021) pour liens point-à-point, pas d'adresse réseau ni broadcast"
+          },
+          {
+            "type": "h2",
+            "content": "MÉTHODE RAPIDE : \"LE BON BLOC\""
+          },
+          {
+            "type": "h3",
+            "content": "Principe"
+          },
+          {
+            "type": "p",
+            "content": "Pour trouver l'adresse réseau avec un CIDR non classique (ex: /27, /17, /21), il faut trouver le <strong>\"bloc\"</strong> dans lequel se trouve l'IP."
+          },
+          {
+            "type": "h3",
+            "content": "Technique en 3 étapes"
+          },
+          {
+            "type": "p",
+            "content": "#### ÉTAPE 1 : Identifier l'octet concerné"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "/8 à /16 → 2ème octet",
+              "/16 à /24 → 3ème octet",
+              "/24 à /32 → 4ème octet"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "#### ÉTAPE 2 : Calculer la taille du bloc <strong>Formule rapide</strong> : Bloc = 256 - valeur du masque dans l'octet concerné"
+          },
+          {
+            "type": "p",
+            "content": "#### ÉTAPE 3 : Trouver le multiple Diviser la valeur de l'octet par la taille du bloc, prendre la partie entière, multiplier par le bloc."
+          },
+          {
+            "type": "h2",
+            "content": "EXEMPLES DÉTAILLÉS"
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 1 : IP = 192.168.1.75/27"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question</strong> : Adresse réseau, première IP, dernière IP, broadcast ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/27</strong> → Regarde le tableau : Masque = <strong>255.255.255.224</strong>, Bloc = <strong>32</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Octet concerné</strong> : Le 4ème (car /24 à /32)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Valeur de l'octet</strong> : 75"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le bloc</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "75 ÷ 32 = 2,34... → On prend <strong>2</strong>",
+              "2 × 32 = <strong>64</strong> → Début du bloc"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 192.168.1.<strong>64</strong>",
+              "<strong>Première IP utilisable</strong> : 192.168.1.<strong>65</strong>",
+              "<strong>Dernière IP utilisable</strong> : 192.168.1.<strong>94</strong> (64 + 32 - 2)",
+              "<strong>Broadcast</strong> : 192.168.1.<strong>95</strong> (64 + 32 - 1)",
+              "<strong>Plage</strong> : 192.168.1.64/27 (64 à 95)"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Vérification</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Bloc de 32 adresses : 64, 65, ..., 94, 95 ✅",
+              "75 est bien entre 64 et 95 ✅"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 2 : IP = 172.16.135.200/17"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question</strong> : Adresse réseau, broadcast ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/17</strong> → Masque = <strong>255.255.128.0</strong>, Bloc = <strong>128</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Octet concerné</strong> : Le 3ème (car /16 à /24)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Valeur de l'octet</strong> : 135"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le bloc</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "135 ÷ 128 = 1,05... → On prend <strong>1</strong>",
+              "1 × 128 = <strong>128</strong> → Début du bloc"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 172.16.<strong>128</strong>.0",
+              "<strong>Première IP</strong> : 172.16.<strong>128</strong>.1",
+              "<strong>Dernière IP</strong> : 172.16.<strong>255</strong>.254",
+              "<strong>Broadcast</strong> : 172.16.<strong>255</strong>.255",
+              "<strong>Plage</strong> : 172.16.128.0/17 (128.0 à 255.255)"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Vérification</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Bloc de 128 au 3ème octet : 128 à 255 ✅",
+              "135 est bien entre 128 et 255 ✅"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 3 : IP = 10.45.78.92/21"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question</strong> : Adresse réseau, nombre d'hôtes, broadcast ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/21</strong> → Masque = <strong>255.255.248.0</strong>, Bloc = <strong>8</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Octet concerné</strong> : Le 3ème"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Valeur de l'octet</strong> : 78"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le bloc</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "78 ÷ 8 = 9,75 → On prend <strong>9</strong>",
+              "9 × 8 = <strong>72</strong> → Début du bloc"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 10.45.<strong>72</strong>.0",
+              "<strong>Première IP</strong> : 10.45.<strong>72</strong>.1",
+              "<strong>Dernière IP</strong> : 10.45.<strong>79</strong>.254",
+              "<strong>Broadcast</strong> : 10.45.<strong>79</strong>.255",
+              "<strong>Plage</strong> : 10.45.72.0/21",
+              "<strong>Hôtes utilisables</strong> : 2^11 - 2 = <strong>2046</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Vérification</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Bloc de 8 : 72, 73, 74, 75, 76, 77, 78, 79 ✅",
+              "78 est bien dedans ✅"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 4 : IP = 192.16.5.133/29"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question EXAMEN</strong> : Combien de bits pour la partie réseau ? Combien d'hôtes ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/29</strong> → 29 bits pour le réseau, 3 bits pour les hôtes"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Bits réseau</strong> : <strong>29 bits</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Bits hôtes</strong> : 32 - 29 = <strong>3 bits</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Hôtes</strong> : 2^3 = 8 adresses, donc <strong>6 hôtes utilisables</strong> (8 - 2)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Bloc</strong> : 256 - 248 = <strong>8</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le réseau</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "133 ÷ 8 = 16,625 → On prend <strong>16</strong>",
+              "16 × 8 = <strong>128</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 192.16.5.<strong>128</strong>",
+              "<strong>Première IP</strong> : 192.16.5.<strong>129</strong>",
+              "<strong>Dernière IP</strong> : 192.16.5.<strong>134</strong>",
+              "<strong>Broadcast</strong> : 192.16.5.<strong>135</strong>",
+              "<strong>Hôtes utilisables</strong> : <strong>6</strong>"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 5 : IP = 192.168.1.17/28"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question EXAMEN</strong> : Adresse réseau et broadcast ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/28</strong> → Masque = <strong>255.255.255.240</strong>, Bloc = <strong>16</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le bloc</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "17 ÷ 16 = 1,0625 → <strong>1</strong>",
+              "1 × 16 = <strong>16</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 192.168.1.<strong>16</strong>",
+              "<strong>Broadcast</strong> : 192.168.1.<strong>31</strong> (16 + 16 - 1)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "TECHNIQUE DU MASQUE INVERSÉ (WILDCARD)"
+          },
+          {
+            "type": "h3",
+            "content": "Principe"
+          },
+          {
+            "type": "p",
+            "content": "Masque générique (wildcard) = Inverse du masque de sous-réseau"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : Wildcard = 255.255.255.255 - Masque"
+          },
+          {
+            "type": "h3",
+            "content": "Exemples"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "CIDR",
+              "Masque",
+              "Wildcard"
+            ],
+            "rows": [
+              [
+                "/24",
+                "255.255.255.0",
+                "0.0.0.255"
+              ],
+              [
+                "/27",
+                "255.255.255.224",
+                "0.0.0.31"
+              ],
+              [
+                "/29",
+                "255.255.255.248",
+                "0.0.0.7"
+              ],
+              [
+                "/17",
+                "255.255.128.0",
+                "0.0.127.255"
+              ],
+              [
+                "/21",
+                "255.255.248.0",
+                "0.0.7.255"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Usage</strong> : ACL Cisco, OSPF, configurations réseau"
+          },
+          {
+            "type": "h2",
+            "content": "CLASSES D'ADRESSES IPv4 (Rappel)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Classe",
+              "Premier octet",
+              "CIDR par défaut",
+              "Masque par défaut",
+              "Plage",
+              "Usage"
+            ],
+            "rows": [
+              [
+                "<strong>A</strong>",
+                "1-126",
+                "/8",
+                "255.0.0.0",
+                "1.0.0.0 - 126.255.255.255",
+                "Très grands réseaux"
+              ],
+              [
+                "<strong>B</strong>",
+                "128-191",
+                "/16",
+                "255.255.0.0",
+                "128.0.0.0 - 191.255.255.255",
+                "Moyens réseaux"
+              ],
+              [
+                "<strong>C</strong>",
+                "192-223",
+                "/24",
+                "255.255.255.0",
+                "192.0.0.0 - 223.255.255.255",
+                "Petits réseaux"
+              ],
+              [
+                "<strong>D</strong>",
+                "224-239",
+                "-",
+                "-",
+                "224.0.0.0 - 239.255.255.255",
+                "Multicast"
+              ],
+              [
+                "<strong>E</strong>",
+                "240-255",
+                "-",
+                "-",
+                "240.0.0.0 - 255.255.255.255",
+                "Réservé/Expérimental"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Adresses spéciales</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>127.0.0.0/8</strong> : Loopback (localhost)",
+              "<strong>169.254.0.0/16</strong> : APIPA (auto-configuration)",
+              "<strong>0.0.0.0</strong> : Route par défaut"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "ADRESSES PRIVÉES (RFC 1918)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Classe",
+              "Plage",
+              "CIDR",
+              "Masque",
+              "Nombre de réseaux"
+            ],
+            "rows": [
+              [
+                "<strong>A</strong>",
+                "10.0.0.0 - 10.255.255.255",
+                "/8",
+                "255.0.0.0",
+                "1 réseau de 16M hôtes"
+              ],
+              [
+                "<strong>B</strong>",
+                "172.16.0.0 - 172.31.255.255",
+                "/12",
+                "255.240.0.0",
+                "16 réseaux de 65K hôtes"
+              ],
+              [
+                "<strong>C</strong>",
+                "192.168.0.0 - 192.168.255.255",
+                "/16",
+                "255.255.0.0",
+                "256 réseaux de 254 hôtes"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Important</strong> : Ces adresses ne sont PAS routables sur Internet (NAT requis)"
+          },
+          {
+            "type": "h2",
+            "content": "VLSM (Variable Length Subnet Mask)"
+          },
+          {
+            "type": "h3",
+            "content": "Principe"
+          },
+          {
+            "type": "p",
+            "content": "Découper un réseau en sous-réseaux de tailles différentes selon les besoins."
+          },
+          {
+            "type": "h3",
+            "content": "Méthode"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Lister les besoins</strong> par ordre décroissant",
+              "<strong>Attribuer le CIDR</strong> adapté à chaque besoin",
+              "<strong>Commencer par le plus grand</strong> sous-réseau",
+              "<strong>Continuer séquentiellement</strong>"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple : Découper 192.168.1.0/24"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Besoins</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Réseau A : 100 hôtes",
+              "Réseau B : 50 hôtes",
+              "Réseau C : 20 hôtes",
+              "Réseau D : 10 hôtes"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Réseau A (100 hôtes)</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Besoin : 2^n ≥ 102 (100 + 2) → n = 7 bits hôtes",
+              "CIDR : /25 (126 hôtes)",
+              "<strong>192.168.1.0/25</strong> (0 à 127)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Réseau B (50 hôtes)</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Besoin : 2^n ≥ 52 → n = 6 bits",
+              "CIDR : /26 (62 hôtes)",
+              "<strong>192.168.1.128/26</strong> (128 à 191)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Réseau C (20 hôtes)</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Besoin : 2^n ≥ 22 → n = 5 bits",
+              "CIDR : /27 (30 hôtes)",
+              "<strong>192.168.1.192/27</strong> (192 à 223)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Réseau D (10 hôtes)</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Besoin : 2^n ≥ 12 → n = 4 bits",
+              "CIDR : /28 (14 hôtes)",
+              "<strong>192.168.1.224/28</strong> (224 à 239)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "FORMULES À CONNAÎTRE PAR CŒUR"
+          },
+          {
+            "type": "h3",
+            "content": "Nombre de sous-réseaux"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : 2^(bits empruntés)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple</strong> : Réseau /24 → /27 = 3 bits empruntés → 2^3 = <strong>8 sous-réseaux</strong>"
+          },
+          {
+            "type": "h3",
+            "content": "Nombre d'hôtes par sous-réseau"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : 2^(bits hôtes) - 2"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple</strong> : /27 = 5 bits hôtes → 2^5 - 2 = <strong>30 hôtes</strong>"
+          },
+          {
+            "type": "h3",
+            "content": "Taille du bloc"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : 256 - valeur du masque dans l'octet"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple</strong> : /27 → masque = 224 → 256 - 224 = <strong>32</strong>"
+          },
+          {
+            "type": "h2",
+            "content": "ASTUCES POUR L'EXAMEN"
+          },
+          {
+            "type": "h3",
+            "content": "1. Reconnaître le type de question"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Type A</strong> : \"Donnez l'adresse réseau de X.X.X.X/Y\" → Utilise la méthode du bloc"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Type B</strong> : \"Combien d'hôtes dans X.X.X.X/Y ?\" → 2^(32-Y) - 2"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Type C</strong> : \"Découpez en N sous-réseaux\" → VLSM, commence par le plus grand"
+          },
+          {
+            "type": "h3",
+            "content": "2. Vérifications rapides"
+          },
+          {
+            "type": "p",
+            "content": "✅ <strong>L'IP est-elle dans le bon bloc ?</strong>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "192.168.1.75/27 → Réseau 192.168.1.64",
+              "75 est entre 64 et 95 ? OUI ✅"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "✅ <strong>Le broadcast est-il correct ?</strong>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Broadcast = Début du PROCHAIN bloc - 1",
+              "Réseau 64, bloc de 32 → Prochain = 96",
+              "Broadcast = 96 - 1 = <strong>95</strong> ✅"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "✅ <strong>Nombre d'hôtes cohérent ?</strong>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "/27 = 30 hôtes",
+              "Bloc de 32 - 2 (réseau + broadcast) = 30 ✅"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "3. Pièges à éviter"
+          },
+          {
+            "type": "p",
+            "content": "❌ <strong>Ne pas oublier -2</strong> pour les hôtes utilisables ❌ <strong>Confondre masque et wildcard</strong> ❌ <strong>Oublier que 0 est une adresse valide</strong> (ex: 192.168.1.0/24) ❌ <strong>Confondre CIDR et nombre de bits hôtes</strong>"
+          },
+          {
+            "type": "h2",
+            "content": "MÉMO ULTRA-RAPIDE"
+          },
+          {
+            "type": "code",
+            "content": "ÉTAPES SUBNETTING :\n1. CIDR → Masque (table de correspondance)\n2. Calculer BLOC = 256 - valeur masque\n3. Diviser IP_octet / BLOC → partie entière × BLOC\n4. Réseau = Résultat au bon octet\n5. Broadcast = Réseau + BLOC - 1\n6. Première IP = Réseau + 1\n7. Dernière IP = Broadcast - 1\n\nFORMULES CRITIQUES :\n✅ Hôtes = 2^(bits hôtes) - 2\n✅ Sous-réseaux = 2^(bits empruntés)\n✅ Bloc = 256 - valeur masque\n\nCIDR COURANTS :\n/24 = 256 (254 hôtes)\n/25 = 128 (126 hôtes)\n/26 = 64 (62 hôtes)\n/27 = 32 (30 hôtes)\n/28 = 16 (14 hôtes)\n/29 = 8 (6 hôtes)\n/30 = 4 (2 hôtes) → Liens point-à-point"
+          },
+          {
+            "type": "p",
+            "content": "<strong>🎓 Maîtrise cette fiche = Tu éclates le subnetting à l'examen ! 💪</strong>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>📝 Passe maintenant aux 20 exercices pratiques pour t'entraîner !</strong>"
+          }
+        ]
+      },
+      /* RESEAUX_COURS */
     ],
     flashcards: [
+      {"id":"osi_ccp4_f1","recto":"Q1 — Modèle OSI : Expliquez le rôle des couches 2, 3 et 4 du modèle OSI. Donnez un exemple de protocole et d'équipement pour chacune.","verso":"<strong>Couche 2 (Liaison de données)</strong> :<br>• <strong>Rôle</strong> : Transmission des données entre équipements sur le même réseau local, gestion des adresses MAC, détection d'erreurs<br>• <strong>Protocole</strong> : Ethernet (802.3), Wi-Fi (802.11), PPP<br>• <strong>Équipement</strong> : Switch<br>• <strong>Fonction</strong> : Segmente les domaines de collision, maintient la table MAC (CAM table)<br><strong>Couche 3 (Réseau)</strong> :<br>• <strong>Rôle</strong> : Routage des paquets entre réseaux différents, adressage logique (IP)<br>• <strong>Protocole</strong> : IP (IPv4/IPv6), ICMP, IGMP<br>• <strong>Équipement</strong> : Routeur<br>• <strong>Fonction</strong> : Prend des décisions de routage, segmente les domaines de broadcast<br><strong>Couche 4 (Transport)</strong> :<br>• <strong>Rôle</strong> : Transport de bout en bout, segmentation, fiabilité (TCP) ou rapidité (UDP)<br>• <strong>Protocole</strong> : TCP, UDP<br>• <strong>Équipement</strong> : Pare-feu stateful, Load Balancer<br>• <strong>Fonction</strong> : Gestion des ports, contrôle de flux, réassemblage des segments"},
+      {"id":"osi_ccp4_f2","recto":"Q2 — TCP vs UDP : Expliquez les différences entre TCP et UDP. Dans quels cas utilise-t-on l'un plutôt que l'autre ? Donnez 3 exemples pour chaque.","verso":"<strong>TCP (Transmission Control Protocol)</strong> :<br>• <strong>Caractéristiques</strong> : Orienté connexion, fiable, contrôle de flux, ordre garanti, accusés de réception<br>• <strong>Avantages</strong> : Garantit la livraison des données<br>• <strong>Inconvénients</strong> : Plus lent, overhead important (en-têtes, ACK)<br>• <strong>Cas d'usage</strong> :<br>1. HTTP/HTTPS (navigation web) → Besoin de fiabilité<br>2. FTP (transfert de fichiers) → Intégrité des données<br>3. SMTP (email) → Pas de perte de messages<br><strong>UDP (User Datagram Protocol)</strong> :<br>• <strong>Caractéristiques</strong> : Non connecté, rapide, pas de garantie de livraison, pas d'ordre<br>• <strong>Avantages</strong> : Faible latence, léger<br>• <strong>Inconvénients</strong> : Peut perdre des paquets<br>• <strong>Cas d'usage</strong> :<br>1. DNS (résolution de noms) → Rapidité prioritaire, si échec on retente<br>2. VoIP/Streaming (voix/vidéo) → Temps réel, quelques pertes acceptables<br>3. Jeux en ligne → Faible latence critique<br><strong>Règle</strong> : TCP quand on a besoin de fiabilité, UDP quand on a besoin de rapidité."},
+      {"id":"osi_ccp4_f3","recto":"Q3 — Subnetting pratique : Une entreprise dispose du réseau 192.168.10.0/24. Elle doit créer 4 sous-réseaux égaux. Donnez : le nouveau masque CIDR, les 4 plages d'adresses, le nombre d'hôtes par sous-réseau.","verso":"<strong>Calcul</strong> :<br>• Réseau initial : 192.168.10.0/24 (256 adresses)<br>• 4 sous-réseaux → 2^2 = 4 → Besoin de 2 bits supplémentaires<br>• Nouveau masque : /24 + 2 = <strong>/26</strong><br><strong>Masque /26</strong> :<br>• 255.255.255.192<br>• Bloc de 64 adresses par sous-réseau<br>• Hôtes utilisables : 64 - 2 = <strong>62 hôtes</strong><br><strong>Les 4 sous-réseaux</strong> :<br>Sous-réseau — Plage — Réseau — Broadcast — Hôtes utilisables<br>1 — 192.168.10.0/26 — 192.168.10.0 — 192.168.10.63 — 10.1 - 10.62<br>2 — 192.168.10.64/26 — 192.168.10.64 — 192.168.10.127 — 10.65 - 10.126<br>3 — 192.168.10.128/26 — 192.168.10.128 — 192.168.10.191 — 10.129 - 10.190<br>4 — 192.168.10.192/26 — 192.168.10.192 — 192.168.10.255 — 10.193 - 10.254<br><strong>Résumé</strong> :<br>• Nouveau CIDR : <strong>/26</strong><br>• Hôtes par sous-réseau : <strong>62</strong><br>• Total d'adresses par sous-réseau : <strong>64</strong>"},
+      {"id":"osi_ccp4_f4","recto":"Q4 — VLAN : Expliquez la différence entre un port Access et un port Trunk. Donnez un exemple d'utilisation pour chacun.","verso":"<strong>Port Access</strong> :<br>• <strong>Configuration</strong> : <code>switchport mode access</code> + <code>switchport access vlan X</code><br>• <strong>Fonction</strong> : Appartient à <strong>UN SEUL VLAN</strong><br>• <strong>Trames</strong> : Non étiquetées (untagged)<br>• <strong>Usage</strong> : Connexion d'équipements finaux (PC, imprimante, téléphone IP)<br>• <strong>Exemple</strong> : Port connecté à un PC du service RH → VLAN 10<br><strong>Port Trunk</strong> :<br>• <strong>Configuration</strong> : <code>switchport mode trunk</code> + <code>switchport trunk allowed vlan X,Y,Z</code><br>• <strong>Fonction</strong> : Transporte <strong>PLUSIEURS VLAN</strong> simultanément<br>• <strong>Trames</strong> : Étiquetées avec tag 802.1Q (sauf VLAN natif)<br>• <strong>Usage</strong> : Liaison entre switchs ou entre switch et routeur<br>• <strong>Exemple</strong> : Lien entre switch d'étage et switch coeur de réseau transportant VLAN 10, 20, 30<br><strong>Différence clé</strong> : Access = 1 VLAN, Trunk = plusieurs VLAN"},
+      {"id":"osi_ccp4_f5","recto":"Q5 — Protocole ARP : Expliquez le fonctionnement du protocole ARP. Quelle est la commande pour afficher la table ARP sur Windows et sur Linux ?","verso":"<strong>Fonctionnement ARP</strong> :<br>1. <strong>Problème</strong> : Machine A (192.168.1.10) veut communiquer avec Machine B (192.168.1.20) mais ne connaît que son IP<br>2. <strong>ARP Request</strong> : A envoie un broadcast \"Qui a l'IP 192.168.1.20 ? Donne-moi ton adresse MAC !\"<br>3. <strong>ARP Reply</strong> : B répond en unicast \"C'est moi ! Mon MAC est AA:BB:CC:DD:EE:FF\"<br>4. <strong>Mise en cache</strong> : A stocke l'association IP ↔ MAC dans sa table ARP<br>5. <strong>Communication</strong> : A peut maintenant envoyer des trames Ethernet à B<br><strong>Commandes pour afficher la table ARP</strong> :<br><strong>Windows</strong> :<br><code style=\"display:block;white-space:pre-wrap\">arp -a</code><br><strong>Linux</strong> :<br><code style=\"display:block;white-space:pre-wrap\">arp -n\n# ou\nip neigh show</code><br><strong>Note</strong> : La table ARP a une durée de vie limitée (timeout), généralement quelques minutes."},
+      {"id":"osi_ccp4_f6","recto":"Q6 — DHCP : Expliquez le processus DORA du protocole DHCP. Quels ports UDP sont utilisés ?","verso":"<strong>Processus DORA</strong> :<br><strong>1. DISCOVER (Découverte)</strong> :<br>• Client envoie un <strong>broadcast</strong> : \"Je cherche un serveur DHCP !\"<br>• Source : 0.0.0.0, Destination : 255.255.255.255<br>• Port : UDP 68 → UDP 67<br><strong>2. OFFER (Offre)</strong> :<br>• Serveur répond : \"Voici une adresse IP disponible : 192.168.1.100\"<br>• Propose aussi masque, passerelle, DNS, durée de bail<br>• Envoi en broadcast (ou unicast selon config)<br><strong>3. REQUEST (Requête)</strong> :<br>• Client accepte l'offre en broadcast : \"J'accepte l'IP 192.168.1.100\"<br>• Broadcast car plusieurs serveurs ont pu répondre<br><strong>4. ACKNOWLEDGMENT (Accusé de réception)</strong> :<br>• Serveur confirme : \"OK, l'IP 192.168.1.100 est à toi pour X heures\"<br>• Client configure son interface réseau<br><strong>Ports UDP utilisés</strong> :<br>• Serveur DHCP : <strong>UDP 67</strong><br>• Client DHCP : <strong>UDP 68</strong><br><strong>Renouvellement</strong> : À 50% du bail, le client tente de renouveler (DHCP REQUEST direct au serveur)."},
+      {"id":"osi_ccp4_f7","recto":"Q7 — Routage statique : Sur un routeur Cisco, vous devez créer une route statique pour que le réseau 192.168.2.0/24 passe par la passerelle 10.0.0.2. Quelle commande utilisez-vous ? Expliquez chaque paramètre.","verso":"<strong>Commande Cisco</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2</code><br><strong>Explication des paramètres</strong> :<br>• <code>ip route</code> : Commande de création de route statique<br>• <code>192.168.2.0</code> : Réseau de destination<br>• <code>255.255.255.0</code> : Masque de sous-réseau du réseau destination (/24)<br>• <code>10.0.0.2</code> : Adresse IP du prochain saut (next-hop) ou interface de sortie<br><strong>Signification</strong> : \"Pour atteindre le réseau 192.168.2.0/24, envoie les paquets vers 10.0.0.2\"<br><strong>Variantes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Via interface de sortie\nip route 192.168.2.0 255.255.255.0 GigabitEthernet0/1\n\n# Route par défaut\nip route 0.0.0.0 0.0.0.0 10.0.0.1\n\n# Avec distance administrative (priorité)\nip route 192.168.2.0 255.255.255.0 10.0.0.2 10</code><br><strong>Vérification</strong> :<br><code style=\"display:block;white-space:pre-wrap\">show ip route\nshow ip route static</code>"},
+      {"id":"osi_ccp4_f8","recto":"Q8 — Dépannage réseau : Un utilisateur ne peut pas accéder à Internet. Décrivez les 5 premières étapes de dépannage que vous effectueriez (commandes à utiliser incluses).","verso":"<strong>Les 5 premières étapes</strong> :<br><strong>1. Vérifier la couche physique</strong> :<br>• Câble réseau branché ?<br>• Voyant de la carte réseau allumé ?<br>• Commande Windows : <code>ipconfig</code> → \"Média déconnecté\" ?<br>• Commande Linux : <code>ip link show</code> → État UP ?<br><strong>2. Vérifier la configuration IP</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Windows : ipconfig /all\nLinux : ip addr show</code><br>• IP correcte (pas 169.254.x.x = APIPA) ?<br>• Masque correct ?<br>• Passerelle configurée ?<br><strong>3. Tester la connectivité locale (passerelle)</strong> :<br><code style=\"display:block;white-space:pre-wrap\">ping 192.168.1.1</code><br>• Si échec → Problème local (câble, switch, VLAN)<br>• Si succès → Problème au-delà du réseau local<br><strong>4. Tester la résolution DNS</strong> :<br><code style=\"display:block;white-space:pre-wrap\">nslookup www.google.com\nping 8.8.8.8</code><br>• Si ping IP fonctionne mais pas nslookup → Problème DNS<br>• Vérifier les serveurs DNS : <code>ipconfig /all</code><br><strong>5. Vérifier le routage</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Windows : tracert www.google.com\nLinux : traceroute www.google.com</code><br>• Où les paquets sont-ils bloqués ?<br>• Vérifier pare-feu local : <code>netsh advfirewall show allprofiles</code><br><strong>Méthodologie</strong> : Approche en couches (OSI) de bas en haut."},
+      {"id":"osi_ccp4_f9","recto":"Q9 — NAT/PAT : Expliquez la différence entre NAT et PAT. Pourquoi utilise-t-on majoritairement le PAT dans les réseaux d'entreprise ?","verso":"<strong>NAT (Network Address Translation)</strong> :<br>• <strong>NAT statique</strong> : 1 IP privée ↔ 1 IP publique (mapping permanent)<br>• <strong>NAT dynamique</strong> : Pool d'IPs publiques (mapping temporaire)<br>• <strong>Limitation</strong> : Besoin d'autant d'IPs publiques que de connexions simultanées<br><strong>Exemple NAT statique</strong> :<br><code style=\"display:block;white-space:pre-wrap\">192.168.1.10 → 200.50.100.10 (toujours)\n192.168.1.20 → 200.50.100.11 (toujours)</code><br><strong>PAT (Port Address Translation)</strong> = NAT overload :<br>• <strong>Principe</strong> : Plusieurs IPs privées → 1 seule IP publique<br>• <strong>Différenciation</strong> : Utilise les ports sources<br>• <strong>Avantage</strong> : Économie d'adresses IPv4 publiques<br><strong>Exemple PAT</strong> :<br><code style=\"display:block;white-space:pre-wrap\">192.168.1.10:50000 → 200.50.100.1:50000\n192.168.1.20:50001 → 200.50.100.1:50001\n192.168.1.30:50002 → 200.50.100.1:50002</code><br><strong>Pourquoi PAT est majoritaire</strong> :<br>• <strong>Pénurie d'IPv4</strong> : Peu d'IPs publiques disponibles<br>• <strong>Coût</strong> : IPs publiques coûteuses<br>• <strong>Simplicité</strong> : 1 seule IP publique suffit pour toute l'entreprise<br>• <strong>Sécurité</strong> : Machines internes non directement accessibles<br><strong>Usage NAT statique</strong> : Serveurs publics (web, mail) ayant besoin d'une IP fixe."},
+      {"id":"osi_ccp4_f10","recto":"Q10 — DNS : Un utilisateur tape www.google.com dans son navigateur. Expliquez le processus de résolution DNS étape par étape.","verso":"<strong>Processus de résolution DNS</strong> :<br><strong>1. Vérification du cache local</strong> :<br>• Le navigateur vérifie son cache DNS<br>• Si trouvé → Utilise l'IP en cache<br>• Commande : <code>ipconfig /displaydns</code> (Windows)<br><strong>2. Requête au resolver DNS</strong> :<br>• Si pas en cache, le PC contacte son serveur DNS configuré (ex: 8.8.8.8)<br>• Requête : \"Quelle est l'IP de www.google.com ?\"<br><strong>3. Vérification cache du resolver</strong> :<br>• Le resolver vérifie son cache<br>• Si trouvé → Renvoie l'IP au client<br><strong>4. Résolution récursive (si pas en cache)</strong> :<br>a) <strong>Serveur racine (Root server)</strong> :<br>• Resolver contacte un serveur racine (13 clusters)<br>• \"Je cherche www.google.com, qui gère .com ?\"<br>• Réponse : Adresse des serveurs TLD .com<br>b) <strong>Serveur TLD (Top Level Domain)</strong> :<br>• Resolver contacte serveur TLD .com<br>• \"Qui gère google.com ?\"<br>• Réponse : Adresse des serveurs NS de google.com<br>c) <strong>Serveur autoritaire</strong> :<br>• Resolver contacte le serveur NS de google.com<br>• \"Quelle est l'IP de www.google.com ?\"<br>• Réponse : 142.250.185.206<br><strong>5. Retour au client</strong> :<br>• Le resolver renvoie l'IP au PC<br>• Mise en cache (TTL = durée de vie)<br><strong>6. Connexion HTTP</strong> :<br>• Le navigateur se connecte à 142.250.185.206:80 ou :443<br><strong>Types d'enregistrements DNS</strong> :<br>• <strong>A</strong> : IPv4<br>• <strong>AAAA</strong> : IPv6<br>• <strong>CNAME</strong> : Alias<br>• <strong>MX</strong> : Serveur mail<br>• <strong>NS</strong> : Serveur de noms"},
+      {"id":"osi_ccp4_f11","recto":"Q11 — VPN IPsec","verso":"<strong>Mode Transport</strong> :<br>• <strong>Chiffrement</strong> : Seulement les <strong>données</strong> (payload) du paquet IP<br>• <strong>En-tête IP</strong> : Reste en clair (adresses source/destination visibles)<br>• <strong>Usage</strong> : Communication de <strong>bout en bout</strong> entre 2 hôtes<br>• <strong>Exemple</strong> : Client VPN vers serveur distant (accès à distance)<br>• <strong>Avantage</strong> : Moins d'overhead (en-tête IP original conservé)<br><strong>Mode Tunnel</strong> :<br>• <strong>Chiffrement</strong> : <strong>Tout le paquet IP</strong> (en-tête + données)<br>• <strong>Nouvel en-tête IP</strong> : Ajouté par les passerelles VPN<br>• <strong>Usage</strong> : VPN <strong>site-à-site</strong> entre routeurs/pare-feu<br>• <strong>Exemple</strong> : Connexion siège ↔ agence<br>• <strong>Avantage</strong> : Sécurité maximale (tout est chiffré)<br><strong>Choix</strong> :<br>• <strong>Transport</strong> → Accès distant (road warriors)<br>• <strong>Tunnel</strong> → Site-à-site (interconnexion de réseaux)<br><strong>Schéma conceptuel</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Transport : [En-tête IP original][Données chiffrées]\nTunnel    : [Nouvel en-tête IP][En-tête IP original chiffré][Données chiffrées]</code>"},
+      {"id":"osi_ccp4_f12","recto":"Q12 — Protocoles de routage","verso":"<strong>RIP (Routing Information Protocol)</strong> :<br>• <strong>Métrique</strong> : Nombre de sauts (hop count)<br>• <strong>Limite</strong> : Maximum 15 sauts (16 = infini)<br>• <strong>Convergence</strong> : <strong>Lente</strong> (30-60 secondes)<br>• <strong>Mises à jour</strong> : Toutes les 30 secondes (broadcast/multicast)<br>• <strong>Bande passante</strong> : Ne prend PAS en compte<br>• <strong>Cas d'usage</strong> : Petits réseaux simples (&lt;10 routeurs)<br><strong>OSPF (Open Shortest Path First)</strong> :<br>• <strong>Métrique</strong> : Coût basé sur la <strong>bande passante</strong><br>• <strong>Limite</strong> : Aucune limite de sauts<br>• <strong>Convergence</strong> : <strong>Rapide</strong> (&lt;5 secondes)<br>• <strong>Mises à jour</strong> : Événementielles (seulement si changement)<br>• <strong>Hiérarchie</strong> : Supporte les areas (scalabilité)<br>• <strong>Cas d'usage</strong> : Réseaux moyens à grands<br><strong>Recommandation pour 500 postes / 3 sites</strong> :<br>→ <strong>OSPF</strong><br><strong>Justification</strong> :<br>• Convergence rapide (critique pour 500 utilisateurs)<br>• Supporte VLSM et CIDR<br>• Scalable (pas de limite de sauts)<br>• Métrique intelligente (bande passante)<br>• Standard ouvert (interopérabilité)<br><strong>Configuration minimale OSPF</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# router ospf 1\nR1(config-router)# network 192.168.1.0 0.0.0.255 area 0</code>"},
+      {"id":"osi_ccp4_f13","recto":"Q13 — ACL Cisco","verso":"<strong>Commandes ACL étendue</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! 1. Créer l'ACL\nR1(config)# access-list 100 deny tcp 192.168.1.0 0.0.0.255 any eq 80\nR1(config)# access-list 100 permit ip 192.168.1.0 0.0.0.255 any\n\n! 2. Appliquer l'ACL sur l'interface sortante (vers Internet)\nR1(config)# interface GigabitEthernet0/1\nR1(config-if)# ip access-group 100 out</code><br><strong>Explication ligne par ligne</strong> :<br><strong>Ligne 1</strong> : <code>access-list 100 deny tcp 192.168.1.0 0.0.0.255 any eq 80</code><br>• <code>100</code> : Numéro ACL étendue (100-199)<br>• <code>deny</code> : Bloquer<br>• <code>tcp</code> : Protocole TCP<br>• <code>192.168.1.0 0.0.0.255</code> : Réseau source avec wildcard mask<br>• <code>any</code> : N'importe quelle destination<br>• <code>eq 80</code> : Port destination égal à 80 (HTTP)<br><strong>Ligne 2</strong> : <code>access-list 100 permit ip 192.168.1.0 0.0.0.255 any</code><br>• <code>permit ip</code> : Autoriser tout le reste (tout protocole IP)<br>• <strong>Important</strong> : Sans cette ligne, tout serait bloqué (implicit deny)<br><strong>Application</strong> :<br>• <code>ip access-group 100 out</code> : Applique l'ACL en sortie de l'interface<br>• Direction : <code>out</code> car on filtre le trafic qui sort vers Internet<br><strong>Vérification</strong> :<br><code style=\"display:block;white-space:pre-wrap\">show access-lists\nshow ip interface GigabitEthernet0/1</code><br><strong>Alternative avec ACL nommée</strong> :<br><code style=\"display:block;white-space:pre-wrap\">ip access-list extended BLOCK_HTTP\n deny tcp 192.168.1.0 0.0.0.255 any eq 80\n permit ip any any\ninterface GigabitEthernet0/1\n ip access-group BLOCK_HTTP out</code>"},
+      {"id":"osi_ccp4_f14","recto":"Q14 — IPv6","verso":"<strong>Différences IPv4 vs IPv6</strong> :<br>Caractéristique — IPv4 — IPv6<br><strong>Taille adresse</strong> — 32 bits — 128 bits<br><strong>Format</strong> — Décimal (4 octets) — Hexadécimal (8 groupes)<br><strong>Nombre d'adresses</strong> — ~4 milliards — 340 sextillions<br><strong>Notation</strong> — 192.168.1.1 — 2001:db8::1<br><strong>Broadcast</strong> — Oui — Non (remplacé par multicast)<br><strong>Fragmentation</strong> — Routeurs + hôtes — Seulement hôtes<br><strong>NAT</strong> — Nécessaire — Optionnel<br><strong>Configuration</strong> — DHCP ou manuelle — SLAAC, DHCPv6 ou manuelle<br><strong>ARP</strong> — ARP — NDP (Neighbor Discovery)<br><strong>Types d'adresses IPv6</strong> :<br><strong>1. Unicast</strong> :<br>• <strong>Global Unicast</strong> : 2000::/3 (équivalent IP publiques)<br>• <strong>Link-Local</strong> : FE80::/10 (communication sur le lien local uniquement)<br>• <strong>Unique Local</strong> : FC00::/7 (équivalent IP privées)<br>• <strong>Loopback</strong> : ::1 (équivalent 127.0.0.1)<br><strong>2. Multicast</strong> :<br>• <strong>Plage</strong> : FF00::/8<br>• <strong>FF02::1</strong> : Tous les nœuds du lien local<br>• <strong>FF02::2</strong> : Tous les routeurs du lien local<br>• <strong>Usage</strong> : Remplace le broadcast IPv4<br><strong>3. Anycast</strong> :<br>• Adresse assignée à plusieurs interfaces<br>• Le paquet va à l'interface la plus proche<br><strong>Pas d'adresse broadcast</strong> en IPv6 (remplacé par multicast)<br><strong>Exemple d'adresse</strong> :<br><code style=\"display:block;white-space:pre-wrap\">2001:0db8:85a3:0000:0000:8a2e:0370:7334\nSimplifié : 2001:db8:85a3::8a2e:370:7334</code>"},
+      {"id":"osi_ccp4_f15","recto":"Q15 — Pare-feu","verso":"<strong>Pare-feu Stateless</strong> :<br>• <strong>Principe</strong> : Filtre <strong>paquet par paquet</strong> indépendamment<br>• <strong>Analyse</strong> : Uniquement les en-têtes (IP source/dest, ports, protocole)<br>• <strong>État</strong> : Ne garde <strong>aucun contexte</strong> des connexions<br>• <strong>Performance</strong> : Rapide (peu de mémoire)<br>• <strong>Sécurité</strong> : Faible (pas de suivi des sessions)<br><strong>Exemple de règle stateless</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Autoriser : IP source 192.168.1.0/24, TCP port destination 80\nProblème : Il faut aussi autoriser les réponses (TCP port source 80)\n→ Besoin de 2 règles (entrante + sortante)</code><br><strong>Pare-feu Stateful</strong> :<br>• <strong>Principe</strong> : Suit l'<strong>état des connexions</strong> (table d'état)<br>• <strong>Analyse</strong> : En-têtes + contexte (connexion établie, nouvelle, reliée)<br>• <strong>État</strong> : Garde en mémoire les sessions actives<br>• <strong>Performance</strong> : Plus lent (table d'état à maintenir)<br>• <strong>Sécurité</strong> : Élevée (comprend le contexte)<br><strong>Exemple de règle stateful</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Autoriser : IP source 192.168.1.0/24, TCP port destination 80\nRésultat : Les réponses sont automatiquement autorisées (connexion établie)\n→ 1 seule règle nécessaire</code><br><strong>États TCP suivis</strong> :<br>• <strong>NEW</strong> : Nouvelle connexion<br>• <strong>ESTABLISHED</strong> : Connexion établie<br>• <strong>RELATED</strong> : Connexion liée (ex: FTP data channel)<br>• <strong>INVALID</strong> : Paquet invalide<br><strong>Choix</strong> :<br>• Stateless → ACL simples, routeurs<br>• <strong>Stateful</strong> → Pare-feu modernes (recommandé)"},
+      {"id":"osi_ccp4_f16","recto":"Q16 — Wi-Fi WPA2","verso":"<strong>WEP (Wired Equivalent Privacy)</strong> :<br>• <strong>Chiffrement</strong> : RC4 (64 ou 128 bits)<br>• <strong>Sécurité</strong> : <strong>OBSOLÈTE</strong> - Cassable en quelques minutes<br>• <strong>Problème</strong> : Clés faibles, vecteur d'initialisation (IV) réutilisé<br>• <strong>Verdict</strong> : <strong>NE JAMAIS UTILISER</strong><br><strong>WPA (Wi-Fi Protected Access)</strong> :<br>• <strong>Chiffrement</strong> : TKIP (amélioration de RC4)<br>• <strong>Sécurité</strong> : Amélioration temporaire (2003)<br>• <strong>Authentification</strong> : PSK (Pre-Shared Key) ou 802.1X<br>• <strong>Problème</strong> : TKIP vulnérable, obsolète<br>• <strong>Verdict</strong> : <strong>Éviter</strong> (transition vers WPA2)<br><strong>WPA2 (Wi-Fi Protected Access 2)</strong> :<br>• <strong>Chiffrement</strong> : <strong>AES</strong> (Advanced Encryption Standard) avec CCMP<br>• <strong>Sécurité</strong> : <strong>Très sécurisé</strong> (norme actuelle depuis 2004)<br>• <strong>Authentification</strong> :<br>• <strong>WPA2-Personal</strong> : PSK (mot de passe partagé)<br>• <strong>WPA2-Enterprise</strong> : 802.1X + RADIUS (authentification par utilisateur)<br>• <strong>Verdict</strong> : <strong>RECOMMANDÉ</strong><br><strong>WPA3</strong> (dernière version, 2018) :<br>• Amélioration de WPA2 (SAE au lieu de PSK)<br>• Protection contre attaques par dictionnaire<br>• Chiffrement individualisé (OWE pour réseaux publics)<br><strong>Recommandation client</strong> :<br>→ <strong>WPA2-Personal</strong> (PME/particuliers) ou <strong>WPA2-Enterprise</strong> (grande entreprise)<br><strong>Configuration recommandée</strong> :<br>• <strong>Protocole</strong> : WPA2<br>• <strong>Chiffrement</strong> : AES<br>• <strong>Mot de passe</strong> : Minimum 12 caractères (complexe)<br>• <strong>SSID</strong> : Visible (le cacher n'apporte pas de sécurité)<br>• <strong>Désactiver WPS</strong> (vulnérable)"},
+      {"id":"osi_ccp4_f17","recto":"Q17 — QoS","verso":"<strong>Pourquoi la QoS est nécessaire pour la VoIP</strong> :<br><strong>Problèmes sans QoS</strong> :<br>1. <strong>Latence</strong> : Délai &gt; 150ms → Conversation difficile<br>2. <strong>Gigue (Jitter)</strong> : Variation de latence → Voix saccadée<br>3. <strong>Perte de paquets</strong> : &gt; 1% → Coupures audio<br>4. <strong>Bande passante</strong> : Trafic données peut saturer le lien<br><strong>Exigences VoIP</strong> :<br>• Latence : <strong>&lt; 150ms</strong> (idéal &lt; 100ms)<br>• Gigue : <strong>&lt; 30ms</strong><br>• Perte de paquets : <strong>&lt; 1%</strong><br>• Bande passante : ~85 kbps par appel (codec G.711)<br><strong>Mécanismes QoS à mettre en place</strong> :<br><strong>1. Classification et marquage</strong> :<br>• Identifier le trafic VoIP (ports, adresses)<br>• <strong>Marquer</strong> avec DSCP EF (Expedited Forwarding)<br>• Valeur DSCP : 46 (priorité maximale)<br><strong>2. Queuing (Files d'attente)</strong> :<br>• <strong>LLQ (Low Latency Queue)</strong> : File prioritaire pour VoIP<br>• <strong>CBWFQ</strong> : Files séparées par classe de trafic<br>• Garantir bande passante minimale pour VoIP<br><strong>3. Policing/Shaping</strong> :<br>• Limiter le trafic non-prioritaire<br>• Lisser le trafic VoIP (shaping)<br><strong>4. Priorisation</strong> :<br>• <strong>Voix</strong> : Priorité maximale<br>• <strong>Signalisation VoIP</strong> : Haute priorité (SIP, H.323)<br>• <strong>Données critiques</strong> : Priorité moyenne<br>• <strong>Best effort</strong> : Reste<br><strong>Configuration exemple (Cisco)</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! Classification\nclass-map match-all VOIX\n match ip dscp ef\n\n! Policy\npolicy-map QOS-VOIP\n class VOIX\n  priority percent 30\n  \n! Application\ninterface GigabitEthernet0/1\n service-policy output QOS-VOIP</code><br><strong>Tests de validation</strong> :<br>• <strong>Ping avec taille</strong> : Vérifier latence<br>• <strong>Iperf</strong> : Tester bande passante<br>• <strong>Wireshark</strong> : Analyser DSCP, jitter"},
+      {"id":"osi_ccp4_f18","recto":"Q18 — Load Balancing","verso":"<strong>Principe du Load Balancing</strong> :<br>• <strong>Répartir</strong> le trafic entrant entre plusieurs serveurs<br>• <strong>Améliorer</strong> la disponibilité et les performances<br>• <strong>Éviter</strong> la surcharge d'un seul serveur<br>• <strong>Détecter</strong> les serveurs défaillants (health checks)<br><strong>Algorithmes de répartition</strong> :<br><strong>1. Round-Robin</strong> :<br>• Chacun son tour (serveur 1, 2, 3, 1, 2, 3...)<br>• Simple, équitable<br>• <strong>Problème</strong> : Ne tient pas compte de la charge réelle<br><strong>2. Least Connections</strong> :<br>• Envoie vers le serveur avec le <strong>moins de connexions actives</strong><br>• Intelligent, adaptatif<br>• <strong>Usage</strong> : Sessions longues (base de données)<br><strong>3. IP Hash</strong> :<br>• Basé sur l'<strong>adresse IP source</strong> (hash)<br>• Même client → Même serveur (persistance de session)<br>• <strong>Usage</strong> : Applications avec sessions (e-commerce)<br><strong>4. Weighted (Pondéré)</strong> :<br>• Serveurs ont des <strong>poids</strong> selon leur capacité<br>• Serveur puissant reçoit plus de trafic<br>• <strong>Usage</strong> : Serveurs hétérogènes<br><strong>5. Least Response Time</strong> :<br>• Serveur avec le <strong>meilleur temps de réponse</strong><br>• <strong>Usage</strong> : Optimisation performance<br><strong>Cas d'usage concret</strong> :<br><strong>Scénario</strong> : Site e-commerce avec 3 serveurs web<br><strong>Architecture</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Internet\n   ↓\nLoad Balancer (HAProxy/F5)\n   ↓\n├── Serveur Web 1 (192.168.1.10)\n├── Serveur Web 2 (192.168.1.11)\n└── Serveur Web 3 (192.168.1.12)\n   ↓\nBase de données (backend)</code><br><strong>Configuration</strong> :<br>• <strong>Algorithme</strong> : IP Hash (persistance de session, panier d'achat)<br>• <strong>Health checks</strong> : HTTP GET / toutes les 5 secondes<br>• <strong>Failover</strong> : Si serveur down, redirection automatique<br>• <strong>SSL Offloading</strong> : Load balancer gère HTTPS (décharge serveurs)<br><strong>Avantages</strong> :<br>• Haute disponibilité (si 1 serveur tombe, 2 restent)<br>• Performance (charge répartie)<br>• Scalabilité (ajouter serveurs facilement)<br>• Maintenance (mise à jour serveur par serveur)"},
+      {"id":"osi_ccp4_f19","recto":"Q19 — Spanning Tree","verso":"<strong>Problème des boucles</strong> :<br>• <strong>Tempêtes de broadcast</strong> : Paquets broadcast tournent en boucle infiniment<br>• <strong>Saturation CPU</strong> : Switchs surchargés<br>• <strong>Duplications de trames</strong> : Même trame reçue plusieurs fois<br>• <strong>Instabilité table MAC</strong> : Apprentissage incorrect<br><strong>Solution STP (Spanning Tree Protocol - 802.1D)</strong> :<br><strong>Fonctionnement</strong> :<br><strong>1. Élection du Root Bridge</strong> :<br>• Switch avec la plus <strong>petite priorité</strong> (défaut : 32768 + VLAN ID)<br>• Si égalité : Plus petite adresse MAC<br>• Devient le point central de l'arbre<br><strong>2. Calcul du coût vers le root</strong> :<br>• Chaque switch calcule le <strong>meilleur chemin</strong> vers le root<br>• Coût basé sur la bande passante :<br>• 10 Mbps : 100<br>• 100 Mbps : 19<br>• 1 Gbps : 4<br>• 10 Gbps : 2<br><strong>3. Blocage des ports redondants</strong> :<br>• Ports offrant un chemin alternatif sont <strong>bloqués</strong><br>• Évite les boucles tout en gardant la redondance<br><strong>États des ports STP</strong> :<br>1. <strong>Blocking</strong> (Bloqué) :<br>• N'envoie/reçoit pas de données<br>• Écoute seulement les BPDU<br>• Durée : Permanent (sauf changement topologie)<br>2. <strong>Listening</strong> (Écoute) :<br>• Transition après blocage<br>• Écoute BPDU, prépare à transférer<br>• Durée : 15 secondes (Forward Delay)<br>3. <strong>Learning</strong> (Apprentissage) :<br>• Apprend les adresses MAC<br>• Ne transfère pas encore de données<br>• Durée : 15 secondes<br>4. <strong>Forwarding</strong> (Transfert) :<br>• <strong>État actif</strong> : Transfère les données<br>• Port opérationnel<br>5. <strong>Disabled</strong> (Désactivé) :<br>• Port administrativement désactivé<br>• Ne participe pas à STP<br><strong>Transition Blocking → Forwarding : 30-50 secondes</strong><br><strong>Évolutions</strong> :<br>• <strong>RSTP (802.1w)</strong> : Convergence &lt; 6 secondes<br>• <strong>PVST+</strong> : STP par VLAN (Cisco)<br>• <strong>MST (802.1s)</strong> : Multiple Spanning Tree<br><strong>Commandes Cisco</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! Voir l'état STP\nshow spanning-tree\n\n! Définir priorité (devenir root)\nspanning-tree vlan 1 priority 4096\n\n! Activer RSTP\nspanning-tree mode rapid-pvst</code>"},
+      {"id":"osi_ccp4_f20","recto":"Q20 — Dépannage VLAN","verso":"<strong>Causes possibles</strong> :<br><strong>1. Pas de routage inter-VLAN configuré</strong> :<br>• Les VLAN sont des domaines de broadcast séparés<br>• <strong>Solution</strong> : Router-on-a-stick ou switch L3 avec SVI<br><strong>2. Trunks mal configurés</strong> :<br>• VLAN non autorisés sur le trunk<br>• <strong>Vérification</strong> : <code>show interfaces trunk</code><br>• <strong>Solution</strong> : <code>switchport trunk allowed vlan 10,20</code><br><strong>3. Ports Access mal assignés</strong> :<br>• Utilisateurs dans le mauvais VLAN<br>• <strong>Vérification</strong> : <code>show vlan brief</code><br>• <strong>Solution</strong> : <code>switchport access vlan X</code><br><strong>4. Pare-feu / ACL bloque le trafic</strong> :<br>• Règles trop restrictives sur le routeur<br>• <strong>Vérification</strong> : <code>show access-lists</code>, <code>show ip interface</code><br>• <strong>Solution</strong> : Ajuster les ACL<br><strong>5. VLAN n'existe pas sur tous les switchs</strong> :<br>• VLAN créé seulement sur certains switchs<br>• <strong>Vérification</strong> : <code>show vlan</code> sur chaque switch<br>• <strong>Solution</strong> : Créer le VLAN partout<br><strong>Méthodologie de dépannage</strong> :<br><strong>Étape 1 - Vérifier la connectivité locale</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! PC VLAN 10 peut-il pinger d'autres PC VLAN 10 ?\nping 192.168.10.5</code><br>• Si échec → Problème VLAN local (port Access, trunk)<br><strong>Étape 2 - Vérifier la configuration VLAN</strong> :<br><code style=\"display:block;white-space:pre-wrap\">SW1# show vlan brief\nSW1# show interfaces fa0/5 switchport</code><br>• Port dans le bon VLAN ?<br>• Mode Access ou Trunk correct ?<br><strong>Étape 3 - Vérifier les trunks</strong> :<br><code style=\"display:block;white-space:pre-wrap\">SW1# show interfaces trunk\nSW1# show interfaces gi0/1 switchport</code><br>• VLANs autorisés sur le trunk ?<br>• Native VLAN cohérent entre switchs ?<br><strong>Étape 4 - Vérifier le routage inter-VLAN</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! Sur switch L3 ou routeur\nshow ip interface brief\nshow ip route</code><br>• SVI des VLAN configurés et UP ?<br>• Passerelle configurée sur les PC ?<br><strong>Étape 5 - Tester depuis le routeur</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1# ping 192.168.10.5\nR1# ping 192.168.20.5</code><br>• Routeur peut-il joindre les 2 VLAN ?<br><strong>Étape 6 - Vérifier les ACL/Pare-feu</strong> :<br><code style=\"display:block;white-space:pre-wrap\">show access-lists\nshow ip interface gi0/0.10</code><br><strong>Configuration correcte Router-on-a-Stick</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! Sur le routeur\ninterface GigabitEthernet0/0.10\n encapsulation dot1Q 10\n ip address 192.168.10.1 255.255.255.0\n\ninterface GigabitEthernet0/0.20\n encapsulation dot1Q 20\n ip address 192.168.20.1 255.255.255.0\n\n! Sur le switch\ninterface GigabitEthernet0/1\n switchport mode trunk\n switchport trunk allowed vlan 10,20</code><br><strong>Tests de validation</strong> :<br><code style=\"display:block;white-space:pre-wrap\">PC VLAN 10 → ping passerelle (192.168.10.1)\nPC VLAN 10 → ping PC VLAN 20 (192.168.20.5)\nWireshark : Vérifier tags 802.1Q sur trunk</code>"},
+      {"id":"osi_ccp4_ex1","recto":"Exercice 1 — IP = 192.168.1.50/24<br><strong>Questions</strong> :<br>a) Quelle est l'adresse réseau ?<br>b) Quelle est l'adresse de broadcast ?<br>c) Quelle est la première adresse IP utilisable ?<br>d) Quelle est la dernière adresse IP utilisable ?<br>e) Combien d'hôtes utilisables dans ce réseau ?","verso":"<strong>Résolution</strong> :<br>• /24 = 255.255.255.0, Bloc = 256<br>• Octet concerné : 4ème<br>• 50 ÷ 256 = 0 → 0 × 256 = <strong>0</strong><br><strong>Réponses</strong> :<br>• a) Adresse réseau : <strong>192.168.1.0</strong><br>• b) Broadcast : <strong>192.168.1.255</strong><br>• c) Première IP : <strong>192.168.1.1</strong><br>• d) Dernière IP : <strong>192.168.1.254</strong><br>• e) Hôtes : <strong>254</strong> (2^8 - 2)<br><strong>Points</strong> : 5/5"},
+      {"id":"osi_ccp4_ex2","recto":"Exercice 2 — IP = 172.16.10.100/16<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Adresse de broadcast ?<br>c) Nombre d'hôtes utilisables ?<br>d) Masque de sous-réseau ?","verso":"<strong>Résolution</strong> :<br>• /16 = 255.255.0.0<br>• Classe B standard<br><strong>Réponses</strong> :<br>• a) Réseau : <strong>172.16.0.0</strong><br>• b) Broadcast : <strong>172.16.255.255</strong><br>• c) Hôtes : <strong>65 534</strong> (2^16 - 2)<br>• d) Masque : <strong>255.255.0.0</strong><br><strong>Points</strong> : 5/5"},
+      {"id":"osi_ccp4_ex3","recto":"Exercice 3 — IP = 10.45.78.92/8<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Adresse de broadcast ?<br>c) Classe de cette adresse ?<br>d) Est-ce une adresse privée ?","verso":"<strong>Réponses</strong> :<br>• a) Réseau : <strong>10.0.0.0</strong><br>• b) Broadcast : <strong>10.255.255.255</strong><br>• c) Classe : <strong>A</strong><br>• d) Privée : <strong>OUI</strong> (10.0.0.0/8)<br><strong>Points</strong> : 5/5"},
+      {"id":"osi_ccp4_ex4","recto":"Exercice 4 — IP = 192.168.5.200/25<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Adresse de broadcast ?<br>c) Première IP utilisable ?<br>d) Dernière IP utilisable ?<br>e) Combien d'hôtes ?","verso":"<strong>Résolution</strong> :<br>• /25 = 255.255.255.128, Bloc = 128<br>• 200 ÷ 128 = 1 → 1 × 128 = <strong>128</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>192.168.5.128</strong><br>• b) Broadcast : <strong>192.168.5.255</strong> (128 + 128 - 1)<br>• c) Première IP : <strong>192.168.5.129</strong><br>• d) Dernière IP : <strong>192.168.5.254</strong><br>• e) Hôtes : <strong>126</strong> (2^7 - 2)<br><strong>Points</strong> : 5/5"},
+      {"id":"osi_ccp4_ex5","recto":"Exercice 5 — IP = 172.20.100.75/26<br><strong>Questions</strong> :<br>a) Masque de sous-réseau ?<br>b) Adresse réseau ?<br>c) Adresse de broadcast ?<br>d) Plage d'IPs utilisables (première - dernière) ?","verso":"<strong>Résolution</strong> :<br>• /26 = 255.255.255.192, Bloc = 64<br>• 75 ÷ 64 = 1 → 1 × 64 = <strong>64</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.255.192</strong><br>• b) Réseau : <strong>172.20.100.64</strong><br>• c) Broadcast : <strong>172.20.100.127</strong><br>• d) Plage : <strong>172.20.100.65 - 172.20.100.126</strong><br><strong>Points</strong> : 5/5<br>## 🟡 NIVEAU 2 - INTERMÉDIAIRE (Exercices 6-10)"},
+      {"id":"osi_ccp4_ex6","recto":"Exercice 6 — IP = 192.168.1.75/27<br><strong>Questions</strong> :<br>a) Combien de bits pour la partie réseau ?<br>b) Combien de bits pour la partie hôte ?<br>c) Adresse réseau ?<br>d) Broadcast ?<br>e) Combien d'hôtes utilisables ?","verso":"<strong>Résolution</strong> :<br>• /27 → 27 bits réseau, 5 bits hôtes<br>• Bloc = 256 - 224 = 32<br>• 75 ÷ 32 = 2 → 2 × 32 = <strong>64</strong><br><strong>Réponses</strong> :<br>• a) Bits réseau : <strong>27</strong><br>• b) Bits hôtes : <strong>5</strong> (32 - 27)<br>• c) Réseau : <strong>192.168.1.64</strong><br>• d) Broadcast : <strong>192.168.1.95</strong><br>• e) Hôtes : <strong>30</strong> (2^5 - 2)<br><strong>Points</strong> : 5/5"},
+      /* RESEAUX_FLASHCARDS */
       { id: 'osi_f1', recto: 'Couche 1 — Physique', verso: 'Transmission des bits bruts sur le support physique. Exemples : câbles RJ45, fibre, Wi-Fi. Équipements : hub, répéteur, câble.' },
       { id: 'osi_f2', recto: 'Couche 2 — Liaison de données', verso: 'Trames entre nœuds adjacents. Adressage MAC. Détection d\'erreurs (CRC). Équipements : switch, pont. Protocoles : Ethernet, Wi-Fi 802.11, PPP.' },
       { id: 'osi_f3', recto: 'Couche 3 — Réseau', verso: 'Routage des paquets entre réseaux. Adressage IP (IPv4/IPv6). Équipements : routeur. Protocoles : IP, ICMP, ARP, OSPF, BGP.' },
@@ -710,7 +2734,48 @@ const MODULES = [
       { id: 'res_q29', difficulty: 'troubleshooter', question: 'nslookup resolv nom, mais ping echec. Cause ?', options: [{ text: 'DNS corrompu', correct: false }, { text: 'Serveur Web plante', correct: false }, { text: 'Cable', correct: false }, { text: 'Firewall ICMP', correct: true }], explication: 'Firewall peut bloquer ICMP mais pas DNS.' },
       { id: 'res_q30', difficulty: 'troubleshooter', question: 'nslookup OK mais navigateur echec. Verifier ?', options: [{ text: 'Serveur DNS', correct: false }, { text: 'Proxy', correct: true }, { text: 'Cache applicatif', correct: false }, { text: 'Hote local', correct: false }], explication: 'Proxy mal configure = nslookup OK mais navigation echec.' },
       { id: 'res_q31', difficulty: 'difficile', question: 'Filtre Wireshark pour voir tout le trafic sauf DNS ?', options: [{ text: '!dns', correct: true }, { text: 'not dns', correct: false }, { text: '!port 53', correct: false }, { text: 'tcp.port != 53', correct: false }], explication: '!dns est la syntaxe correcte.' },
-      { id: 'res_q32', difficulty: 'troubleshooter', question: 'Wireshark ne capture que du trafic broadcast. Cause probable ?', options: [{ text: 'Switch port mirroring absent', correct: false }, { text: 'Carte en mode promiscuous uniquement', correct: true }, { text: 'Filtre BPF restrictif', correct: false }, { text: 'Cable defectueux', correct: false }], explication: 'Mode promiscuous capture que le trafic local sans SPAN.' }
+      { id: 'res_q32', difficulty: 'troubleshooter', question: 'Wireshark ne capture que du trafic broadcast. Cause probable ?', options: [{ text: 'Switch port mirroring absent', correct: false }, { text: 'Carte en mode promiscuous uniquement', correct: true }, { text: 'Filtre BPF restrictif', correct: false }, { text: 'Cable defectueux', correct: false }], explication: 'Mode promiscuous capture que le trafic local sans SPAN.' },
+      {"id":"res_ccp4_q1","difficulty":"normal","question":"Combien de couches comporte le modèle OSI ?","options":[{"text":"5 couches","correct":false},{"text":"7 couches","correct":true},{"text":"4 couches","correct":false},{"text":"9 couches","correct":false}],"explication":"Le modèle OSI (Open Systems Interconnection) comporte <strong>7 couches</strong> :<br>1. Physique<br>2. Liaison de données<br>3. Réseau<br>4. Transport<br>5. Session<br>6. Présentation<br>7. Application<br><strong>Mnémotechnique</strong> : \"<strong>P</strong>lease <strong>D</strong>o <strong>N</strong>ot <strong>T</strong>hrow <strong>S</strong>ausage <strong>P</strong>izza <strong>A</strong>way\""},
+      {"id":"res_ccp4_q2","difficulty":"normal","question":"À quelle couche du modèle OSI correspondent les switchs ?","options":[{"text":"Couche 1 (Physique)","correct":false},{"text":"Couche 2 (Liaison de données)","correct":true},{"text":"Couche 3 (Réseau)","correct":false},{"text":"Couche 4 (Transport)","correct":false}],"explication":"Les <strong>switchs</strong> opèrent à la <strong>couche 2</strong> (Liaison de données) :<br>• Ils utilisent les <strong>adresses MAC</strong><br>• Ils segmentent les domaines de collision<br>• Ils maintiennent une <strong>table MAC</strong> (CAM table)<br><strong>Note</strong> : Les switchs de niveau 3 peuvent aussi opérer à la couche 3."},
+      {"id":"res_ccp4_q3","difficulty":"normal","question":"Quel protocole de la couche Transport garantit la livraison des données ?","options":[{"text":"UDP","correct":false},{"text":"IP","correct":false},{"text":"TCP","correct":true},{"text":"ICMP","correct":false}],"explication":"<strong>TCP (Transmission Control Protocol)</strong> garantit la livraison :<br>• Mode <strong>connecté</strong> (établissement de connexion : 3-way handshake)<br>• <strong>Accusés de réception</strong> (ACK)<br>• <strong>Retransmission</strong> en cas de perte<br>• <strong>Contrôle de flux</strong><br><strong>UDP</strong> est non connecté et ne garantit pas la livraison."},
+      {"id":"res_ccp4_q4","difficulty":"normal","question":"Combien de bits comporte une adresse MAC ?","options":[{"text":"32 bits","correct":false},{"text":"48 bits","correct":true},{"text":"64 bits","correct":false},{"text":"128 bits","correct":false}],"explication":"Une adresse MAC = <strong>48 bits</strong> = <strong>6 octets</strong> :<br>• Format : <code>AA:BB:CC:DD:EE:FF</code><br>• 3 premiers octets = OUI (Organizationally Unique Identifier)<br>• 3 derniers octets = Identifiant unique du constructeur<br><strong>Exemple</strong> : <code>00:1A:2B:3C:4D:5E</code>"},
+      {"id":"res_ccp4_q5","difficulty":"normal","question":"Quelle est la plage d'adresses de la classe A ?","options":[{"text":"1.0.0.0 à 126.255.255.255","correct":true},{"text":"128.0.0.0 à 191.255.255.255","correct":false},{"text":"192.0.0.0 à 223.255.255.255","correct":false},{"text":"224.0.0.0 à 239.255.255.255","correct":false}],"explication":"<strong>Classe A</strong> :<br>• Plage : <strong>1.0.0.0 à 126.255.255.255</strong><br>• Masque par défaut : <strong>255.0.0.0</strong> (/8)<br>• 1er octet : 1-126<br>• <strong>127.x.x.x</strong> est réservé pour le loopback<br><strong>Note</strong> : 0.0.0.0 n'est pas utilisable (réseau par défaut)"},
+      {"id":"res_ccp4_q6","difficulty":"normal","question":"L'adresse 127.0.0.1 est réservée pour :","options":[{"text":"Le broadcast","correct":false},{"text":"La boucle locale (loopback)","correct":true},{"text":"Le routage multicast","correct":false},{"text":"Les adresses privées","correct":false}],"explication":"<strong>127.0.0.0/8</strong> = plage de loopback :<br>• <strong>127.0.0.1</strong> = localhost<br>• Utilisé pour tester la pile TCP/IP locale<br>• Le trafic ne sort JAMAIS de la machine<br><strong>Commande</strong> : <code>ping 127.0.0.1</code> teste la carte réseau locale"},
+      {"id":"res_ccp4_q7","difficulty":"normal","question":"Combien d'adresses IP contient un réseau en /24 ?","options":[{"text":"128 adresses","correct":false},{"text":"254 adresses","correct":false},{"text":"256 adresses","correct":true},{"text":"512 adresses","correct":false}],"explication":"Un réseau <strong>/24</strong> contient <strong>256 adresses</strong> au total :<br>• Formule : 2^(32-24) = 2^8 = <strong>256</strong><br>• Adresses <strong>utilisables</strong> : 256 - 2 = <strong>254</strong><br>• 2 adresses réservées : réseau + broadcast"},
+      {"id":"res_ccp4_q8","difficulty":"normal","question":"Quel est le masque de sous-réseau pour un /26 ?","options":[{"text":"255.255.255.128","correct":false},{"text":"255.255.255.192","correct":true},{"text":"255.255.255.224","correct":false},{"text":"255.255.255.240","correct":false}],"explication":"<strong>/26</strong> = <strong>255.255.255.192</strong> :<br>• 26 bits à 1, 6 bits à 0<br>• Dernier octet : 11000000 = 128 + 64 = <strong>192</strong><br>• Bloc = 256 - 192 = <strong>64</strong><br>• Hôtes utilisables : 2^6 - 2 = <strong>62</strong>"},
+      {"id":"res_ccp4_q9","difficulty":"normal","question":"Parmi ces adresses, laquelle est une adresse privée ?","options":[{"text":"8.8.8.8","correct":false},{"text":"172.16.50.100","correct":true},{"text":"200.100.50.1","correct":false},{"text":"11.0.0.1","correct":false}],"explication":"Les <strong>3 plages privées RFC 1918</strong> :<br>• <strong>10.0.0.0/8</strong> (10.0.0.0 - 10.255.255.255)<br>• <strong>172.16.0.0/12</strong> (172.16.0.0 - 172.31.255.255)<br>• <strong>192.168.0.0/16</strong> (192.168.0.0 - 192.168.255.255)<br><strong>172.16.50.100</strong> est dans la plage 172.16.0.0/12"},
+      {"id":"res_ccp4_q10","difficulty":"normal","question":"Combien d'hôtes utilisables peut-on avoir dans un réseau /28 ?","options":[{"text":"8 hôtes","correct":false},{"text":"14 hôtes","correct":true},{"text":"16 hôtes","correct":false},{"text":"30 hôtes","correct":false}],"explication":"<strong>/28</strong> = 4 bits pour les hôtes :<br>• Formule : 2^4 - 2 = 16 - 2 = <strong>14 hôtes utilisables</strong><br>• Total d'adresses : 16<br>• 2 réservées (réseau + broadcast)<br><strong>Masque /28</strong> = 255.255.255.240"},
+      {"id":"res_ccp4_q11","difficulty":"normal","question":"Quelle est l'adresse de broadcast du réseau 192.168.1.0/24 ?","options":[{"text":"192.168.1.0","correct":false},{"text":"192.168.1.1","correct":false},{"text":"192.168.1.254","correct":false},{"text":"192.168.1.255","correct":true}],"explication":"Pour <strong>192.168.1.0/24</strong> :<br>• Réseau : <strong>192.168.1.0</strong><br>• Broadcast : <strong>192.168.1.255</strong><br>• Première IP : 192.168.1.1<br>• Dernière IP : 192.168.1.254<br><strong>Règle</strong> : Broadcast = dernière adresse du réseau"},
+      {"id":"res_ccp4_q12","difficulty":"normal","question":"Quel est le rôle du protocole ARP ?","options":[{"text":"Résoudre un nom de domaine en adresse IP","correct":false},{"text":"Résoudre une adresse IP en adresse MAC","correct":true},{"text":"Assigner des adresses IP automatiquement","correct":false},{"text":"Tester la connectivité réseau","correct":false}],"explication":"<strong>ARP (Address Resolution Protocol)</strong> :<br>• Résout <strong>IP → MAC</strong><br>• Couche 2 du modèle OSI<br>• Utilise des <strong>broadcasts</strong> ARP<br>• Table ARP stockée en cache<br><strong>Exemple</strong> : \"Qui a l'IP 192.168.1.10 ? Donne-moi ton MAC !\"<br><strong>RARP</strong> fait l'inverse : MAC → IP (obsolète)"},
+      {"id":"res_ccp4_q13","difficulty":"normal","question":"Quel est le port TCP utilisé par HTTPS ?","options":[{"text":"80","correct":false},{"text":"22","correct":false},{"text":"443","correct":true},{"text":"8080","correct":false}],"explication":"<strong>HTTPS</strong> = HTTP sécurisé (SSL/TLS) :<br>• Port <strong>TCP 443</strong><br>• HTTP = port <strong>TCP 80</strong><br><strong>Ports HTTPS à retenir</strong> :<br>• 443 = HTTPS standard<br>• 8443 = HTTPS alternatif"},
+      {"id":"res_ccp4_q14","difficulty":"normal","question":"Quelle commande utilise le protocole ICMP ?","options":[{"text":"ssh","correct":false},{"text":"telnet","correct":false},{"text":"ping","correct":true},{"text":"ftp","correct":false}],"explication":"<strong>ICMP (Internet Control Message Protocol)</strong> :<br>• Utilisé par <strong>ping</strong> (echo request/reply)<br>• Utilisé par <strong>traceroute</strong> (TTL exceeded)<br>• Messages d'erreur IP<br>• <strong>N'a PAS de numéro de port</strong> (pas de couche 4)<br><strong>Autres commandes</strong> :<br>• ssh = TCP 22<br>• telnet = TCP 23<br>• ftp = TCP 21"},
+      {"id":"res_ccp4_q15","difficulty":"normal","question":"L'adresse IP 192.168.1.75/27 appartient à quel réseau ?","options":[{"text":"192.168.1.0/27","correct":false},{"text":"192.168.1.32/27","correct":false},{"text":"192.168.1.64/27","correct":true},{"text":"192.168.1.96/27","correct":false}],"explication":"<strong>Résolution</strong> :<br>• /27, Bloc = 256 - 224 = <strong>32</strong><br>• 75 ÷ 32 = 2 → 2 × 32 = <strong>64</strong><br>• Réseau : <strong>192.168.1.64/27</strong><br>• Plage : 192.168.1.64 - 192.168.1.95"},
+      {"id":"res_ccp4_q16","difficulty":"normal","question":"Quel est l'intérêt principal des VLAN ?","options":[{"text":"Augmenter la vitesse du réseau","correct":false},{"text":"Segmenter un réseau en domaines de broadcast","correct":true},{"text":"Remplacer les routeurs","correct":false},{"text":"Chiffrer les communications","correct":false}],"explication":"<strong>VLAN (Virtual LAN)</strong> :<br>• Segmente un réseau en <strong>domaines de broadcast séparés</strong><br>• Améliore la <strong>sécurité</strong> (isolation)<br>• Réduit le trafic broadcast<br>• Flexibilité de configuration<br><strong>Exemple</strong> : VLAN 10 (ADMIN) isolé du VLAN 20 (USERS)"},
+      {"id":"res_ccp4_q17","difficulty":"normal","question":"Un port trunk sur un switch permet de :","options":[{"text":"Transporter un seul VLAN","correct":false},{"text":"Transporter plusieurs VLAN","correct":true},{"text":"Désactiver le spanning tree","correct":false},{"text":"Augmenter la bande passante","correct":false}],"explication":"<strong>Port Trunk</strong> (802.1Q) :<br>• Transporte <strong>plusieurs VLAN</strong> sur un seul lien<br>• Utilisé entre switchs ou switch-routeur<br>• Étiquetage (tagging) des trames<br><strong>Port Access</strong> :<br>• Transporte <strong>UN SEUL VLAN</strong><br>• Pour les équipements finaux (PC, imprimante)"},
+      {"id":"res_ccp4_q18","difficulty":"normal","question":"Quel port UDP utilise le serveur DHCP ?","options":[{"text":"Port 66","correct":false},{"text":"Port 67","correct":true},{"text":"Port 68","correct":false},{"text":"Port 69","correct":false}],"explication":"<strong>DHCP utilise UDP</strong> :<br>• Serveur DHCP : <strong>UDP 67</strong><br>• Client DHCP : <strong>UDP 68</strong><br><strong>Processus DHCP (DORA)</strong> :<br>1. <strong>D</strong>iscover (client → broadcast)<br>2. <strong>O</strong>ffer (serveur → client)<br>3. <strong>R</strong>equest (client → serveur)<br>4. <strong>A</strong>ck (serveur → client)"},
+      {"id":"res_ccp4_q19","difficulty":"normal","question":"Le protocole DNS utilise par défaut :","options":[{"text":"TCP port 53","correct":false},{"text":"UDP port 53","correct":true},{"text":"TCP port 25","correct":false},{"text":"UDP port 25","correct":false}],"explication":"<strong>DNS (Domain Name System)</strong> :<br>• Par défaut : <strong>UDP port 53</strong><br>• Transferts de zone : <strong>TCP port 53</strong><br>• Résout nom de domaine → IP<br><strong>Exemple</strong> :<br>• www.google.com → 142.250.185.206"},
+      {"id":"res_ccp4_q20","difficulty":"normal","question":"Combien de couches comporte le modèle TCP/IP ?","options":[{"text":"3 couches","correct":false},{"text":"4 couches","correct":true},{"text":"5 couches","correct":false},{"text":"7 couches","correct":false}],"explication":"<strong>Modèle TCP/IP</strong> = <strong>4 couches</strong> :<br>1. <strong>Accès réseau</strong> (correspond à couches 1-2 OSI)<br>2. <strong>Internet</strong> (correspond à couche 3 OSI)<br>3. <strong>Transport</strong> (correspond à couche 4 OSI)<br>4. <strong>Application</strong> (correspond à couches 5-6-7 OSI)"},
+      {"id":"res_ccp4_q21","difficulty":"normal","question":"Quel protocole VPN utilise le port UDP 1701 ?","options":[{"text":"PPTP","correct":false},{"text":"L2TP","correct":true},{"text":"IPsec","correct":false},{"text":"OpenVPN","correct":false}],"explication":"<strong>L2TP (Layer 2 Tunneling Protocol)</strong> :<br>• Port <strong>UDP 1701</strong><br>• Souvent combiné avec <strong>IPsec</strong> (L2TP/IPsec)<br>• Ne chiffre PAS par lui-même (besoin d'IPsec)<br><strong>Autres protocoles VPN</strong> :<br>• PPTP : TCP 1723<br>• IPsec : UDP 500 (IKE) + ESP/AH<br>• OpenVPN : UDP 1194 (par défaut)"},
+      {"id":"res_ccp4_q22","difficulty":"normal","question":"Quels sont les deux protocoles principaux utilisés par IPsec ?","options":[{"text":"AH et ESP","correct":true},{"text":"TCP et UDP","correct":false},{"text":"PPP et PPTP","correct":false},{"text":"SSL et TLS","correct":false}],"explication":"<strong>IPsec utilise deux protocoles</strong> :<br>• <strong>AH (Authentication Header)</strong> : Authentification + Intégrité<br>• <strong>ESP (Encapsulating Security Payload)</strong> : Chiffrement + Authentification + Intégrité<br><strong>Modes IPsec</strong> :<br>• Mode <strong>Transport</strong> : Chiffre seulement les données<br>• Mode <strong>Tunnel</strong> : Chiffre tout le paquet IP (utilisé pour VPN site-à-site)"},
+      {"id":"res_ccp4_q23","difficulty":"normal","question":"Que signifie NAT ?","options":[{"text":"Network Address Table","correct":false},{"text":"Network Address Translation","correct":true},{"text":"Network Application Transfer","correct":false},{"text":"Network Access Terminal","correct":false}],"explication":"<strong>NAT (Network Address Translation)</strong> :<br>• Traduit <strong>IP privée → IP publique</strong><br>• Permet d'économiser les adresses IPv4 publiques<br>• Types de NAT :<br>• <strong>NAT statique</strong> : 1 IP privée → 1 IP publique (mapping permanent)<br>• <strong>NAT dynamique</strong> : Pool d'IPs publiques<br>• <strong>PAT (NAT overload)</strong> : Plusieurs IP privées → 1 IP publique (via ports)"},
+      {"id":"res_ccp4_q24","difficulty":"normal","question":"Le PAT (Port Address Translation) permet de :","options":[{"text":"Traduire plusieurs IP privées vers une seule IP publique","correct":true},{"text":"Bloquer les ports non utilisés","correct":false},{"text":"Chiffrer les communications","correct":false},{"text":"Créer des VLAN","correct":false}],"explication":"<strong>PAT (Port Address Translation)</strong> = NAT overload :<br>• <strong>Plusieurs IP privées</strong> → <strong>1 seule IP publique</strong><br>• Utilise les <strong>ports sources</strong> pour différencier les connexions<br>• Le plus utilisé dans les réseaux domestiques/PME<br><strong>Exemple</strong> :<br>• 192.168.1.10:50000 → 200.50.100.1:50000<br>• 192.168.1.20:50001 → 200.50.100.1:50001"},
+      {"id":"res_ccp4_q25","difficulty":"normal","question":"Parmi ces protocoles, lequel est un protocole de routage à vecteur de distance ?","options":[{"text":"OSPF","correct":false},{"text":"BGP","correct":false},{"text":"RIP","correct":true},{"text":"IS-IS","correct":false}],"explication":"<strong>Protocoles de routage à vecteur de distance</strong> :<br>• <strong>RIP (Routing Information Protocol)</strong><br>• RIPv2 (amélioration avec CIDR et authentification)<br><strong>Protocoles à état de liens</strong> :<br>• <strong>OSPF</strong> (Open Shortest Path First)<br>• <strong>IS-IS</strong><br><strong>Protocoles hybrides/Path Vector</strong> :<br>• <strong>BGP</strong> (Border Gateway Protocol)"},
+      {"id":"res_ccp4_q26","difficulty":"normal","question":"OSPF utilise quel algorithme de routage ?","options":[{"text":"Bellman-Ford","correct":false},{"text":"Dijkstra (SPF - Shortest Path First)","correct":true},{"text":"Distance Vector","correct":false},{"text":"Path Vector","correct":false}],"explication":"<strong>OSPF (Open Shortest Path First)</strong> :<br>• Utilise l'algorithme de <strong>Dijkstra</strong> (SPF)<br>• Protocole à <strong>état de liens</strong> (link-state)<br>• Métrique = <strong>Coût</strong> (basé sur la bande passante)<br>• Distance administrative = <strong>110</strong><br><strong>Avantages OSPF</strong> :<br>• Convergence rapide<br>• Supporte VLSM et CIDR<br>• Pas de limite de sauts"},
+      {"id":"res_ccp4_q27","difficulty":"normal","question":"Quelle est la métrique utilisée par RIP ?","options":[{"text":"La bande passante","correct":false},{"text":"Le délai","correct":false},{"text":"Le nombre de sauts (hop count)","correct":true},{"text":"Le coût","correct":false}],"explication":"<strong>Métrique RIP</strong> = <strong>Nombre de sauts</strong> (hop count) :<br>• Chaque routeur traversé = 1 saut<br>• <strong>Maximum 15 sauts</strong> (16 = infini/inatteignable)<br>• Ne prend PAS en compte la bande passante<br><strong>Problème</strong> : Peut choisir un chemin avec plus de bande passante mais plus de sauts"},
+      {"id":"res_ccp4_q28","difficulty":"normal","question":"Quelle est la distance administrative d'une route statique ?","options":[{"text":"0","correct":false},{"text":"1","correct":true},{"text":"90","correct":false},{"text":"110","correct":false}],"explication":"<strong>Distance administrative (AD)</strong> = Fiabilité de la source de routage :<br>Source — AD<br>Interface directement connectée — <strong>0</strong><br>Route statique — <strong>1</strong><br>EIGRP — 90<br>OSPF — 110<br>RIP — 120<br>Externe — 255 (non fiable)<br><strong>Règle</strong> : Plus l'AD est faible, plus la route est prioritaire"},
+      {"id":"res_ccp4_q29","difficulty":"normal","question":"BGP est principalement utilisé pour :","options":[{"text":"Le routage interne dans une entreprise","correct":false},{"text":"Le routage entre systèmes autonomes sur Internet","correct":true},{"text":"La configuration des VLAN","correct":false},{"text":"La gestion des adresses IP","correct":false}],"explication":"<strong>BGP (Border Gateway Protocol)</strong> :<br>• Protocole de routage <strong>EXTERNE</strong> (EGP)<br>• Utilisé entre <strong>Systèmes Autonomes (AS)</strong> sur Internet<br>• Protocole <strong>path-vector</strong><br>• Port TCP <strong>179</strong><br><strong>Types de BGP</strong> :<br>• <strong>eBGP</strong> : Entre AS différents<br>• <strong>iBGP</strong> : Au sein d'un même AS"},
+      {"id":"res_ccp4_q30","difficulty":"normal","question":"Quel est le rôle principal du protocole STP ?","options":[{"text":"Accélérer le réseau","correct":false},{"text":"Éviter les boucles dans un réseau de switchs","correct":true},{"text":"Créer des VLAN","correct":false},{"text":"Sécuriser les communications","correct":false}],"explication":"<strong>STP (Spanning Tree Protocol - 802.1D)</strong> :<br>• Évite les <strong>boucles</strong> dans un réseau de switchs<br>• Bloque des ports redondants<br>• Élit un <strong>root bridge</strong> (switch racine)<br><strong>Évolutions</strong> :<br>• <strong>RSTP</strong> (802.1w) : Convergence rapide<br>• <strong>PVST+</strong> : STP par VLAN (Cisco)<br><strong>États des ports STP</strong> :<br>• Blocking, Listening, Learning, Forwarding, Disabled"},
+      {"id":"res_ccp4_q31","difficulty":"normal","question":"Quel port TCP utilise SSH par défaut ?","options":[{"text":"21","correct":false},{"text":"22","correct":true},{"text":"23","correct":false},{"text":"25","correct":false}],"explication":"<strong>SSH (Secure Shell)</strong> :<br>• Port <strong>TCP 22</strong><br>• Remplace Telnet (non sécurisé)<br>• <strong>Chiffré</strong> (connexion sécurisée)<br>• Authentification par mot de passe ou clés<br><strong>Version recommandée</strong> : SSHv2 (SSHv1 obsolète)"},
+      {"id":"res_ccp4_q32","difficulty":"normal","question":"Quels ports TCP utilise le protocole FTP ?","options":[{"text":"20 et 21","correct":true},{"text":"22 et 23","correct":false},{"text":"80 et 443","correct":false},{"text":"25 et 110","correct":false}],"explication":"<strong>FTP (File Transfer Protocol)</strong> utilise <strong>2 ports TCP</strong> :<br>• Port <strong>21</strong> : Canal de contrôle (commandes)<br>• Port <strong>20</strong> : Canal de données (transfert de fichiers)<br><strong>Modes FTP</strong> :<br>• <strong>Actif</strong> : Serveur se connecte au client (port 20)<br>• <strong>Passif</strong> : Client se connecte au serveur (port dynamique)<br><strong>FTPS</strong> = FTP + SSL/TLS (ports 989/990)"},
+      {"id":"res_ccp4_q33","difficulty":"normal","question":"Le protocole SMTP utilise le port TCP :","options":[{"text":"21","correct":false},{"text":"23","correct":false},{"text":"25","correct":true},{"text":"110","correct":false}],"explication":"<strong>SMTP (Simple Mail Transfer Protocol)</strong> :<br>• Port <strong>TCP 25</strong><br>• Utilisé pour <strong>ENVOYER</strong> des emails<br>• Serveur vers serveur<br><strong>Autres ports email</strong> :<br>• SMTP sécurisé : TCP 587 (STARTTLS)<br>• SMTPS : TCP 465 (SSL/TLS)"},
+      {"id":"res_ccp4_q34","difficulty":"normal","question":"Quelle différence entre POP3 et IMAP ?","options":[{"text":"POP3 télécharge les emails et les supprime du serveur par défaut","correct":true},{"text":"IMAP est plus ancien que POP3","correct":false},{"text":"POP3 synchronise les emails sur tous les appareils","correct":false},{"text":"IMAP ne peut pas gérer plusieurs dossiers","correct":false}],"explication":"<strong>POP3 (Post Office Protocol v3)</strong> :<br>• Port <strong>TCP 110</strong><br>• <strong>Télécharge</strong> les emails et <strong>les supprime du serveur</strong> par défaut<br>• Emails stockés <strong>localement</strong><br>• Pas de synchronisation multi-appareils<br><strong>IMAP (Internet Message Access Protocol)</strong> :<br>• Port <strong>TCP 143</strong><br>• <strong>Synchronise</strong> les emails sur tous les appareils<br>• Emails restent sur le serveur<br>• Gestion de dossiers<br><strong>POP3S</strong> : TCP 995 (SSL/TLS)<br><strong>IMAPS</strong> : TCP 993 (SSL/TLS)"},
+      {"id":"res_ccp4_q35","difficulty":"normal","question":"Quel est le principal défaut de Telnet ?","options":[{"text":"Il est trop lent","correct":false},{"text":"Il transmet les données en clair (non chiffré)","correct":true},{"text":"Il ne fonctionne que sur Windows","correct":false},{"text":"Il ne permet pas l'administration à distance","correct":false}],"explication":"<strong>Telnet</strong> :<br>• Port <strong>TCP 23</strong><br>• <strong>NON CHIFFRÉ</strong>  → Mots de passe visibles en clair !<br>• Obsolète, remplacé par <strong>SSH</strong><br><strong>Comparaison</strong> :<br>• Telnet : Non sécurisé, TCP 23<br>• SSH : Chiffré, TCP 22"},
+      {"id":"res_ccp4_q36","difficulty":"normal","question":"SNMP utilise quels ports UDP ?","options":[{"text":"161 et 162","correct":true},{"text":"160 et 161","correct":false},{"text":"163 et 164","correct":false},{"text":"165 et 166","correct":false}],"explication":"<strong>SNMP (Simple Network Management Protocol)</strong> :<br>• Port <strong>UDP 161</strong> : Requêtes/réponses (agent SNMP)<br>• Port <strong>UDP 162</strong> : Traps (alertes envoyées par l'agent)<br><strong>Versions SNMP</strong> :<br>• SNMPv1 : Pas de sécurité<br>• SNMPv2c : Community strings<br>• <strong>SNMPv3</strong> : Authentification + chiffrement (recommandé)"},
+      {"id":"res_ccp4_q37","difficulty":"normal","question":"Quel est le rôle du protocole NTP ?","options":[{"text":"Transférer des fichiers","correct":false},{"text":"Synchroniser l'heure entre équipements","correct":true},{"text":"Gérer les noms de domaine","correct":false},{"text":"Surveiller le réseau","correct":false}],"explication":"<strong>NTP (Network Time Protocol)</strong> :<br>• Port <strong>UDP 123</strong><br>• <strong>Synchronise l'horloge</strong> des équipements réseau<br>• Important pour les logs, certificats, Kerberos<br><strong>Stratum</strong> : Niveau de distance de la source de temps :<br>• Stratum 0 : Horloge atomique<br>• Stratum 1 : Serveurs connectés à stratum 0<br>• Stratum 2 : Serveurs synchronisés avec stratum 1"},
+      {"id":"res_ccp4_q38","difficulty":"normal","question":"TFTP utilise quel protocole de transport ?","options":[{"text":"TCP","correct":false},{"text":"UDP","correct":true},{"text":"ICMP","correct":false},{"text":"ARP","correct":false}],"explication":"<strong>TFTP (Trivial File Transfer Protocol)</strong> :<br>• Protocole de transport : <strong>UDP</strong><br>• Port <strong>UDP 69</strong><br>• <strong>Pas d'authentification</strong><br>• Utilisé pour transferts simples (backup configs Cisco, boot PXE)<br><strong>Comparaison</strong> :<br>• FTP : TCP 20/21, authentification<br>• TFTP : UDP 69, pas d'auth, plus simple"},
+      {"id":"res_ccp4_q39","difficulty":"normal","question":"Quelle est la taille MTU (Maximum Transmission Unit) par défaut sur Ethernet ?","options":[{"text":"1024 octets","correct":false},{"text":"1500 octets","correct":true},{"text":"2000 octets","correct":false},{"text":"4096 octets","correct":false}],"explication":"<strong>MTU (Maximum Transmission Unit)</strong> :<br>• MTU par défaut Ethernet : <strong>1500 octets</strong><br>• MTU IPv4 min : 576 octets<br>• MTU IPv6 min : 1280 octets<br><strong>Jumbo Frames</strong> : MTU jusqu'à 9000 octets (réseaux spécialisés)<br><strong>Fragmentation</strong> : Si paquet &gt; MTU, il est fragmenté"},
+      {"id":"res_ccp4_q40","difficulty":"normal","question":"La QoS (Quality of Service) permet de :","options":[{"text":"Augmenter la vitesse du réseau","correct":false},{"text":"Prioriser certains types de trafic","correct":true},{"text":"Chiffrer les données","correct":false},{"text":"Créer des sous-réseaux","correct":false}],"explication":"<strong>QoS (Quality of Service)</strong> :<br>• <strong>Priorise certains types de trafic</strong><br>• Garantit bande passante, latence, gigue (jitter)<br>• Critique pour VoIP, vidéo<br><strong>Mécanismes QoS</strong> :<br>• <strong>Classification</strong> : Identifier le trafic (DSCP, CoS)<br>• <strong>Marquage</strong> : Étiqueter les paquets<br>• <strong>Policing</strong> : Limiter le débit<br>• <strong>Shaping</strong> : Lisser le trafic<br>• <strong>Queuing</strong> : Files d'attente prioritaires<br><strong>Classes de trafic</strong> :<br>• <strong>Voix</strong> : Priorité maximale (faible latence)<br>• <strong>Vidéo</strong> : Haute priorité<br>• <strong>Données critiques</strong> : Priorité moyenne<br>• <strong>Best Effort</strong> : Pas de garantie"},
+      /* RESEAUX_QCM */
     ],
     linux_cli: true,
     windows_cli: true,
@@ -3407,8 +5472,895 @@ const MODULES = [
           { type: 'code', content: '! ============================================================\n! DHCP SNOOPING -- PROTECTION CONTRE LES DHCP PIRATES\n! ============================================================\n! Empêche un PC ou serveur non autorisé de répondre aux requêtes DHCP\n\n! Activer DHCP Snooping globalement\nSW1(config)# ip dhcp snooping\nSW1(config)# ip dhcp snooping vlan 10,20,30  ! Sur les VLANs concernés\n\n! Déclarer les ports "trusted" (vers les vrais serveurs DHCP)\nSW1(config)# interface GigabitEthernet0/1   ! Port vers le serveur DHCP\nSW1(config-if)# ip dhcp snooping trust\nSW1(config-if)# exit\n\n! Tous les autres ports sont "untrusted" par défaut\n! -> Les réponses DHCP des clients sont bloquées\n\n! Limiter le débit DHCP (anti-DHCP starvation)\nSW1(config)# interface FastEthernet0/5\nSW1(config-if)# ip dhcp snooping limit rate 15  ! Max 15 paquets DHCP/sec\n\nshow ip dhcp snooping\nshow ip dhcp snooping binding\n! MacAddress       IpAddress     Lease  Type          Vlan Interface\n! 00:1A:2B:3C:4D:5E 192.168.1.50 86400  dhcp-snooping 10   Fa0/5\n\n! ============================================================\n! DYNAMIC ARP INSPECTION (DAI) -- PROTECTION ARP SPOOFING\n! ============================================================\n! Vérifie que les paquets ARP correspondent aux bindings DHCP Snooping\n\n! Prérequis : DHCP Snooping activé (pour la base de binding)\n\nSW1(config)# ip arp inspection vlan 10,20,30\n\n! Port trusted (uplinks vers d\'autres switches ou routeurs)\nSW1(config)# interface GigabitEthernet0/1\nSW1(config-if)# ip arp inspection trust\n\n! Limiter les requêtes ARP (anti-flood)\nSW1(config)# interface FastEthernet0/5\nSW1(config-if)# ip arp inspection limit rate 100  ! 100 ARP/sec max\n\nshow ip arp inspection\nshow ip arp inspection vlan 10\nshow ip arp inspection statistics\n\n! ============================================================\n! IP SOURCE GUARD -- PROTECTION IP SPOOFING\n! ============================================================\n! Vérifie que l\'IP source correspond au binding DHCP Snooping\n\nSW1(config)# interface FastEthernet0/5\nSW1(config-if)# ip verify source   ! Vérifier IP source\n! OU :\nSW1(config-if)# ip verify source port-security  ! Vérifier IP ET MAC\n\nshow ip verify source\n\n! ============================================================\n! STORM CONTROL -- PROTECTION CONTRE LES TEMPÊTES DE BROADCAST\n! ============================================================\n\nSW1(config)# interface FastEthernet0/5\nSW1(config-if)# storm-control broadcast level 20.00   ! Max 20% du lien\nSW1(config-if)# storm-control multicast level 10.00   ! Max 10%\nSW1(config-if)# storm-control unicast level 80.00     ! Max 80%\nSW1(config-if)# storm-control action shutdown         ! Ou trap\n\nshow storm-control\nshow storm-control FastEthernet0/5\n\n! ============================================================\n! SYSLOG SUR CISCO\n! ============================================================\n\nR1(config)# logging host 192.168.1.100   ! Serveur syslog\nR1(config)# logging trap informational   ! Niveau minimum\nR1(config)# logging source-interface Loopback0  ! IP source fixe\nR1(config)# service timestamps log datetime msec show-timezone\nR1(config)# logging buffered 65536       ! Buffer local 64Ko\n\n! Niveaux syslog :\n! 0 emergencies  1 alerts  2 critical  3 errors\n! 4 warnings     5 notices 6 informational 7 debugging\n\n! Voir les logs locaux\nshow logging\nshow logging | include %SEC  ! Filtrer les messages de sécurité\n\n! ============================================================\n! IOS ZONE-BASED FIREWALL\n! ============================================================\n! Pare-feu stateful intégré dans IOS\n! Plus moderne que CBAC\n\n! Définir les zones\nR1(config)# zone security INSIDE\nR1(config)# zone security OUTSIDE\nR1(config)# zone security DMZ\n\n! Assigner les interfaces aux zones\nR1(config)# interface GigabitEthernet0/0\nR1(config-if)# zone-member security INSIDE\n\nR1(config)# interface GigabitEthernet0/1\nR1(config-if)# zone-member security OUTSIDE\n\nR1(config)# interface GigabitEthernet0/2\nR1(config-if)# zone-member security DMZ\n\n! Définir les class-maps (traffic à inspecter)\nR1(config)# class-map type inspect match-any WEB-TRAFFIC\nR1(config-cmap)# match protocol http\nR1(config-cmap)# match protocol https\nR1(config-cmap)# match protocol dns\n\n! Définir la policy-map\nR1(config)# policy-map type inspect INSIDE-TO-OUTSIDE\nR1(config-pmap)# class type inspect WEB-TRAFFIC\nR1(config-pmap-c)# inspect      ! Suivi stateful de ces protocols\nR1(config-pmap-c)# exit\nR1(config-pmap)# class class-default\nR1(config-pmap-c)# drop log     ! Bloquer et loguer le reste\n\n! Créer la zone-pair et appliquer la policy\nR1(config)# zone-pair security INSIDE-OUTSIDE source INSIDE destination OUTSIDE\nR1(config-sec-zone-pair)# service-policy type inspect INSIDE-TO-OUTSIDE\n\nshow policy-map type inspect zone-pair\nshow zone-pair security\nshow policy-firewall stats' },
         ],
       },
+      {
+        "id": "ccp4-cisco-ios-enrich",
+        "titre": "CCP4 — Commandes Cisco IOS (Fiche de révision)",
+        "sections": [
+          {
+            "type": "h2",
+            "content": "Routeurs et Switchs - Commandes de base pour l'examen"
+          },
+          {
+            "type": "info",
+            "content": "<strong>Pour l'examen</strong> : Connais les commandes de configuration de base, VLAN, routage statique, SSH, et sauvegarde !"
+          },
+          {
+            "type": "h2",
+            "content": "TABLE DES MATIÈRES"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "Modes d'utilisation",
+              "Commandes de base",
+              "Configuration initiale",
+              "Interface et IP",
+              "VLAN (Switch)",
+              "Routage statique",
+              "SSH et Telnet",
+              "Sauvegarde et restauration",
+              "Diagnostic réseau",
+              "Commandes TOP 20 pour l'examen"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "MODES D'UTILISATION <a id=\"modes\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "1. Mode Utilisateur (User EXEC)"
+          },
+          {
+            "type": "code",
+            "content": "Router>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : Par défaut à la connexion",
+              "<strong>Droits</strong> : Consultation uniquement",
+              "<strong>Commandes</strong> : <code>show</code>, <code>ping</code>, <code>traceroute</code>"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "2. Mode Privilégié (Privileged EXEC)"
+          },
+          {
+            "type": "code",
+            "content": "Router#"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : <code>Router&gt; enable</code>",
+              "<strong>Droits</strong> : Toutes les commandes show + commandes de debug",
+              "<strong>Commandes</strong> : Tous les <code>show</code>, <code>debug</code>, <code>copy</code>, <code>reload</code>"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "3. Mode Configuration Globale"
+          },
+          {
+            "type": "code",
+            "content": "Router(config)#"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : <code>Router# configure terminal</code> (ou <code>conf t</code>)",
+              "<strong>Droits</strong> : Configuration du routeur/switch",
+              "<strong>Commandes</strong> : Hostname, mots de passe, interfaces, routage"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "4. Mode Configuration d'Interface"
+          },
+          {
+            "type": "code",
+            "content": "Router(config-if)#"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : <code>Router(config)# interface FastEthernet0/0</code>",
+              "<strong>Droits</strong> : Configuration d'une interface spécifique"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "5. Mode Configuration de Ligne"
+          },
+          {
+            "type": "code",
+            "content": "Router(config-line)#"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : <code>Router(config)# line vty 0 4</code>",
+              "<strong>Droits</strong> : Configuration des lignes de connexion (console, VTY)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "COMMANDES DE BASE <a id=\"base\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Navigation entre modes"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Commande",
+              "Action"
+            ],
+            "rows": [
+              [
+                "<code>enable</code>",
+                "User → Privileged"
+              ],
+              [
+                "<code>configure terminal</code> (ou <code>conf t</code>)",
+                "Privileged → Config globale"
+              ],
+              [
+                "<code>interface &lt;nom&gt;</code>",
+                "Config globale → Config interface"
+              ],
+              [
+                "<code>line console 0</code> / <code>line vty 0 4</code>",
+                "Config globale → Config ligne"
+              ],
+              [
+                "<code>exit</code>",
+                "Retour au mode précédent"
+              ],
+              [
+                "<code>end</code>",
+                "Retour direct au mode Privileged"
+              ],
+              [
+                "<code>disable</code>",
+                "Privileged → User"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Aide et complétion"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Commande",
+              "Action"
+            ],
+            "rows": [
+              [
+                "<code>?</code>",
+                "Liste des commandes disponibles"
+              ],
+              [
+                "<code>sh?</code>",
+                "Commandes commençant par \"sh\""
+              ],
+              [
+                "<code>show ?</code>",
+                "Options de la commande show"
+              ],
+              [
+                "<code>Tab</code>",
+                "Auto-complétion"
+              ],
+              [
+                "<code>Ctrl+C</code>",
+                "Interruption de commande"
+              ],
+              [
+                "<code>Ctrl+Z</code>",
+                "Retour au mode Privileged"
+              ]
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "CONFIGURATION INITIALE <a id=\"config\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Nom du routeur/switch"
+          },
+          {
+            "type": "code",
+            "content": "Router> enable\nRouter# configure terminal\nRouter(config)# hostname R1\nR1(config)#"
+          },
+          {
+            "type": "h3",
+            "content": "Mot de passe ENABLE (mode privilégié)"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# enable secret Cisco123!"
+          },
+          {
+            "type": "info",
+            "content": "⚠️ <code>enable secret</code> est <strong>chiffré</strong> (MD5), préférable à <code>enable password</code>"
+          },
+          {
+            "type": "h3",
+            "content": "Mot de passe Console"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# line console 0\nR1(config-line)# password Console123\nR1(config-line)# login\nR1(config-line)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Mot de passe VTY (Telnet/SSH)"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# line vty 0 4\nR1(config-line)# password VTY123\nR1(config-line)# login\nR1(config-line)# transport input ssh telnet\nR1(config-line)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Bannière de connexion"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# banner motd #\nAccès réservé au personnel autorisé !\n#"
+          },
+          {
+            "type": "h3",
+            "content": "Chiffrement des mots de passe"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# service password-encryption"
+          },
+          {
+            "type": "info",
+            "content": "Chiffre tous les mots de passe en clair (type 7 - faible)"
+          },
+          {
+            "type": "h2",
+            "content": "CONFIGURATION INTERFACE ET IP <a id=\"interface\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Configurer une IP sur une interface"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Routeur</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# interface GigabitEthernet0/0\nR1(config-if)# ip address 192.168.1.1 255.255.255.0\nR1(config-if)# description LAN-ADMIN\nR1(config-if)# no shutdown\nR1(config-if)# exit"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Switch (VLAN 1 par défaut)</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# interface vlan 1\nSW1(config-if)# ip address 192.168.1.10 255.255.255.0\nSW1(config-if)# no shutdown\nSW1(config-if)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Passerelle par défaut (Switch uniquement)"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# ip default-gateway 192.168.1.1"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier la configuration"
+          },
+          {
+            "type": "code",
+            "content": "R1# show ip interface brief\nR1# show interfaces GigabitEthernet0/0\nR1# show ip route"
+          },
+          {
+            "type": "h2",
+            "content": "VLAN (SWITCH UNIQUEMENT) <a id=\"vlan\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Créer un VLAN"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# vlan 10\nSW1(config-vlan)# name ADMIN\nSW1(config-vlan)# exit\n\nSW1(config)# vlan 20\nSW1(config-vlan)# name USERS\nSW1(config-vlan)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Assigner un port à un VLAN (mode Access)"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# interface FastEthernet0/5\nSW1(config-if)# switchport mode access\nSW1(config-if)# switchport access vlan 10\nSW1(config-if)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Configurer un port Trunk (inter-switch ou switch-routeur)"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# interface GigabitEthernet0/1\nSW1(config-if)# switchport mode trunk\nSW1(config-if)# switchport trunk allowed vlan 10,20,30\nSW1(config-if)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier les VLAN"
+          },
+          {
+            "type": "code",
+            "content": "SW1# show vlan brief\nSW1# show interfaces trunk\nSW1# show interfaces FastEthernet0/5 switchport"
+          },
+          {
+            "type": "h3",
+            "content": "Supprimer un VLAN"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# no vlan 10"
+          },
+          {
+            "type": "h2",
+            "content": "ROUTAGE STATIQUE <a id=\"routage\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Route statique classique"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route <réseau_destination> <masque> <next_hop_ou_interface>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple 1</strong> : Via next-hop"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2"
+          },
+          {
+            "type": "info",
+            "content": "Route vers 192.168.2.0/24 via le routeur 10.0.0.2"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple 2</strong> : Via interface de sortie"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 192.168.3.0 255.255.255.0 GigabitEthernet0/1"
+          },
+          {
+            "type": "h3",
+            "content": "Route par défaut (default route)"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 0.0.0.0 0.0.0.0 <next_hop>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 0.0.0.0 0.0.0.0 200.100.50.1"
+          },
+          {
+            "type": "info",
+            "content": "Toutes les destinations inconnues → 200.100.50.1"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier les routes"
+          },
+          {
+            "type": "code",
+            "content": "R1# show ip route\nR1# show ip route static"
+          },
+          {
+            "type": "h3",
+            "content": "Supprimer une route"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# no ip route 192.168.2.0 255.255.255.0 10.0.0.2"
+          },
+          {
+            "type": "h2",
+            "content": "SSH ET TELNET <a id=\"ssh\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Configuration SSH (VERSION 2 RECOMMANDÉE)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 1</strong> : Nom d'hôte et domaine"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# hostname R1\nR1(config)# ip domain-name entreprise.local"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 2</strong> : Générer les clés RSA"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# crypto key generate rsa\nHow many bits in the modulus [512]: 1024"
+          },
+          {
+            "type": "info",
+            "content": "⚠️ Minimum 768 bits pour SSHv2, <strong>1024 bits recommandé</strong>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 3</strong> : Créer un utilisateur local"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# username admin privilege 15 secret AdminPass123!"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 4</strong> : Configurer les lignes VTY"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# line vty 0 4\nR1(config-line)# transport input ssh\nR1(config-line)# login local\nR1(config-line)# exit"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 5</strong> : Forcer SSH version 2"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip ssh version 2\nR1(config)# ip ssh time-out 60\nR1(config)# ip ssh authentication-retries 3"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier SSH"
+          },
+          {
+            "type": "code",
+            "content": "R1# show ip ssh\nR1# show ssh"
+          },
+          {
+            "type": "h3",
+            "content": "Se connecter en SSH (depuis un autre équipement)"
+          },
+          {
+            "type": "code",
+            "content": "R1# ssh -l admin 192.168.1.1"
+          },
+          {
+            "type": "h2",
+            "content": "SAUVEGARDE ET RESTAURATION <a id=\"sauvegarde\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Voir les configurations"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Commande",
+              "Description"
+            ],
+            "rows": [
+              [
+                "<code>show running-config</code>",
+                "Config active (RAM)"
+              ],
+              [
+                "<code>show startup-config</code>",
+                "Config de démarrage (NVRAM)"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Sauvegarder la configuration"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Méthode 1</strong> : Commande classique"
+          },
+          {
+            "type": "code",
+            "content": "R1# copy running-config startup-config\nDestination filename [startup-config]? [Entrée]"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Méthode 2</strong> : Commande courte"
+          },
+          {
+            "type": "code",
+            "content": "R1# write memory"
+          },
+          {
+            "type": "p",
+            "content": "ou"
+          },
+          {
+            "type": "code",
+            "content": "R1# wr"
+          },
+          {
+            "type": "h3",
+            "content": "Restaurer la configuration de démarrage"
+          },
+          {
+            "type": "code",
+            "content": "R1# copy startup-config running-config"
+          },
+          {
+            "type": "h3",
+            "content": "Effacer la configuration"
+          },
+          {
+            "type": "code",
+            "content": "R1# erase startup-config\nR1# reload"
+          },
+          {
+            "type": "info",
+            "content": "⚠️ <strong>reload</strong> redémarre l'équipement"
+          },
+          {
+            "type": "h3",
+            "content": "Sauvegarder vers un serveur TFTP"
+          },
+          {
+            "type": "code",
+            "content": "R1# copy running-config tftp:\nAddress or name of remote host []? 192.168.1.100\nDestination filename [r1-confg]? backup-r1.cfg"
+          },
+          {
+            "type": "h3",
+            "content": "Restaurer depuis un serveur TFTP"
+          },
+          {
+            "type": "code",
+            "content": "R1# copy tftp: running-config\nAddress or name of remote host []? 192.168.1.100\nSource filename []? backup-r1.cfg"
+          },
+          {
+            "type": "h2",
+            "content": "DIAGNOSTIC RÉSEAU <a id=\"diagnostic\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes de vérification"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Commande",
+              "Usage"
+            ],
+            "rows": [
+              [
+                "<code>show version</code>",
+                "Version IOS, uptime, mémoire"
+              ],
+              [
+                "<code>show running-config</code>",
+                "Configuration active"
+              ],
+              [
+                "<code>show startup-config</code>",
+                "Configuration sauvegardée"
+              ],
+              [
+                "<code>show ip interface brief</code>",
+                "<strong>ESSENTIEL</strong> - État des interfaces"
+              ],
+              [
+                "<code>show interfaces</code>",
+                "Détails de toutes les interfaces"
+              ],
+              [
+                "<code>show ip route</code>",
+                "<strong>ESSENTIEL</strong> - Table de routage"
+              ],
+              [
+                "<code>show vlan brief</code>",
+                "Liste des VLAN (switch)"
+              ],
+              [
+                "<code>show mac address-table</code>",
+                "Table MAC (switch)"
+              ],
+              [
+                "<code>show arp</code>",
+                "Table ARP"
+              ],
+              [
+                "<code>show ip protocols</code>",
+                "Protocoles de routage actifs"
+              ],
+              [
+                "<code>show clock</code>",
+                "Date et heure"
+              ],
+              [
+                "<code>show flash</code>",
+                "Contenu de la mémoire Flash"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Tests de connectivité"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Ping</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "R1# ping 192.168.1.10\nR1# ping 192.168.1.10 repeat 100\nR1# ping 192.168.1.10 size 1500"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Traceroute</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "R1# traceroute 8.8.8.8"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Telnet</strong> (test de port) :"
+          },
+          {
+            "type": "code",
+            "content": "R1# telnet 192.168.1.10 80"
+          },
+          {
+            "type": "h3",
+            "content": "Debug (avec précaution !)"
+          },
+          {
+            "type": "code",
+            "content": "R1# debug ip icmp\nR1# debug ip routing\nR1# no debug all  ← TOUJOURS arrêter le debug !"
+          },
+          {
+            "type": "info",
+            "content": "⚠️ Le debug peut saturer le CPU en production"
+          },
+          {
+            "type": "h2",
+            "content": "TOP 20 COMMANDES POUR L'EXAMEN <a id=\"top20\"></a>"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "#",
+              "Commande",
+              "Usage"
+            ],
+            "rows": [
+              [
+                "1",
+                "<code>enable</code>",
+                "Passer en mode privilégié"
+              ],
+              [
+                "2",
+                "<code>configure terminal</code>",
+                "Entrer en mode config"
+              ],
+              [
+                "3",
+                "<code>hostname &lt;nom&gt;</code>",
+                "Changer le nom"
+              ],
+              [
+                "4",
+                "<code>enable secret &lt;mdp&gt;</code>",
+                "Mot de passe enable chiffré"
+              ],
+              [
+                "5",
+                "<code>interface &lt;nom&gt;</code>",
+                "Configurer une interface"
+              ],
+              [
+                "6",
+                "<code>ip address &lt;IP&gt; &lt;masque&gt;</code>",
+                "Assigner une IP"
+              ],
+              [
+                "7",
+                "<code>no shutdown</code>",
+                "Activer une interface"
+              ],
+              [
+                "8",
+                "<code>ip route &lt;réseau&gt; &lt;masque&gt; &lt;next_hop&gt;</code>",
+                "Route statique"
+              ],
+              [
+                "9",
+                "<code>show ip interface brief</code>",
+                "<strong>État des interfaces</strong>"
+              ],
+              [
+                "10",
+                "<code>show ip route</code>",
+                "<strong>Table de routage</strong>"
+              ],
+              [
+                "11",
+                "<code>show running-config</code>",
+                "Config active"
+              ],
+              [
+                "12",
+                "<code>copy running-config startup-config</code>",
+                "<strong>Sauvegarder</strong>"
+              ],
+              [
+                "13",
+                "<code>vlan &lt;numéro&gt;</code>",
+                "Créer un VLAN"
+              ],
+              [
+                "14",
+                "<code>switchport mode access</code>",
+                "Port en mode access"
+              ],
+              [
+                "15",
+                "<code>switchport access vlan &lt;n&gt;</code>",
+                "Assigner VLAN"
+              ],
+              [
+                "16",
+                "<code>switchport mode trunk</code>",
+                "Port en mode trunk"
+              ],
+              [
+                "17",
+                "<code>line vty 0 4</code>",
+                "Config lignes SSH/Telnet"
+              ],
+              [
+                "18",
+                "<code>transport input ssh</code>",
+                "Autoriser SSH"
+              ],
+              [
+                "19",
+                "<code>ping &lt;IP&gt;</code>",
+                "Test connectivité"
+              ],
+              [
+                "20",
+                "<code>reload</code>",
+                "Redémarrer"
+              ]
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "SCÉNARIOS D'EXAMEN FRÉQUENTS"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 1 : Configuration initiale routeur"
+          },
+          {
+            "type": "code",
+            "content": "Router> enable\nRouter# configure terminal\nRouter(config)# hostname R1\nR1(config)# enable secret Cisco123!\nR1(config)# line console 0\nR1(config-line)# password Console123\nR1(config-line)# login\nR1(config-line)# exit\nR1(config)# interface GigabitEthernet0/0\nR1(config-if)# ip address 192.168.1.1 255.255.255.0\nR1(config-if)# no shutdown\nR1(config-if)# exit\nR1(config)# exit\nR1# copy running-config startup-config"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 2 : Configuration VLAN sur switch"
+          },
+          {
+            "type": "code",
+            "content": "SW1# configure terminal\nSW1(config)# vlan 10\nSW1(config-vlan)# name ADMIN\nSW1(config-vlan)# exit\nSW1(config)# vlan 20\nSW1(config-vlan)# name USERS\nSW1(config-vlan)# exit\nSW1(config)# interface FastEthernet0/5\nSW1(config-if)# switchport mode access\nSW1(config-if)# switchport access vlan 10\nSW1(config-if)# exit\nSW1(config)# interface GigabitEthernet0/1\nSW1(config-if)# switchport mode trunk\nSW1(config-if)# exit\nSW1# write memory"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 3 : Configuration SSH"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# hostname R1\nR1(config)# ip domain-name lab.local\nR1(config)# crypto key generate rsa\n[1024]\nR1(config)# username admin privilege 15 secret Admin123!\nR1(config)# line vty 0 4\nR1(config-line)# transport input ssh\nR1(config-line)# login local\nR1(config-line)# exit\nR1(config)# ip ssh version 2"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 4 : Routage statique"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2\nR1(config)# ip route 192.168.3.0 255.255.255.0 10.0.0.2\nR1(config)# ip route 0.0.0.0 0.0.0.0 200.50.100.1\nR1(config)# exit\nR1# show ip route"
+          },
+          {
+            "type": "h2",
+            "content": "ASTUCES POUR L'EXAMEN"
+          },
+          {
+            "type": "h3",
+            "content": "À RETENIR ABSOLUMENT"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>no shutdown</strong> après config d'interface (sinon reste down)",
+              "<strong>copy run start</strong> pour sauvegarder (sinon perdu au reboot)",
+              "<strong>enable secret</strong> est chiffré, <strong>enable password</strong> non",
+              "<strong>SSH nécessite</strong> : hostname + domain-name + crypto key + user local",
+              "<strong>Mode trunk</strong> = plusieurs VLANs, <strong>mode access</strong> = un seul VLAN",
+              "<strong>ip default-gateway</strong> sur switch, <strong>ip route 0.0.0.0 0.0.0.0</strong> sur routeur"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "ERREURS FRÉQUENTES"
+          },
+          {
+            "type": "p",
+            "content": "❌ Oublier <code>no shutdown</code> → interface reste down   ❌ Oublier <code>copy run start</code> → config perdue au reboot   ❌ Confondre <code>transport input ssh</code> et <code>transport input telnet</code>   ❌ Oublier <code>login</code> ou <code>login local</code> sur line vty → connexion refusée   ❌ Mauvais masque de sous-réseau   ❌ Route statique sans next-hop"
+          },
+          {
+            "type": "h2",
+            "content": "CHECKLIST AVANT L'EXAMEN"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "[ ] Je connais les 5 modes (User, Privileged, Config, Interface, Line)",
+              "[ ] Je sais configurer une IP sur une interface",
+              "[ ] Je sais créer des VLAN et les assigner aux ports",
+              "[ ] Je sais configurer un port trunk",
+              "[ ] Je sais configurer une route statique",
+              "[ ] Je sais configurer SSH (hostname, domain, crypto, user, vty)",
+              "[ ] Je sais sauvegarder la config (<code>copy run start</code>)",
+              "[ ] Je connais les commandes <code>show ip interface brief</code> et <code>show ip route</code>",
+              "[ ] Je sais faire un ping et un traceroute",
+              "[ ] Je sais distinguer mode access et mode trunk"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>🚀 Tu es prêt pour les commandes Cisco IOS ! Passe au QCM Réseau maintenant !</strong>"
+          }
+        ]
+      },
+      /* CISCO_COURS */
     ],
     flashcards: [
+      {"id":"cis_ccp4_ex7","recto":"Exercice 7 — IP = 192.16.5.133/29<br><strong>Questions</strong> (TYPE EXAMEN) :<br>a) Combien de bits utilisés pour identifier la partie réseau ?<br>b) Combien de bits utilisés pour identifier la partie hôte ?<br>c) Combien de machines peut-on mettre dans ce sous-réseau ?<br>d) Adresse réseau ?<br>e) Adresse de broadcast ?","verso":"<strong>Résolution</strong> :<br>• /29 = 29 bits réseau, 3 bits hôtes<br>• Bloc = 256 - 248 = 8<br>• 133 ÷ 8 = 16 → 16 × 8 = <strong>128</strong><br><strong>Réponses</strong> :<br>• a) Bits réseau : <strong>29 bits</strong><br>• b) Bits hôtes : <strong>3 bits</strong><br>• c) Machines : <strong>6</strong> (2^3 - 2)<br>• d) Réseau : <strong>192.16.5.128</strong><br>• e) Broadcast : <strong>192.16.5.135</strong><br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex8","recto":"Exercice 8 — IP = 192.168.1.17/28<br><strong>Questions</strong> (TYPE EXAMEN) :<br>a) Calculez l'adresse réseau<br>b) Calculez l'adresse de diffusion (broadcast)<br>c) Première IP utilisable ?<br>d) Dernière IP utilisable ?","verso":"<strong>Résolution</strong> :<br>• /28, Bloc = 16<br>• 17 ÷ 16 = 1 → 1 × 16 = <strong>16</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>192.168.1.16</strong><br>• b) Broadcast : <strong>192.168.1.31</strong><br>• c) Première IP : <strong>192.168.1.17</strong><br>• d) Dernière IP : <strong>192.168.1.30</strong><br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex9","recto":"Exercice 9 — IP = 172.30.45.180/23<br><strong>Questions</strong> :<br>a) Masque de sous-réseau ?<br>b) Adresse réseau ?<br>c) Adresse broadcast ?<br>d) Nombre d'hôtes utilisables ?","verso":"<strong>Résolution</strong> :<br>• /23 = 255.255.254.0, Bloc = 2 (au 3ème octet)<br>• 45 ÷ 2 = 22 → 22 × 2 = <strong>44</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.254.0</strong><br>• b) Réseau : <strong>172.30.44.0</strong><br>• c) Broadcast : <strong>172.30.45.255</strong><br>• d) Hôtes : <strong>510</strong> (2^9 - 2)<br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex10","recto":"Exercice 10 — IP = 10.120.88.200/22<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Broadcast ?<br>c) Combien d'hôtes utilisables ?<br>d) À quelle classe appartient cette adresse ?","verso":"<strong>Résolution</strong> :<br>• /22 = 255.255.252.0, Bloc = 4<br>• 88 ÷ 4 = 22 → 22 × 4 = <strong>88</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>10.120.88.0</strong><br>• b) Broadcast : <strong>10.120.91.255</strong><br>• c) Hôtes : <strong>1022</strong> (2^10 - 2)<br>• d) Classe : <strong>A</strong><br><strong>Points</strong> : 5/5<br>## 🔴 NIVEAU 3 - AVANCÉ (Exercices 11-15)"},
+      {"id":"cis_ccp4_ex11","recto":"Exercice 11 — IP = 172.16.135.200/17<br><strong>Questions</strong> (TYPE EXAMEN) :<br>a) Masque de sous-réseau ?<br>b) Adresse réseau ?<br>c) Adresse broadcast ?<br>d) Nombre d'hôtes utilisables ?<br>e) Plage d'adresses IP complète ?","verso":"<strong>Résolution</strong> :<br>• /17 = 255.255.128.0, Bloc = 128<br>• 135 ÷ 128 = 1 → 1 × 128 = <strong>128</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.128.0</strong><br>• b) Réseau : <strong>172.16.128.0</strong><br>• c) Broadcast : <strong>172.16.255.255</strong><br>• d) Hôtes : <strong>32 766</strong> (2^15 - 2)<br>• e) Plage : <strong>172.16.128.0 - 172.16.255.255</strong><br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex12","recto":"Exercice 12 — IP = 10.45.78.92/21<br><strong>Questions</strong> (TYPE EXAMEN) :<br>a) Masque de sous-réseau ?<br>b) Adresse réseau ?<br>c) Broadcast ?<br>d) Nombre d'hôtes ?<br>e) Masque générique (wildcard) ?","verso":"<strong>Résolution</strong> :<br>• /21 = 255.255.248.0, Bloc = 8<br>• 78 ÷ 8 = 9 → 9 × 8 = <strong>72</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.248.0</strong><br>• b) Réseau : <strong>10.45.72.0</strong><br>• c) Broadcast : <strong>10.45.79.255</strong><br>• d) Hôtes : <strong>2046</strong> (2^11 - 2)<br>• e) Wildcard : <strong>0.0.7.255</strong> (255.255.255.255 - 255.255.248.0)<br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex13","recto":"Exercice 13 — IP = 192.168.50.75/19<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Adresse broadcast ?<br>c) Première IP utilisable ?<br>d) Dernière IP utilisable ?<br>e) Combien de sous-réseaux /24 peut-on créer dans ce /19 ?","verso":"<strong>Résolution</strong> :<br>• /19 = 255.255.224.0, Bloc = 32<br>• 50 ÷ 32 = 1 → 1 × 32 = <strong>32</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>192.168.32.0</strong><br>• b) Broadcast : <strong>192.168.63.255</strong><br>• c) Première IP : <strong>192.168.32.1</strong><br>• d) Dernière IP : <strong>192.168.63.254</strong><br>• e) Sous-réseaux /24 : <strong>32</strong> (2^(24-19) = 2^5)<br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex14","recto":"Exercice 14 — IP = 172.25.100.250/20<br><strong>Questions</strong> :<br>a) Masque ?<br>b) Adresse réseau ?<br>c) Broadcast ?<br>d) Nombre d'hôtes ?<br>e) L'IP 172.25.110.50 est-elle dans le même réseau ?","verso":"<strong>Résolution</strong> :<br>• /20 = 255.255.240.0, Bloc = 16<br>• 100 ÷ 16 = 6 → 6 × 16 = <strong>96</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.240.0</strong><br>• b) Réseau : <strong>172.25.96.0</strong><br>• c) Broadcast : <strong>172.25.111.255</strong><br>• d) Hôtes : <strong>4094</strong> (2^12 - 2)<br>• e) 172.25.110.50 : <strong>OUI</strong> (110 est entre 96 et 111)<br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex15","recto":"Exercice 15 — IP = 192.168.128.45/18<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Broadcast ?<br>c) Combien de réseaux /24 peut-on créer dans ce /18 ?<br>d) Quelle est la plage du 10ème sous-réseau /24 ?","verso":"<strong>Résolution</strong> :<br>• /18 = 255.255.192.0, Bloc = 64<br>• 128 ÷ 64 = 2 → 2 × 64 = <strong>128</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>192.168.128.0</strong><br>• b) Broadcast : <strong>192.168.191.255</strong><br>• c) Réseaux /24 : <strong>64</strong> (2^6)<br>• d) 10ème /24 : <strong>192.168.137.0/24</strong> (128 + 9 = 137)<br><strong>Points</strong> : 5/5<br>## ⚫ NIVEAU 4 - EXPERT (Exercices 16-20)"},
+      {"id":"cis_ccp4_ex16","recto":"Exercice 16 — VLSM - Découpage réseau<br><strong>Questions</strong> :<br>a) Quel CIDR utiliser pour chaque site ?<br>b) Donnez les plages d'adresses pour chaque site<br>c) Donnez les plages pour les 3 liens point-à-point","verso":"<strong>Résolution</strong> :<br>1. <strong>Site A (100 hôtes)</strong> :<br>• Besoin : 2^n ≥ 102 → n = 7 bits → /25<br>• <strong>192.168.1.0/25</strong> (0 à 127)<br>2. <strong>Site B (50 hôtes)</strong> :<br>• Besoin : 2^n ≥ 52 → n = 6 bits → /26<br>• <strong>192.168.1.128/26</strong> (128 à 191)<br>3. <strong>Site C (25 hôtes)</strong> :<br>• Besoin : 2^n ≥ 27 → n = 5 bits → /27<br>• <strong>192.168.1.192/27</strong> (192 à 223)<br>4. <strong>Site D (10 hôtes)</strong> :<br>• Besoin : 2^n ≥ 12 → n = 4 bits → /28<br>• <strong>192.168.1.224/28</strong> (224 à 239)<br>5. <strong>Liens point-à-point (2 hôtes)</strong> :<br>• /30 (4 adresses, 2 utilisables)<br>• <strong>Lien 1</strong> : 192.168.1.240/30 (240 à 243)<br>• <strong>Lien 2</strong> : 192.168.1.244/30 (244 à 247)<br>• <strong>Lien 3</strong> : 192.168.1.248/30 (248 à 251)<br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex17","recto":"Exercice 17 — VLSM Complexe<br><strong>Questions</strong> :<br>a) Quel CIDR pour 2000 hôtes ?<br>b) Quel CIDR pour 500 hôtes ?<br>c) Quel CIDR pour 50 hôtes ?<br>d) Est-ce que tout rentre dans le /16 ?","verso":"<strong>Résolution</strong> :<br><strong>a) 2000 hôtes</strong> :<br>• 2^n ≥ 2002 → n = 11 bits → <strong>/21</strong> (2046 hôtes)<br><strong>b) 500 hôtes</strong> :<br>• 2^n ≥ 502 → n = 9 bits → <strong>/23</strong> (510 hôtes)<br><strong>c) 50 hôtes</strong> :<br>• 2^n ≥ 52 → n = 6 bits → <strong>/26</strong> (62 hôtes)<br><strong>d) Calcul espace total</strong> :<br>• 10 × /21 = 10 × 2048 = 20 480 adresses<br>• 20 × /23 = 20 × 512 = 10 240 adresses<br>• 50 × /26 = 50 × 64 = 3 200 adresses<br>• <strong>Total</strong> : 33 920 adresses<br>• <strong>Disponible en /16</strong> : 65 536 adresses<br>• <strong>Réponse</strong> : <strong>OUI, ça rentre</strong> (reste ~31 616 adresses)<br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex18","recto":"Exercice 18 — Supernetting (Agrégation de routes)<br><strong>Questions</strong> :<br>a) Quelle est la route agrégée (supernet) minimale qui couvre ces 4 réseaux ?<br>b) Quel est le masque de cette route agrégée ?<br>c) Combien d'adresses au total dans ce supernet ?","verso":"<strong>Résolution</strong> :<br><strong>Analyse</strong> :<br>• 192.168.0.0/24 = 192.168.0.0<br>• 192.168.1.0/24 = 192.168.1.0<br>• 192.168.2.0/24 = 192.168.2.0<br>• 192.168.3.0/24 = 192.168.3.0<br><strong>Binaire 3ème octet</strong> :<br>• 0 = 00000000<br>• 1 = 00000001<br>• 2 = 00000010<br>• 3 = 00000011<br><strong>Bits communs</strong> : 6 premiers bits (000000)<br><strong>Réponses</strong> :<br>• a) Route agrégée : <strong>192.168.0.0/22</strong><br>• b) Masque : <strong>255.255.252.0</strong><br>• c) Adresses : <strong>1024</strong> (4 × 256)<br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex19","recto":"Exercice 19 — Problème d'examen avancé<br><strong>Questions</strong> :<br>a) Quelle est la représentation CIDR du VLAN originel ?<br>b) Représentez le découpage final (CIDR de chaque segment)<br>c) Quelles sont les différentes plages d'adresses ?<br>d) À quoi correspond la dernière adresse IP de chaque VLAN ?","verso":"<strong>Résolution</strong> :<br><strong>a) CIDR originel</strong> :<br>• 1022 hôtes utilisables → 2^10 - 2 = 1022<br>• Donc 2^10 adresses total = 1024<br>• <strong>192.168.0.0/22</strong> (0.0 à 3.255)<br><strong>b) Découpage</strong> :<br>• <strong>Segment 1</strong> (254) : 192.168.0.0/24 (CIDR /24)<br>• <strong>Segment 2</strong> (254) : 192.168.1.0/24 (CIDR /24)<br>• <strong>Segment 3</strong> (254) : 192.168.2.0/24 (CIDR /24)<br>• <strong>Segment 4</strong> (126) : 192.168.3.0/25 (CIDR /25)<br>• <strong>Segment 5</strong> (62) : 192.168.3.128/26 (CIDR /26)<br>• <strong>Segment 6</strong> (62) : 192.168.3.192/26 (CIDR /26)<br><strong>c) Plages</strong> :<br>• Seg 1 : 192.168.0.1 - 192.168.0.254<br>• Seg 2 : 192.168.1.1 - 192.168.1.254<br>• Seg 3 : 192.168.2.1 - 192.168.2.254<br>• Seg 4 : 192.168.3.1 - 192.168.3.126<br>• Seg 5 : 192.168.3.129 - 192.168.3.190<br>• Seg 6 : 192.168.3.193 - 192.168.3.254<br><strong>d) Dernière IP</strong> :<br>• Segment 1 : <strong>192.168.0.255</strong> (broadcast)<br>• Segment 2 : <strong>192.168.1.255</strong> (broadcast)<br>• Segment 3 : <strong>192.168.2.255</strong> (broadcast)<br>• Segment 4 : <strong>192.168.3.127</strong> (broadcast)<br>• Segment 5 : <strong>192.168.3.191</strong> (broadcast)<br>• Segment 6 : <strong>192.168.3.255</strong> (broadcast)<br><strong>Points</strong> : 5/5"},
+      {"id":"cis_ccp4_ex20","recto":"Exercice 20 — Routage et subnetting combinés<br><strong>Questions</strong> :<br>a) Quel routage sera choisi par le routeur ? Justifiez<br>b) Quelle est la plage d'IP du /22 ?<br>c) Combien d'hôtes dans le /22 ?<br>d) Pourquoi le routeur préfère-t-il cette route ?","verso":"<strong>Réponses</strong> :<br><strong>a) Route choisie</strong> : <strong>10.10.0.0/22 via OSPF</strong><br><strong>Justification</strong> :<br>• Principe du <strong>masque le plus long</strong> (Longest Prefix Match)<br>• /22 est plus spécifique que /16<br>• Le routeur choisit TOUJOURS la route avec le masque le plus long<br><strong>b) Plage /22</strong> :<br>• /22 = Bloc de 4 au 3ème octet<br>• <strong>10.10.0.0 - 10.10.3.255</strong><br><strong>c) Hôtes /22</strong> :<br>• 2^10 - 2 = <strong>1022 hôtes</strong><br><strong>d) Préférence</strong> :<br>• Masque plus long = route plus spécifique<br>• Plus une route est spécifique, plus elle est prioritaire<br>• /22 &gt; /16 en spécificité<br><strong>Points</strong> : 5/5<br>## 📊 BARÈME TOTAL : 100 POINTS<br><strong>Score total</strong> : /100 points (5 points par exercice)<br>Score — Niveau<br>90-100 — ⭐⭐⭐ Expert - Prêt pour l'examen !<br>75-89 — ⭐⭐ Très bon - Quelques révisions<br>60-74 — ⭐ Bien - Revoir les exercices ratés<br>40-59 — ⚠️ Moyen - Relire la fiche de révision<br>0-39 — 🔴 Insuffisant - Refaire tous les exercices<br>## 🎯 MÉTHODE DE CALCUL RAPIDE"},
+      /* CISCO_FLASHCARDS */
       { id: 'cis_f1', recto: 'Passer en mode privilégié IOS Cisco', verso: 'enable (ou en) → invite passe de > à #' },
       { id: 'cis_f2', recto: 'Accéder à la configuration globale IOS', verso: 'configure terminal (ou conf t)' },
       { id: 'cis_f3', recto: 'Sauvegarder la configuration active IOS', verso: 'copy running-config startup-config (ou write memory)' },
@@ -3443,7 +6395,28 @@ const MODULES = [
       { id: 'cis_q20', difficulty: 'facile', question: 'Quelle commande IOS configure une route statique par défaut vers la passerelle 10.0.0.1 ?', options: [{ text: 'ip route default 10.0.0.1', correct: false }, { text: 'ip route 0.0.0.0 0.0.0.0 10.0.0.1', correct: true }, { text: 'ip default-gateway 10.0.0.1', correct: false }, { text: 'route add default 10.0.0.1', correct: false }], explication: 'ip route 0.0.0.0 0.0.0.0 next-hop = route par défaut. ip default-gateway s\'utilise sur les switches Layer 2.' },
       { id: 'cis_q21', difficulty: 'difficile', question: 'Commande sauvegarder config running dans startup ?', options: [{ text: 'save', correct: false }, { text: 'copy running-config startup-config', correct: true }, { text: 'write memory', correct: false }, { text: 'backup', correct: false }], explication: 'Les deux sont valides.' },
       { id: 'cis_q22', difficulty: 'troubleshooter', question: 'Routeur Cisco perd config au redemarrage. Cause ?', options: [{ text: 'IOS corrompu', correct: false }, { text: 'copy running-config startup-config jamais execute', correct: true }, { text: 'NVRAM defectueuse', correct: false }, { text: 'Carte memoire absente', correct: false }], explication: 'Config running volatile. Toujours save avant extinction.' },
-      { id: 'cis_q23', difficulty: 'troubleshooter', question: 'Plusieurs VLANs ne communiquent pas via routeur. Cause probable ?', options: [{ text: 'STP bloque', correct: false }, { text: 'Pas de no shutdown sur sub-interfaces', correct: true }, { text: 'Cables', correct: false }, { text: 'Version IOS', correct: false }], explication: 'Sub-interfaces doivent etre no shutdown avec encapsulation dot1Q.' }
+      { id: 'cis_q23', difficulty: 'troubleshooter', question: 'Plusieurs VLANs ne communiquent pas via routeur. Cause probable ?', options: [{ text: 'STP bloque', correct: false }, { text: 'Pas de no shutdown sur sub-interfaces', correct: true }, { text: 'Cables', correct: false }, { text: 'Version IOS', correct: false }], explication: 'Sub-interfaces doivent etre no shutdown avec encapsulation dot1Q.' },
+      {"id":"cis_ccp4_q41","difficulty":"normal","question":"Sur un routeur Cisco, une ACL standard filtre sur :","options":[{"text":"L'adresse IP source uniquement","correct":true},{"text":"L'adresse IP destination uniquement","correct":false},{"text":"Les ports source et destination","correct":false},{"text":"L'adresse MAC","correct":false}],"explication":"<strong>ACL Standard Cisco</strong> :<br>• Filtre <strong>UNIQUEMENT sur l'IP source</strong><br>• Numérotation : <strong>1-99</strong> et <strong>1300-1999</strong><br>• Moins flexible qu'une ACL étendue<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# access-list 10 permit 192.168.1.0 0.0.0.255\nR1(config)# access-list 10 deny any</code>"},
+      {"id":"cis_ccp4_q42","difficulty":"normal","question":"Une ACL étendue Cisco peut filtrer sur :","options":[{"text":"IP source, IP destination, protocole, ports","correct":true},{"text":"Uniquement l'IP source","correct":false},{"text":"Uniquement le protocole","correct":false},{"text":"Uniquement les ports","correct":false}],"explication":"<strong>ACL Étendue Cisco</strong> :<br>• Filtre sur : <strong>IP source, IP destination, protocole, ports</strong><br>• Numérotation : <strong>100-199</strong> et <strong>2000-2699</strong><br>• Plus flexible et précise<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# access-list 100 permit tcp 192.168.1.0 0.0.0.255 any eq 80\nR1(config)# access-list 100 deny ip any any</code>"},
+      {"id":"cis_ccp4_q43","difficulty":"normal","question":"Quelle est la plage de numérotation des ACL standard Cisco ?","options":[{"text":"1-99 et 1300-1999","correct":true},{"text":"100-199 et 2000-2699","correct":false},{"text":"200-299","correct":false},{"text":"300-399","correct":false}],"explication":"<strong>Plages de numérotation ACL Cisco</strong> :<br>Type ACL — Plage<br><strong>Standard</strong> — <strong>1-99</strong> et <strong>1300-1999</strong><br><strong>Étendue</strong> — <strong>100-199</strong> et <strong>2000-2699</strong><br><strong>ACL nommées</strong> : Plus lisibles (recommandées)<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# ip access-list standard PERMIT_LAN</code>"},
+      {"id":"cis_ccp4_q44","difficulty":"normal","question":"Quelle est la différence entre un pare-feu stateful et stateless ?","options":[{"text":"Le stateful suit l'état des connexions","correct":true},{"text":"Le stateless est plus sécurisé","correct":false},{"text":"Le stateful ne filtre que les ports","correct":false},{"text":"Aucune différence","correct":false}],"explication":"<strong>Pare-feu Stateful</strong> :<br>• <strong>Suit l'état des connexions</strong> (TCP établies)<br>• Autorise automatiquement les réponses aux connexions sortantes<br>• Plus intelligent et sécurisé<br><strong>Pare-feu Stateless</strong> :<br>• Filtre paquet par paquet indépendamment<br>• Ne garde pas de contexte<br>• Plus simple mais moins sécurisé<br><strong>Exemple</strong> :<br>• Stateful : Si PC envoie requête HTTP → réponse autorisée automatiquement<br>• Stateless : Faut créer règle pour autoriser la réponse"},
+      {"id":"cis_ccp4_q45","difficulty":"normal","question":"Quel est le rôle d'une DMZ (Zone démilitarisée) ?","options":[{"text":"Accélérer le réseau","correct":false},{"text":"Isoler les serveurs publics entre Internet et le LAN interne","correct":true},{"text":"Créer des VLAN","correct":false},{"text":"Chiffrer les communications","correct":false}],"explication":"<strong>DMZ (DeMilitarized Zone)</strong> :<br>• Zone <strong>intermédiaire</strong> entre Internet et LAN interne<br>• Contient les <strong>serveurs publics</strong> (Web, Mail, FTP)<br>• Protection à 2 niveaux :<br>• Pare-feu externe : Internet → DMZ<br>• Pare-feu interne : DMZ → LAN<br><strong>Architecture</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Internet → [Pare-feu externe] → DMZ (serveurs publics) → [Pare-feu interne] → LAN interne</code>"},
+      {"id":"cis_ccp4_q46","difficulty":"normal","question":"Combien de bits comporte une adresse IPv6 ?","options":[{"text":"32 bits","correct":false},{"text":"64 bits","correct":false},{"text":"128 bits","correct":true},{"text":"256 bits","correct":false}],"explication":"<strong>IPv6</strong> = <strong>128 bits</strong> :<br>• IPv4 = 32 bits (4 milliards d'adresses)<br>• IPv6 = 128 bits (<strong>340 sextillions d'adresses</strong>)<br><strong>Format</strong> : 8 groupes de 16 bits (4 caractères hexa)"},
+      {"id":"cis_ccp4_q47","difficulty":"normal","question":"Une adresse IPv6 est composée de :","options":[{"text":"4 octets séparés par des points","correct":false},{"text":"8 groupes de 16 bits en hexadécimal séparés par :","correct":true},{"text":"16 octets séparés par des tirets","correct":false},{"text":"32 chiffres binaires","correct":false}],"explication":"<strong>Format IPv6</strong> :<br>• <strong>8 groupes de 16 bits</strong> en <strong>hexadécimal</strong> séparés par <strong>:</strong><br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">2001:0db8:85a3:0000:0000:8a2e:0370:7334</code><br><strong>Règles de simplification</strong> :<br>1. Supprimer les zéros de tête : <code>0db8</code> → <code>db8</code><br>2. Remplacer suite de zéros par <code>::</code> (une seule fois)<br><strong>Simplifié</strong> :<br><code style=\"display:block;white-space:pre-wrap\">2001:db8:85a3::8a2e:370:7334</code>"},
+      {"id":"cis_ccp4_q48","difficulty":"normal","question":"Quelle est l'adresse de loopback en IPv6 ?","options":[{"text":"127.0.0.1","correct":false},{"text":"::1","correct":true},{"text":"FF02::1","correct":false},{"text":"FE80::1","correct":false}],"explication":"<strong>Adresse de loopback IPv6</strong> = <strong>::1</strong><br><strong>Comparaison</strong> :<br>• IPv4 loopback : <strong>127.0.0.1</strong> (/8 entier : 127.0.0.0/8)<br>• IPv6 loopback : <strong>::1</strong> (/128)<br><strong>Usage</strong> : Test de la pile IPv6 locale<br><code style=\"display:block;white-space:pre-wrap\">ping ::1</code>"},
+      {"id":"cis_ccp4_q49","difficulty":"normal","question":"Les adresses IPv6 link-local commencent par :","options":[{"text":"FF00::/8","correct":false},{"text":"FE80::/10","correct":true},{"text":"2001::/16","correct":false},{"text":"FC00::/7","correct":false}],"explication":"<strong>Adresses IPv6 Link-Local</strong> :<br>• Préfixe : <strong>FE80::/10</strong><br>• Auto-configurées sur chaque interface IPv6<br>• Valides <strong>uniquement sur le lien local</strong> (pas routables)<br>• Utilisées pour NDP, autoconfiguration<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">FE80::1\nFE80::A1B2:C3D4:E5F6:7890</code>"},
+      {"id":"cis_ccp4_q50","difficulty":"normal","question":"En IPv6, quel protocole remplace ARP ?","options":[{"text":"ICMPv6","correct":false},{"text":"NDP (Neighbor Discovery Protocol)","correct":true},{"text":"DHCPv6","correct":false},{"text":"SLAAC","correct":false}],"explication":"<strong>NDP (Neighbor Discovery Protocol)</strong> :<br>• Remplace <strong>ARP</strong> en IPv6<br>• Fait partie d'<strong>ICMPv6</strong><br>• Fonctions :<br>• Résolution d'adresse (comme ARP)<br>• Découverte de routeurs<br>• Détection de doublons (DAD)<br>• Autoconfiguration (SLAAC)<br><strong>Messages NDP</strong> :<br>• Router Solicitation (RS)<br>• Router Advertisement (RA)<br>• Neighbor Solicitation (NS) ← comme ARP request<br>• Neighbor Advertisement (NA) ← comme ARP reply"},
+      {"id":"cis_ccp4_q51","difficulty":"normal","question":"WPA2 utilise quel algorithme de chiffrement ?","options":[{"text":"WEP","correct":false},{"text":"TKIP","correct":false},{"text":"AES","correct":true},{"text":"RC4","correct":false}],"explication":"<strong>WPA2 (Wi-Fi Protected Access 2)</strong> :<br>• Chiffrement : <strong>AES (Advanced Encryption Standard)</strong><br>• Algorithme : <strong>CCMP</strong> (basé sur AES)<br>• Très sécurisé<br><strong>Évolution Wi-Fi Security</strong> :<br>1. <strong>WEP</strong> : RC4, <strong>obsolète</strong> (cassable en minutes)<br>2. <strong>WPA</strong> : TKIP, amélioration temporaire<br>3. <strong>WPA2</strong> : <strong>AES/CCMP</strong>  (standard actuel)<br>4. <strong>WPA3</strong> : SAE, dernière version (2018)"},
+      {"id":"cis_ccp4_q52","difficulty":"normal","question":"Quelle norme Wi-Fi offre des débits théoriques jusqu'à 1,3 Gbps ?","options":[{"text":"802.11g","correct":false},{"text":"802.11n","correct":false},{"text":"802.11ac","correct":true},{"text":"802.11b","correct":false}],"explication":"<strong>Normes Wi-Fi</strong> :<br>Norme — Année — Bande — Débit max<br>802.11b — 1999 — 2,4 GHz — 11 Mbps<br>802.11g — 2003 — 2,4 GHz — 54 Mbps<br>802.11n — 2009 — 2,4/5 GHz — 600 Mbps<br><strong>802.11ac</strong> — 2013 — <strong>5 GHz</strong> — <strong>1,3 Gbps</strong><br>802.11ax (Wi-Fi 6) — 2019 — 2,4/5 GHz — 10 Gbps"},
+      {"id":"cis_ccp4_q53","difficulty":"normal","question":"Que signifie SSID ?","options":[{"text":"Secure Service Identifier","correct":false},{"text":"Service Set Identifier","correct":true},{"text":"System Security ID","correct":false},{"text":"Signal Strength Indicator","correct":false}],"explication":"<strong>SSID (Service Set Identifier)</strong> :<br>• <strong>Nom du réseau Wi-Fi</strong><br>• Diffusé dans les beacons (trames balise)<br>• Peut être <strong>masqué</strong> (hidden SSID) mais pas très sécurisé<br><strong>BSSID</strong> : Adresse MAC du point d'accès"},
+      {"id":"cis_ccp4_q54","difficulty":"normal","question":"Quel est le port par défaut d'un proxy HTTP ?","options":[{"text":"80","correct":false},{"text":"443","correct":false},{"text":"8080","correct":true},{"text":"3128","correct":false}],"explication":"<strong>Ports Proxy</strong> :<br>• Proxy HTTP : Port <strong>8080</strong>  (ou 3128 pour Squid)<br>• HTTP standard : Port 80<br>• HTTPS : Port 443<br><strong>Usage Proxy</strong> :<br>• Cache web<br>• Filtrage de contenu<br>• Anonymisation<br>• Contrôle d'accès"},
+      {"id":"cis_ccp4_q55","difficulty":"normal","question":"Un load balancer (répartiteur de charge) permet de :","options":[{"text":"Chiffrer les communications","correct":false},{"text":"Répartir le trafic entre plusieurs serveurs","correct":true},{"text":"Créer des VLAN","correct":false},{"text":"Filtrer les paquets","correct":false}],"explication":"<strong>Load Balancer (Répartiteur de charge)</strong> :<br>• <strong>Répartit le trafic</strong> entre plusieurs serveurs<br>• Améliore la <strong>disponibilité</strong> et <strong>performance</strong><br>• Détecte les serveurs défaillants<br><strong>Algorithmes de répartition</strong> :<br>• <strong>Round-robin</strong> : Chacun son tour<br>• <strong>Least connections</strong> : Serveur le moins chargé<br>• <strong>IP hash</strong> : Basé sur IP source<br>• <strong>Weighted</strong> : Selon capacité du serveur<br><strong>Exemple</strong> : HAProxy, F5, Nginx"},
+      {"id":"cis_ccp4_q56","difficulty":"normal","question":"HSRP et VRRP sont des protocoles de :","options":[{"text":"Routage dynamique","correct":false},{"text":"Redondance de passerelle","correct":true},{"text":"Chiffrement VPN","correct":false},{"text":"Gestion des VLAN","correct":false}],"explication":"<strong>HSRP / VRRP</strong> = Protocoles de <strong>redondance de passerelle</strong><br><strong>HSRP (Hot Standby Router Protocol)</strong> :<br>• Protocole <strong>Cisco propriétaire</strong><br>• IP virtuelle partagée entre routeurs<br>• Élection d'un routeur actif<br><strong>VRRP (Virtual Router Redundancy Protocol)</strong> :<br>• Standard <strong>ouvert</strong> (RFC 5798)<br>• Fonctionne pareil qu'HSRP<br><strong>But</strong> : Si passerelle par défaut tombe, une autre prend le relais automatiquement"},
+      {"id":"cis_ccp4_q57","difficulty":"normal","question":"Quel port TCP utilise LDAP par défaut ?","options":[{"text":"389","correct":true},{"text":"636","correct":false},{"text":"3389","correct":false},{"text":"1433","correct":false}],"explication":"<strong>LDAP (Lightweight Directory Access Protocol)</strong> :<br>• Port TCP <strong>389</strong>  (LDAP standard)<br>• Port TCP <strong>636</strong> (LDAPS - LDAP over SSL/TLS)<br>• Protocole d'annuaire (Active Directory, OpenLDAP)<br><strong>Usage</strong> :<br>• Authentification centralisée<br>• Annuaire d'entreprise<br>• Gestion des utilisateurs et groupes"},
+      {"id":"cis_ccp4_q58","difficulty":"normal","question":"Quel port utilise le protocole Kerberos ?","options":[{"text":"TCP 88","correct":false},{"text":"UDP 88","correct":false},{"text":"TCP et UDP 88","correct":true},{"text":"TCP 389","correct":false}],"explication":"<strong>Kerberos</strong> :<br>• Port <strong>TCP et UDP 88</strong><br>• Protocole d'<strong>authentification</strong> réseau<br>• Utilisé par <strong>Active Directory</strong><br>• Basé sur tickets (TGT, TGS)<br><strong>Fonctionnement</strong> :<br>1. Client demande TGT au KDC (Key Distribution Center)<br>2. Client reçoit TGT chiffré<br>3. Client demande ticket de service (TGS)<br>4. Client accède au service avec le ticket"},
+      {"id":"cis_ccp4_q59","difficulty":"normal","question":"Le protocole RDP (Remote Desktop Protocol) utilise le port :","options":[{"text":"22","correct":false},{"text":"23","correct":false},{"text":"3389","correct":true},{"text":"5900","correct":false}],"explication":"<strong>RDP (Remote Desktop Protocol)</strong> :<br>• Port <strong>TCP 3389</strong><br>• Protocole <strong>Microsoft</strong> pour bureau à distance<br>• Connexion graphique à un Windows distant<br><strong>Alternatives</strong> :<br>• <strong>VNC</strong> : Port 5900 (TCP)<br>• <strong>SSH</strong> : Port 22 (ligne de commande)<br>• <strong>TeamViewer</strong> : Port dynamique"},
+      {"id":"cis_ccp4_q60","difficulty":"normal","question":"Quelle est la wildcard mask correspondant au masque 255.255.255.240 ?","options":[{"text":"0.0.0.15","correct":true},{"text":"0.0.0.240","correct":false},{"text":"255.255.255.15","correct":false},{"text":"0.0.0.255","correct":false}],"explication":"<strong>Wildcard mask</strong> = <strong>Inverse du masque de sous-réseau</strong><br><strong>Calcul</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Masque de sous-réseau : 255.255.255.240\nWildcard mask : 255.255.255.255 - 255.255.255.240 = 0.0.0.15 </code><br><strong>Règle wildcard</strong> :<br>• <strong>0</strong> = Doit correspondre (check)<br>• <strong>1</strong> = Peut être n'importe quoi (don't care)<br><strong>Exemples</strong> :<br>Masque — Wildcard<br>255.255.255.0 — 0.0.0.255<br>255.255.255.192 — 0.0.0.63<br>255.255.255.240 — 0.0.0.15<br>255.255.255.252 — 0.0.0.3<br><strong>Usage</strong> : ACL Cisco, OSPF, EIGRP"},
+      /* CISCO_QCM */
     ],
   },
   {
@@ -10106,6 +13079,2873 @@ role where I can grow my infrastructure and security skills.</pre>
           }
         ]
       },
+      {
+        "id": "ccp4-ports-protocoles",
+        "titre": "CCP4 — Ports, Protocoles et Acronymes (Fiche de révision)",
+        "sections": [
+          {
+            "type": "h2",
+            "content": "Essentiels pour l'examen TSSR"
+          },
+          {
+            "type": "info",
+            "content": "<strong>⚠️ CRITIQUE</strong> : Ces informations sont demandées à CHAQUE examen TSSR !"
+          },
+          {
+            "type": "h2",
+            "content": "PORTS ET PROTOCOLES - À CONNAÎTRE PAR CŒUR"
+          },
+          {
+            "type": "h3",
+            "content": "Ports les plus importants pour l'examen"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Port",
+              "Protocole",
+              "Type",
+              "Service/Utilisation"
+            ],
+            "rows": [
+              [
+                "<strong>20</strong>",
+                "FTP-DATA",
+                "TCP",
+                "Transfert de données FTP"
+              ],
+              [
+                "<strong>21</strong>",
+                "FTP",
+                "TCP",
+                "Contrôle FTP (File Transfer Protocol)"
+              ],
+              [
+                "<strong>22</strong>",
+                "SSH",
+                "TCP",
+                "Secure Shell (connexion sécurisée)"
+              ],
+              [
+                "<strong>23</strong>",
+                "Telnet",
+                "TCP",
+                "Connexion non sécurisée (obsolète)"
+              ],
+              [
+                "<strong>25</strong>",
+                "SMTP",
+                "TCP",
+                "Envoi d'emails (Simple Mail Transfer Protocol)"
+              ],
+              [
+                "<strong>53</strong>",
+                "DNS",
+                "TCP/UDP",
+                "Domain Name System (résolution noms)"
+              ],
+              [
+                "<strong>67</strong>",
+                "DHCP Server",
+                "UDP",
+                "Serveur DHCP"
+              ],
+              [
+                "<strong>68</strong>",
+                "DHCP Client",
+                "UDP",
+                "Client DHCP"
+              ],
+              [
+                "<strong>69</strong>",
+                "TFTP",
+                "UDP",
+                "Trivial FTP (transfert fichiers simple)"
+              ],
+              [
+                "<strong>80</strong>",
+                "HTTP",
+                "TCP",
+                "Web non sécurisé"
+              ],
+              [
+                "<strong>110</strong>",
+                "POP3",
+                "TCP",
+                "Réception emails (Post Office Protocol)"
+              ],
+              [
+                "<strong>123</strong>",
+                "NTP",
+                "UDP",
+                "Network Time Protocol (synchronisation temps)"
+              ],
+              [
+                "<strong>143</strong>",
+                "IMAP",
+                "TCP",
+                "Réception emails (Internet Message Access Protocol)"
+              ],
+              [
+                "<strong>161</strong>",
+                "SNMP",
+                "UDP",
+                "Supervision réseau (Simple Network Management Protocol)"
+              ],
+              [
+                "<strong>162</strong>",
+                "SNMP Trap",
+                "UDP",
+                "Alertes SNMP"
+              ],
+              [
+                "<strong>389</strong>",
+                "LDAP",
+                "TCP",
+                "Annuaire (Lightweight Directory Access Protocol)"
+              ],
+              [
+                "<strong>443</strong>",
+                "HTTPS",
+                "TCP",
+                "Web sécurisé (HTTP + SSL/TLS)"
+              ],
+              [
+                "<strong>445</strong>",
+                "SMB",
+                "TCP",
+                "Partage de fichiers Windows (Server Message Block)"
+              ],
+              [
+                "<strong>465</strong>",
+                "SMTPS",
+                "TCP",
+                "SMTP sécurisé (obsolète, utiliser 587)"
+              ],
+              [
+                "<strong>514</strong>",
+                "Syslog",
+                "UDP",
+                "Logs système"
+              ],
+              [
+                "<strong>587</strong>",
+                "SMTP",
+                "TCP",
+                "SMTP moderne pour envoi emails (STARTTLS)"
+              ],
+              [
+                "<strong>636</strong>",
+                "LDAPS",
+                "TCP",
+                "LDAP sécurisé (LDAP + SSL)"
+              ],
+              [
+                "<strong>993</strong>",
+                "IMAPS",
+                "TCP",
+                "IMAP sécurisé (IMAP + SSL/TLS)"
+              ],
+              [
+                "<strong>995</strong>",
+                "POP3S",
+                "TCP",
+                "POP3 sécurisé (POP3 + SSL/TLS)"
+              ],
+              [
+                "<strong>1433</strong>",
+                "MS SQL",
+                "TCP",
+                "Microsoft SQL Server"
+              ],
+              [
+                "<strong>1521</strong>",
+                "Oracle",
+                "TCP",
+                "Oracle Database"
+              ],
+              [
+                "<strong>2049</strong>",
+                "NFS",
+                "TCP/UDP",
+                "Network File System (partage Linux)"
+              ],
+              [
+                "<strong>3306</strong>",
+                "MySQL",
+                "TCP",
+                "Base de données MySQL/MariaDB"
+              ],
+              [
+                "<strong>3389</strong>",
+                "RDP",
+                "TCP",
+                "Remote Desktop Protocol (Bureau à distance Windows)"
+              ],
+              [
+                "<strong>3724</strong>",
+                "WoW",
+                "TCP",
+                "World of Warcraft (exemple jeu)"
+              ],
+              [
+                "<strong>5432</strong>",
+                "PostgreSQL",
+                "TCP",
+                "Base de données PostgreSQL"
+              ],
+              [
+                "<strong>8080</strong>",
+                "HTTP-Alt",
+                "TCP",
+                "HTTP alternatif (souvent proxy/web)"
+              ],
+              [
+                "<strong>8443</strong>",
+                "HTTPS-Alt",
+                "TCP",
+                "HTTPS alternatif"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Mnémotechnique pour les ports ESSENTIELS"
+          },
+          {
+            "type": "code",
+            "content": "22 = SSH → \"22 c'est l'âge pour conduire secure\"\n25 = SMTP → \"25 décembre = on envoie des cartes (mails)\"\n53 = DNS → \"53 régions, chacune a son nom\"\n80 = HTTP → \"8-0 = H-ttp (ressemble au H)\"\n110 = POP3 → \"110 = police, on récupère (mails)\"\n143 = IMAP → \"1-4-3 = I LOVE YOU = j'aime avoir mes mails partout\"\n443 = HTTPS → \"443 + 80 = HTTPS + HTTP\"\n3389 = RDP → \"3389 = Windows à distance\""
+          },
+          {
+            "type": "h2",
+            "content": "PROTOCOLES DE MESSAGERIE - DIFFÉRENCES IMPORTANTES"
+          },
+          {
+            "type": "h3",
+            "content": "POP3 vs IMAP (question FRÉQUENTE à l'examen)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Caractéristique",
+              "POP3 (Port 110/995)",
+              "IMAP (Port 143/993)"
+            ],
+            "rows": [
+              [
+                "<strong>Téléchargement</strong>",
+                "Télécharge ET supprime du serveur",
+                "Garde sur le serveur"
+              ],
+              [
+                "<strong>Synchronisation</strong>",
+                "❌ Pas de synchro",
+                "✅ Synchro multi-appareils"
+              ],
+              [
+                "<strong>Accès hors ligne</strong>",
+                "✅ Oui (emails locaux)",
+                "⚠️ Limité"
+              ],
+              [
+                "<strong>Gestion serveur</strong>",
+                "❌ Faible",
+                "✅ Forte (dossiers, flags)"
+              ],
+              [
+                "<strong>Usage disque local</strong>",
+                "📈 Beaucoup",
+                "📉 Peu"
+              ],
+              [
+                "<strong>Usage disque serveur</strong>",
+                "📉 Peu",
+                "📈 Beaucoup"
+              ],
+              [
+                "<strong>Meilleur pour</strong>",
+                "1 seul appareil, espace serveur limité",
+                "Multi-appareils, accès web"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "SMTP (envoi) vs POP3/IMAP (réception)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>SMTP (25/587/465)</strong> : Protocole d'ENVOI d'emails",
+              "Port 25 : Serveur à serveur",
+              "Port 587 : Client à serveur (moderne, recommandé)",
+              "Port 465 : SMTPS (obsolète)"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>POP3/IMAP</strong> : Protocoles de RÉCEPTION d'emails",
+              "Utilisés par le client pour récupérer les emails depuis le serveur"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Configuration client de messagerie (question d'examen)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Paramètres à configurer</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Serveur SMTP</strong> (envoi) : smtp.example.com, port 587, STARTTLS",
+              "<strong>Serveur POP3 ou IMAP</strong> (réception) : imap.example.com, port 993, SSL",
+              "<strong>Identifiants</strong> : adresse email + mot de passe",
+              "<strong>Type de sécurité</strong> : SSL/TLS ou STARTTLS"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "PROTOCOLES DE SÉCURITÉ"
+          },
+          {
+            "type": "h3",
+            "content": "Cryptage et Authentification"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Protocole",
+              "Port",
+              "Utilisation",
+              "Sécurité"
+            ],
+            "rows": [
+              [
+                "<strong>SSH</strong>",
+                "22",
+                "Connexion sécurisée, SFTP",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>Telnet</strong>",
+                "23",
+                "Connexion non sécurisée",
+                "❌ En clair (DANGER)"
+              ],
+              [
+                "<strong>SFTP</strong>",
+                "22",
+                "Transfert fichiers sécurisé (via SSH)",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>FTPS</strong>",
+                "990",
+                "FTP sécurisé (FTP + SSL/TLS)",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>HTTPS</strong>",
+                "443",
+                "HTTP sécurisé (HTTP + SSL/TLS)",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>LDAPS</strong>",
+                "636",
+                "LDAP sécurisé (LDAP + SSL)",
+                "✅ Chiffré"
+              ],
+              [
+                "<strong>RDP</strong>",
+                "3389",
+                "Bureau à distance (peut être chiffré)",
+                "⚠️ Configurable"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "SSL/TLS"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>SSL</strong> (Secure Sockets Layer) : Ancien protocole (obsolète)",
+              "<strong>TLS</strong> (Transport Layer Security) : Remplaçant moderne de SSL",
+              "<strong>Versions actuelles</strong> : TLS 1.2 et TLS 1.3 (à connaître pour l'exam)",
+              "<strong>Utilisation</strong> : HTTPS, SMTPS, IMAPS, POP3S, FTPS, LDAPS"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "VPN - Protocoles"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>PPTP</strong> : Point-to-Point Tunneling Protocol (obsolète, faible sécurité)",
+              "<strong>L2TP</strong> : Layer 2 Tunneling Protocol (souvent avec IPsec)",
+              "<strong>IPsec</strong> : Internet Protocol Security (VPN site-à-site)",
+              "<strong>OpenVPN</strong> : Open source, très utilisé",
+              "<strong>WireGuard</strong> : Moderne, performant",
+              "<strong>SSL VPN</strong> : VPN via SSL/TLS (accès via navigateur)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "PROTOCOLES RÉSEAU"
+          },
+          {
+            "type": "h3",
+            "content": "Suite TCP/IP"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Couche OSI",
+              "Couche TCP/IP",
+              "Protocoles",
+              "Rôle"
+            ],
+            "rows": [
+              [
+                "7-6-5 (Application, Présentation, Session)",
+                "<strong>Application</strong>",
+                "HTTP, FTP, SMTP, DNS, DHCP",
+                "Services utilisateur"
+              ],
+              [
+                "4 (Transport)",
+                "<strong>Transport</strong>",
+                "TCP, UDP",
+                "Fiabilité, ports"
+              ],
+              [
+                "3 (Réseau)",
+                "<strong>Internet</strong>",
+                "IP, ICMP, ARP",
+                "Adressage, routage"
+              ],
+              [
+                "2-1 (Liaison, Physique)",
+                "<strong>Accès réseau</strong>",
+                "Ethernet, Wi-Fi",
+                "Transmission physique"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "TCP vs UDP (TRÈS IMPORTANT)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Caractéristique",
+              "TCP (Transmission Control Protocol)",
+              "UDP (User Datagram Protocol)"
+            ],
+            "rows": [
+              [
+                "<strong>Connexion</strong>",
+                "✅ Orienté connexion (handshake)",
+                "❌ Sans connexion"
+              ],
+              [
+                "<strong>Fiabilité</strong>",
+                "✅ Garantit la livraison",
+                "❌ Pas de garantie"
+              ],
+              [
+                "<strong>Ordre</strong>",
+                "✅ Ordre préservé",
+                "❌ Pas d'ordre garanti"
+              ],
+              [
+                "<strong>Vitesse</strong>",
+                "🐢 Plus lent",
+                "🐇 Plus rapide"
+              ],
+              [
+                "<strong>Overhead</strong>",
+                "📈 Plus lourd",
+                "📉 Léger"
+              ],
+              [
+                "<strong>Cas d'usage</strong>",
+                "Web, Email, FTP, SSH",
+                "DNS, Streaming, VoIP, Jeux"
+              ],
+              [
+                "<strong>Exemple</strong>",
+                "Téléchargement fichier",
+                "Streaming vidéo"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Mnémotechnique</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>TCP</strong> = \"<strong>T</strong>rès <strong>C</strong>omplètement <strong>P</strong>récis\" → pour ce qui doit arriver intact",
+              "<strong>UDP</strong> = \"<strong>U</strong>ltra <strong>D</strong>irect <strong>P</strong>ide\" → pour ce qui doit être rapide"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Protocoles importants"
+          },
+          {
+            "type": "p",
+            "content": "#### DNS (Domain Name System) - Port 53 UDP/TCP"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Rôle</strong> : Résoudre noms de domaine → adresses IP",
+              "<strong>Exemple</strong> : google.com → 142.250.185.46",
+              "<strong>Types d'enregistrements</strong> :",
+              "<strong>A</strong> : IPv4",
+              "<strong>AAAA</strong> : IPv6",
+              "<strong>MX</strong> : Serveur mail",
+              "<strong>CNAME</strong> : Alias",
+              "<strong>PTR</strong> : Résolution inverse (IP → nom)",
+              "<strong>NS</strong> : Serveur de noms",
+              "<strong>TXT</strong> : Texte (SPF, DKIM, etc.)"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "#### DHCP (Dynamic Host Configuration Protocol) - Port 67/68 UDP"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Rôle</strong> : Attribution automatique d'IP aux clients",
+              "<strong>Processus DORA</strong> :"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>D</strong>iscover : Client cherche serveur DHCP",
+              "<strong>O</strong>ffer : Serveur propose une IP",
+              "<strong>R</strong>equest : Client demande l'IP proposée",
+              "<strong>A</strong>cknowledge : Serveur confirme"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Informations fournies</strong> :",
+              "Adresse IP",
+              "Masque de sous-réseau",
+              "Passerelle par défaut",
+              "Serveurs DNS",
+              "Durée de bail (lease time)"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "#### ICMP (Internet Control Message Protocol)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Rôle</strong> : Messages de contrôle et d'erreur",
+              "<strong>Commandes</strong> :",
+              "<code>ping</code> : Test de connectivité (echo request/reply)",
+              "<code>traceroute</code> : Tracer le chemin des paquets"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "#### ARP (Address Resolution Protocol)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Rôle</strong> : Résoudre adresse IP → adresse MAC",
+              "<strong>Commande</strong> : <code>arp -a</code> (afficher table ARP)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "PORTS SPÉCIAUX ET PLAGES"
+          },
+          {
+            "type": "h3",
+            "content": "Plages de ports"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>0-1023</strong> : Ports <strong>bien connus</strong> (well-known) - Services système",
+              "<strong>1024-49151</strong> : Ports <strong>enregistrés</strong> (registered) - Applications",
+              "<strong>49152-65535</strong> : Ports <strong>dynamiques/privés</strong> (ephemeral) - Connexions temporaires"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Ports à éviter en production"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Telnet (23)</strong> : Non sécurisé, utiliser SSH",
+              "<strong>HTTP (80)</strong> : Non chiffré, utiliser HTTPS",
+              "<strong>FTP (21)</strong> : Identifiants en clair, utiliser SFTP/FTPS",
+              "<strong>SNMP v1/v2 (161)</strong> : Faible sécurité, utiliser SNMPv3"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "ACRONYMES ESSENTIELS - À CONNAÎTRE"
+          },
+          {
+            "type": "h3",
+            "content": "Sécurité et Réglementation"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>ANSSI</strong> : Agence Nationale de la Sécurité des Systèmes d'Information",
+              "<strong>CNIL</strong> : Commission Nationale de l'Informatique et des Libertés",
+              "<strong>RGPD</strong> : Règlement Général sur la Protection des Données",
+              "<strong>PSSI</strong> : Politique de Sécurité des Systèmes d'Information",
+              "<strong>RSSI</strong> : Responsable de la Sécurité des Systèmes d'Information",
+              "<strong>DPO</strong> : Data Protection Officer (Délégué à la Protection des Données)",
+              "<strong>2FA</strong> : Two-Factor Authentication (Authentification à deux facteurs)",
+              "<strong>MFA</strong> : Multi-Factor Authentication",
+              "<strong>PKI/IGC</strong> : Public Key Infrastructure / Infrastructure de Gestion de Clés",
+              "<strong>DEEE</strong> : Déchets d'Équipements Électriques et Électroniques"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Réseau et Infrastructure"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>LAN</strong> : Local Area Network",
+              "<strong>WAN</strong> : Wide Area Network",
+              "<strong>MAN</strong> : Metropolitan Area Network",
+              "<strong>PAN</strong> : Personal Area Network",
+              "<strong>VLAN</strong> : Virtual Local Area Network",
+              "<strong>VPN</strong> : Virtual Private Network",
+              "<strong>DMZ</strong> : Demilitarized Zone (Zone démilitarisée)",
+              "<strong>NAT</strong> : Network Address Translation",
+              "<strong>PAT</strong> : Port Address Translation",
+              "<strong>DHCP</strong> : Dynamic Host Configuration Protocol",
+              "<strong>DNS</strong> : Domain Name System",
+              "<strong>DDNS</strong> : Dynamic DNS",
+              "<strong>QoS</strong> : Quality of Service",
+              "<strong>ACL</strong> : Access Control List",
+              "<strong>SNMP</strong> : Simple Network Management Protocol",
+              "<strong>NTP</strong> : Network Time Protocol",
+              "<strong>RADIUS</strong> : Remote Authentication Dial-In User Service",
+              "<strong>802.1X</strong> : Norme d'authentification réseau"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Systèmes et Services"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>OS</strong> : Operating System",
+              "<strong>AD</strong> : Active Directory",
+              "<strong>DC</strong> : Domain Controller (Contrôleur de domaine)",
+              "<strong>OU</strong> : Organizational Unit",
+              "<strong>GPO</strong> : Group Policy Object (Stratégie de groupe)",
+              "<strong>LDAP</strong> : Lightweight Directory Access Protocol",
+              "<strong>NTFS</strong> : New Technology File System",
+              "<strong>FAT32</strong> : File Allocation Table 32",
+              "<strong>EXT4</strong> : Fourth Extended File System",
+              "<strong>XFS</strong> : X File System",
+              "<strong>LVM</strong> : Logical Volume Manager",
+              "<strong>RAID</strong> : Redundant Array of Independent Disks",
+              "<strong>NAS</strong> : Network Attached Storage",
+              "<strong>SAN</strong> : Storage Area Network",
+              "<strong>NFS</strong> : Network File System",
+              "<strong>SMB/CIFS</strong> : Server Message Block / Common Internet File System",
+              "<strong>iSCSI</strong> : Internet Small Computer Systems Interface",
+              "<strong>UEFI</strong> : Unified Extensible Firmware Interface",
+              "<strong>BIOS</strong> : Basic Input/Output System",
+              "<strong>GRUB</strong> : Grand Unified Bootloader"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Virtualisation et Cloud"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>VM</strong> : Virtual Machine",
+              "<strong>VDI</strong> : Virtual Desktop Infrastructure",
+              "<strong>HA</strong> : High Availability (Haute disponibilité)",
+              "<strong>DRS</strong> : Distributed Resource Scheduler",
+              "<strong>HCI</strong> : Hyper-Converged Infrastructure",
+              "<strong>IaaS</strong> : Infrastructure as a Service",
+              "<strong>PaaS</strong> : Platform as a Service",
+              "<strong>SaaS</strong> : Software as a Service",
+              "<strong>IaC</strong> : Infrastructure as Code"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "ITIL et Gestion"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>ITIL</strong> : Information Technology Infrastructure Library",
+              "<strong>ITSM</strong> : IT Service Management",
+              "<strong>SLA</strong> : Service Level Agreement",
+              "<strong>KPI</strong> : Key Performance Indicator",
+              "<strong>CMDB</strong> : Configuration Management Database",
+              "<strong>MCO</strong> : Maintien en Condition Opérationnelle",
+              "<strong>DSI</strong> : Direction des Systèmes d'Information",
+              "<strong>MSP</strong> : Managed Service Provider",
+              "<strong>GLPI</strong> : Gestionnaire Libre de Parc Informatique"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Sauvegarde et Continuité"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>PRA</strong> : Plan de Reprise d'Activité",
+              "<strong>PCA</strong> : Plan de Continuité d'Activité",
+              "<strong>RTO</strong> : Recovery Time Objective (Temps de reprise)",
+              "<strong>RPO</strong> : Recovery Point Objective (Perte de données acceptable)",
+              "<strong>PRI</strong> : Plan de Reprise Informatique"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Développement et BDD"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>SQL</strong> : Structured Query Language",
+              "<strong>NoSQL</strong> : Not Only SQL",
+              "<strong>SGBD</strong> : Système de Gestion de Base de Données",
+              "<strong>CRUD</strong> : Create, Read, Update, Delete",
+              "<strong>API</strong> : Application Programming Interface",
+              "<strong>REST</strong> : Representational State Transfer",
+              "<strong>JSON</strong> : JavaScript Object Notation",
+              "<strong>XML</strong> : eXtensible Markup Language",
+              "<strong>HTTP</strong> : HyperText Transfer Protocol",
+              "<strong>HTML</strong> : HyperText Markup Language",
+              "<strong>CSS</strong> : Cascading Style Sheets",
+              "<strong>DevOps</strong> : Development + Operations",
+              "<strong>CI/CD</strong> : Continuous Integration / Continuous Deployment"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Divers"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>BYOD</strong> : Bring Your Own Device",
+              "<strong>MDM</strong> : Mobile Device Management",
+              "<strong>IoT</strong> : Internet of Things",
+              "<strong>USB</strong> : Universal Serial Bus",
+              "<strong>CPU</strong> : Central Processing Unit",
+              "<strong>GPU</strong> : Graphics Processing Unit",
+              "<strong>RAM</strong> : Random Access Memory",
+              "<strong>ROM</strong> : Read-Only Memory",
+              "<strong>SSD</strong> : Solid State Drive",
+              "<strong>HDD</strong> : Hard Disk Drive",
+              "<strong>MAC</strong> : Media Access Control (adresse physique)",
+              "<strong>IP</strong> : Internet Protocol",
+              "<strong>URL</strong> : Uniform Resource Locator",
+              "<strong>URI</strong> : Uniform Resource Identifier",
+              "<strong>UID</strong> : User IDentifier",
+              "<strong>GID</strong> : Group IDentifier",
+              "<strong>PID</strong> : Process IDentifier"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "QUESTIONS TYPES D'EXAMEN"
+          },
+          {
+            "type": "h3",
+            "content": "Format habituel"
+          },
+          {
+            "type": "p",
+            "content": "<strong>\"Citez les ports (numéro) et types (TCP/UDP) des protocoles suivants :\"</strong>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "FTP : 21 (TCP) + 20 (TCP data)",
+              "SSH : 22 (TCP)",
+              "SMTP : 25 (TCP) / 587 (TCP moderne)",
+              "DNS : 53 (UDP/TCP)",
+              "DHCP : 67-68 (UDP)",
+              "HTTP : 80 (TCP)",
+              "HTTPS : 443 (TCP)",
+              "POP3 : 110 (TCP)",
+              "IMAP : 143 (TCP)",
+              "SNMP : 161-162 (UDP)",
+              "LDAP : 389 (TCP)",
+              "SMB : 445 (TCP)",
+              "RDP : 3389 (TCP)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Questions fréquentes"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Quelle est la différence entre POP3 et IMAP ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ POP3 télécharge et supprime, IMAP synchronise"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Quels sont les protocoles utilisés dans un VPN ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ IPsec, L2TP, OpenVPN, PPTP, SSL VPN"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Quelle est la différence entre TCP et UDP ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ TCP est fiable mais lent, UDP est rapide mais sans garantie"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Que signifie RGPD et CNIL ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ RGPD = protection données EU, CNIL = autorité française"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>\"Citez 3 types de Cloud ?\"</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "→ IaaS, PaaS, SaaS"
+          },
+          {
+            "type": "h2",
+            "content": "EXERCICE D'AUTO-ÉVALUATION"
+          },
+          {
+            "type": "h3",
+            "content": "Test rapide (à faire sans regarder)"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "Port HTTPS : 443_____",
+              "Port SSH : 22_____",
+              "Port DNS : 53_____",
+              "Port SMTP : 25, 587, 465, 2525_____",
+              "Port RDP : 3389_____",
+              "Port MySQL : 3306_____",
+              "Port LDAP : 389_____",
+              "Port SNMP : 161/162_____",
+              "Différence POP3/IMAP : _____",
+              "Différence TCP/UDP : _____"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Réponses</strong> : 1) 443, 2) 22, 3) 53, 4) 25/587, 5) 3389, 6) 3306, 7) 389, 8) 161, 9) POP3 télécharge, IMAP synchronise, 10) TCP fiable/lent, UDP rapide/non fiable"
+          },
+          {
+            "type": "h2",
+            "content": "ASTUCE RÉVISION RAPIDE"
+          },
+          {
+            "type": "h3",
+            "content": "Technique de mémorisation"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Écris 10 fois</strong> la liste des 20 ports principaux",
+              "<strong>Récite à voix haute</strong> ports + protocoles + utilisation",
+              "<strong>Crée des flash cards</strong> : port d'un côté, protocole de l'autre",
+              "<strong>Teste-toi</strong> tous les jours pendant 5 minutes",
+              "<strong>Associe à des images mentales</strong> (ex: 22 = paire de chaussettes SSH)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Juste avant l'examen"
+          },
+          {
+            "type": "p",
+            "content": "📌 Relis cette page en 10 minutes chrono !"
+          },
+          {
+            "type": "p",
+            "content": "<strong>🎓 Maîtriser cette fiche = Gagner facilement 10-15 points à l'examen ! 💪</strong>"
+          }
+        ]
+      },
+      {
+        "id": "ccp4-subnetting-cidr",
+        "titre": "CCP4 — Réseau, Subnetting et CIDR (Fiche de révision)",
+        "sections": [
+          {
+            "type": "h2",
+            "content": "Méthode RAPIDE pour l'examen TSSR"
+          },
+          {
+            "type": "info",
+            "content": "<strong>⚠️ CRITIQUE</strong> : Le subnetting tombe à TOUS les examens ! Maîtrise cette méthode = points faciles"
+          },
+          {
+            "type": "h2",
+            "content": "MÉTHODE ULTRA-RAPIDE DE SUBNETTING"
+          },
+          {
+            "type": "h3",
+            "content": "Étape 1 : Mémoriser les puissances de 2"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Exposant",
+              "Valeur",
+              "Hôtes utilisables"
+            ],
+            "rows": [
+              [
+                "2^1",
+                "2",
+                "0"
+              ],
+              [
+                "2^2",
+                "4",
+                "2"
+              ],
+              [
+                "2^3",
+                "8",
+                "6"
+              ],
+              [
+                "2^4",
+                "16",
+                "14"
+              ],
+              [
+                "2^5",
+                "32",
+                "30"
+              ],
+              [
+                "2^6",
+                "64",
+                "62"
+              ],
+              [
+                "2^7",
+                "128",
+                "126"
+              ],
+              [
+                "2^8",
+                "256",
+                "254"
+              ],
+              [
+                "2^9",
+                "512",
+                "510"
+              ],
+              [
+                "2^10",
+                "1024",
+                "1022"
+              ],
+              [
+                "2^11",
+                "2048",
+                "2046"
+              ],
+              [
+                "2^12",
+                "4096",
+                "4094"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : Hôtes utilisables = 2^n - 2 (enlever adresse réseau et broadcast)"
+          },
+          {
+            "type": "h3",
+            "content": "Étape 2 : Table de correspondance CIDR"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "CIDR",
+              "Masque",
+              "Bloc",
+              "Hôtes",
+              "Binaire (derniers octets)"
+            ],
+            "rows": [
+              [
+                "<strong>/8</strong>",
+                "255.0.0.0",
+                "16 777 216",
+                "16 777 214",
+                "00000000.00000000.00000000"
+              ],
+              [
+                "<strong>/9</strong>",
+                "255.128.0.0",
+                "8 388 608",
+                "8 388 606",
+                "10000000.00000000.00000000"
+              ],
+              [
+                "<strong>/10</strong>",
+                "255.192.0.0",
+                "4 194 304",
+                "4 194 302",
+                "11000000.00000000.00000000"
+              ],
+              [
+                "<strong>/11</strong>",
+                "255.224.0.0",
+                "2 097 152",
+                "2 097 150",
+                "11100000.00000000.00000000"
+              ],
+              [
+                "<strong>/12</strong>",
+                "255.240.0.0",
+                "1 048 576",
+                "1 048 574",
+                "11110000.00000000.00000000"
+              ],
+              [
+                "<strong>/13</strong>",
+                "255.248.0.0",
+                "524 288",
+                "524 286",
+                "11111000.00000000.00000000"
+              ],
+              [
+                "<strong>/14</strong>",
+                "255.252.0.0",
+                "262 144",
+                "262 142",
+                "11111100.00000000.00000000"
+              ],
+              [
+                "<strong>/15</strong>",
+                "255.254.0.0",
+                "131 072",
+                "131 070",
+                "11111110.00000000.00000000"
+              ],
+              [
+                "<strong>/16</strong>",
+                "255.255.0.0",
+                "65 536",
+                "65 534",
+                "11111111.00000000.00000000"
+              ],
+              [
+                "<strong>/17</strong>",
+                "255.255.128.0",
+                "32 768",
+                "32 766",
+                "11111111.10000000.00000000"
+              ],
+              [
+                "<strong>/18</strong>",
+                "255.255.192.0",
+                "16 384",
+                "16 382",
+                "11111111.11000000.00000000"
+              ],
+              [
+                "<strong>/19</strong>",
+                "255.255.224.0",
+                "8 192",
+                "8 190",
+                "11111111.11100000.00000000"
+              ],
+              [
+                "<strong>/20</strong>",
+                "255.255.240.0",
+                "4 096",
+                "4 094",
+                "11111111.11110000.00000000"
+              ],
+              [
+                "<strong>/21</strong>",
+                "255.255.248.0",
+                "2 048",
+                "2 046",
+                "11111111.11111000.00000000"
+              ],
+              [
+                "<strong>/22</strong>",
+                "255.255.252.0",
+                "1 024",
+                "1 022",
+                "11111111.11111100.00000000"
+              ],
+              [
+                "<strong>/23</strong>",
+                "255.255.254.0",
+                "512",
+                "510",
+                "11111111.11111110.00000000"
+              ],
+              [
+                "<strong>/24</strong>",
+                "255.255.255.0",
+                "256",
+                "254",
+                "11111111.11111111.00000000"
+              ],
+              [
+                "<strong>/25</strong>",
+                "255.255.255.128",
+                "128",
+                "126",
+                "11111111.11111111.10000000"
+              ],
+              [
+                "<strong>/26</strong>",
+                "255.255.255.192",
+                "64",
+                "62",
+                "11111111.11111111.11000000"
+              ],
+              [
+                "<strong>/27</strong>",
+                "255.255.255.224",
+                "32",
+                "30",
+                "11111111.11111111.11100000"
+              ],
+              [
+                "<strong>/28</strong>",
+                "255.255.255.240",
+                "16",
+                "14",
+                "11111111.11111111.11110000"
+              ],
+              [
+                "<strong>/29</strong>",
+                "255.255.255.248",
+                "8",
+                "6",
+                "11111111.11111111.11111000"
+              ],
+              [
+                "<strong>/30</strong>",
+                "255.255.255.252",
+                "4",
+                "2",
+                "11111111.11111111.11111100"
+              ],
+              [
+                "<strong>/31</strong>",
+                "255.255.255.254",
+                "2",
+                "2*",
+                "11111111.11111111.11111110"
+              ],
+              [
+                "<strong>/32</strong>",
+                "255.255.255.255",
+                "1",
+                "0",
+                "11111111.11111111.11111111"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Note /31</strong> : Cas spécial (RFC 3021) pour liens point-à-point, pas d'adresse réseau ni broadcast"
+          },
+          {
+            "type": "h2",
+            "content": "MÉTHODE RAPIDE : \"LE BON BLOC\""
+          },
+          {
+            "type": "h3",
+            "content": "Principe"
+          },
+          {
+            "type": "p",
+            "content": "Pour trouver l'adresse réseau avec un CIDR non classique (ex: /27, /17, /21), il faut trouver le <strong>\"bloc\"</strong> dans lequel se trouve l'IP."
+          },
+          {
+            "type": "h3",
+            "content": "Technique en 3 étapes"
+          },
+          {
+            "type": "p",
+            "content": "#### ÉTAPE 1 : Identifier l'octet concerné"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "/8 à /16 → 2ème octet",
+              "/16 à /24 → 3ème octet",
+              "/24 à /32 → 4ème octet"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "#### ÉTAPE 2 : Calculer la taille du bloc <strong>Formule rapide</strong> : Bloc = 256 - valeur du masque dans l'octet concerné"
+          },
+          {
+            "type": "p",
+            "content": "#### ÉTAPE 3 : Trouver le multiple Diviser la valeur de l'octet par la taille du bloc, prendre la partie entière, multiplier par le bloc."
+          },
+          {
+            "type": "h2",
+            "content": "EXEMPLES DÉTAILLÉS"
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 1 : IP = 192.168.1.75/27"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question</strong> : Adresse réseau, première IP, dernière IP, broadcast ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/27</strong> → Regarde le tableau : Masque = <strong>255.255.255.224</strong>, Bloc = <strong>32</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Octet concerné</strong> : Le 4ème (car /24 à /32)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Valeur de l'octet</strong> : 75"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le bloc</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "75 ÷ 32 = 2,34... → On prend <strong>2</strong>",
+              "2 × 32 = <strong>64</strong> → Début du bloc"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 192.168.1.<strong>64</strong>",
+              "<strong>Première IP utilisable</strong> : 192.168.1.<strong>65</strong>",
+              "<strong>Dernière IP utilisable</strong> : 192.168.1.<strong>94</strong> (64 + 32 - 2)",
+              "<strong>Broadcast</strong> : 192.168.1.<strong>95</strong> (64 + 32 - 1)",
+              "<strong>Plage</strong> : 192.168.1.64/27 (64 à 95)"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Vérification</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Bloc de 32 adresses : 64, 65, ..., 94, 95 ✅",
+              "75 est bien entre 64 et 95 ✅"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 2 : IP = 172.16.135.200/17"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question</strong> : Adresse réseau, broadcast ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/17</strong> → Masque = <strong>255.255.128.0</strong>, Bloc = <strong>128</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Octet concerné</strong> : Le 3ème (car /16 à /24)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Valeur de l'octet</strong> : 135"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le bloc</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "135 ÷ 128 = 1,05... → On prend <strong>1</strong>",
+              "1 × 128 = <strong>128</strong> → Début du bloc"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 172.16.<strong>128</strong>.0",
+              "<strong>Première IP</strong> : 172.16.<strong>128</strong>.1",
+              "<strong>Dernière IP</strong> : 172.16.<strong>255</strong>.254",
+              "<strong>Broadcast</strong> : 172.16.<strong>255</strong>.255",
+              "<strong>Plage</strong> : 172.16.128.0/17 (128.0 à 255.255)"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Vérification</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Bloc de 128 au 3ème octet : 128 à 255 ✅",
+              "135 est bien entre 128 et 255 ✅"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 3 : IP = 10.45.78.92/21"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question</strong> : Adresse réseau, nombre d'hôtes, broadcast ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/21</strong> → Masque = <strong>255.255.248.0</strong>, Bloc = <strong>8</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Octet concerné</strong> : Le 3ème"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Valeur de l'octet</strong> : 78"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le bloc</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "78 ÷ 8 = 9,75 → On prend <strong>9</strong>",
+              "9 × 8 = <strong>72</strong> → Début du bloc"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 10.45.<strong>72</strong>.0",
+              "<strong>Première IP</strong> : 10.45.<strong>72</strong>.1",
+              "<strong>Dernière IP</strong> : 10.45.<strong>79</strong>.254",
+              "<strong>Broadcast</strong> : 10.45.<strong>79</strong>.255",
+              "<strong>Plage</strong> : 10.45.72.0/21",
+              "<strong>Hôtes utilisables</strong> : 2^11 - 2 = <strong>2046</strong>"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Vérification</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Bloc de 8 : 72, 73, 74, 75, 76, 77, 78, 79 ✅",
+              "78 est bien dedans ✅"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 4 : IP = 192.16.5.133/29"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question EXAMEN</strong> : Combien de bits pour la partie réseau ? Combien d'hôtes ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/29</strong> → 29 bits pour le réseau, 3 bits pour les hôtes"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Bits réseau</strong> : <strong>29 bits</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Bits hôtes</strong> : 32 - 29 = <strong>3 bits</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Hôtes</strong> : 2^3 = 8 adresses, donc <strong>6 hôtes utilisables</strong> (8 - 2)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Bloc</strong> : 256 - 248 = <strong>8</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le réseau</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "133 ÷ 8 = 16,625 → On prend <strong>16</strong>",
+              "16 × 8 = <strong>128</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 192.16.5.<strong>128</strong>",
+              "<strong>Première IP</strong> : 192.16.5.<strong>129</strong>",
+              "<strong>Dernière IP</strong> : 192.16.5.<strong>134</strong>",
+              "<strong>Broadcast</strong> : 192.16.5.<strong>135</strong>",
+              "<strong>Hôtes utilisables</strong> : <strong>6</strong>"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple 5 : IP = 192.168.1.17/28"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Question EXAMEN</strong> : Adresse réseau et broadcast ?"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>/28</strong> → Masque = <strong>255.255.255.240</strong>, Bloc = <strong>16</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Trouver le bloc</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "17 ÷ 16 = 1,0625 → <strong>1</strong>",
+              "1 × 16 = <strong>16</strong>"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Résultats</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Adresse réseau</strong> : 192.168.1.<strong>16</strong>",
+              "<strong>Broadcast</strong> : 192.168.1.<strong>31</strong> (16 + 16 - 1)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "TECHNIQUE DU MASQUE INVERSÉ (WILDCARD)"
+          },
+          {
+            "type": "h3",
+            "content": "Principe"
+          },
+          {
+            "type": "p",
+            "content": "Masque générique (wildcard) = Inverse du masque de sous-réseau"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : Wildcard = 255.255.255.255 - Masque"
+          },
+          {
+            "type": "h3",
+            "content": "Exemples"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "CIDR",
+              "Masque",
+              "Wildcard"
+            ],
+            "rows": [
+              [
+                "/24",
+                "255.255.255.0",
+                "0.0.0.255"
+              ],
+              [
+                "/27",
+                "255.255.255.224",
+                "0.0.0.31"
+              ],
+              [
+                "/29",
+                "255.255.255.248",
+                "0.0.0.7"
+              ],
+              [
+                "/17",
+                "255.255.128.0",
+                "0.0.127.255"
+              ],
+              [
+                "/21",
+                "255.255.248.0",
+                "0.0.7.255"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Usage</strong> : ACL Cisco, OSPF, configurations réseau"
+          },
+          {
+            "type": "h2",
+            "content": "CLASSES D'ADRESSES IPv4 (Rappel)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Classe",
+              "Premier octet",
+              "CIDR par défaut",
+              "Masque par défaut",
+              "Plage",
+              "Usage"
+            ],
+            "rows": [
+              [
+                "<strong>A</strong>",
+                "1-126",
+                "/8",
+                "255.0.0.0",
+                "1.0.0.0 - 126.255.255.255",
+                "Très grands réseaux"
+              ],
+              [
+                "<strong>B</strong>",
+                "128-191",
+                "/16",
+                "255.255.0.0",
+                "128.0.0.0 - 191.255.255.255",
+                "Moyens réseaux"
+              ],
+              [
+                "<strong>C</strong>",
+                "192-223",
+                "/24",
+                "255.255.255.0",
+                "192.0.0.0 - 223.255.255.255",
+                "Petits réseaux"
+              ],
+              [
+                "<strong>D</strong>",
+                "224-239",
+                "-",
+                "-",
+                "224.0.0.0 - 239.255.255.255",
+                "Multicast"
+              ],
+              [
+                "<strong>E</strong>",
+                "240-255",
+                "-",
+                "-",
+                "240.0.0.0 - 255.255.255.255",
+                "Réservé/Expérimental"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Adresses spéciales</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>127.0.0.0/8</strong> : Loopback (localhost)",
+              "<strong>169.254.0.0/16</strong> : APIPA (auto-configuration)",
+              "<strong>0.0.0.0</strong> : Route par défaut"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "ADRESSES PRIVÉES (RFC 1918)"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Classe",
+              "Plage",
+              "CIDR",
+              "Masque",
+              "Nombre de réseaux"
+            ],
+            "rows": [
+              [
+                "<strong>A</strong>",
+                "10.0.0.0 - 10.255.255.255",
+                "/8",
+                "255.0.0.0",
+                "1 réseau de 16M hôtes"
+              ],
+              [
+                "<strong>B</strong>",
+                "172.16.0.0 - 172.31.255.255",
+                "/12",
+                "255.240.0.0",
+                "16 réseaux de 65K hôtes"
+              ],
+              [
+                "<strong>C</strong>",
+                "192.168.0.0 - 192.168.255.255",
+                "/16",
+                "255.255.0.0",
+                "256 réseaux de 254 hôtes"
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Important</strong> : Ces adresses ne sont PAS routables sur Internet (NAT requis)"
+          },
+          {
+            "type": "h2",
+            "content": "VLSM (Variable Length Subnet Mask)"
+          },
+          {
+            "type": "h3",
+            "content": "Principe"
+          },
+          {
+            "type": "p",
+            "content": "Découper un réseau en sous-réseaux de tailles différentes selon les besoins."
+          },
+          {
+            "type": "h3",
+            "content": "Méthode"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Lister les besoins</strong> par ordre décroissant",
+              "<strong>Attribuer le CIDR</strong> adapté à chaque besoin",
+              "<strong>Commencer par le plus grand</strong> sous-réseau",
+              "<strong>Continuer séquentiellement</strong>"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple : Découper 192.168.1.0/24"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Besoins</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Réseau A : 100 hôtes",
+              "Réseau B : 50 hôtes",
+              "Réseau C : 20 hôtes",
+              "Réseau D : 10 hôtes"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Résolution</strong> :"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Réseau A (100 hôtes)</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Besoin : 2^n ≥ 102 (100 + 2) → n = 7 bits hôtes",
+              "CIDR : /25 (126 hôtes)",
+              "<strong>192.168.1.0/25</strong> (0 à 127)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Réseau B (50 hôtes)</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Besoin : 2^n ≥ 52 → n = 6 bits",
+              "CIDR : /26 (62 hôtes)",
+              "<strong>192.168.1.128/26</strong> (128 à 191)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Réseau C (20 hôtes)</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Besoin : 2^n ≥ 22 → n = 5 bits",
+              "CIDR : /27 (30 hôtes)",
+              "<strong>192.168.1.192/27</strong> (192 à 223)"
+            ]
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Réseau D (10 hôtes)</strong> :"
+            ]
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Besoin : 2^n ≥ 12 → n = 4 bits",
+              "CIDR : /28 (14 hôtes)",
+              "<strong>192.168.1.224/28</strong> (224 à 239)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "FORMULES À CONNAÎTRE PAR CŒUR"
+          },
+          {
+            "type": "h3",
+            "content": "Nombre de sous-réseaux"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : 2^(bits empruntés)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple</strong> : Réseau /24 → /27 = 3 bits empruntés → 2^3 = <strong>8 sous-réseaux</strong>"
+          },
+          {
+            "type": "h3",
+            "content": "Nombre d'hôtes par sous-réseau"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : 2^(bits hôtes) - 2"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple</strong> : /27 = 5 bits hôtes → 2^5 - 2 = <strong>30 hôtes</strong>"
+          },
+          {
+            "type": "h3",
+            "content": "Taille du bloc"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formule</strong> : 256 - valeur du masque dans l'octet"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple</strong> : /27 → masque = 224 → 256 - 224 = <strong>32</strong>"
+          },
+          {
+            "type": "h2",
+            "content": "ASTUCES POUR L'EXAMEN"
+          },
+          {
+            "type": "h3",
+            "content": "1. Reconnaître le type de question"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Type A</strong> : \"Donnez l'adresse réseau de X.X.X.X/Y\" → Utilise la méthode du bloc"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Type B</strong> : \"Combien d'hôtes dans X.X.X.X/Y ?\" → 2^(32-Y) - 2"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Type C</strong> : \"Découpez en N sous-réseaux\" → VLSM, commence par le plus grand"
+          },
+          {
+            "type": "h3",
+            "content": "2. Vérifications rapides"
+          },
+          {
+            "type": "p",
+            "content": "✅ <strong>L'IP est-elle dans le bon bloc ?</strong>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "192.168.1.75/27 → Réseau 192.168.1.64",
+              "75 est entre 64 et 95 ? OUI ✅"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "✅ <strong>Le broadcast est-il correct ?</strong>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Broadcast = Début du PROCHAIN bloc - 1",
+              "Réseau 64, bloc de 32 → Prochain = 96",
+              "Broadcast = 96 - 1 = <strong>95</strong> ✅"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "✅ <strong>Nombre d'hôtes cohérent ?</strong>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "/27 = 30 hôtes",
+              "Bloc de 32 - 2 (réseau + broadcast) = 30 ✅"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "3. Pièges à éviter"
+          },
+          {
+            "type": "p",
+            "content": "❌ <strong>Ne pas oublier -2</strong> pour les hôtes utilisables ❌ <strong>Confondre masque et wildcard</strong> ❌ <strong>Oublier que 0 est une adresse valide</strong> (ex: 192.168.1.0/24) ❌ <strong>Confondre CIDR et nombre de bits hôtes</strong>"
+          },
+          {
+            "type": "h2",
+            "content": "MÉMO ULTRA-RAPIDE"
+          },
+          {
+            "type": "code",
+            "content": "ÉTAPES SUBNETTING :\n1. CIDR → Masque (table de correspondance)\n2. Calculer BLOC = 256 - valeur masque\n3. Diviser IP_octet / BLOC → partie entière × BLOC\n4. Réseau = Résultat au bon octet\n5. Broadcast = Réseau + BLOC - 1\n6. Première IP = Réseau + 1\n7. Dernière IP = Broadcast - 1\n\nFORMULES CRITIQUES :\n✅ Hôtes = 2^(bits hôtes) - 2\n✅ Sous-réseaux = 2^(bits empruntés)\n✅ Bloc = 256 - valeur masque\n\nCIDR COURANTS :\n/24 = 256 (254 hôtes)\n/25 = 128 (126 hôtes)\n/26 = 64 (62 hôtes)\n/27 = 32 (30 hôtes)\n/28 = 16 (14 hôtes)\n/29 = 8 (6 hôtes)\n/30 = 4 (2 hôtes) → Liens point-à-point"
+          },
+          {
+            "type": "p",
+            "content": "<strong>🎓 Maîtrise cette fiche = Tu éclates le subnetting à l'examen ! 💪</strong>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>📝 Passe maintenant aux 20 exercices pratiques pour t'entraîner !</strong>"
+          }
+        ]
+      },
+      {
+        "id": "ccp4-cisco-ios",
+        "titre": "CCP4 — Commandes Cisco IOS (Fiche de révision)",
+        "sections": [
+          {
+            "type": "h2",
+            "content": "Routeurs et Switchs - Commandes de base pour l'examen"
+          },
+          {
+            "type": "info",
+            "content": "<strong>Pour l'examen</strong> : Connais les commandes de configuration de base, VLAN, routage statique, SSH, et sauvegarde !"
+          },
+          {
+            "type": "h2",
+            "content": "TABLE DES MATIÈRES"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "Modes d'utilisation",
+              "Commandes de base",
+              "Configuration initiale",
+              "Interface et IP",
+              "VLAN (Switch)",
+              "Routage statique",
+              "SSH et Telnet",
+              "Sauvegarde et restauration",
+              "Diagnostic réseau",
+              "Commandes TOP 20 pour l'examen"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "MODES D'UTILISATION <a id=\"modes\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "1. Mode Utilisateur (User EXEC)"
+          },
+          {
+            "type": "code",
+            "content": "Router>"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : Par défaut à la connexion",
+              "<strong>Droits</strong> : Consultation uniquement",
+              "<strong>Commandes</strong> : <code>show</code>, <code>ping</code>, <code>traceroute</code>"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "2. Mode Privilégié (Privileged EXEC)"
+          },
+          {
+            "type": "code",
+            "content": "Router#"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : <code>Router&gt; enable</code>",
+              "<strong>Droits</strong> : Toutes les commandes show + commandes de debug",
+              "<strong>Commandes</strong> : Tous les <code>show</code>, <code>debug</code>, <code>copy</code>, <code>reload</code>"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "3. Mode Configuration Globale"
+          },
+          {
+            "type": "code",
+            "content": "Router(config)#"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : <code>Router# configure terminal</code> (ou <code>conf t</code>)",
+              "<strong>Droits</strong> : Configuration du routeur/switch",
+              "<strong>Commandes</strong> : Hostname, mots de passe, interfaces, routage"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "4. Mode Configuration d'Interface"
+          },
+          {
+            "type": "code",
+            "content": "Router(config-if)#"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : <code>Router(config)# interface FastEthernet0/0</code>",
+              "<strong>Droits</strong> : Configuration d'une interface spécifique"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "5. Mode Configuration de Ligne"
+          },
+          {
+            "type": "code",
+            "content": "Router(config-line)#"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Accès</strong> : <code>Router(config)# line vty 0 4</code>",
+              "<strong>Droits</strong> : Configuration des lignes de connexion (console, VTY)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "COMMANDES DE BASE <a id=\"base\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Navigation entre modes"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Commande",
+              "Action"
+            ],
+            "rows": [
+              [
+                "<code>enable</code>",
+                "User → Privileged"
+              ],
+              [
+                "<code>configure terminal</code> (ou <code>conf t</code>)",
+                "Privileged → Config globale"
+              ],
+              [
+                "<code>interface &lt;nom&gt;</code>",
+                "Config globale → Config interface"
+              ],
+              [
+                "<code>line console 0</code> / <code>line vty 0 4</code>",
+                "Config globale → Config ligne"
+              ],
+              [
+                "<code>exit</code>",
+                "Retour au mode précédent"
+              ],
+              [
+                "<code>end</code>",
+                "Retour direct au mode Privileged"
+              ],
+              [
+                "<code>disable</code>",
+                "Privileged → User"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Aide et complétion"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Commande",
+              "Action"
+            ],
+            "rows": [
+              [
+                "<code>?</code>",
+                "Liste des commandes disponibles"
+              ],
+              [
+                "<code>sh?</code>",
+                "Commandes commençant par \"sh\""
+              ],
+              [
+                "<code>show ?</code>",
+                "Options de la commande show"
+              ],
+              [
+                "<code>Tab</code>",
+                "Auto-complétion"
+              ],
+              [
+                "<code>Ctrl+C</code>",
+                "Interruption de commande"
+              ],
+              [
+                "<code>Ctrl+Z</code>",
+                "Retour au mode Privileged"
+              ]
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "CONFIGURATION INITIALE <a id=\"config\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Nom du routeur/switch"
+          },
+          {
+            "type": "code",
+            "content": "Router> enable\nRouter# configure terminal\nRouter(config)# hostname R1\nR1(config)#"
+          },
+          {
+            "type": "h3",
+            "content": "Mot de passe ENABLE (mode privilégié)"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# enable secret Cisco123!"
+          },
+          {
+            "type": "info",
+            "content": "⚠️ <code>enable secret</code> est <strong>chiffré</strong> (MD5), préférable à <code>enable password</code>"
+          },
+          {
+            "type": "h3",
+            "content": "Mot de passe Console"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# line console 0\nR1(config-line)# password Console123\nR1(config-line)# login\nR1(config-line)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Mot de passe VTY (Telnet/SSH)"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# line vty 0 4\nR1(config-line)# password VTY123\nR1(config-line)# login\nR1(config-line)# transport input ssh telnet\nR1(config-line)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Bannière de connexion"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# banner motd #\nAccès réservé au personnel autorisé !\n#"
+          },
+          {
+            "type": "h3",
+            "content": "Chiffrement des mots de passe"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# service password-encryption"
+          },
+          {
+            "type": "info",
+            "content": "Chiffre tous les mots de passe en clair (type 7 - faible)"
+          },
+          {
+            "type": "h2",
+            "content": "CONFIGURATION INTERFACE ET IP <a id=\"interface\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Configurer une IP sur une interface"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Routeur</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# interface GigabitEthernet0/0\nR1(config-if)# ip address 192.168.1.1 255.255.255.0\nR1(config-if)# description LAN-ADMIN\nR1(config-if)# no shutdown\nR1(config-if)# exit"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Switch (VLAN 1 par défaut)</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# interface vlan 1\nSW1(config-if)# ip address 192.168.1.10 255.255.255.0\nSW1(config-if)# no shutdown\nSW1(config-if)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Passerelle par défaut (Switch uniquement)"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# ip default-gateway 192.168.1.1"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier la configuration"
+          },
+          {
+            "type": "code",
+            "content": "R1# show ip interface brief\nR1# show interfaces GigabitEthernet0/0\nR1# show ip route"
+          },
+          {
+            "type": "h2",
+            "content": "VLAN (SWITCH UNIQUEMENT) <a id=\"vlan\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Créer un VLAN"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# vlan 10\nSW1(config-vlan)# name ADMIN\nSW1(config-vlan)# exit\n\nSW1(config)# vlan 20\nSW1(config-vlan)# name USERS\nSW1(config-vlan)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Assigner un port à un VLAN (mode Access)"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# interface FastEthernet0/5\nSW1(config-if)# switchport mode access\nSW1(config-if)# switchport access vlan 10\nSW1(config-if)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Configurer un port Trunk (inter-switch ou switch-routeur)"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# interface GigabitEthernet0/1\nSW1(config-if)# switchport mode trunk\nSW1(config-if)# switchport trunk allowed vlan 10,20,30\nSW1(config-if)# exit"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier les VLAN"
+          },
+          {
+            "type": "code",
+            "content": "SW1# show vlan brief\nSW1# show interfaces trunk\nSW1# show interfaces FastEthernet0/5 switchport"
+          },
+          {
+            "type": "h3",
+            "content": "Supprimer un VLAN"
+          },
+          {
+            "type": "code",
+            "content": "SW1(config)# no vlan 10"
+          },
+          {
+            "type": "h2",
+            "content": "ROUTAGE STATIQUE <a id=\"routage\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Route statique classique"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route <réseau_destination> <masque> <next_hop_ou_interface>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple 1</strong> : Via next-hop"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2"
+          },
+          {
+            "type": "info",
+            "content": "Route vers 192.168.2.0/24 via le routeur 10.0.0.2"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple 2</strong> : Via interface de sortie"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 192.168.3.0 255.255.255.0 GigabitEthernet0/1"
+          },
+          {
+            "type": "h3",
+            "content": "Route par défaut (default route)"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 0.0.0.0 0.0.0.0 <next_hop>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Exemple</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 0.0.0.0 0.0.0.0 200.100.50.1"
+          },
+          {
+            "type": "info",
+            "content": "Toutes les destinations inconnues → 200.100.50.1"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier les routes"
+          },
+          {
+            "type": "code",
+            "content": "R1# show ip route\nR1# show ip route static"
+          },
+          {
+            "type": "h3",
+            "content": "Supprimer une route"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# no ip route 192.168.2.0 255.255.255.0 10.0.0.2"
+          },
+          {
+            "type": "h2",
+            "content": "SSH ET TELNET <a id=\"ssh\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Configuration SSH (VERSION 2 RECOMMANDÉE)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 1</strong> : Nom d'hôte et domaine"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# hostname R1\nR1(config)# ip domain-name entreprise.local"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 2</strong> : Générer les clés RSA"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# crypto key generate rsa\nHow many bits in the modulus [512]: 1024"
+          },
+          {
+            "type": "info",
+            "content": "⚠️ Minimum 768 bits pour SSHv2, <strong>1024 bits recommandé</strong>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 3</strong> : Créer un utilisateur local"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# username admin privilege 15 secret AdminPass123!"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 4</strong> : Configurer les lignes VTY"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# line vty 0 4\nR1(config-line)# transport input ssh\nR1(config-line)# login local\nR1(config-line)# exit"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Étape 5</strong> : Forcer SSH version 2"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip ssh version 2\nR1(config)# ip ssh time-out 60\nR1(config)# ip ssh authentication-retries 3"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier SSH"
+          },
+          {
+            "type": "code",
+            "content": "R1# show ip ssh\nR1# show ssh"
+          },
+          {
+            "type": "h3",
+            "content": "Se connecter en SSH (depuis un autre équipement)"
+          },
+          {
+            "type": "code",
+            "content": "R1# ssh -l admin 192.168.1.1"
+          },
+          {
+            "type": "h2",
+            "content": "SAUVEGARDE ET RESTAURATION <a id=\"sauvegarde\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Voir les configurations"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Commande",
+              "Description"
+            ],
+            "rows": [
+              [
+                "<code>show running-config</code>",
+                "Config active (RAM)"
+              ],
+              [
+                "<code>show startup-config</code>",
+                "Config de démarrage (NVRAM)"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Sauvegarder la configuration"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Méthode 1</strong> : Commande classique"
+          },
+          {
+            "type": "code",
+            "content": "R1# copy running-config startup-config\nDestination filename [startup-config]? [Entrée]"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Méthode 2</strong> : Commande courte"
+          },
+          {
+            "type": "code",
+            "content": "R1# write memory"
+          },
+          {
+            "type": "p",
+            "content": "ou"
+          },
+          {
+            "type": "code",
+            "content": "R1# wr"
+          },
+          {
+            "type": "h3",
+            "content": "Restaurer la configuration de démarrage"
+          },
+          {
+            "type": "code",
+            "content": "R1# copy startup-config running-config"
+          },
+          {
+            "type": "h3",
+            "content": "Effacer la configuration"
+          },
+          {
+            "type": "code",
+            "content": "R1# erase startup-config\nR1# reload"
+          },
+          {
+            "type": "info",
+            "content": "⚠️ <strong>reload</strong> redémarre l'équipement"
+          },
+          {
+            "type": "h3",
+            "content": "Sauvegarder vers un serveur TFTP"
+          },
+          {
+            "type": "code",
+            "content": "R1# copy running-config tftp:\nAddress or name of remote host []? 192.168.1.100\nDestination filename [r1-confg]? backup-r1.cfg"
+          },
+          {
+            "type": "h3",
+            "content": "Restaurer depuis un serveur TFTP"
+          },
+          {
+            "type": "code",
+            "content": "R1# copy tftp: running-config\nAddress or name of remote host []? 192.168.1.100\nSource filename []? backup-r1.cfg"
+          },
+          {
+            "type": "h2",
+            "content": "DIAGNOSTIC RÉSEAU <a id=\"diagnostic\"></a>"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes de vérification"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Commande",
+              "Usage"
+            ],
+            "rows": [
+              [
+                "<code>show version</code>",
+                "Version IOS, uptime, mémoire"
+              ],
+              [
+                "<code>show running-config</code>",
+                "Configuration active"
+              ],
+              [
+                "<code>show startup-config</code>",
+                "Configuration sauvegardée"
+              ],
+              [
+                "<code>show ip interface brief</code>",
+                "<strong>ESSENTIEL</strong> - État des interfaces"
+              ],
+              [
+                "<code>show interfaces</code>",
+                "Détails de toutes les interfaces"
+              ],
+              [
+                "<code>show ip route</code>",
+                "<strong>ESSENTIEL</strong> - Table de routage"
+              ],
+              [
+                "<code>show vlan brief</code>",
+                "Liste des VLAN (switch)"
+              ],
+              [
+                "<code>show mac address-table</code>",
+                "Table MAC (switch)"
+              ],
+              [
+                "<code>show arp</code>",
+                "Table ARP"
+              ],
+              [
+                "<code>show ip protocols</code>",
+                "Protocoles de routage actifs"
+              ],
+              [
+                "<code>show clock</code>",
+                "Date et heure"
+              ],
+              [
+                "<code>show flash</code>",
+                "Contenu de la mémoire Flash"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Tests de connectivité"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Ping</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "R1# ping 192.168.1.10\nR1# ping 192.168.1.10 repeat 100\nR1# ping 192.168.1.10 size 1500"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Traceroute</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "R1# traceroute 8.8.8.8"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Telnet</strong> (test de port) :"
+          },
+          {
+            "type": "code",
+            "content": "R1# telnet 192.168.1.10 80"
+          },
+          {
+            "type": "h3",
+            "content": "Debug (avec précaution !)"
+          },
+          {
+            "type": "code",
+            "content": "R1# debug ip icmp\nR1# debug ip routing\nR1# no debug all  ← TOUJOURS arrêter le debug !"
+          },
+          {
+            "type": "info",
+            "content": "⚠️ Le debug peut saturer le CPU en production"
+          },
+          {
+            "type": "h2",
+            "content": "TOP 20 COMMANDES POUR L'EXAMEN <a id=\"top20\"></a>"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "#",
+              "Commande",
+              "Usage"
+            ],
+            "rows": [
+              [
+                "1",
+                "<code>enable</code>",
+                "Passer en mode privilégié"
+              ],
+              [
+                "2",
+                "<code>configure terminal</code>",
+                "Entrer en mode config"
+              ],
+              [
+                "3",
+                "<code>hostname &lt;nom&gt;</code>",
+                "Changer le nom"
+              ],
+              [
+                "4",
+                "<code>enable secret &lt;mdp&gt;</code>",
+                "Mot de passe enable chiffré"
+              ],
+              [
+                "5",
+                "<code>interface &lt;nom&gt;</code>",
+                "Configurer une interface"
+              ],
+              [
+                "6",
+                "<code>ip address &lt;IP&gt; &lt;masque&gt;</code>",
+                "Assigner une IP"
+              ],
+              [
+                "7",
+                "<code>no shutdown</code>",
+                "Activer une interface"
+              ],
+              [
+                "8",
+                "<code>ip route &lt;réseau&gt; &lt;masque&gt; &lt;next_hop&gt;</code>",
+                "Route statique"
+              ],
+              [
+                "9",
+                "<code>show ip interface brief</code>",
+                "<strong>État des interfaces</strong>"
+              ],
+              [
+                "10",
+                "<code>show ip route</code>",
+                "<strong>Table de routage</strong>"
+              ],
+              [
+                "11",
+                "<code>show running-config</code>",
+                "Config active"
+              ],
+              [
+                "12",
+                "<code>copy running-config startup-config</code>",
+                "<strong>Sauvegarder</strong>"
+              ],
+              [
+                "13",
+                "<code>vlan &lt;numéro&gt;</code>",
+                "Créer un VLAN"
+              ],
+              [
+                "14",
+                "<code>switchport mode access</code>",
+                "Port en mode access"
+              ],
+              [
+                "15",
+                "<code>switchport access vlan &lt;n&gt;</code>",
+                "Assigner VLAN"
+              ],
+              [
+                "16",
+                "<code>switchport mode trunk</code>",
+                "Port en mode trunk"
+              ],
+              [
+                "17",
+                "<code>line vty 0 4</code>",
+                "Config lignes SSH/Telnet"
+              ],
+              [
+                "18",
+                "<code>transport input ssh</code>",
+                "Autoriser SSH"
+              ],
+              [
+                "19",
+                "<code>ping &lt;IP&gt;</code>",
+                "Test connectivité"
+              ],
+              [
+                "20",
+                "<code>reload</code>",
+                "Redémarrer"
+              ]
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "SCÉNARIOS D'EXAMEN FRÉQUENTS"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 1 : Configuration initiale routeur"
+          },
+          {
+            "type": "code",
+            "content": "Router> enable\nRouter# configure terminal\nRouter(config)# hostname R1\nR1(config)# enable secret Cisco123!\nR1(config)# line console 0\nR1(config-line)# password Console123\nR1(config-line)# login\nR1(config-line)# exit\nR1(config)# interface GigabitEthernet0/0\nR1(config-if)# ip address 192.168.1.1 255.255.255.0\nR1(config-if)# no shutdown\nR1(config-if)# exit\nR1(config)# exit\nR1# copy running-config startup-config"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 2 : Configuration VLAN sur switch"
+          },
+          {
+            "type": "code",
+            "content": "SW1# configure terminal\nSW1(config)# vlan 10\nSW1(config-vlan)# name ADMIN\nSW1(config-vlan)# exit\nSW1(config)# vlan 20\nSW1(config-vlan)# name USERS\nSW1(config-vlan)# exit\nSW1(config)# interface FastEthernet0/5\nSW1(config-if)# switchport mode access\nSW1(config-if)# switchport access vlan 10\nSW1(config-if)# exit\nSW1(config)# interface GigabitEthernet0/1\nSW1(config-if)# switchport mode trunk\nSW1(config-if)# exit\nSW1# write memory"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 3 : Configuration SSH"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# hostname R1\nR1(config)# ip domain-name lab.local\nR1(config)# crypto key generate rsa\n[1024]\nR1(config)# username admin privilege 15 secret Admin123!\nR1(config)# line vty 0 4\nR1(config-line)# transport input ssh\nR1(config-line)# login local\nR1(config-line)# exit\nR1(config)# ip ssh version 2"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 4 : Routage statique"
+          },
+          {
+            "type": "code",
+            "content": "R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2\nR1(config)# ip route 192.168.3.0 255.255.255.0 10.0.0.2\nR1(config)# ip route 0.0.0.0 0.0.0.0 200.50.100.1\nR1(config)# exit\nR1# show ip route"
+          },
+          {
+            "type": "h2",
+            "content": "ASTUCES POUR L'EXAMEN"
+          },
+          {
+            "type": "h3",
+            "content": "À RETENIR ABSOLUMENT"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>no shutdown</strong> après config d'interface (sinon reste down)",
+              "<strong>copy run start</strong> pour sauvegarder (sinon perdu au reboot)",
+              "<strong>enable secret</strong> est chiffré, <strong>enable password</strong> non",
+              "<strong>SSH nécessite</strong> : hostname + domain-name + crypto key + user local",
+              "<strong>Mode trunk</strong> = plusieurs VLANs, <strong>mode access</strong> = un seul VLAN",
+              "<strong>ip default-gateway</strong> sur switch, <strong>ip route 0.0.0.0 0.0.0.0</strong> sur routeur"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "ERREURS FRÉQUENTES"
+          },
+          {
+            "type": "p",
+            "content": "❌ Oublier <code>no shutdown</code> → interface reste down   ❌ Oublier <code>copy run start</code> → config perdue au reboot   ❌ Confondre <code>transport input ssh</code> et <code>transport input telnet</code>   ❌ Oublier <code>login</code> ou <code>login local</code> sur line vty → connexion refusée   ❌ Mauvais masque de sous-réseau   ❌ Route statique sans next-hop"
+          },
+          {
+            "type": "h2",
+            "content": "CHECKLIST AVANT L'EXAMEN"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "[ ] Je connais les 5 modes (User, Privileged, Config, Interface, Line)",
+              "[ ] Je sais configurer une IP sur une interface",
+              "[ ] Je sais créer des VLAN et les assigner aux ports",
+              "[ ] Je sais configurer un port trunk",
+              "[ ] Je sais configurer une route statique",
+              "[ ] Je sais configurer SSH (hostname, domain, crypto, user, vty)",
+              "[ ] Je sais sauvegarder la config (<code>copy run start</code>)",
+              "[ ] Je connais les commandes <code>show ip interface brief</code> et <code>show ip route</code>",
+              "[ ] Je sais faire un ping et un traceroute",
+              "[ ] Je sais distinguer mode access et mode trunk"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>🚀 Tu es prêt pour les commandes Cisco IOS ! Passe au QCM Réseau maintenant !</strong>"
+          }
+        ]
+      },
       /* EXAMEN_COURS */
     ],
     flashcards: [
@@ -10154,6 +15994,46 @@ role where I can grow my infrastructure and security skills.</pre>
       {"id":"exam_ccp3_f18","recto":"Q18 — Partitions MBR","verso":"<strong>Partition Primaire</strong> :<br>• Directement accessible au système<br>• <strong>Maximum 4 partitions primaires</strong> sur un disque MBR<br>• Peut être bootable<br><strong>Partition Étendue</strong> :<br>• Type spécial de partition primaire<br>• Ne contient PAS de données<br>• <strong>Conteneur</strong> pour les partitions logiques<br>• <strong>Maximum 1 partition étendue</strong> par disque<br>• Permet de contourner la limite de 4 partitions<br><strong>Partition Logique</strong> :<br>• Créée <strong>à l'intérieur</strong> d'une partition étendue<br>• Nombre <strong>illimité</strong> (en pratique limité à 12-15 sur Linux)<br>• Utilisée pour stocker des données<br><strong>Exemple schéma MBR</strong> :<br><code style=\"display:block;white-space:pre-wrap\">/dev/sda1  → Primaire (bootable)\n/dev/sda2  → Primaire\n/dev/sda3  → Primaire\n/dev/sda4  → Étendue\n    /dev/sda5  → Logique\n    /dev/sda6  → Logique\n    /dev/sda7  → Logique</code><br><strong>Note</strong> : GPT (GUID Partition Table) remplace MBR et supporte 128 partitions primaires."},
       {"id":"exam_ccp3_f19","recto":"Q19 — Quotas disque","verso":"<strong>Étapes principales</strong> :<br>1. <strong>Installer les outils</strong> :<br><code style=\"display:block;white-space:pre-wrap\">apt install quota</code><br>2. <strong>Activer les quotas dans <code>/etc/fstab</code></strong> :<br><code style=\"display:block;white-space:pre-wrap\">/dev/sda1  /home  ext4  defaults,usrquota,grpquota  0  2</code><br>3. <strong>Remonter la partition</strong> :<br><code style=\"display:block;white-space:pre-wrap\">mount -o remount /home</code><br>4. <strong>Créer les fichiers de quotas</strong> :<br><code style=\"display:block;white-space:pre-wrap\">quotacheck -cum /home</code><br>5. <strong>Activer les quotas</strong> :<br><code style=\"display:block;white-space:pre-wrap\">quotaon /home</code><br>6. <strong>Définir le quota pour jdupont</strong> :<br><code style=\"display:block;white-space:pre-wrap\">edquota -u jdupont</code><br>Mettre : soft limit = 5000000 (5 Go en Ko), hard limit = 5242880<br>7. <strong>Vérifier</strong> :<br><code style=\"display:block;white-space:pre-wrap\">quota -u jdupont\nrepquota /home</code>"},
       {"id":"exam_ccp3_f20","recto":"Q20 — Dépannage boot","verso":"<strong>3 premières vérifications en mode rescue</strong> :<br><strong>1. Vérifier les partitions et <code>/etc/fstab</code></strong> :<br><code style=\"display:block;white-space:pre-wrap\">fdisk -l                    # Lister les partitions\nmount /dev/sda1 /mnt        # Monter la partition root\ncat /mnt/etc/fstab          # Vérifier fstab</code><br>Problème fréquent : Erreur dans fstab (UUID incorrect, partition inexistante)<br><strong>2. Vérifier GRUB</strong> :<br><code style=\"display:block;white-space:pre-wrap\">ls /mnt/boot/grub           # Vérifier que GRUB existe\ngrub-install /dev/sda       # Réinstaller GRUB si besoin\nupdate-grub                 # Mettre à jour la config</code><br>Problème fréquent : GRUB corrompu ou mal configuré<br><strong>3. Vérifier les logs</strong> :<br><code style=\"display:block;white-space:pre-wrap\">journalctl -xb -1           # Logs du boot précédent\ndmesg | tail -50            # Messages du noyau\ncat /mnt/var/log/syslog | tail -100</code><br>Rechercher les messages d'erreur (kernel panic, failed to mount, etc.)<br><strong>Autres vérifications</strong> :<br>• Espace disque plein (<code>df -h</code>)<br>• Problème de droits sur <code>/</code> ou <code>/boot</code><br>• Noyau corrompu"},
+      {"id":"exam_ccp4_f1","recto":"Q1 — Modèle OSI : Expliquez le rôle des couches 2, 3 et 4 du modèle OSI. Donnez un exemple de protocole et d'équipement pour chacune.","verso":"<strong>Couche 2 (Liaison de données)</strong> :<br>• <strong>Rôle</strong> : Transmission des données entre équipements sur le même réseau local, gestion des adresses MAC, détection d'erreurs<br>• <strong>Protocole</strong> : Ethernet (802.3), Wi-Fi (802.11), PPP<br>• <strong>Équipement</strong> : Switch<br>• <strong>Fonction</strong> : Segmente les domaines de collision, maintient la table MAC (CAM table)<br><strong>Couche 3 (Réseau)</strong> :<br>• <strong>Rôle</strong> : Routage des paquets entre réseaux différents, adressage logique (IP)<br>• <strong>Protocole</strong> : IP (IPv4/IPv6), ICMP, IGMP<br>• <strong>Équipement</strong> : Routeur<br>• <strong>Fonction</strong> : Prend des décisions de routage, segmente les domaines de broadcast<br><strong>Couche 4 (Transport)</strong> :<br>• <strong>Rôle</strong> : Transport de bout en bout, segmentation, fiabilité (TCP) ou rapidité (UDP)<br>• <strong>Protocole</strong> : TCP, UDP<br>• <strong>Équipement</strong> : Pare-feu stateful, Load Balancer<br>• <strong>Fonction</strong> : Gestion des ports, contrôle de flux, réassemblage des segments"},
+      {"id":"exam_ccp4_f2","recto":"Q2 — TCP vs UDP : Expliquez les différences entre TCP et UDP. Dans quels cas utilise-t-on l'un plutôt que l'autre ? Donnez 3 exemples pour chaque.","verso":"<strong>TCP (Transmission Control Protocol)</strong> :<br>• <strong>Caractéristiques</strong> : Orienté connexion, fiable, contrôle de flux, ordre garanti, accusés de réception<br>• <strong>Avantages</strong> : Garantit la livraison des données<br>• <strong>Inconvénients</strong> : Plus lent, overhead important (en-têtes, ACK)<br>• <strong>Cas d'usage</strong> :<br>1. HTTP/HTTPS (navigation web) → Besoin de fiabilité<br>2. FTP (transfert de fichiers) → Intégrité des données<br>3. SMTP (email) → Pas de perte de messages<br><strong>UDP (User Datagram Protocol)</strong> :<br>• <strong>Caractéristiques</strong> : Non connecté, rapide, pas de garantie de livraison, pas d'ordre<br>• <strong>Avantages</strong> : Faible latence, léger<br>• <strong>Inconvénients</strong> : Peut perdre des paquets<br>• <strong>Cas d'usage</strong> :<br>1. DNS (résolution de noms) → Rapidité prioritaire, si échec on retente<br>2. VoIP/Streaming (voix/vidéo) → Temps réel, quelques pertes acceptables<br>3. Jeux en ligne → Faible latence critique<br><strong>Règle</strong> : TCP quand on a besoin de fiabilité, UDP quand on a besoin de rapidité."},
+      {"id":"exam_ccp4_f3","recto":"Q3 — Subnetting pratique : Une entreprise dispose du réseau 192.168.10.0/24. Elle doit créer 4 sous-réseaux égaux. Donnez : le nouveau masque CIDR, les 4 plages d'adresses, le nombre d'hôtes par sous-réseau.","verso":"<strong>Calcul</strong> :<br>• Réseau initial : 192.168.10.0/24 (256 adresses)<br>• 4 sous-réseaux → 2^2 = 4 → Besoin de 2 bits supplémentaires<br>• Nouveau masque : /24 + 2 = <strong>/26</strong><br><strong>Masque /26</strong> :<br>• 255.255.255.192<br>• Bloc de 64 adresses par sous-réseau<br>• Hôtes utilisables : 64 - 2 = <strong>62 hôtes</strong><br><strong>Les 4 sous-réseaux</strong> :<br>Sous-réseau — Plage — Réseau — Broadcast — Hôtes utilisables<br>1 — 192.168.10.0/26 — 192.168.10.0 — 192.168.10.63 — 10.1 - 10.62<br>2 — 192.168.10.64/26 — 192.168.10.64 — 192.168.10.127 — 10.65 - 10.126<br>3 — 192.168.10.128/26 — 192.168.10.128 — 192.168.10.191 — 10.129 - 10.190<br>4 — 192.168.10.192/26 — 192.168.10.192 — 192.168.10.255 — 10.193 - 10.254<br><strong>Résumé</strong> :<br>• Nouveau CIDR : <strong>/26</strong><br>• Hôtes par sous-réseau : <strong>62</strong><br>• Total d'adresses par sous-réseau : <strong>64</strong>"},
+      {"id":"exam_ccp4_f4","recto":"Q4 — VLAN : Expliquez la différence entre un port Access et un port Trunk. Donnez un exemple d'utilisation pour chacun.","verso":"<strong>Port Access</strong> :<br>• <strong>Configuration</strong> : <code>switchport mode access</code> + <code>switchport access vlan X</code><br>• <strong>Fonction</strong> : Appartient à <strong>UN SEUL VLAN</strong><br>• <strong>Trames</strong> : Non étiquetées (untagged)<br>• <strong>Usage</strong> : Connexion d'équipements finaux (PC, imprimante, téléphone IP)<br>• <strong>Exemple</strong> : Port connecté à un PC du service RH → VLAN 10<br><strong>Port Trunk</strong> :<br>• <strong>Configuration</strong> : <code>switchport mode trunk</code> + <code>switchport trunk allowed vlan X,Y,Z</code><br>• <strong>Fonction</strong> : Transporte <strong>PLUSIEURS VLAN</strong> simultanément<br>• <strong>Trames</strong> : Étiquetées avec tag 802.1Q (sauf VLAN natif)<br>• <strong>Usage</strong> : Liaison entre switchs ou entre switch et routeur<br>• <strong>Exemple</strong> : Lien entre switch d'étage et switch coeur de réseau transportant VLAN 10, 20, 30<br><strong>Différence clé</strong> : Access = 1 VLAN, Trunk = plusieurs VLAN"},
+      {"id":"exam_ccp4_f5","recto":"Q5 — Protocole ARP : Expliquez le fonctionnement du protocole ARP. Quelle est la commande pour afficher la table ARP sur Windows et sur Linux ?","verso":"<strong>Fonctionnement ARP</strong> :<br>1. <strong>Problème</strong> : Machine A (192.168.1.10) veut communiquer avec Machine B (192.168.1.20) mais ne connaît que son IP<br>2. <strong>ARP Request</strong> : A envoie un broadcast \"Qui a l'IP 192.168.1.20 ? Donne-moi ton adresse MAC !\"<br>3. <strong>ARP Reply</strong> : B répond en unicast \"C'est moi ! Mon MAC est AA:BB:CC:DD:EE:FF\"<br>4. <strong>Mise en cache</strong> : A stocke l'association IP ↔ MAC dans sa table ARP<br>5. <strong>Communication</strong> : A peut maintenant envoyer des trames Ethernet à B<br><strong>Commandes pour afficher la table ARP</strong> :<br><strong>Windows</strong> :<br><code style=\"display:block;white-space:pre-wrap\">arp -a</code><br><strong>Linux</strong> :<br><code style=\"display:block;white-space:pre-wrap\">arp -n\n# ou\nip neigh show</code><br><strong>Note</strong> : La table ARP a une durée de vie limitée (timeout), généralement quelques minutes."},
+      {"id":"exam_ccp4_f6","recto":"Q6 — DHCP : Expliquez le processus DORA du protocole DHCP. Quels ports UDP sont utilisés ?","verso":"<strong>Processus DORA</strong> :<br><strong>1. DISCOVER (Découverte)</strong> :<br>• Client envoie un <strong>broadcast</strong> : \"Je cherche un serveur DHCP !\"<br>• Source : 0.0.0.0, Destination : 255.255.255.255<br>• Port : UDP 68 → UDP 67<br><strong>2. OFFER (Offre)</strong> :<br>• Serveur répond : \"Voici une adresse IP disponible : 192.168.1.100\"<br>• Propose aussi masque, passerelle, DNS, durée de bail<br>• Envoi en broadcast (ou unicast selon config)<br><strong>3. REQUEST (Requête)</strong> :<br>• Client accepte l'offre en broadcast : \"J'accepte l'IP 192.168.1.100\"<br>• Broadcast car plusieurs serveurs ont pu répondre<br><strong>4. ACKNOWLEDGMENT (Accusé de réception)</strong> :<br>• Serveur confirme : \"OK, l'IP 192.168.1.100 est à toi pour X heures\"<br>• Client configure son interface réseau<br><strong>Ports UDP utilisés</strong> :<br>• Serveur DHCP : <strong>UDP 67</strong><br>• Client DHCP : <strong>UDP 68</strong><br><strong>Renouvellement</strong> : À 50% du bail, le client tente de renouveler (DHCP REQUEST direct au serveur)."},
+      {"id":"exam_ccp4_f7","recto":"Q7 — Routage statique : Sur un routeur Cisco, vous devez créer une route statique pour que le réseau 192.168.2.0/24 passe par la passerelle 10.0.0.2. Quelle commande utilisez-vous ? Expliquez chaque paramètre.","verso":"<strong>Commande Cisco</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2</code><br><strong>Explication des paramètres</strong> :<br>• <code>ip route</code> : Commande de création de route statique<br>• <code>192.168.2.0</code> : Réseau de destination<br>• <code>255.255.255.0</code> : Masque de sous-réseau du réseau destination (/24)<br>• <code>10.0.0.2</code> : Adresse IP du prochain saut (next-hop) ou interface de sortie<br><strong>Signification</strong> : \"Pour atteindre le réseau 192.168.2.0/24, envoie les paquets vers 10.0.0.2\"<br><strong>Variantes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Via interface de sortie\nip route 192.168.2.0 255.255.255.0 GigabitEthernet0/1\n\n# Route par défaut\nip route 0.0.0.0 0.0.0.0 10.0.0.1\n\n# Avec distance administrative (priorité)\nip route 192.168.2.0 255.255.255.0 10.0.0.2 10</code><br><strong>Vérification</strong> :<br><code style=\"display:block;white-space:pre-wrap\">show ip route\nshow ip route static</code>"},
+      {"id":"exam_ccp4_f8","recto":"Q8 — Dépannage réseau : Un utilisateur ne peut pas accéder à Internet. Décrivez les 5 premières étapes de dépannage que vous effectueriez (commandes à utiliser incluses).","verso":"<strong>Les 5 premières étapes</strong> :<br><strong>1. Vérifier la couche physique</strong> :<br>• Câble réseau branché ?<br>• Voyant de la carte réseau allumé ?<br>• Commande Windows : <code>ipconfig</code> → \"Média déconnecté\" ?<br>• Commande Linux : <code>ip link show</code> → État UP ?<br><strong>2. Vérifier la configuration IP</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Windows : ipconfig /all\nLinux : ip addr show</code><br>• IP correcte (pas 169.254.x.x = APIPA) ?<br>• Masque correct ?<br>• Passerelle configurée ?<br><strong>3. Tester la connectivité locale (passerelle)</strong> :<br><code style=\"display:block;white-space:pre-wrap\">ping 192.168.1.1</code><br>• Si échec → Problème local (câble, switch, VLAN)<br>• Si succès → Problème au-delà du réseau local<br><strong>4. Tester la résolution DNS</strong> :<br><code style=\"display:block;white-space:pre-wrap\">nslookup www.google.com\nping 8.8.8.8</code><br>• Si ping IP fonctionne mais pas nslookup → Problème DNS<br>• Vérifier les serveurs DNS : <code>ipconfig /all</code><br><strong>5. Vérifier le routage</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Windows : tracert www.google.com\nLinux : traceroute www.google.com</code><br>• Où les paquets sont-ils bloqués ?<br>• Vérifier pare-feu local : <code>netsh advfirewall show allprofiles</code><br><strong>Méthodologie</strong> : Approche en couches (OSI) de bas en haut."},
+      {"id":"exam_ccp4_f9","recto":"Q9 — NAT/PAT : Expliquez la différence entre NAT et PAT. Pourquoi utilise-t-on majoritairement le PAT dans les réseaux d'entreprise ?","verso":"<strong>NAT (Network Address Translation)</strong> :<br>• <strong>NAT statique</strong> : 1 IP privée ↔ 1 IP publique (mapping permanent)<br>• <strong>NAT dynamique</strong> : Pool d'IPs publiques (mapping temporaire)<br>• <strong>Limitation</strong> : Besoin d'autant d'IPs publiques que de connexions simultanées<br><strong>Exemple NAT statique</strong> :<br><code style=\"display:block;white-space:pre-wrap\">192.168.1.10 → 200.50.100.10 (toujours)\n192.168.1.20 → 200.50.100.11 (toujours)</code><br><strong>PAT (Port Address Translation)</strong> = NAT overload :<br>• <strong>Principe</strong> : Plusieurs IPs privées → 1 seule IP publique<br>• <strong>Différenciation</strong> : Utilise les ports sources<br>• <strong>Avantage</strong> : Économie d'adresses IPv4 publiques<br><strong>Exemple PAT</strong> :<br><code style=\"display:block;white-space:pre-wrap\">192.168.1.10:50000 → 200.50.100.1:50000\n192.168.1.20:50001 → 200.50.100.1:50001\n192.168.1.30:50002 → 200.50.100.1:50002</code><br><strong>Pourquoi PAT est majoritaire</strong> :<br>• <strong>Pénurie d'IPv4</strong> : Peu d'IPs publiques disponibles<br>• <strong>Coût</strong> : IPs publiques coûteuses<br>• <strong>Simplicité</strong> : 1 seule IP publique suffit pour toute l'entreprise<br>• <strong>Sécurité</strong> : Machines internes non directement accessibles<br><strong>Usage NAT statique</strong> : Serveurs publics (web, mail) ayant besoin d'une IP fixe."},
+      {"id":"exam_ccp4_f10","recto":"Q10 — DNS : Un utilisateur tape www.google.com dans son navigateur. Expliquez le processus de résolution DNS étape par étape.","verso":"<strong>Processus de résolution DNS</strong> :<br><strong>1. Vérification du cache local</strong> :<br>• Le navigateur vérifie son cache DNS<br>• Si trouvé → Utilise l'IP en cache<br>• Commande : <code>ipconfig /displaydns</code> (Windows)<br><strong>2. Requête au resolver DNS</strong> :<br>• Si pas en cache, le PC contacte son serveur DNS configuré (ex: 8.8.8.8)<br>• Requête : \"Quelle est l'IP de www.google.com ?\"<br><strong>3. Vérification cache du resolver</strong> :<br>• Le resolver vérifie son cache<br>• Si trouvé → Renvoie l'IP au client<br><strong>4. Résolution récursive (si pas en cache)</strong> :<br>a) <strong>Serveur racine (Root server)</strong> :<br>• Resolver contacte un serveur racine (13 clusters)<br>• \"Je cherche www.google.com, qui gère .com ?\"<br>• Réponse : Adresse des serveurs TLD .com<br>b) <strong>Serveur TLD (Top Level Domain)</strong> :<br>• Resolver contacte serveur TLD .com<br>• \"Qui gère google.com ?\"<br>• Réponse : Adresse des serveurs NS de google.com<br>c) <strong>Serveur autoritaire</strong> :<br>• Resolver contacte le serveur NS de google.com<br>• \"Quelle est l'IP de www.google.com ?\"<br>• Réponse : 142.250.185.206<br><strong>5. Retour au client</strong> :<br>• Le resolver renvoie l'IP au PC<br>• Mise en cache (TTL = durée de vie)<br><strong>6. Connexion HTTP</strong> :<br>• Le navigateur se connecte à 142.250.185.206:80 ou :443<br><strong>Types d'enregistrements DNS</strong> :<br>• <strong>A</strong> : IPv4<br>• <strong>AAAA</strong> : IPv6<br>• <strong>CNAME</strong> : Alias<br>• <strong>MX</strong> : Serveur mail<br>• <strong>NS</strong> : Serveur de noms"},
+      {"id":"exam_ccp4_f11","recto":"Q11 — VPN IPsec","verso":"<strong>Mode Transport</strong> :<br>• <strong>Chiffrement</strong> : Seulement les <strong>données</strong> (payload) du paquet IP<br>• <strong>En-tête IP</strong> : Reste en clair (adresses source/destination visibles)<br>• <strong>Usage</strong> : Communication de <strong>bout en bout</strong> entre 2 hôtes<br>• <strong>Exemple</strong> : Client VPN vers serveur distant (accès à distance)<br>• <strong>Avantage</strong> : Moins d'overhead (en-tête IP original conservé)<br><strong>Mode Tunnel</strong> :<br>• <strong>Chiffrement</strong> : <strong>Tout le paquet IP</strong> (en-tête + données)<br>• <strong>Nouvel en-tête IP</strong> : Ajouté par les passerelles VPN<br>• <strong>Usage</strong> : VPN <strong>site-à-site</strong> entre routeurs/pare-feu<br>• <strong>Exemple</strong> : Connexion siège ↔ agence<br>• <strong>Avantage</strong> : Sécurité maximale (tout est chiffré)<br><strong>Choix</strong> :<br>• <strong>Transport</strong> → Accès distant (road warriors)<br>• <strong>Tunnel</strong> → Site-à-site (interconnexion de réseaux)<br><strong>Schéma conceptuel</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Transport : [En-tête IP original][Données chiffrées]\nTunnel    : [Nouvel en-tête IP][En-tête IP original chiffré][Données chiffrées]</code>"},
+      {"id":"exam_ccp4_f12","recto":"Q12 — Protocoles de routage","verso":"<strong>RIP (Routing Information Protocol)</strong> :<br>• <strong>Métrique</strong> : Nombre de sauts (hop count)<br>• <strong>Limite</strong> : Maximum 15 sauts (16 = infini)<br>• <strong>Convergence</strong> : <strong>Lente</strong> (30-60 secondes)<br>• <strong>Mises à jour</strong> : Toutes les 30 secondes (broadcast/multicast)<br>• <strong>Bande passante</strong> : Ne prend PAS en compte<br>• <strong>Cas d'usage</strong> : Petits réseaux simples (&lt;10 routeurs)<br><strong>OSPF (Open Shortest Path First)</strong> :<br>• <strong>Métrique</strong> : Coût basé sur la <strong>bande passante</strong><br>• <strong>Limite</strong> : Aucune limite de sauts<br>• <strong>Convergence</strong> : <strong>Rapide</strong> (&lt;5 secondes)<br>• <strong>Mises à jour</strong> : Événementielles (seulement si changement)<br>• <strong>Hiérarchie</strong> : Supporte les areas (scalabilité)<br>• <strong>Cas d'usage</strong> : Réseaux moyens à grands<br><strong>Recommandation pour 500 postes / 3 sites</strong> :<br>→ <strong>OSPF</strong><br><strong>Justification</strong> :<br>• Convergence rapide (critique pour 500 utilisateurs)<br>• Supporte VLSM et CIDR<br>• Scalable (pas de limite de sauts)<br>• Métrique intelligente (bande passante)<br>• Standard ouvert (interopérabilité)<br><strong>Configuration minimale OSPF</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# router ospf 1\nR1(config-router)# network 192.168.1.0 0.0.0.255 area 0</code>"},
+      {"id":"exam_ccp4_f13","recto":"Q13 — ACL Cisco","verso":"<strong>Commandes ACL étendue</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! 1. Créer l'ACL\nR1(config)# access-list 100 deny tcp 192.168.1.0 0.0.0.255 any eq 80\nR1(config)# access-list 100 permit ip 192.168.1.0 0.0.0.255 any\n\n! 2. Appliquer l'ACL sur l'interface sortante (vers Internet)\nR1(config)# interface GigabitEthernet0/1\nR1(config-if)# ip access-group 100 out</code><br><strong>Explication ligne par ligne</strong> :<br><strong>Ligne 1</strong> : <code>access-list 100 deny tcp 192.168.1.0 0.0.0.255 any eq 80</code><br>• <code>100</code> : Numéro ACL étendue (100-199)<br>• <code>deny</code> : Bloquer<br>• <code>tcp</code> : Protocole TCP<br>• <code>192.168.1.0 0.0.0.255</code> : Réseau source avec wildcard mask<br>• <code>any</code> : N'importe quelle destination<br>• <code>eq 80</code> : Port destination égal à 80 (HTTP)<br><strong>Ligne 2</strong> : <code>access-list 100 permit ip 192.168.1.0 0.0.0.255 any</code><br>• <code>permit ip</code> : Autoriser tout le reste (tout protocole IP)<br>• <strong>Important</strong> : Sans cette ligne, tout serait bloqué (implicit deny)<br><strong>Application</strong> :<br>• <code>ip access-group 100 out</code> : Applique l'ACL en sortie de l'interface<br>• Direction : <code>out</code> car on filtre le trafic qui sort vers Internet<br><strong>Vérification</strong> :<br><code style=\"display:block;white-space:pre-wrap\">show access-lists\nshow ip interface GigabitEthernet0/1</code><br><strong>Alternative avec ACL nommée</strong> :<br><code style=\"display:block;white-space:pre-wrap\">ip access-list extended BLOCK_HTTP\n deny tcp 192.168.1.0 0.0.0.255 any eq 80\n permit ip any any\ninterface GigabitEthernet0/1\n ip access-group BLOCK_HTTP out</code>"},
+      {"id":"exam_ccp4_f14","recto":"Q14 — IPv6","verso":"<strong>Différences IPv4 vs IPv6</strong> :<br>Caractéristique — IPv4 — IPv6<br><strong>Taille adresse</strong> — 32 bits — 128 bits<br><strong>Format</strong> — Décimal (4 octets) — Hexadécimal (8 groupes)<br><strong>Nombre d'adresses</strong> — ~4 milliards — 340 sextillions<br><strong>Notation</strong> — 192.168.1.1 — 2001:db8::1<br><strong>Broadcast</strong> — Oui — Non (remplacé par multicast)<br><strong>Fragmentation</strong> — Routeurs + hôtes — Seulement hôtes<br><strong>NAT</strong> — Nécessaire — Optionnel<br><strong>Configuration</strong> — DHCP ou manuelle — SLAAC, DHCPv6 ou manuelle<br><strong>ARP</strong> — ARP — NDP (Neighbor Discovery)<br><strong>Types d'adresses IPv6</strong> :<br><strong>1. Unicast</strong> :<br>• <strong>Global Unicast</strong> : 2000::/3 (équivalent IP publiques)<br>• <strong>Link-Local</strong> : FE80::/10 (communication sur le lien local uniquement)<br>• <strong>Unique Local</strong> : FC00::/7 (équivalent IP privées)<br>• <strong>Loopback</strong> : ::1 (équivalent 127.0.0.1)<br><strong>2. Multicast</strong> :<br>• <strong>Plage</strong> : FF00::/8<br>• <strong>FF02::1</strong> : Tous les nœuds du lien local<br>• <strong>FF02::2</strong> : Tous les routeurs du lien local<br>• <strong>Usage</strong> : Remplace le broadcast IPv4<br><strong>3. Anycast</strong> :<br>• Adresse assignée à plusieurs interfaces<br>• Le paquet va à l'interface la plus proche<br><strong>Pas d'adresse broadcast</strong> en IPv6 (remplacé par multicast)<br><strong>Exemple d'adresse</strong> :<br><code style=\"display:block;white-space:pre-wrap\">2001:0db8:85a3:0000:0000:8a2e:0370:7334\nSimplifié : 2001:db8:85a3::8a2e:370:7334</code>"},
+      {"id":"exam_ccp4_f15","recto":"Q15 — Pare-feu","verso":"<strong>Pare-feu Stateless</strong> :<br>• <strong>Principe</strong> : Filtre <strong>paquet par paquet</strong> indépendamment<br>• <strong>Analyse</strong> : Uniquement les en-têtes (IP source/dest, ports, protocole)<br>• <strong>État</strong> : Ne garde <strong>aucun contexte</strong> des connexions<br>• <strong>Performance</strong> : Rapide (peu de mémoire)<br>• <strong>Sécurité</strong> : Faible (pas de suivi des sessions)<br><strong>Exemple de règle stateless</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Autoriser : IP source 192.168.1.0/24, TCP port destination 80\nProblème : Il faut aussi autoriser les réponses (TCP port source 80)\n→ Besoin de 2 règles (entrante + sortante)</code><br><strong>Pare-feu Stateful</strong> :<br>• <strong>Principe</strong> : Suit l'<strong>état des connexions</strong> (table d'état)<br>• <strong>Analyse</strong> : En-têtes + contexte (connexion établie, nouvelle, reliée)<br>• <strong>État</strong> : Garde en mémoire les sessions actives<br>• <strong>Performance</strong> : Plus lent (table d'état à maintenir)<br>• <strong>Sécurité</strong> : Élevée (comprend le contexte)<br><strong>Exemple de règle stateful</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Autoriser : IP source 192.168.1.0/24, TCP port destination 80\nRésultat : Les réponses sont automatiquement autorisées (connexion établie)\n→ 1 seule règle nécessaire</code><br><strong>États TCP suivis</strong> :<br>• <strong>NEW</strong> : Nouvelle connexion<br>• <strong>ESTABLISHED</strong> : Connexion établie<br>• <strong>RELATED</strong> : Connexion liée (ex: FTP data channel)<br>• <strong>INVALID</strong> : Paquet invalide<br><strong>Choix</strong> :<br>• Stateless → ACL simples, routeurs<br>• <strong>Stateful</strong> → Pare-feu modernes (recommandé)"},
+      {"id":"exam_ccp4_f16","recto":"Q16 — Wi-Fi WPA2","verso":"<strong>WEP (Wired Equivalent Privacy)</strong> :<br>• <strong>Chiffrement</strong> : RC4 (64 ou 128 bits)<br>• <strong>Sécurité</strong> : <strong>OBSOLÈTE</strong> - Cassable en quelques minutes<br>• <strong>Problème</strong> : Clés faibles, vecteur d'initialisation (IV) réutilisé<br>• <strong>Verdict</strong> : <strong>NE JAMAIS UTILISER</strong><br><strong>WPA (Wi-Fi Protected Access)</strong> :<br>• <strong>Chiffrement</strong> : TKIP (amélioration de RC4)<br>• <strong>Sécurité</strong> : Amélioration temporaire (2003)<br>• <strong>Authentification</strong> : PSK (Pre-Shared Key) ou 802.1X<br>• <strong>Problème</strong> : TKIP vulnérable, obsolète<br>• <strong>Verdict</strong> : <strong>Éviter</strong> (transition vers WPA2)<br><strong>WPA2 (Wi-Fi Protected Access 2)</strong> :<br>• <strong>Chiffrement</strong> : <strong>AES</strong> (Advanced Encryption Standard) avec CCMP<br>• <strong>Sécurité</strong> : <strong>Très sécurisé</strong> (norme actuelle depuis 2004)<br>• <strong>Authentification</strong> :<br>• <strong>WPA2-Personal</strong> : PSK (mot de passe partagé)<br>• <strong>WPA2-Enterprise</strong> : 802.1X + RADIUS (authentification par utilisateur)<br>• <strong>Verdict</strong> : <strong>RECOMMANDÉ</strong><br><strong>WPA3</strong> (dernière version, 2018) :<br>• Amélioration de WPA2 (SAE au lieu de PSK)<br>• Protection contre attaques par dictionnaire<br>• Chiffrement individualisé (OWE pour réseaux publics)<br><strong>Recommandation client</strong> :<br>→ <strong>WPA2-Personal</strong> (PME/particuliers) ou <strong>WPA2-Enterprise</strong> (grande entreprise)<br><strong>Configuration recommandée</strong> :<br>• <strong>Protocole</strong> : WPA2<br>• <strong>Chiffrement</strong> : AES<br>• <strong>Mot de passe</strong> : Minimum 12 caractères (complexe)<br>• <strong>SSID</strong> : Visible (le cacher n'apporte pas de sécurité)<br>• <strong>Désactiver WPS</strong> (vulnérable)"},
+      {"id":"exam_ccp4_f17","recto":"Q17 — QoS","verso":"<strong>Pourquoi la QoS est nécessaire pour la VoIP</strong> :<br><strong>Problèmes sans QoS</strong> :<br>1. <strong>Latence</strong> : Délai &gt; 150ms → Conversation difficile<br>2. <strong>Gigue (Jitter)</strong> : Variation de latence → Voix saccadée<br>3. <strong>Perte de paquets</strong> : &gt; 1% → Coupures audio<br>4. <strong>Bande passante</strong> : Trafic données peut saturer le lien<br><strong>Exigences VoIP</strong> :<br>• Latence : <strong>&lt; 150ms</strong> (idéal &lt; 100ms)<br>• Gigue : <strong>&lt; 30ms</strong><br>• Perte de paquets : <strong>&lt; 1%</strong><br>• Bande passante : ~85 kbps par appel (codec G.711)<br><strong>Mécanismes QoS à mettre en place</strong> :<br><strong>1. Classification et marquage</strong> :<br>• Identifier le trafic VoIP (ports, adresses)<br>• <strong>Marquer</strong> avec DSCP EF (Expedited Forwarding)<br>• Valeur DSCP : 46 (priorité maximale)<br><strong>2. Queuing (Files d'attente)</strong> :<br>• <strong>LLQ (Low Latency Queue)</strong> : File prioritaire pour VoIP<br>• <strong>CBWFQ</strong> : Files séparées par classe de trafic<br>• Garantir bande passante minimale pour VoIP<br><strong>3. Policing/Shaping</strong> :<br>• Limiter le trafic non-prioritaire<br>• Lisser le trafic VoIP (shaping)<br><strong>4. Priorisation</strong> :<br>• <strong>Voix</strong> : Priorité maximale<br>• <strong>Signalisation VoIP</strong> : Haute priorité (SIP, H.323)<br>• <strong>Données critiques</strong> : Priorité moyenne<br>• <strong>Best effort</strong> : Reste<br><strong>Configuration exemple (Cisco)</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! Classification\nclass-map match-all VOIX\n match ip dscp ef\n\n! Policy\npolicy-map QOS-VOIP\n class VOIX\n  priority percent 30\n  \n! Application\ninterface GigabitEthernet0/1\n service-policy output QOS-VOIP</code><br><strong>Tests de validation</strong> :<br>• <strong>Ping avec taille</strong> : Vérifier latence<br>• <strong>Iperf</strong> : Tester bande passante<br>• <strong>Wireshark</strong> : Analyser DSCP, jitter"},
+      {"id":"exam_ccp4_f18","recto":"Q18 — Load Balancing","verso":"<strong>Principe du Load Balancing</strong> :<br>• <strong>Répartir</strong> le trafic entrant entre plusieurs serveurs<br>• <strong>Améliorer</strong> la disponibilité et les performances<br>• <strong>Éviter</strong> la surcharge d'un seul serveur<br>• <strong>Détecter</strong> les serveurs défaillants (health checks)<br><strong>Algorithmes de répartition</strong> :<br><strong>1. Round-Robin</strong> :<br>• Chacun son tour (serveur 1, 2, 3, 1, 2, 3...)<br>• Simple, équitable<br>• <strong>Problème</strong> : Ne tient pas compte de la charge réelle<br><strong>2. Least Connections</strong> :<br>• Envoie vers le serveur avec le <strong>moins de connexions actives</strong><br>• Intelligent, adaptatif<br>• <strong>Usage</strong> : Sessions longues (base de données)<br><strong>3. IP Hash</strong> :<br>• Basé sur l'<strong>adresse IP source</strong> (hash)<br>• Même client → Même serveur (persistance de session)<br>• <strong>Usage</strong> : Applications avec sessions (e-commerce)<br><strong>4. Weighted (Pondéré)</strong> :<br>• Serveurs ont des <strong>poids</strong> selon leur capacité<br>• Serveur puissant reçoit plus de trafic<br>• <strong>Usage</strong> : Serveurs hétérogènes<br><strong>5. Least Response Time</strong> :<br>• Serveur avec le <strong>meilleur temps de réponse</strong><br>• <strong>Usage</strong> : Optimisation performance<br><strong>Cas d'usage concret</strong> :<br><strong>Scénario</strong> : Site e-commerce avec 3 serveurs web<br><strong>Architecture</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Internet\n   ↓\nLoad Balancer (HAProxy/F5)\n   ↓\n├── Serveur Web 1 (192.168.1.10)\n├── Serveur Web 2 (192.168.1.11)\n└── Serveur Web 3 (192.168.1.12)\n   ↓\nBase de données (backend)</code><br><strong>Configuration</strong> :<br>• <strong>Algorithme</strong> : IP Hash (persistance de session, panier d'achat)<br>• <strong>Health checks</strong> : HTTP GET / toutes les 5 secondes<br>• <strong>Failover</strong> : Si serveur down, redirection automatique<br>• <strong>SSL Offloading</strong> : Load balancer gère HTTPS (décharge serveurs)<br><strong>Avantages</strong> :<br>• Haute disponibilité (si 1 serveur tombe, 2 restent)<br>• Performance (charge répartie)<br>• Scalabilité (ajouter serveurs facilement)<br>• Maintenance (mise à jour serveur par serveur)"},
+      {"id":"exam_ccp4_f19","recto":"Q19 — Spanning Tree","verso":"<strong>Problème des boucles</strong> :<br>• <strong>Tempêtes de broadcast</strong> : Paquets broadcast tournent en boucle infiniment<br>• <strong>Saturation CPU</strong> : Switchs surchargés<br>• <strong>Duplications de trames</strong> : Même trame reçue plusieurs fois<br>• <strong>Instabilité table MAC</strong> : Apprentissage incorrect<br><strong>Solution STP (Spanning Tree Protocol - 802.1D)</strong> :<br><strong>Fonctionnement</strong> :<br><strong>1. Élection du Root Bridge</strong> :<br>• Switch avec la plus <strong>petite priorité</strong> (défaut : 32768 + VLAN ID)<br>• Si égalité : Plus petite adresse MAC<br>• Devient le point central de l'arbre<br><strong>2. Calcul du coût vers le root</strong> :<br>• Chaque switch calcule le <strong>meilleur chemin</strong> vers le root<br>• Coût basé sur la bande passante :<br>• 10 Mbps : 100<br>• 100 Mbps : 19<br>• 1 Gbps : 4<br>• 10 Gbps : 2<br><strong>3. Blocage des ports redondants</strong> :<br>• Ports offrant un chemin alternatif sont <strong>bloqués</strong><br>• Évite les boucles tout en gardant la redondance<br><strong>États des ports STP</strong> :<br>1. <strong>Blocking</strong> (Bloqué) :<br>• N'envoie/reçoit pas de données<br>• Écoute seulement les BPDU<br>• Durée : Permanent (sauf changement topologie)<br>2. <strong>Listening</strong> (Écoute) :<br>• Transition après blocage<br>• Écoute BPDU, prépare à transférer<br>• Durée : 15 secondes (Forward Delay)<br>3. <strong>Learning</strong> (Apprentissage) :<br>• Apprend les adresses MAC<br>• Ne transfère pas encore de données<br>• Durée : 15 secondes<br>4. <strong>Forwarding</strong> (Transfert) :<br>• <strong>État actif</strong> : Transfère les données<br>• Port opérationnel<br>5. <strong>Disabled</strong> (Désactivé) :<br>• Port administrativement désactivé<br>• Ne participe pas à STP<br><strong>Transition Blocking → Forwarding : 30-50 secondes</strong><br><strong>Évolutions</strong> :<br>• <strong>RSTP (802.1w)</strong> : Convergence &lt; 6 secondes<br>• <strong>PVST+</strong> : STP par VLAN (Cisco)<br>• <strong>MST (802.1s)</strong> : Multiple Spanning Tree<br><strong>Commandes Cisco</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! Voir l'état STP\nshow spanning-tree\n\n! Définir priorité (devenir root)\nspanning-tree vlan 1 priority 4096\n\n! Activer RSTP\nspanning-tree mode rapid-pvst</code>"},
+      {"id":"exam_ccp4_f20","recto":"Q20 — Dépannage VLAN","verso":"<strong>Causes possibles</strong> :<br><strong>1. Pas de routage inter-VLAN configuré</strong> :<br>• Les VLAN sont des domaines de broadcast séparés<br>• <strong>Solution</strong> : Router-on-a-stick ou switch L3 avec SVI<br><strong>2. Trunks mal configurés</strong> :<br>• VLAN non autorisés sur le trunk<br>• <strong>Vérification</strong> : <code>show interfaces trunk</code><br>• <strong>Solution</strong> : <code>switchport trunk allowed vlan 10,20</code><br><strong>3. Ports Access mal assignés</strong> :<br>• Utilisateurs dans le mauvais VLAN<br>• <strong>Vérification</strong> : <code>show vlan brief</code><br>• <strong>Solution</strong> : <code>switchport access vlan X</code><br><strong>4. Pare-feu / ACL bloque le trafic</strong> :<br>• Règles trop restrictives sur le routeur<br>• <strong>Vérification</strong> : <code>show access-lists</code>, <code>show ip interface</code><br>• <strong>Solution</strong> : Ajuster les ACL<br><strong>5. VLAN n'existe pas sur tous les switchs</strong> :<br>• VLAN créé seulement sur certains switchs<br>• <strong>Vérification</strong> : <code>show vlan</code> sur chaque switch<br>• <strong>Solution</strong> : Créer le VLAN partout<br><strong>Méthodologie de dépannage</strong> :<br><strong>Étape 1 - Vérifier la connectivité locale</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! PC VLAN 10 peut-il pinger d'autres PC VLAN 10 ?\nping 192.168.10.5</code><br>• Si échec → Problème VLAN local (port Access, trunk)<br><strong>Étape 2 - Vérifier la configuration VLAN</strong> :<br><code style=\"display:block;white-space:pre-wrap\">SW1# show vlan brief\nSW1# show interfaces fa0/5 switchport</code><br>• Port dans le bon VLAN ?<br>• Mode Access ou Trunk correct ?<br><strong>Étape 3 - Vérifier les trunks</strong> :<br><code style=\"display:block;white-space:pre-wrap\">SW1# show interfaces trunk\nSW1# show interfaces gi0/1 switchport</code><br>• VLANs autorisés sur le trunk ?<br>• Native VLAN cohérent entre switchs ?<br><strong>Étape 4 - Vérifier le routage inter-VLAN</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! Sur switch L3 ou routeur\nshow ip interface brief\nshow ip route</code><br>• SVI des VLAN configurés et UP ?<br>• Passerelle configurée sur les PC ?<br><strong>Étape 5 - Tester depuis le routeur</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1# ping 192.168.10.5\nR1# ping 192.168.20.5</code><br>• Routeur peut-il joindre les 2 VLAN ?<br><strong>Étape 6 - Vérifier les ACL/Pare-feu</strong> :<br><code style=\"display:block;white-space:pre-wrap\">show access-lists\nshow ip interface gi0/0.10</code><br><strong>Configuration correcte Router-on-a-Stick</strong> :<br><code style=\"display:block;white-space:pre-wrap\">! Sur le routeur\ninterface GigabitEthernet0/0.10\n encapsulation dot1Q 10\n ip address 192.168.10.1 255.255.255.0\n\ninterface GigabitEthernet0/0.20\n encapsulation dot1Q 20\n ip address 192.168.20.1 255.255.255.0\n\n! Sur le switch\ninterface GigabitEthernet0/1\n switchport mode trunk\n switchport trunk allowed vlan 10,20</code><br><strong>Tests de validation</strong> :<br><code style=\"display:block;white-space:pre-wrap\">PC VLAN 10 → ping passerelle (192.168.10.1)\nPC VLAN 10 → ping PC VLAN 20 (192.168.20.5)\nWireshark : Vérifier tags 802.1Q sur trunk</code>"},
+      {"id":"exam_ccp4_ex1","recto":"Exercice 1 — IP = 192.168.1.50/24<br><strong>Questions</strong> :<br>a) Quelle est l'adresse réseau ?<br>b) Quelle est l'adresse de broadcast ?<br>c) Quelle est la première adresse IP utilisable ?<br>d) Quelle est la dernière adresse IP utilisable ?<br>e) Combien d'hôtes utilisables dans ce réseau ?","verso":"<strong>Résolution</strong> :<br>• /24 = 255.255.255.0, Bloc = 256<br>• Octet concerné : 4ème<br>• 50 ÷ 256 = 0 → 0 × 256 = <strong>0</strong><br><strong>Réponses</strong> :<br>• a) Adresse réseau : <strong>192.168.1.0</strong><br>• b) Broadcast : <strong>192.168.1.255</strong><br>• c) Première IP : <strong>192.168.1.1</strong><br>• d) Dernière IP : <strong>192.168.1.254</strong><br>• e) Hôtes : <strong>254</strong> (2^8 - 2)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex2","recto":"Exercice 2 — IP = 172.16.10.100/16<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Adresse de broadcast ?<br>c) Nombre d'hôtes utilisables ?<br>d) Masque de sous-réseau ?","verso":"<strong>Résolution</strong> :<br>• /16 = 255.255.0.0<br>• Classe B standard<br><strong>Réponses</strong> :<br>• a) Réseau : <strong>172.16.0.0</strong><br>• b) Broadcast : <strong>172.16.255.255</strong><br>• c) Hôtes : <strong>65 534</strong> (2^16 - 2)<br>• d) Masque : <strong>255.255.0.0</strong><br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex3","recto":"Exercice 3 — IP = 10.45.78.92/8<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Adresse de broadcast ?<br>c) Classe de cette adresse ?<br>d) Est-ce une adresse privée ?","verso":"<strong>Réponses</strong> :<br>• a) Réseau : <strong>10.0.0.0</strong><br>• b) Broadcast : <strong>10.255.255.255</strong><br>• c) Classe : <strong>A</strong><br>• d) Privée : <strong>OUI</strong> (10.0.0.0/8)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex4","recto":"Exercice 4 — IP = 192.168.5.200/25<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Adresse de broadcast ?<br>c) Première IP utilisable ?<br>d) Dernière IP utilisable ?<br>e) Combien d'hôtes ?","verso":"<strong>Résolution</strong> :<br>• /25 = 255.255.255.128, Bloc = 128<br>• 200 ÷ 128 = 1 → 1 × 128 = <strong>128</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>192.168.5.128</strong><br>• b) Broadcast : <strong>192.168.5.255</strong> (128 + 128 - 1)<br>• c) Première IP : <strong>192.168.5.129</strong><br>• d) Dernière IP : <strong>192.168.5.254</strong><br>• e) Hôtes : <strong>126</strong> (2^7 - 2)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex5","recto":"Exercice 5 — IP = 172.20.100.75/26<br><strong>Questions</strong> :<br>a) Masque de sous-réseau ?<br>b) Adresse réseau ?<br>c) Adresse de broadcast ?<br>d) Plage d'IPs utilisables (première - dernière) ?","verso":"<strong>Résolution</strong> :<br>• /26 = 255.255.255.192, Bloc = 64<br>• 75 ÷ 64 = 1 → 1 × 64 = <strong>64</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.255.192</strong><br>• b) Réseau : <strong>172.20.100.64</strong><br>• c) Broadcast : <strong>172.20.100.127</strong><br>• d) Plage : <strong>172.20.100.65 - 172.20.100.126</strong><br><strong>Points</strong> : 5/5<br>## 🟡 NIVEAU 2 - INTERMÉDIAIRE (Exercices 6-10)"},
+      {"id":"exam_ccp4_ex6","recto":"Exercice 6 — IP = 192.168.1.75/27<br><strong>Questions</strong> :<br>a) Combien de bits pour la partie réseau ?<br>b) Combien de bits pour la partie hôte ?<br>c) Adresse réseau ?<br>d) Broadcast ?<br>e) Combien d'hôtes utilisables ?","verso":"<strong>Résolution</strong> :<br>• /27 → 27 bits réseau, 5 bits hôtes<br>• Bloc = 256 - 224 = 32<br>• 75 ÷ 32 = 2 → 2 × 32 = <strong>64</strong><br><strong>Réponses</strong> :<br>• a) Bits réseau : <strong>27</strong><br>• b) Bits hôtes : <strong>5</strong> (32 - 27)<br>• c) Réseau : <strong>192.168.1.64</strong><br>• d) Broadcast : <strong>192.168.1.95</strong><br>• e) Hôtes : <strong>30</strong> (2^5 - 2)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex7","recto":"Exercice 7 — IP = 192.16.5.133/29<br><strong>Questions</strong> (TYPE EXAMEN) :<br>a) Combien de bits utilisés pour identifier la partie réseau ?<br>b) Combien de bits utilisés pour identifier la partie hôte ?<br>c) Combien de machines peut-on mettre dans ce sous-réseau ?<br>d) Adresse réseau ?<br>e) Adresse de broadcast ?","verso":"<strong>Résolution</strong> :<br>• /29 = 29 bits réseau, 3 bits hôtes<br>• Bloc = 256 - 248 = 8<br>• 133 ÷ 8 = 16 → 16 × 8 = <strong>128</strong><br><strong>Réponses</strong> :<br>• a) Bits réseau : <strong>29 bits</strong><br>• b) Bits hôtes : <strong>3 bits</strong><br>• c) Machines : <strong>6</strong> (2^3 - 2)<br>• d) Réseau : <strong>192.16.5.128</strong><br>• e) Broadcast : <strong>192.16.5.135</strong><br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex8","recto":"Exercice 8 — IP = 192.168.1.17/28<br><strong>Questions</strong> (TYPE EXAMEN) :<br>a) Calculez l'adresse réseau<br>b) Calculez l'adresse de diffusion (broadcast)<br>c) Première IP utilisable ?<br>d) Dernière IP utilisable ?","verso":"<strong>Résolution</strong> :<br>• /28, Bloc = 16<br>• 17 ÷ 16 = 1 → 1 × 16 = <strong>16</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>192.168.1.16</strong><br>• b) Broadcast : <strong>192.168.1.31</strong><br>• c) Première IP : <strong>192.168.1.17</strong><br>• d) Dernière IP : <strong>192.168.1.30</strong><br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex9","recto":"Exercice 9 — IP = 172.30.45.180/23<br><strong>Questions</strong> :<br>a) Masque de sous-réseau ?<br>b) Adresse réseau ?<br>c) Adresse broadcast ?<br>d) Nombre d'hôtes utilisables ?","verso":"<strong>Résolution</strong> :<br>• /23 = 255.255.254.0, Bloc = 2 (au 3ème octet)<br>• 45 ÷ 2 = 22 → 22 × 2 = <strong>44</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.254.0</strong><br>• b) Réseau : <strong>172.30.44.0</strong><br>• c) Broadcast : <strong>172.30.45.255</strong><br>• d) Hôtes : <strong>510</strong> (2^9 - 2)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex10","recto":"Exercice 10 — IP = 10.120.88.200/22<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Broadcast ?<br>c) Combien d'hôtes utilisables ?<br>d) À quelle classe appartient cette adresse ?","verso":"<strong>Résolution</strong> :<br>• /22 = 255.255.252.0, Bloc = 4<br>• 88 ÷ 4 = 22 → 22 × 4 = <strong>88</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>10.120.88.0</strong><br>• b) Broadcast : <strong>10.120.91.255</strong><br>• c) Hôtes : <strong>1022</strong> (2^10 - 2)<br>• d) Classe : <strong>A</strong><br><strong>Points</strong> : 5/5<br>## 🔴 NIVEAU 3 - AVANCÉ (Exercices 11-15)"},
+      {"id":"exam_ccp4_ex11","recto":"Exercice 11 — IP = 172.16.135.200/17<br><strong>Questions</strong> (TYPE EXAMEN) :<br>a) Masque de sous-réseau ?<br>b) Adresse réseau ?<br>c) Adresse broadcast ?<br>d) Nombre d'hôtes utilisables ?<br>e) Plage d'adresses IP complète ?","verso":"<strong>Résolution</strong> :<br>• /17 = 255.255.128.0, Bloc = 128<br>• 135 ÷ 128 = 1 → 1 × 128 = <strong>128</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.128.0</strong><br>• b) Réseau : <strong>172.16.128.0</strong><br>• c) Broadcast : <strong>172.16.255.255</strong><br>• d) Hôtes : <strong>32 766</strong> (2^15 - 2)<br>• e) Plage : <strong>172.16.128.0 - 172.16.255.255</strong><br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex12","recto":"Exercice 12 — IP = 10.45.78.92/21<br><strong>Questions</strong> (TYPE EXAMEN) :<br>a) Masque de sous-réseau ?<br>b) Adresse réseau ?<br>c) Broadcast ?<br>d) Nombre d'hôtes ?<br>e) Masque générique (wildcard) ?","verso":"<strong>Résolution</strong> :<br>• /21 = 255.255.248.0, Bloc = 8<br>• 78 ÷ 8 = 9 → 9 × 8 = <strong>72</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.248.0</strong><br>• b) Réseau : <strong>10.45.72.0</strong><br>• c) Broadcast : <strong>10.45.79.255</strong><br>• d) Hôtes : <strong>2046</strong> (2^11 - 2)<br>• e) Wildcard : <strong>0.0.7.255</strong> (255.255.255.255 - 255.255.248.0)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex13","recto":"Exercice 13 — IP = 192.168.50.75/19<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Adresse broadcast ?<br>c) Première IP utilisable ?<br>d) Dernière IP utilisable ?<br>e) Combien de sous-réseaux /24 peut-on créer dans ce /19 ?","verso":"<strong>Résolution</strong> :<br>• /19 = 255.255.224.0, Bloc = 32<br>• 50 ÷ 32 = 1 → 1 × 32 = <strong>32</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>192.168.32.0</strong><br>• b) Broadcast : <strong>192.168.63.255</strong><br>• c) Première IP : <strong>192.168.32.1</strong><br>• d) Dernière IP : <strong>192.168.63.254</strong><br>• e) Sous-réseaux /24 : <strong>32</strong> (2^(24-19) = 2^5)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex14","recto":"Exercice 14 — IP = 172.25.100.250/20<br><strong>Questions</strong> :<br>a) Masque ?<br>b) Adresse réseau ?<br>c) Broadcast ?<br>d) Nombre d'hôtes ?<br>e) L'IP 172.25.110.50 est-elle dans le même réseau ?","verso":"<strong>Résolution</strong> :<br>• /20 = 255.255.240.0, Bloc = 16<br>• 100 ÷ 16 = 6 → 6 × 16 = <strong>96</strong><br><strong>Réponses</strong> :<br>• a) Masque : <strong>255.255.240.0</strong><br>• b) Réseau : <strong>172.25.96.0</strong><br>• c) Broadcast : <strong>172.25.111.255</strong><br>• d) Hôtes : <strong>4094</strong> (2^12 - 2)<br>• e) 172.25.110.50 : <strong>OUI</strong> (110 est entre 96 et 111)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex15","recto":"Exercice 15 — IP = 192.168.128.45/18<br><strong>Questions</strong> :<br>a) Adresse réseau ?<br>b) Broadcast ?<br>c) Combien de réseaux /24 peut-on créer dans ce /18 ?<br>d) Quelle est la plage du 10ème sous-réseau /24 ?","verso":"<strong>Résolution</strong> :<br>• /18 = 255.255.192.0, Bloc = 64<br>• 128 ÷ 64 = 2 → 2 × 64 = <strong>128</strong><br><strong>Réponses</strong> :<br>• a) Réseau : <strong>192.168.128.0</strong><br>• b) Broadcast : <strong>192.168.191.255</strong><br>• c) Réseaux /24 : <strong>64</strong> (2^6)<br>• d) 10ème /24 : <strong>192.168.137.0/24</strong> (128 + 9 = 137)<br><strong>Points</strong> : 5/5<br>## ⚫ NIVEAU 4 - EXPERT (Exercices 16-20)"},
+      {"id":"exam_ccp4_ex16","recto":"Exercice 16 — VLSM - Découpage réseau<br><strong>Questions</strong> :<br>a) Quel CIDR utiliser pour chaque site ?<br>b) Donnez les plages d'adresses pour chaque site<br>c) Donnez les plages pour les 3 liens point-à-point","verso":"<strong>Résolution</strong> :<br>1. <strong>Site A (100 hôtes)</strong> :<br>• Besoin : 2^n ≥ 102 → n = 7 bits → /25<br>• <strong>192.168.1.0/25</strong> (0 à 127)<br>2. <strong>Site B (50 hôtes)</strong> :<br>• Besoin : 2^n ≥ 52 → n = 6 bits → /26<br>• <strong>192.168.1.128/26</strong> (128 à 191)<br>3. <strong>Site C (25 hôtes)</strong> :<br>• Besoin : 2^n ≥ 27 → n = 5 bits → /27<br>• <strong>192.168.1.192/27</strong> (192 à 223)<br>4. <strong>Site D (10 hôtes)</strong> :<br>• Besoin : 2^n ≥ 12 → n = 4 bits → /28<br>• <strong>192.168.1.224/28</strong> (224 à 239)<br>5. <strong>Liens point-à-point (2 hôtes)</strong> :<br>• /30 (4 adresses, 2 utilisables)<br>• <strong>Lien 1</strong> : 192.168.1.240/30 (240 à 243)<br>• <strong>Lien 2</strong> : 192.168.1.244/30 (244 à 247)<br>• <strong>Lien 3</strong> : 192.168.1.248/30 (248 à 251)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex17","recto":"Exercice 17 — VLSM Complexe<br><strong>Questions</strong> :<br>a) Quel CIDR pour 2000 hôtes ?<br>b) Quel CIDR pour 500 hôtes ?<br>c) Quel CIDR pour 50 hôtes ?<br>d) Est-ce que tout rentre dans le /16 ?","verso":"<strong>Résolution</strong> :<br><strong>a) 2000 hôtes</strong> :<br>• 2^n ≥ 2002 → n = 11 bits → <strong>/21</strong> (2046 hôtes)<br><strong>b) 500 hôtes</strong> :<br>• 2^n ≥ 502 → n = 9 bits → <strong>/23</strong> (510 hôtes)<br><strong>c) 50 hôtes</strong> :<br>• 2^n ≥ 52 → n = 6 bits → <strong>/26</strong> (62 hôtes)<br><strong>d) Calcul espace total</strong> :<br>• 10 × /21 = 10 × 2048 = 20 480 adresses<br>• 20 × /23 = 20 × 512 = 10 240 adresses<br>• 50 × /26 = 50 × 64 = 3 200 adresses<br>• <strong>Total</strong> : 33 920 adresses<br>• <strong>Disponible en /16</strong> : 65 536 adresses<br>• <strong>Réponse</strong> : <strong>OUI, ça rentre</strong> (reste ~31 616 adresses)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex18","recto":"Exercice 18 — Supernetting (Agrégation de routes)<br><strong>Questions</strong> :<br>a) Quelle est la route agrégée (supernet) minimale qui couvre ces 4 réseaux ?<br>b) Quel est le masque de cette route agrégée ?<br>c) Combien d'adresses au total dans ce supernet ?","verso":"<strong>Résolution</strong> :<br><strong>Analyse</strong> :<br>• 192.168.0.0/24 = 192.168.0.0<br>• 192.168.1.0/24 = 192.168.1.0<br>• 192.168.2.0/24 = 192.168.2.0<br>• 192.168.3.0/24 = 192.168.3.0<br><strong>Binaire 3ème octet</strong> :<br>• 0 = 00000000<br>• 1 = 00000001<br>• 2 = 00000010<br>• 3 = 00000011<br><strong>Bits communs</strong> : 6 premiers bits (000000)<br><strong>Réponses</strong> :<br>• a) Route agrégée : <strong>192.168.0.0/22</strong><br>• b) Masque : <strong>255.255.252.0</strong><br>• c) Adresses : <strong>1024</strong> (4 × 256)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex19","recto":"Exercice 19 — Problème d'examen avancé<br><strong>Questions</strong> :<br>a) Quelle est la représentation CIDR du VLAN originel ?<br>b) Représentez le découpage final (CIDR de chaque segment)<br>c) Quelles sont les différentes plages d'adresses ?<br>d) À quoi correspond la dernière adresse IP de chaque VLAN ?","verso":"<strong>Résolution</strong> :<br><strong>a) CIDR originel</strong> :<br>• 1022 hôtes utilisables → 2^10 - 2 = 1022<br>• Donc 2^10 adresses total = 1024<br>• <strong>192.168.0.0/22</strong> (0.0 à 3.255)<br><strong>b) Découpage</strong> :<br>• <strong>Segment 1</strong> (254) : 192.168.0.0/24 (CIDR /24)<br>• <strong>Segment 2</strong> (254) : 192.168.1.0/24 (CIDR /24)<br>• <strong>Segment 3</strong> (254) : 192.168.2.0/24 (CIDR /24)<br>• <strong>Segment 4</strong> (126) : 192.168.3.0/25 (CIDR /25)<br>• <strong>Segment 5</strong> (62) : 192.168.3.128/26 (CIDR /26)<br>• <strong>Segment 6</strong> (62) : 192.168.3.192/26 (CIDR /26)<br><strong>c) Plages</strong> :<br>• Seg 1 : 192.168.0.1 - 192.168.0.254<br>• Seg 2 : 192.168.1.1 - 192.168.1.254<br>• Seg 3 : 192.168.2.1 - 192.168.2.254<br>• Seg 4 : 192.168.3.1 - 192.168.3.126<br>• Seg 5 : 192.168.3.129 - 192.168.3.190<br>• Seg 6 : 192.168.3.193 - 192.168.3.254<br><strong>d) Dernière IP</strong> :<br>• Segment 1 : <strong>192.168.0.255</strong> (broadcast)<br>• Segment 2 : <strong>192.168.1.255</strong> (broadcast)<br>• Segment 3 : <strong>192.168.2.255</strong> (broadcast)<br>• Segment 4 : <strong>192.168.3.127</strong> (broadcast)<br>• Segment 5 : <strong>192.168.3.191</strong> (broadcast)<br>• Segment 6 : <strong>192.168.3.255</strong> (broadcast)<br><strong>Points</strong> : 5/5"},
+      {"id":"exam_ccp4_ex20","recto":"Exercice 20 — Routage et subnetting combinés<br><strong>Questions</strong> :<br>a) Quel routage sera choisi par le routeur ? Justifiez<br>b) Quelle est la plage d'IP du /22 ?<br>c) Combien d'hôtes dans le /22 ?<br>d) Pourquoi le routeur préfère-t-il cette route ?","verso":"<strong>Réponses</strong> :<br><strong>a) Route choisie</strong> : <strong>10.10.0.0/22 via OSPF</strong><br><strong>Justification</strong> :<br>• Principe du <strong>masque le plus long</strong> (Longest Prefix Match)<br>• /22 est plus spécifique que /16<br>• Le routeur choisit TOUJOURS la route avec le masque le plus long<br><strong>b) Plage /22</strong> :<br>• /22 = Bloc de 4 au 3ème octet<br>• <strong>10.10.0.0 - 10.10.3.255</strong><br><strong>c) Hôtes /22</strong> :<br>• 2^10 - 2 = <strong>1022 hôtes</strong><br><strong>d) Préférence</strong> :<br>• Masque plus long = route plus spécifique<br>• Plus une route est spécifique, plus elle est prioritaire<br>• /22 &gt; /16 en spécificité<br><strong>Points</strong> : 5/5<br>## 📊 BARÈME TOTAL : 100 POINTS<br><strong>Score total</strong> : /100 points (5 points par exercice)<br>Score — Niveau<br>90-100 — ⭐⭐⭐ Expert - Prêt pour l'examen !<br>75-89 — ⭐⭐ Très bon - Quelques révisions<br>60-74 — ⭐ Bien - Revoir les exercices ratés<br>40-59 — ⚠️ Moyen - Relire la fiche de révision<br>0-39 — 🔴 Insuffisant - Refaire tous les exercices<br>## 🎯 MÉTHODE DE CALCUL RAPIDE"},
       /* EXAMEN_FLASHCARDS */
     ],
     qcm: [
@@ -10276,6 +16156,66 @@ role where I can grow my infrastructure and security skills.</pre>
       {"id":"exam_ccp3_q48","difficulty":"normal","question":"Comment activer une interface réseau ?","options":[{"text":"<code>ifup eth0</code>","correct":false},{"text":"<code>ip link set eth0 up</code>","correct":false},{"text":"<code>ifconfig eth0 up</code>","correct":false},{"text":"Toutes les réponses sont correctes","correct":true}],"explication":"Trois commandes pour <strong>activer une interface réseau</strong> :<br><strong>Méthodes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Méthode 1 : ifconfig (ancien)\nsudo ifconfig eth0 up\n\n# Méthode 2 : ifup (Debian)\nsudo ifup eth0\n\n# Méthode 3 : ip (moderne)\nsudo ip link set eth0 up</code><br><strong>Désactiver</strong> :<br><code style=\"display:block;white-space:pre-wrap\">sudo ifconfig eth0 down\nsudo ifdown eth0\nsudo ip link set eth0 down</code><br><strong>Vérifier état</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Voir si UP\nip link show eth0\n# 2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;\n#                             ↑ UP = activé\n\n# Avec ifconfig\nifconfig eth0\n# eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;</code><br>💡 <strong>Recommandation</strong> : Utiliser <code>ip link set</code> (commande moderne)"},
       {"id":"exam_ccp3_q49","difficulty":"normal","question":"Quelle commande trace la route des paquets vers une destination ?","options":[{"text":"<code>traceroute destination</code>","correct":false},{"text":"<code>tracepath destination</code>","correct":false},{"text":"<code>route-trace destination</code>","correct":false},{"text":"A et B sont correctes","correct":true}],"explication":"Les commandes <code>traceroute</code> et <code>tracepath</code> <strong>tracent le chemin des paquets</strong> :<br><strong>Syntaxe</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># traceroute (nécessite installation)\nsudo apt install traceroute\ntraceroute google.com\n\n# tracepath (préinstallé)\ntracepath google.com</code><br><strong>Sortie exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">traceroute google.com\n#  1  192.168.1.1 (192.168.1.1)  1.234 ms\n#  2  10.0.0.1 (10.0.0.1)  5.678 ms\n#  3  * * *\n#  4  172.16.0.1 (172.16.0.1)  12.345 ms\n# ...\n# 10  142.250.200.46 (142.250.200.46)  23.456 ms\n#\n# ↑ Passerelle locale (hop 1)\n# ↑ * * * = Routeur ne répond pas (normal)\n# ↑ Destination finale (hop 10)</code><br><strong>Options</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Nombre max hops\ntraceroute -m 20 google.com\n\n# Sans résolution DNS\ntraceroute -n google.com\n\n# Protocole spécifique\ntraceroute -I google.com  # ICMP\ntraceroute -T google.com  # TCP</code><br>💡 <strong>Mémo</strong> : Trace le <strong>chemin</strong> entre vous et destination (hop par hop)"},
       {"id":"exam_ccp3_q50","difficulty":"normal","question":"Comment changer le hostname de la machine ?","options":[{"text":"<code>hostname nouveau-nom</code>","correct":false},{"text":"<code>hostnamectl set-hostname nouveau-nom</code>","correct":false},{"text":"Modifier <code>/etc/hostname</code>","correct":false},{"text":"B et C sont correctes","correct":true}],"explication":"Pour modifier le <strong>hostname (nom machine)</strong> de façon permanente :<br><strong>Méthode 1 : hostnamectl (systemd - RECOMMANDÉ)</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Changer hostname\nsudo hostnamectl set-hostname new-hostname\n\n# Vérifier\nhostnamectl\n#    Static hostname: new-hostname\n#          Icon name: computer-vm\n#            Chassis: vm\n\n# Redémarrage NON nécessaire</code><br><strong>Méthode 2 : Fichier /etc/hostname</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Éditer fichier\nsudo nano /etc/hostname\n# Remplacer contenu par : new-hostname\n\n# Aussi modifier /etc/hosts\nsudo nano /etc/hosts\n# 127.0.0.1  localhost\n# 127.0.1.1  new-hostname\n\n# Redémarrer\nsudo reboot</code><br><strong>Méthode temporaire (hostname)</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Change seulement jusqu'au reboot\nsudo hostname temp-hostname\n\n# Vérifier\nhostname\n# temp-hostname\n\n# Après reboot → ancien nom revient</code><br><strong>Vérifier hostname</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Méthode 1\nhostname\n\n# Méthode 2\nhostnamectl\n\n# Méthode 3\ncat /etc/hostname\n\n# Méthode 4\nuname -n</code><br>💡 <strong>Recommandation</strong> : Utiliser <code>hostnamectl</code> (permanent sans reboot)<br>## 📊 BARÈME ET ÉVALUATION<br>Score — Niveau<br>90-100 — ⭐⭐⭐ Excellent - Prêt pour l'examen !<br>75-89 — ⭐⭐ Très bien - Revoir quelques points<br>60-74 — ⭐ Bien - Réviser les erreurs<br>40-59 — ⚠️ Moyen - Revoir la fiche de révision<br>0-39 — 🔴 Insuffisant - Révision approfondie nécessaire<br><strong>💪 Bon courage ! Tu progresses à chaque QCM !</strong>"},
+      {"id":"exam_ccp4_q1","difficulty":"normal","question":"Combien de couches comporte le modèle OSI ?","options":[{"text":"5 couches","correct":false},{"text":"7 couches","correct":true},{"text":"4 couches","correct":false},{"text":"9 couches","correct":false}],"explication":"Le modèle OSI (Open Systems Interconnection) comporte <strong>7 couches</strong> :<br>1. Physique<br>2. Liaison de données<br>3. Réseau<br>4. Transport<br>5. Session<br>6. Présentation<br>7. Application<br><strong>Mnémotechnique</strong> : \"<strong>P</strong>lease <strong>D</strong>o <strong>N</strong>ot <strong>T</strong>hrow <strong>S</strong>ausage <strong>P</strong>izza <strong>A</strong>way\""},
+      {"id":"exam_ccp4_q2","difficulty":"normal","question":"À quelle couche du modèle OSI correspondent les switchs ?","options":[{"text":"Couche 1 (Physique)","correct":false},{"text":"Couche 2 (Liaison de données)","correct":true},{"text":"Couche 3 (Réseau)","correct":false},{"text":"Couche 4 (Transport)","correct":false}],"explication":"Les <strong>switchs</strong> opèrent à la <strong>couche 2</strong> (Liaison de données) :<br>• Ils utilisent les <strong>adresses MAC</strong><br>• Ils segmentent les domaines de collision<br>• Ils maintiennent une <strong>table MAC</strong> (CAM table)<br><strong>Note</strong> : Les switchs de niveau 3 peuvent aussi opérer à la couche 3."},
+      {"id":"exam_ccp4_q3","difficulty":"normal","question":"Quel protocole de la couche Transport garantit la livraison des données ?","options":[{"text":"UDP","correct":false},{"text":"IP","correct":false},{"text":"TCP","correct":true},{"text":"ICMP","correct":false}],"explication":"<strong>TCP (Transmission Control Protocol)</strong> garantit la livraison :<br>• Mode <strong>connecté</strong> (établissement de connexion : 3-way handshake)<br>• <strong>Accusés de réception</strong> (ACK)<br>• <strong>Retransmission</strong> en cas de perte<br>• <strong>Contrôle de flux</strong><br><strong>UDP</strong> est non connecté et ne garantit pas la livraison."},
+      {"id":"exam_ccp4_q4","difficulty":"normal","question":"Combien de bits comporte une adresse MAC ?","options":[{"text":"32 bits","correct":false},{"text":"48 bits","correct":true},{"text":"64 bits","correct":false},{"text":"128 bits","correct":false}],"explication":"Une adresse MAC = <strong>48 bits</strong> = <strong>6 octets</strong> :<br>• Format : <code>AA:BB:CC:DD:EE:FF</code><br>• 3 premiers octets = OUI (Organizationally Unique Identifier)<br>• 3 derniers octets = Identifiant unique du constructeur<br><strong>Exemple</strong> : <code>00:1A:2B:3C:4D:5E</code>"},
+      {"id":"exam_ccp4_q5","difficulty":"normal","question":"Quelle est la plage d'adresses de la classe A ?","options":[{"text":"1.0.0.0 à 126.255.255.255","correct":true},{"text":"128.0.0.0 à 191.255.255.255","correct":false},{"text":"192.0.0.0 à 223.255.255.255","correct":false},{"text":"224.0.0.0 à 239.255.255.255","correct":false}],"explication":"<strong>Classe A</strong> :<br>• Plage : <strong>1.0.0.0 à 126.255.255.255</strong><br>• Masque par défaut : <strong>255.0.0.0</strong> (/8)<br>• 1er octet : 1-126<br>• <strong>127.x.x.x</strong> est réservé pour le loopback<br><strong>Note</strong> : 0.0.0.0 n'est pas utilisable (réseau par défaut)"},
+      {"id":"exam_ccp4_q6","difficulty":"normal","question":"L'adresse 127.0.0.1 est réservée pour :","options":[{"text":"Le broadcast","correct":false},{"text":"La boucle locale (loopback)","correct":true},{"text":"Le routage multicast","correct":false},{"text":"Les adresses privées","correct":false}],"explication":"<strong>127.0.0.0/8</strong> = plage de loopback :<br>• <strong>127.0.0.1</strong> = localhost<br>• Utilisé pour tester la pile TCP/IP locale<br>• Le trafic ne sort JAMAIS de la machine<br><strong>Commande</strong> : <code>ping 127.0.0.1</code> teste la carte réseau locale"},
+      {"id":"exam_ccp4_q7","difficulty":"normal","question":"Combien d'adresses IP contient un réseau en /24 ?","options":[{"text":"128 adresses","correct":false},{"text":"254 adresses","correct":false},{"text":"256 adresses","correct":true},{"text":"512 adresses","correct":false}],"explication":"Un réseau <strong>/24</strong> contient <strong>256 adresses</strong> au total :<br>• Formule : 2^(32-24) = 2^8 = <strong>256</strong><br>• Adresses <strong>utilisables</strong> : 256 - 2 = <strong>254</strong><br>• 2 adresses réservées : réseau + broadcast"},
+      {"id":"exam_ccp4_q8","difficulty":"normal","question":"Quel est le masque de sous-réseau pour un /26 ?","options":[{"text":"255.255.255.128","correct":false},{"text":"255.255.255.192","correct":true},{"text":"255.255.255.224","correct":false},{"text":"255.255.255.240","correct":false}],"explication":"<strong>/26</strong> = <strong>255.255.255.192</strong> :<br>• 26 bits à 1, 6 bits à 0<br>• Dernier octet : 11000000 = 128 + 64 = <strong>192</strong><br>• Bloc = 256 - 192 = <strong>64</strong><br>• Hôtes utilisables : 2^6 - 2 = <strong>62</strong>"},
+      {"id":"exam_ccp4_q9","difficulty":"normal","question":"Parmi ces adresses, laquelle est une adresse privée ?","options":[{"text":"8.8.8.8","correct":false},{"text":"172.16.50.100","correct":true},{"text":"200.100.50.1","correct":false},{"text":"11.0.0.1","correct":false}],"explication":"Les <strong>3 plages privées RFC 1918</strong> :<br>• <strong>10.0.0.0/8</strong> (10.0.0.0 - 10.255.255.255)<br>• <strong>172.16.0.0/12</strong> (172.16.0.0 - 172.31.255.255)<br>• <strong>192.168.0.0/16</strong> (192.168.0.0 - 192.168.255.255)<br><strong>172.16.50.100</strong> est dans la plage 172.16.0.0/12"},
+      {"id":"exam_ccp4_q10","difficulty":"normal","question":"Combien d'hôtes utilisables peut-on avoir dans un réseau /28 ?","options":[{"text":"8 hôtes","correct":false},{"text":"14 hôtes","correct":true},{"text":"16 hôtes","correct":false},{"text":"30 hôtes","correct":false}],"explication":"<strong>/28</strong> = 4 bits pour les hôtes :<br>• Formule : 2^4 - 2 = 16 - 2 = <strong>14 hôtes utilisables</strong><br>• Total d'adresses : 16<br>• 2 réservées (réseau + broadcast)<br><strong>Masque /28</strong> = 255.255.255.240"},
+      {"id":"exam_ccp4_q11","difficulty":"normal","question":"Quelle est l'adresse de broadcast du réseau 192.168.1.0/24 ?","options":[{"text":"192.168.1.0","correct":false},{"text":"192.168.1.1","correct":false},{"text":"192.168.1.254","correct":false},{"text":"192.168.1.255","correct":true}],"explication":"Pour <strong>192.168.1.0/24</strong> :<br>• Réseau : <strong>192.168.1.0</strong><br>• Broadcast : <strong>192.168.1.255</strong><br>• Première IP : 192.168.1.1<br>• Dernière IP : 192.168.1.254<br><strong>Règle</strong> : Broadcast = dernière adresse du réseau"},
+      {"id":"exam_ccp4_q12","difficulty":"normal","question":"Quel est le rôle du protocole ARP ?","options":[{"text":"Résoudre un nom de domaine en adresse IP","correct":false},{"text":"Résoudre une adresse IP en adresse MAC","correct":true},{"text":"Assigner des adresses IP automatiquement","correct":false},{"text":"Tester la connectivité réseau","correct":false}],"explication":"<strong>ARP (Address Resolution Protocol)</strong> :<br>• Résout <strong>IP → MAC</strong><br>• Couche 2 du modèle OSI<br>• Utilise des <strong>broadcasts</strong> ARP<br>• Table ARP stockée en cache<br><strong>Exemple</strong> : \"Qui a l'IP 192.168.1.10 ? Donne-moi ton MAC !\"<br><strong>RARP</strong> fait l'inverse : MAC → IP (obsolète)"},
+      {"id":"exam_ccp4_q13","difficulty":"normal","question":"Quel est le port TCP utilisé par HTTPS ?","options":[{"text":"80","correct":false},{"text":"22","correct":false},{"text":"443","correct":true},{"text":"8080","correct":false}],"explication":"<strong>HTTPS</strong> = HTTP sécurisé (SSL/TLS) :<br>• Port <strong>TCP 443</strong><br>• HTTP = port <strong>TCP 80</strong><br><strong>Ports HTTPS à retenir</strong> :<br>• 443 = HTTPS standard<br>• 8443 = HTTPS alternatif"},
+      {"id":"exam_ccp4_q14","difficulty":"normal","question":"Quelle commande utilise le protocole ICMP ?","options":[{"text":"ssh","correct":false},{"text":"telnet","correct":false},{"text":"ping","correct":true},{"text":"ftp","correct":false}],"explication":"<strong>ICMP (Internet Control Message Protocol)</strong> :<br>• Utilisé par <strong>ping</strong> (echo request/reply)<br>• Utilisé par <strong>traceroute</strong> (TTL exceeded)<br>• Messages d'erreur IP<br>• <strong>N'a PAS de numéro de port</strong> (pas de couche 4)<br><strong>Autres commandes</strong> :<br>• ssh = TCP 22<br>• telnet = TCP 23<br>• ftp = TCP 21"},
+      {"id":"exam_ccp4_q15","difficulty":"normal","question":"L'adresse IP 192.168.1.75/27 appartient à quel réseau ?","options":[{"text":"192.168.1.0/27","correct":false},{"text":"192.168.1.32/27","correct":false},{"text":"192.168.1.64/27","correct":true},{"text":"192.168.1.96/27","correct":false}],"explication":"<strong>Résolution</strong> :<br>• /27, Bloc = 256 - 224 = <strong>32</strong><br>• 75 ÷ 32 = 2 → 2 × 32 = <strong>64</strong><br>• Réseau : <strong>192.168.1.64/27</strong><br>• Plage : 192.168.1.64 - 192.168.1.95"},
+      {"id":"exam_ccp4_q16","difficulty":"normal","question":"Quel est l'intérêt principal des VLAN ?","options":[{"text":"Augmenter la vitesse du réseau","correct":false},{"text":"Segmenter un réseau en domaines de broadcast","correct":true},{"text":"Remplacer les routeurs","correct":false},{"text":"Chiffrer les communications","correct":false}],"explication":"<strong>VLAN (Virtual LAN)</strong> :<br>• Segmente un réseau en <strong>domaines de broadcast séparés</strong><br>• Améliore la <strong>sécurité</strong> (isolation)<br>• Réduit le trafic broadcast<br>• Flexibilité de configuration<br><strong>Exemple</strong> : VLAN 10 (ADMIN) isolé du VLAN 20 (USERS)"},
+      {"id":"exam_ccp4_q17","difficulty":"normal","question":"Un port trunk sur un switch permet de :","options":[{"text":"Transporter un seul VLAN","correct":false},{"text":"Transporter plusieurs VLAN","correct":true},{"text":"Désactiver le spanning tree","correct":false},{"text":"Augmenter la bande passante","correct":false}],"explication":"<strong>Port Trunk</strong> (802.1Q) :<br>• Transporte <strong>plusieurs VLAN</strong> sur un seul lien<br>• Utilisé entre switchs ou switch-routeur<br>• Étiquetage (tagging) des trames<br><strong>Port Access</strong> :<br>• Transporte <strong>UN SEUL VLAN</strong><br>• Pour les équipements finaux (PC, imprimante)"},
+      {"id":"exam_ccp4_q18","difficulty":"normal","question":"Quel port UDP utilise le serveur DHCP ?","options":[{"text":"Port 66","correct":false},{"text":"Port 67","correct":true},{"text":"Port 68","correct":false},{"text":"Port 69","correct":false}],"explication":"<strong>DHCP utilise UDP</strong> :<br>• Serveur DHCP : <strong>UDP 67</strong><br>• Client DHCP : <strong>UDP 68</strong><br><strong>Processus DHCP (DORA)</strong> :<br>1. <strong>D</strong>iscover (client → broadcast)<br>2. <strong>O</strong>ffer (serveur → client)<br>3. <strong>R</strong>equest (client → serveur)<br>4. <strong>A</strong>ck (serveur → client)"},
+      {"id":"exam_ccp4_q19","difficulty":"normal","question":"Le protocole DNS utilise par défaut :","options":[{"text":"TCP port 53","correct":false},{"text":"UDP port 53","correct":true},{"text":"TCP port 25","correct":false},{"text":"UDP port 25","correct":false}],"explication":"<strong>DNS (Domain Name System)</strong> :<br>• Par défaut : <strong>UDP port 53</strong><br>• Transferts de zone : <strong>TCP port 53</strong><br>• Résout nom de domaine → IP<br><strong>Exemple</strong> :<br>• www.google.com → 142.250.185.206"},
+      {"id":"exam_ccp4_q20","difficulty":"normal","question":"Combien de couches comporte le modèle TCP/IP ?","options":[{"text":"3 couches","correct":false},{"text":"4 couches","correct":true},{"text":"5 couches","correct":false},{"text":"7 couches","correct":false}],"explication":"<strong>Modèle TCP/IP</strong> = <strong>4 couches</strong> :<br>1. <strong>Accès réseau</strong> (correspond à couches 1-2 OSI)<br>2. <strong>Internet</strong> (correspond à couche 3 OSI)<br>3. <strong>Transport</strong> (correspond à couche 4 OSI)<br>4. <strong>Application</strong> (correspond à couches 5-6-7 OSI)"},
+      {"id":"exam_ccp4_q21","difficulty":"normal","question":"Quel protocole VPN utilise le port UDP 1701 ?","options":[{"text":"PPTP","correct":false},{"text":"L2TP","correct":true},{"text":"IPsec","correct":false},{"text":"OpenVPN","correct":false}],"explication":"<strong>L2TP (Layer 2 Tunneling Protocol)</strong> :<br>• Port <strong>UDP 1701</strong><br>• Souvent combiné avec <strong>IPsec</strong> (L2TP/IPsec)<br>• Ne chiffre PAS par lui-même (besoin d'IPsec)<br><strong>Autres protocoles VPN</strong> :<br>• PPTP : TCP 1723<br>• IPsec : UDP 500 (IKE) + ESP/AH<br>• OpenVPN : UDP 1194 (par défaut)"},
+      {"id":"exam_ccp4_q22","difficulty":"normal","question":"Quels sont les deux protocoles principaux utilisés par IPsec ?","options":[{"text":"AH et ESP","correct":true},{"text":"TCP et UDP","correct":false},{"text":"PPP et PPTP","correct":false},{"text":"SSL et TLS","correct":false}],"explication":"<strong>IPsec utilise deux protocoles</strong> :<br>• <strong>AH (Authentication Header)</strong> : Authentification + Intégrité<br>• <strong>ESP (Encapsulating Security Payload)</strong> : Chiffrement + Authentification + Intégrité<br><strong>Modes IPsec</strong> :<br>• Mode <strong>Transport</strong> : Chiffre seulement les données<br>• Mode <strong>Tunnel</strong> : Chiffre tout le paquet IP (utilisé pour VPN site-à-site)"},
+      {"id":"exam_ccp4_q23","difficulty":"normal","question":"Que signifie NAT ?","options":[{"text":"Network Address Table","correct":false},{"text":"Network Address Translation","correct":true},{"text":"Network Application Transfer","correct":false},{"text":"Network Access Terminal","correct":false}],"explication":"<strong>NAT (Network Address Translation)</strong> :<br>• Traduit <strong>IP privée → IP publique</strong><br>• Permet d'économiser les adresses IPv4 publiques<br>• Types de NAT :<br>• <strong>NAT statique</strong> : 1 IP privée → 1 IP publique (mapping permanent)<br>• <strong>NAT dynamique</strong> : Pool d'IPs publiques<br>• <strong>PAT (NAT overload)</strong> : Plusieurs IP privées → 1 IP publique (via ports)"},
+      {"id":"exam_ccp4_q24","difficulty":"normal","question":"Le PAT (Port Address Translation) permet de :","options":[{"text":"Traduire plusieurs IP privées vers une seule IP publique","correct":true},{"text":"Bloquer les ports non utilisés","correct":false},{"text":"Chiffrer les communications","correct":false},{"text":"Créer des VLAN","correct":false}],"explication":"<strong>PAT (Port Address Translation)</strong> = NAT overload :<br>• <strong>Plusieurs IP privées</strong> → <strong>1 seule IP publique</strong><br>• Utilise les <strong>ports sources</strong> pour différencier les connexions<br>• Le plus utilisé dans les réseaux domestiques/PME<br><strong>Exemple</strong> :<br>• 192.168.1.10:50000 → 200.50.100.1:50000<br>• 192.168.1.20:50001 → 200.50.100.1:50001"},
+      {"id":"exam_ccp4_q25","difficulty":"normal","question":"Parmi ces protocoles, lequel est un protocole de routage à vecteur de distance ?","options":[{"text":"OSPF","correct":false},{"text":"BGP","correct":false},{"text":"RIP","correct":true},{"text":"IS-IS","correct":false}],"explication":"<strong>Protocoles de routage à vecteur de distance</strong> :<br>• <strong>RIP (Routing Information Protocol)</strong><br>• RIPv2 (amélioration avec CIDR et authentification)<br><strong>Protocoles à état de liens</strong> :<br>• <strong>OSPF</strong> (Open Shortest Path First)<br>• <strong>IS-IS</strong><br><strong>Protocoles hybrides/Path Vector</strong> :<br>• <strong>BGP</strong> (Border Gateway Protocol)"},
+      {"id":"exam_ccp4_q26","difficulty":"normal","question":"OSPF utilise quel algorithme de routage ?","options":[{"text":"Bellman-Ford","correct":false},{"text":"Dijkstra (SPF - Shortest Path First)","correct":true},{"text":"Distance Vector","correct":false},{"text":"Path Vector","correct":false}],"explication":"<strong>OSPF (Open Shortest Path First)</strong> :<br>• Utilise l'algorithme de <strong>Dijkstra</strong> (SPF)<br>• Protocole à <strong>état de liens</strong> (link-state)<br>• Métrique = <strong>Coût</strong> (basé sur la bande passante)<br>• Distance administrative = <strong>110</strong><br><strong>Avantages OSPF</strong> :<br>• Convergence rapide<br>• Supporte VLSM et CIDR<br>• Pas de limite de sauts"},
+      {"id":"exam_ccp4_q27","difficulty":"normal","question":"Quelle est la métrique utilisée par RIP ?","options":[{"text":"La bande passante","correct":false},{"text":"Le délai","correct":false},{"text":"Le nombre de sauts (hop count)","correct":true},{"text":"Le coût","correct":false}],"explication":"<strong>Métrique RIP</strong> = <strong>Nombre de sauts</strong> (hop count) :<br>• Chaque routeur traversé = 1 saut<br>• <strong>Maximum 15 sauts</strong> (16 = infini/inatteignable)<br>• Ne prend PAS en compte la bande passante<br><strong>Problème</strong> : Peut choisir un chemin avec plus de bande passante mais plus de sauts"},
+      {"id":"exam_ccp4_q28","difficulty":"normal","question":"Quelle est la distance administrative d'une route statique ?","options":[{"text":"0","correct":false},{"text":"1","correct":true},{"text":"90","correct":false},{"text":"110","correct":false}],"explication":"<strong>Distance administrative (AD)</strong> = Fiabilité de la source de routage :<br>Source — AD<br>Interface directement connectée — <strong>0</strong><br>Route statique — <strong>1</strong><br>EIGRP — 90<br>OSPF — 110<br>RIP — 120<br>Externe — 255 (non fiable)<br><strong>Règle</strong> : Plus l'AD est faible, plus la route est prioritaire"},
+      {"id":"exam_ccp4_q29","difficulty":"normal","question":"BGP est principalement utilisé pour :","options":[{"text":"Le routage interne dans une entreprise","correct":false},{"text":"Le routage entre systèmes autonomes sur Internet","correct":true},{"text":"La configuration des VLAN","correct":false},{"text":"La gestion des adresses IP","correct":false}],"explication":"<strong>BGP (Border Gateway Protocol)</strong> :<br>• Protocole de routage <strong>EXTERNE</strong> (EGP)<br>• Utilisé entre <strong>Systèmes Autonomes (AS)</strong> sur Internet<br>• Protocole <strong>path-vector</strong><br>• Port TCP <strong>179</strong><br><strong>Types de BGP</strong> :<br>• <strong>eBGP</strong> : Entre AS différents<br>• <strong>iBGP</strong> : Au sein d'un même AS"},
+      {"id":"exam_ccp4_q30","difficulty":"normal","question":"Quel est le rôle principal du protocole STP ?","options":[{"text":"Accélérer le réseau","correct":false},{"text":"Éviter les boucles dans un réseau de switchs","correct":true},{"text":"Créer des VLAN","correct":false},{"text":"Sécuriser les communications","correct":false}],"explication":"<strong>STP (Spanning Tree Protocol - 802.1D)</strong> :<br>• Évite les <strong>boucles</strong> dans un réseau de switchs<br>• Bloque des ports redondants<br>• Élit un <strong>root bridge</strong> (switch racine)<br><strong>Évolutions</strong> :<br>• <strong>RSTP</strong> (802.1w) : Convergence rapide<br>• <strong>PVST+</strong> : STP par VLAN (Cisco)<br><strong>États des ports STP</strong> :<br>• Blocking, Listening, Learning, Forwarding, Disabled"},
+      {"id":"exam_ccp4_q31","difficulty":"normal","question":"Quel port TCP utilise SSH par défaut ?","options":[{"text":"21","correct":false},{"text":"22","correct":true},{"text":"23","correct":false},{"text":"25","correct":false}],"explication":"<strong>SSH (Secure Shell)</strong> :<br>• Port <strong>TCP 22</strong><br>• Remplace Telnet (non sécurisé)<br>• <strong>Chiffré</strong> (connexion sécurisée)<br>• Authentification par mot de passe ou clés<br><strong>Version recommandée</strong> : SSHv2 (SSHv1 obsolète)"},
+      {"id":"exam_ccp4_q32","difficulty":"normal","question":"Quels ports TCP utilise le protocole FTP ?","options":[{"text":"20 et 21","correct":true},{"text":"22 et 23","correct":false},{"text":"80 et 443","correct":false},{"text":"25 et 110","correct":false}],"explication":"<strong>FTP (File Transfer Protocol)</strong> utilise <strong>2 ports TCP</strong> :<br>• Port <strong>21</strong> : Canal de contrôle (commandes)<br>• Port <strong>20</strong> : Canal de données (transfert de fichiers)<br><strong>Modes FTP</strong> :<br>• <strong>Actif</strong> : Serveur se connecte au client (port 20)<br>• <strong>Passif</strong> : Client se connecte au serveur (port dynamique)<br><strong>FTPS</strong> = FTP + SSL/TLS (ports 989/990)"},
+      {"id":"exam_ccp4_q33","difficulty":"normal","question":"Le protocole SMTP utilise le port TCP :","options":[{"text":"21","correct":false},{"text":"23","correct":false},{"text":"25","correct":true},{"text":"110","correct":false}],"explication":"<strong>SMTP (Simple Mail Transfer Protocol)</strong> :<br>• Port <strong>TCP 25</strong><br>• Utilisé pour <strong>ENVOYER</strong> des emails<br>• Serveur vers serveur<br><strong>Autres ports email</strong> :<br>• SMTP sécurisé : TCP 587 (STARTTLS)<br>• SMTPS : TCP 465 (SSL/TLS)"},
+      {"id":"exam_ccp4_q34","difficulty":"normal","question":"Quelle différence entre POP3 et IMAP ?","options":[{"text":"POP3 télécharge les emails et les supprime du serveur par défaut","correct":true},{"text":"IMAP est plus ancien que POP3","correct":false},{"text":"POP3 synchronise les emails sur tous les appareils","correct":false},{"text":"IMAP ne peut pas gérer plusieurs dossiers","correct":false}],"explication":"<strong>POP3 (Post Office Protocol v3)</strong> :<br>• Port <strong>TCP 110</strong><br>• <strong>Télécharge</strong> les emails et <strong>les supprime du serveur</strong> par défaut<br>• Emails stockés <strong>localement</strong><br>• Pas de synchronisation multi-appareils<br><strong>IMAP (Internet Message Access Protocol)</strong> :<br>• Port <strong>TCP 143</strong><br>• <strong>Synchronise</strong> les emails sur tous les appareils<br>• Emails restent sur le serveur<br>• Gestion de dossiers<br><strong>POP3S</strong> : TCP 995 (SSL/TLS)<br><strong>IMAPS</strong> : TCP 993 (SSL/TLS)"},
+      {"id":"exam_ccp4_q35","difficulty":"normal","question":"Quel est le principal défaut de Telnet ?","options":[{"text":"Il est trop lent","correct":false},{"text":"Il transmet les données en clair (non chiffré)","correct":true},{"text":"Il ne fonctionne que sur Windows","correct":false},{"text":"Il ne permet pas l'administration à distance","correct":false}],"explication":"<strong>Telnet</strong> :<br>• Port <strong>TCP 23</strong><br>• <strong>NON CHIFFRÉ</strong>  → Mots de passe visibles en clair !<br>• Obsolète, remplacé par <strong>SSH</strong><br><strong>Comparaison</strong> :<br>• Telnet : Non sécurisé, TCP 23<br>• SSH : Chiffré, TCP 22"},
+      {"id":"exam_ccp4_q36","difficulty":"normal","question":"SNMP utilise quels ports UDP ?","options":[{"text":"161 et 162","correct":true},{"text":"160 et 161","correct":false},{"text":"163 et 164","correct":false},{"text":"165 et 166","correct":false}],"explication":"<strong>SNMP (Simple Network Management Protocol)</strong> :<br>• Port <strong>UDP 161</strong> : Requêtes/réponses (agent SNMP)<br>• Port <strong>UDP 162</strong> : Traps (alertes envoyées par l'agent)<br><strong>Versions SNMP</strong> :<br>• SNMPv1 : Pas de sécurité<br>• SNMPv2c : Community strings<br>• <strong>SNMPv3</strong> : Authentification + chiffrement (recommandé)"},
+      {"id":"exam_ccp4_q37","difficulty":"normal","question":"Quel est le rôle du protocole NTP ?","options":[{"text":"Transférer des fichiers","correct":false},{"text":"Synchroniser l'heure entre équipements","correct":true},{"text":"Gérer les noms de domaine","correct":false},{"text":"Surveiller le réseau","correct":false}],"explication":"<strong>NTP (Network Time Protocol)</strong> :<br>• Port <strong>UDP 123</strong><br>• <strong>Synchronise l'horloge</strong> des équipements réseau<br>• Important pour les logs, certificats, Kerberos<br><strong>Stratum</strong> : Niveau de distance de la source de temps :<br>• Stratum 0 : Horloge atomique<br>• Stratum 1 : Serveurs connectés à stratum 0<br>• Stratum 2 : Serveurs synchronisés avec stratum 1"},
+      {"id":"exam_ccp4_q38","difficulty":"normal","question":"TFTP utilise quel protocole de transport ?","options":[{"text":"TCP","correct":false},{"text":"UDP","correct":true},{"text":"ICMP","correct":false},{"text":"ARP","correct":false}],"explication":"<strong>TFTP (Trivial File Transfer Protocol)</strong> :<br>• Protocole de transport : <strong>UDP</strong><br>• Port <strong>UDP 69</strong><br>• <strong>Pas d'authentification</strong><br>• Utilisé pour transferts simples (backup configs Cisco, boot PXE)<br><strong>Comparaison</strong> :<br>• FTP : TCP 20/21, authentification<br>• TFTP : UDP 69, pas d'auth, plus simple"},
+      {"id":"exam_ccp4_q39","difficulty":"normal","question":"Quelle est la taille MTU (Maximum Transmission Unit) par défaut sur Ethernet ?","options":[{"text":"1024 octets","correct":false},{"text":"1500 octets","correct":true},{"text":"2000 octets","correct":false},{"text":"4096 octets","correct":false}],"explication":"<strong>MTU (Maximum Transmission Unit)</strong> :<br>• MTU par défaut Ethernet : <strong>1500 octets</strong><br>• MTU IPv4 min : 576 octets<br>• MTU IPv6 min : 1280 octets<br><strong>Jumbo Frames</strong> : MTU jusqu'à 9000 octets (réseaux spécialisés)<br><strong>Fragmentation</strong> : Si paquet &gt; MTU, il est fragmenté"},
+      {"id":"exam_ccp4_q40","difficulty":"normal","question":"La QoS (Quality of Service) permet de :","options":[{"text":"Augmenter la vitesse du réseau","correct":false},{"text":"Prioriser certains types de trafic","correct":true},{"text":"Chiffrer les données","correct":false},{"text":"Créer des sous-réseaux","correct":false}],"explication":"<strong>QoS (Quality of Service)</strong> :<br>• <strong>Priorise certains types de trafic</strong><br>• Garantit bande passante, latence, gigue (jitter)<br>• Critique pour VoIP, vidéo<br><strong>Mécanismes QoS</strong> :<br>• <strong>Classification</strong> : Identifier le trafic (DSCP, CoS)<br>• <strong>Marquage</strong> : Étiqueter les paquets<br>• <strong>Policing</strong> : Limiter le débit<br>• <strong>Shaping</strong> : Lisser le trafic<br>• <strong>Queuing</strong> : Files d'attente prioritaires<br><strong>Classes de trafic</strong> :<br>• <strong>Voix</strong> : Priorité maximale (faible latence)<br>• <strong>Vidéo</strong> : Haute priorité<br>• <strong>Données critiques</strong> : Priorité moyenne<br>• <strong>Best Effort</strong> : Pas de garantie"},
+      {"id":"exam_ccp4_q41","difficulty":"normal","question":"Sur un routeur Cisco, une ACL standard filtre sur :","options":[{"text":"L'adresse IP source uniquement","correct":true},{"text":"L'adresse IP destination uniquement","correct":false},{"text":"Les ports source et destination","correct":false},{"text":"L'adresse MAC","correct":false}],"explication":"<strong>ACL Standard Cisco</strong> :<br>• Filtre <strong>UNIQUEMENT sur l'IP source</strong><br>• Numérotation : <strong>1-99</strong> et <strong>1300-1999</strong><br>• Moins flexible qu'une ACL étendue<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# access-list 10 permit 192.168.1.0 0.0.0.255\nR1(config)# access-list 10 deny any</code>"},
+      {"id":"exam_ccp4_q42","difficulty":"normal","question":"Une ACL étendue Cisco peut filtrer sur :","options":[{"text":"IP source, IP destination, protocole, ports","correct":true},{"text":"Uniquement l'IP source","correct":false},{"text":"Uniquement le protocole","correct":false},{"text":"Uniquement les ports","correct":false}],"explication":"<strong>ACL Étendue Cisco</strong> :<br>• Filtre sur : <strong>IP source, IP destination, protocole, ports</strong><br>• Numérotation : <strong>100-199</strong> et <strong>2000-2699</strong><br>• Plus flexible et précise<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# access-list 100 permit tcp 192.168.1.0 0.0.0.255 any eq 80\nR1(config)# access-list 100 deny ip any any</code>"},
+      {"id":"exam_ccp4_q43","difficulty":"normal","question":"Quelle est la plage de numérotation des ACL standard Cisco ?","options":[{"text":"1-99 et 1300-1999","correct":true},{"text":"100-199 et 2000-2699","correct":false},{"text":"200-299","correct":false},{"text":"300-399","correct":false}],"explication":"<strong>Plages de numérotation ACL Cisco</strong> :<br>Type ACL — Plage<br><strong>Standard</strong> — <strong>1-99</strong> et <strong>1300-1999</strong><br><strong>Étendue</strong> — <strong>100-199</strong> et <strong>2000-2699</strong><br><strong>ACL nommées</strong> : Plus lisibles (recommandées)<br><code style=\"display:block;white-space:pre-wrap\">R1(config)# ip access-list standard PERMIT_LAN</code>"},
+      {"id":"exam_ccp4_q44","difficulty":"normal","question":"Quelle est la différence entre un pare-feu stateful et stateless ?","options":[{"text":"Le stateful suit l'état des connexions","correct":true},{"text":"Le stateless est plus sécurisé","correct":false},{"text":"Le stateful ne filtre que les ports","correct":false},{"text":"Aucune différence","correct":false}],"explication":"<strong>Pare-feu Stateful</strong> :<br>• <strong>Suit l'état des connexions</strong> (TCP établies)<br>• Autorise automatiquement les réponses aux connexions sortantes<br>• Plus intelligent et sécurisé<br><strong>Pare-feu Stateless</strong> :<br>• Filtre paquet par paquet indépendamment<br>• Ne garde pas de contexte<br>• Plus simple mais moins sécurisé<br><strong>Exemple</strong> :<br>• Stateful : Si PC envoie requête HTTP → réponse autorisée automatiquement<br>• Stateless : Faut créer règle pour autoriser la réponse"},
+      {"id":"exam_ccp4_q45","difficulty":"normal","question":"Quel est le rôle d'une DMZ (Zone démilitarisée) ?","options":[{"text":"Accélérer le réseau","correct":false},{"text":"Isoler les serveurs publics entre Internet et le LAN interne","correct":true},{"text":"Créer des VLAN","correct":false},{"text":"Chiffrer les communications","correct":false}],"explication":"<strong>DMZ (DeMilitarized Zone)</strong> :<br>• Zone <strong>intermédiaire</strong> entre Internet et LAN interne<br>• Contient les <strong>serveurs publics</strong> (Web, Mail, FTP)<br>• Protection à 2 niveaux :<br>• Pare-feu externe : Internet → DMZ<br>• Pare-feu interne : DMZ → LAN<br><strong>Architecture</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Internet → [Pare-feu externe] → DMZ (serveurs publics) → [Pare-feu interne] → LAN interne</code>"},
+      {"id":"exam_ccp4_q46","difficulty":"normal","question":"Combien de bits comporte une adresse IPv6 ?","options":[{"text":"32 bits","correct":false},{"text":"64 bits","correct":false},{"text":"128 bits","correct":true},{"text":"256 bits","correct":false}],"explication":"<strong>IPv6</strong> = <strong>128 bits</strong> :<br>• IPv4 = 32 bits (4 milliards d'adresses)<br>• IPv6 = 128 bits (<strong>340 sextillions d'adresses</strong>)<br><strong>Format</strong> : 8 groupes de 16 bits (4 caractères hexa)"},
+      {"id":"exam_ccp4_q47","difficulty":"normal","question":"Une adresse IPv6 est composée de :","options":[{"text":"4 octets séparés par des points","correct":false},{"text":"8 groupes de 16 bits en hexadécimal séparés par :","correct":true},{"text":"16 octets séparés par des tirets","correct":false},{"text":"32 chiffres binaires","correct":false}],"explication":"<strong>Format IPv6</strong> :<br>• <strong>8 groupes de 16 bits</strong> en <strong>hexadécimal</strong> séparés par <strong>:</strong><br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">2001:0db8:85a3:0000:0000:8a2e:0370:7334</code><br><strong>Règles de simplification</strong> :<br>1. Supprimer les zéros de tête : <code>0db8</code> → <code>db8</code><br>2. Remplacer suite de zéros par <code>::</code> (une seule fois)<br><strong>Simplifié</strong> :<br><code style=\"display:block;white-space:pre-wrap\">2001:db8:85a3::8a2e:370:7334</code>"},
+      {"id":"exam_ccp4_q48","difficulty":"normal","question":"Quelle est l'adresse de loopback en IPv6 ?","options":[{"text":"127.0.0.1","correct":false},{"text":"::1","correct":true},{"text":"FF02::1","correct":false},{"text":"FE80::1","correct":false}],"explication":"<strong>Adresse de loopback IPv6</strong> = <strong>::1</strong><br><strong>Comparaison</strong> :<br>• IPv4 loopback : <strong>127.0.0.1</strong> (/8 entier : 127.0.0.0/8)<br>• IPv6 loopback : <strong>::1</strong> (/128)<br><strong>Usage</strong> : Test de la pile IPv6 locale<br><code style=\"display:block;white-space:pre-wrap\">ping ::1</code>"},
+      {"id":"exam_ccp4_q49","difficulty":"normal","question":"Les adresses IPv6 link-local commencent par :","options":[{"text":"FF00::/8","correct":false},{"text":"FE80::/10","correct":true},{"text":"2001::/16","correct":false},{"text":"FC00::/7","correct":false}],"explication":"<strong>Adresses IPv6 Link-Local</strong> :<br>• Préfixe : <strong>FE80::/10</strong><br>• Auto-configurées sur chaque interface IPv6<br>• Valides <strong>uniquement sur le lien local</strong> (pas routables)<br>• Utilisées pour NDP, autoconfiguration<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">FE80::1\nFE80::A1B2:C3D4:E5F6:7890</code>"},
+      {"id":"exam_ccp4_q50","difficulty":"normal","question":"En IPv6, quel protocole remplace ARP ?","options":[{"text":"ICMPv6","correct":false},{"text":"NDP (Neighbor Discovery Protocol)","correct":true},{"text":"DHCPv6","correct":false},{"text":"SLAAC","correct":false}],"explication":"<strong>NDP (Neighbor Discovery Protocol)</strong> :<br>• Remplace <strong>ARP</strong> en IPv6<br>• Fait partie d'<strong>ICMPv6</strong><br>• Fonctions :<br>• Résolution d'adresse (comme ARP)<br>• Découverte de routeurs<br>• Détection de doublons (DAD)<br>• Autoconfiguration (SLAAC)<br><strong>Messages NDP</strong> :<br>• Router Solicitation (RS)<br>• Router Advertisement (RA)<br>• Neighbor Solicitation (NS) ← comme ARP request<br>• Neighbor Advertisement (NA) ← comme ARP reply"},
+      {"id":"exam_ccp4_q51","difficulty":"normal","question":"WPA2 utilise quel algorithme de chiffrement ?","options":[{"text":"WEP","correct":false},{"text":"TKIP","correct":false},{"text":"AES","correct":true},{"text":"RC4","correct":false}],"explication":"<strong>WPA2 (Wi-Fi Protected Access 2)</strong> :<br>• Chiffrement : <strong>AES (Advanced Encryption Standard)</strong><br>• Algorithme : <strong>CCMP</strong> (basé sur AES)<br>• Très sécurisé<br><strong>Évolution Wi-Fi Security</strong> :<br>1. <strong>WEP</strong> : RC4, <strong>obsolète</strong> (cassable en minutes)<br>2. <strong>WPA</strong> : TKIP, amélioration temporaire<br>3. <strong>WPA2</strong> : <strong>AES/CCMP</strong>  (standard actuel)<br>4. <strong>WPA3</strong> : SAE, dernière version (2018)"},
+      {"id":"exam_ccp4_q52","difficulty":"normal","question":"Quelle norme Wi-Fi offre des débits théoriques jusqu'à 1,3 Gbps ?","options":[{"text":"802.11g","correct":false},{"text":"802.11n","correct":false},{"text":"802.11ac","correct":true},{"text":"802.11b","correct":false}],"explication":"<strong>Normes Wi-Fi</strong> :<br>Norme — Année — Bande — Débit max<br>802.11b — 1999 — 2,4 GHz — 11 Mbps<br>802.11g — 2003 — 2,4 GHz — 54 Mbps<br>802.11n — 2009 — 2,4/5 GHz — 600 Mbps<br><strong>802.11ac</strong> — 2013 — <strong>5 GHz</strong> — <strong>1,3 Gbps</strong><br>802.11ax (Wi-Fi 6) — 2019 — 2,4/5 GHz — 10 Gbps"},
+      {"id":"exam_ccp4_q53","difficulty":"normal","question":"Que signifie SSID ?","options":[{"text":"Secure Service Identifier","correct":false},{"text":"Service Set Identifier","correct":true},{"text":"System Security ID","correct":false},{"text":"Signal Strength Indicator","correct":false}],"explication":"<strong>SSID (Service Set Identifier)</strong> :<br>• <strong>Nom du réseau Wi-Fi</strong><br>• Diffusé dans les beacons (trames balise)<br>• Peut être <strong>masqué</strong> (hidden SSID) mais pas très sécurisé<br><strong>BSSID</strong> : Adresse MAC du point d'accès"},
+      {"id":"exam_ccp4_q54","difficulty":"normal","question":"Quel est le port par défaut d'un proxy HTTP ?","options":[{"text":"80","correct":false},{"text":"443","correct":false},{"text":"8080","correct":true},{"text":"3128","correct":false}],"explication":"<strong>Ports Proxy</strong> :<br>• Proxy HTTP : Port <strong>8080</strong>  (ou 3128 pour Squid)<br>• HTTP standard : Port 80<br>• HTTPS : Port 443<br><strong>Usage Proxy</strong> :<br>• Cache web<br>• Filtrage de contenu<br>• Anonymisation<br>• Contrôle d'accès"},
+      {"id":"exam_ccp4_q55","difficulty":"normal","question":"Un load balancer (répartiteur de charge) permet de :","options":[{"text":"Chiffrer les communications","correct":false},{"text":"Répartir le trafic entre plusieurs serveurs","correct":true},{"text":"Créer des VLAN","correct":false},{"text":"Filtrer les paquets","correct":false}],"explication":"<strong>Load Balancer (Répartiteur de charge)</strong> :<br>• <strong>Répartit le trafic</strong> entre plusieurs serveurs<br>• Améliore la <strong>disponibilité</strong> et <strong>performance</strong><br>• Détecte les serveurs défaillants<br><strong>Algorithmes de répartition</strong> :<br>• <strong>Round-robin</strong> : Chacun son tour<br>• <strong>Least connections</strong> : Serveur le moins chargé<br>• <strong>IP hash</strong> : Basé sur IP source<br>• <strong>Weighted</strong> : Selon capacité du serveur<br><strong>Exemple</strong> : HAProxy, F5, Nginx"},
+      {"id":"exam_ccp4_q56","difficulty":"normal","question":"HSRP et VRRP sont des protocoles de :","options":[{"text":"Routage dynamique","correct":false},{"text":"Redondance de passerelle","correct":true},{"text":"Chiffrement VPN","correct":false},{"text":"Gestion des VLAN","correct":false}],"explication":"<strong>HSRP / VRRP</strong> = Protocoles de <strong>redondance de passerelle</strong><br><strong>HSRP (Hot Standby Router Protocol)</strong> :<br>• Protocole <strong>Cisco propriétaire</strong><br>• IP virtuelle partagée entre routeurs<br>• Élection d'un routeur actif<br><strong>VRRP (Virtual Router Redundancy Protocol)</strong> :<br>• Standard <strong>ouvert</strong> (RFC 5798)<br>• Fonctionne pareil qu'HSRP<br><strong>But</strong> : Si passerelle par défaut tombe, une autre prend le relais automatiquement"},
+      {"id":"exam_ccp4_q57","difficulty":"normal","question":"Quel port TCP utilise LDAP par défaut ?","options":[{"text":"389","correct":true},{"text":"636","correct":false},{"text":"3389","correct":false},{"text":"1433","correct":false}],"explication":"<strong>LDAP (Lightweight Directory Access Protocol)</strong> :<br>• Port TCP <strong>389</strong>  (LDAP standard)<br>• Port TCP <strong>636</strong> (LDAPS - LDAP over SSL/TLS)<br>• Protocole d'annuaire (Active Directory, OpenLDAP)<br><strong>Usage</strong> :<br>• Authentification centralisée<br>• Annuaire d'entreprise<br>• Gestion des utilisateurs et groupes"},
+      {"id":"exam_ccp4_q58","difficulty":"normal","question":"Quel port utilise le protocole Kerberos ?","options":[{"text":"TCP 88","correct":false},{"text":"UDP 88","correct":false},{"text":"TCP et UDP 88","correct":true},{"text":"TCP 389","correct":false}],"explication":"<strong>Kerberos</strong> :<br>• Port <strong>TCP et UDP 88</strong><br>• Protocole d'<strong>authentification</strong> réseau<br>• Utilisé par <strong>Active Directory</strong><br>• Basé sur tickets (TGT, TGS)<br><strong>Fonctionnement</strong> :<br>1. Client demande TGT au KDC (Key Distribution Center)<br>2. Client reçoit TGT chiffré<br>3. Client demande ticket de service (TGS)<br>4. Client accède au service avec le ticket"},
+      {"id":"exam_ccp4_q59","difficulty":"normal","question":"Le protocole RDP (Remote Desktop Protocol) utilise le port :","options":[{"text":"22","correct":false},{"text":"23","correct":false},{"text":"3389","correct":true},{"text":"5900","correct":false}],"explication":"<strong>RDP (Remote Desktop Protocol)</strong> :<br>• Port <strong>TCP 3389</strong><br>• Protocole <strong>Microsoft</strong> pour bureau à distance<br>• Connexion graphique à un Windows distant<br><strong>Alternatives</strong> :<br>• <strong>VNC</strong> : Port 5900 (TCP)<br>• <strong>SSH</strong> : Port 22 (ligne de commande)<br>• <strong>TeamViewer</strong> : Port dynamique"},
+      {"id":"exam_ccp4_q60","difficulty":"normal","question":"Quelle est la wildcard mask correspondant au masque 255.255.255.240 ?","options":[{"text":"0.0.0.15","correct":true},{"text":"0.0.0.240","correct":false},{"text":"255.255.255.15","correct":false},{"text":"0.0.0.255","correct":false}],"explication":"<strong>Wildcard mask</strong> = <strong>Inverse du masque de sous-réseau</strong><br><strong>Calcul</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Masque de sous-réseau : 255.255.255.240\nWildcard mask : 255.255.255.255 - 255.255.255.240 = 0.0.0.15 </code><br><strong>Règle wildcard</strong> :<br>• <strong>0</strong> = Doit correspondre (check)<br>• <strong>1</strong> = Peut être n'importe quoi (don't care)<br><strong>Exemples</strong> :<br>Masque — Wildcard<br>255.255.255.0 — 0.0.0.255<br>255.255.255.192 — 0.0.0.63<br>255.255.255.240 — 0.0.0.15<br>255.255.255.252 — 0.0.0.3<br><strong>Usage</strong> : ACL Cisco, OSPF, EIGRP"},
       /* EXAMEN_QCM */
     ],
   },

@@ -1,3 +1,30 @@
+## 📋 Récap — 2026-07-22 (session 30)
+
+### Fait :
+- **Import intégral de `PrepaExamTSSR-main`** (demande utilisateur : nouvelle section "Examen" + mise à jour de toutes les sections concernées) — corpus source de 74 fichiers / ~54 000 lignes (9 CCP, 2 examens blancs, simulation orale 3 parties, guide de révision)
+- **Nouveau module "Examen TSSR"** créé dans `data.js` (icône 🎓, groupe sidebar dédié "Examen" dans `app.js`) — **20 cours** (12 fiches CCP1-9 + MSP pratique Linux DNS/DHCP/Apache + 2 examens blancs complets sujet+corrigé + simulation orale 3 parties + guide de révision 5 jours avec coefficients CCP), **279 QCM**, **155 flashcards**
+- **11 modules existants enrichis** avec le contenu CCP correspondant (QCM + flashcards + parfois une fiche complémentaire) : Support, AD Avancé, Linux, Serveur Linux, Réseaux, Cisco, Virtualisation, Scripting BDD, Sécurité, Stockage, Windows Server 2025
+- **Pipeline de conversion Markdown → JS écrit en Node** (scratchpad, non versionné dans le repo) : parseur générique fiche → sections (h2/h3/p/table/code/ul/ol/info/warn), parseur QCM+corrections (4 formats différents rencontrés selon les CCP), parseur questions ouvertes → flashcards, parseur bespoke pour les exercices de subnetting (CCP4) — validé à chaque étape (comptage + vérification qu'il y a exactement 1 bonne réponse par QCM)
+- **Cas particuliers gérés sans deviner** : QCM CCP1 (1 question à 2 bonnes réponses, ignorée), CCP6 (8 questions sans lettre dans la correction, ignorées), **CCP7 (tout le lot de 21 QCM sans lettre exploitable) converti en flashcards** plutôt que fabriquer une réponse
+- 15 commits poussés sur `main`, cache SW `tssr-v48` → `tssr-v60`, `data.js?v=13` → `v=25`, `app.js?v=5` → `v=6`
+
+### État :
+PWA déployée. 23 modules au total (22 + nouveau module Examen). `data.js` validé à chaque commit (parse OK, comptage cours/QCM/flashcards, 0 QCM malformé introduit). Doublons d'ID `sup_q1-20`/`sup_f1-10` (entre Support et Supervision) confirmés préexistants à cette session, non touchés. Vérification visuelle en direct NON faite (pas de navigateur connecté cette session) — à faire après déploiement.
+
+### À reprendre :
+- [ ] **Vérifier le rendu visuel du module Examen après déploiement** (hard-refresh) — 20 cours, certains très longs (Examen Blanc 2 corrigé = 1677 sections), à confirmer que ça reste fluide/lisible sur ordi et mobile
+- [ ] Le cours "Guide de révision & Planning 5 jours" est en dernière position dans le module Examen — pourrait être réordonné en premier pour servir d'intro (pas fait, non bloquant)
+- [ ] Chantier accents manquants QCM/tableaux — toujours ouvert (voir sessions précédentes)
+- [ ] Vérifier l'écriture Firestore en conditions réelles (2 ordis) — toujours non testé
+- [ ] Railway CLI non authentifié — `railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`
+- [ ] Re-uploader fichiers HTML/PDF d'avant session 17
+- [ ] Test mobile/responsive réel
+
+### Contexte express :
+> Session très longue et mono-objectif : import complet d'un dépôt externe de préparation à l'examen TSSR (9 CCP + 2 examens blancs + simulation orale + guide), converti via un pipeline Node maison (markdown → sections/QCM/flashcards) plutôt qu'à la main, pour tenir le volume (~54k lignes source). Nouveau module "Examen" autonome ET enrichissement de 11 modules existants avec le même contenu (QCM/flashcards dupliqués avec préfixes d'ID distincts, pas de collision). Plusieurs formats de correction QCM différents selon les CCP ont nécessité d'étendre le parseur au fil de l'eau ; les cas où la bonne réponse était introuvable dans la source ont été traités par prudence (skip ou conversion en flashcards) plutôt que par déduction risquée. 15 commits, rien en attente côté commit.
+
+---
+
 ## 📋 Récap — 2026-07-08 (session 29)
 
 ### Fait :

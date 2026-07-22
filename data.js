@@ -5118,8 +5118,566 @@ const MODULES = [
           { type: 'code', content: '# Docker Compose définit et lance une stack complète\n# Format YAML : services, networks, volumes\n\n# Exemple complet : Stack LAMP (Linux Apache MySQL PHP)\ncat > docker-compose.yml << EOF\nservices:\n\n  # Serveur Web Apache + PHP\n  web:\n    image: php:8.2-apache\n    container_name: tssr-web\n    ports:\n      - "80:80"\n      - "443:443"\n    volumes:\n      - ./html:/var/www/html\n      - ./apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf\n    environment:\n      - DB_HOST=db\n      - DB_NAME=tssr\n      - DB_USER=appuser\n      - DB_PASS=AppP@ss!\n    depends_on:\n      db:\n        condition: service_healthy\n    networks:\n      - frontend\n      - backend\n    restart: unless-stopped\n\n  # Base de données MySQL\n  db:\n    image: mysql:8.0\n    container_name: tssr-db\n    environment:\n      MYSQL_ROOT_PASSWORD: RootP@ss!\n      MYSQL_DATABASE: tssr\n      MYSQL_USER: appuser\n      MYSQL_PASSWORD: AppP@ss!\n    volumes:\n      - mysql_data:/var/lib/mysql\n      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql\n    healthcheck:\n      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]\n      interval: 10s\n      timeout: 5s\n      retries: 5\n    networks:\n      - backend\n    restart: unless-stopped\n\n  # phpMyAdmin\n  phpmyadmin:\n    image: phpmyadmin:5.2\n    container_name: tssr-pma\n    ports:\n      - "8080:80"\n    environment:\n      PMA_HOST: db\n      PMA_USER: appuser\n      PMA_PASSWORD: AppP@ss!\n    depends_on:\n      - db\n    networks:\n      - backend\n    restart: unless-stopped\n\n  # Proxy inverse Nginx (optionnel)\n  nginx:\n    image: nginx:alpine\n    container_name: tssr-proxy\n    ports:\n      - "80:80"\n      - "443:443"\n    volumes:\n      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro\n      - ./ssl:/etc/nginx/ssl:ro\n    depends_on:\n      - web\n    networks:\n      - frontend\n    restart: unless-stopped\n\n# Réseaux isolés\nnetworks:\n  frontend:    # Web accessible depuis l\'extérieur\n  backend:     # DB accessible seulement en interne\n\n# Volumes persistants\nvolumes:\n  mysql_data:  # Données MySQL\nEOF\n\n# Commandes Docker Compose\ndocker compose up -d              # Démarrer en arrière-plan\ndocker compose up --build         # Rebuilder les images puis démarrer\ndocker compose down               # Arrêter et supprimer les conteneurs\ndocker compose down -v            # Supprimer aussi les volumes\ndocker compose ps                 # État des services\ndocker compose logs -f            # Logs de tous les services\ndocker compose logs -f web        # Logs d\'un service\ndocker compose exec web bash      # Shell dans un service\ndocker compose restart web        # Redémarrer un service\ndocker compose scale web=3        # Scaler un service\ndocker compose pull               # Mettre à jour les images\ndocker compose config             # Vérifier la syntaxe\n\n# Déployer une mise à jour sans interruption :\ndocker compose pull web\ndocker compose up -d --no-deps web  # --no-deps = ne pas recréer les dépendances' },
         ],
       },
+      {
+        "id": "ccp5-vmware-vsphere-enrich",
+        "titre": "CCP5 — VMware vSphere (Fiche de révision)",
+        "sections": [
+          {
+            "type": "p",
+            "content": "<strong>Certification TSSR</strong> - CCP5 : Maintenir infrastructure virtualisée"
+          },
+          {
+            "type": "h2",
+            "content": "1. ARCHITECTURE vSPHERE"
+          },
+          {
+            "type": "h3",
+            "content": "Composants essentiels"
+          },
+          {
+            "type": "code",
+            "content": "vCenter Server (gestionnaire centralisé)\n    └── Datacenter\n          ├── Cluster (HA/DRS activés)\n          │     ├── ESXi Host 1 (hyperviseur)\n          │     │     ├── VM1, VM2, VM3\n          │     │     └── vSwitch (réseau virtuel)\n          │     └── ESXi Host 2\n          │           └── VM4, VM5, VM6\n          └── Datastores (stockage partagé)\n                ├── VMFS (VMware)\n                └── NFS (Linux)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>ESXi</strong> : Hyperviseur bare-metal (type 1), installé directement sur serveur   <strong>vCenter</strong> : Gestion centralisée, requis pour HA/DRS/vMotion   <strong>Datastore</strong> : Stockage VMs (disques VMDK, ISO, templates)"
+          },
+          {
+            "type": "h2",
+            "content": "2. SNAPSHOTS"
+          },
+          {
+            "type": "h3",
+            "content": "Définition"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Snapshot</strong> = Photo instantanée état VM (disque + mémoire + config)"
+          },
+          {
+            "type": "h3",
+            "content": "Utilisation"
+          },
+          {
+            "type": "code",
+            "content": "AVANT mise à jour risquée → Créer snapshot\nSI problème → Restaurer snapshot\nSI OK → Supprimer snapshot (consolider disques)"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes ESXi (vim-cmd)"
+          },
+          {
+            "type": "code",
+            "content": "# Lister VMs\nvim-cmd vmsvc/getallvms\n\n# Créer snapshot\nvim-cmd vmsvc/snapshot.create <vmid> \"Avant_MaJ_Windows\" \"Snapshot avant KB5012345\" 0 0\n\n# Lister snapshots\nvim-cmd vmsvc/snapshot.get <vmid>\n\n# Restaurer snapshot\nvim-cmd vmsvc/snapshot.revert <vmid> <snapshot_id> 0\n\n# Supprimer snapshot\nvim-cmd vmsvc/snapshot.remove <vmid> <snapshot_id>"
+          },
+          {
+            "type": "h3",
+            "content": "ATTENTION"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "❌ <strong>Pas de sauvegarde</strong> : Snapshot ≠ backup (même datastore)",
+              "⚠️ <strong>Performance</strong> : Snapshot &gt; 72h ralentit VM (fichiers delta croissants)",
+              "⚠️ <strong>Espace disque</strong> : Snapshot consomme espace (delta disks)",
+              "✅ <strong>Bonne pratique</strong> : Supprimer après validation (consolide automatiquement)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "3. vMOTION"
+          },
+          {
+            "type": "h3",
+            "content": "Définition"
+          },
+          {
+            "type": "p",
+            "content": "<strong>vMotion</strong> = Migration à chaud VM entre hôtes ESXi <strong>SANS interruption</strong>"
+          },
+          {
+            "type": "h3",
+            "content": "Prérequis"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "✅ vCenter Server configuré",
+              "✅ Réseau vMotion dédié (VMkernel avec vMotion enabled)",
+              "✅ Stockage partagé (même datastore accessible par les 2 ESXi)",
+              "✅ Processeurs compatibles (même fabricant Intel/AMD, EVC mode si nécessaire)",
+              "✅ Licences vSphere Standard minimum"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Configuration réseau vMotion"
+          },
+          {
+            "type": "code",
+            "content": "# ESXi Shell : Créer VMkernel pour vMotion\nesxcli network ip interface add -i vmk1 -p \"vMotion\"\nesxcli network ip interface ipv4 set -i vmk1 -I 10.0.10.10 -N 255.255.255.0 -t static\nvim-cmd hostsvc/vmotion/vnic_set vmk1"
+          },
+          {
+            "type": "h3",
+            "content": "Types vMotion"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>vMotion standard</strong> : Migration VM (stockage reste)",
+              "<strong>Storage vMotion</strong> : Migration disques VM (VM reste sur même hôte)",
+              "<strong>Cross vSwitch vMotion</strong> : Change vSwitch pendant migration",
+              "<strong>Long Distance vMotion</strong> : Entre sites (latence &lt;150ms, vSphere 6+)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "4. vSPHERE HA (High Availability)"
+          },
+          {
+            "type": "h3",
+            "content": "Fonctionnement"
+          },
+          {
+            "type": "p",
+            "content": "Si <strong>ESXi hôte crash</strong> → VMs redémarrent automatiquement sur autres hôtes cluster"
+          },
+          {
+            "type": "h3",
+            "content": "Configuration"
+          },
+          {
+            "type": "code",
+            "content": "vCenter → Cluster → Configure → vSphere HA\n  ☑ Turn On vSphere HA\n  Admission Control : \n    - Host failures tolerated: 1 (réserve ressources pour 1 panne)\n  VM Monitoring:\n    - VM Monitoring: Enabled (redémarre VM si guest OS freeze)"
+          },
+          {
+            "type": "h3",
+            "content": "Prérequis"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Minimum 2 hôtes ESXi dans cluster",
+              "Stockage partagé (datastores accessibles par tous hôtes)",
+              "Réseau management fiable (heartbeat entre hôtes)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Différence HA vs FT"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Critère",
+              "HA",
+              "FT (Fault Tolerance)"
+            ],
+            "rows": [
+              [
+                "<strong>Tolérance</strong>",
+                "Redémarrage VM (downtime 1-2min)",
+                "<strong>0 downtime</strong> (VM miroir active)"
+              ],
+              [
+                "<strong>Ressources</strong>",
+                "Économique",
+                "Double ressources (2 VMs actives)"
+              ],
+              [
+                "<strong>Cas usage</strong>",
+                "Applications standard",
+                "Applications critiques (base prod)"
+              ]
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "5. TYPES DE DISQUES VIRTUELS"
+          },
+          {
+            "type": "h3",
+            "content": "Thick Provision (épais)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Lazy Zeroed Thick</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Espace réservé immédiatement",
+              "Zéros écrits à la demande (plus rapide création)",
+              "Performance : ⭐⭐⭐"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Eager Zeroed Thick</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Espace réservé + rempli de zéros immédiatement",
+              "Création longue mais <strong>requis pour FT</strong>",
+              "Performance : ⭐⭐⭐⭐⭐ (meilleure)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Thin Provision (dynamique)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Espace alloué à la demande (VM 100GB peut occuper 30GB)",
+              "<strong>Risque</strong> : Sur-allocation → datastore plein",
+              "Performance : ⭐⭐ (fragmentation)",
+              "<strong>Cas usage</strong> : Environnements tests, VDI"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Commande conversion"
+          },
+          {
+            "type": "code",
+            "content": "vmkfstools -i source.vmdk -d thin destination.vmdk\nvmkfstools -i source.vmdk -d eagerzeroedthick destination.vmdk"
+          },
+          {
+            "type": "h2",
+            "content": "6. DATASTORES"
+          },
+          {
+            "type": "h3",
+            "content": "VMFS (VMware File System)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Système fichiers VMware propriétaire",
+              "<strong>Support</strong> : Bloc (SAN iSCSI, Fibre Channel)",
+              "<strong>Avantages</strong> : Locking fichiers, snapshots matériels",
+              "<strong>Version actuelle</strong> : VMFS6 (blocs 512e/4Kn)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "NFS (Network File System)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Système fichiers réseau standard",
+              "<strong>Support</strong> : NAS (Synology, QNAP, serveurs Linux)",
+              "<strong>Avantages</strong> : Simplicité administration, économique",
+              "<strong>Versions</strong> : NFSv3 (default), NFSv4.1 (authentification Kerberos)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Comparaison"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Critère",
+              "VMFS",
+              "NFS"
+            ],
+            "rows": [
+              [
+                "<strong>Type</strong>",
+                "Bloc",
+                "Fichier"
+              ],
+              [
+                "<strong>Performance</strong>",
+                "⭐⭐⭐⭐⭐",
+                "⭐⭐⭐⭐"
+              ],
+              [
+                "<strong>Coût</strong>",
+                "Élevé (SAN)",
+                "Économique (NAS)"
+              ],
+              [
+                "<strong>Snapshots</strong>",
+                "Matériels",
+                "Logiciels"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Commandes"
+          },
+          {
+            "type": "code",
+            "content": "# Lister datastores\nesxcli storage filesystem list\n\n# Monter datastore NFS\nesxcli storage nfs add -H 192.168.1.100 -s /volume1/VMstore -v NFS_Datastore01\n\n# Augmenter datastore VMFS\nvmkfstools -X 500G /vmfs/volumes/datastore1"
+          },
+          {
+            "type": "h2",
+            "content": "7. DRS (Distributed Resource Scheduler)"
+          },
+          {
+            "type": "h3",
+            "content": "Fonctionnement"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Load balancing automatique</strong> : Déplace VMs entre hôtes pour équilibrer CPU/RAM"
+          },
+          {
+            "type": "h3",
+            "content": "Modes"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Manual</strong> : DRS recommande, admin exécute",
+              "<strong>Partially Automated</strong> : DRS place VMs au démarrage, recommande migrations",
+              "<strong>Fully Automated</strong> : DRS migre automatiquement (vMotion)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Règles DRS"
+          },
+          {
+            "type": "code",
+            "content": "Affinity Rules (affinité) :\n  - Keep VMs together : VM1 + VM2 sur même hôte (performance réseau)\n  \nAnti-Affinity Rules (anti-affinité) :\n  - Separate VMs : VM_DC1 et VM_DC2 sur hôtes différents (HA)"
+          },
+          {
+            "type": "h2",
+            "content": "8. RÉSEAU vSPHERE"
+          },
+          {
+            "type": "h3",
+            "content": "vSwitch Standard"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Configuré localement par hôte ESXi",
+              "Gratuit (inclus ESXi)",
+              "Administration manuelle multi-hôtes"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "vSwitch Distributed (dvSwitch)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Configuration centralisée via vCenter",
+              "Licence Enterprise Plus requise",
+              "<strong>Avantages</strong> : Policies réseau uniformes, Network I/O Control"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Port Groups"
+          },
+          {
+            "type": "code",
+            "content": "Port Group \"Production\" → VLAN 10\nPort Group \"DMZ\"        → VLAN 20\nPort Group \"Admin\"      → VLAN 99"
+          },
+          {
+            "type": "h3",
+            "content": "VMkernel Ports (vmkX)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>vmk0</strong> : Management (accès ESXi)",
+              "<strong>vmk1</strong> : vMotion",
+              "<strong>vmk2</strong> : vSAN",
+              "<strong>vmk3</strong> : Fault Tolerance"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "9. TEMPLATES & CLONES"
+          },
+          {
+            "type": "h3",
+            "content": "Template"
+          },
+          {
+            "type": "p",
+            "content": "VM modèle figée (non démarrable), base déploiements rapides"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Workflow</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "1. Installer OS sur VM + personnaliser\n2. Sysprep Windows / cloud-init Linux\n3. Convertir VM en template\n4. Déployer VMs depuis template (nom, IP, etc.)"
+          },
+          {
+            "type": "h3",
+            "content": "Types clones"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Full Clone</strong> : Copie complète indépendante",
+              "<strong>Linked Clone</strong> : Disque parent partagé (delta disks)",
+              "Avantage : Gain espace (10 VMs = 1 parent + 10 petits deltas)",
+              "Inconvénient : Dépendance (parent corrompu = tous clones KO)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "10. COMMANDES ESXCLI ESSENTIELLES"
+          },
+          {
+            "type": "h3",
+            "content": "Réseau"
+          },
+          {
+            "type": "code",
+            "content": "esxcli network nic list                    # Cartes réseau physiques\nesxcli network vswitch standard list       # vSwitches\nesxcli network ip interface ipv4 get       # Config IP VMkernel"
+          },
+          {
+            "type": "h3",
+            "content": "Stockage"
+          },
+          {
+            "type": "code",
+            "content": "esxcli storage core adapter list           # Adaptateurs (vmhbaX)\nesxcli storage vmfs extent list            # Datastores VMFS\nesxcli storage nfs list                    # Datastores NFS"
+          },
+          {
+            "type": "h3",
+            "content": "VMs"
+          },
+          {
+            "type": "code",
+            "content": "vim-cmd vmsvc/getallvms                    # Liste VMs\nvim-cmd vmsvc/power.on <vmid>              # Démarrer VM\nvim-cmd vmsvc/power.off <vmid>             # Éteindre VM"
+          },
+          {
+            "type": "h3",
+            "content": "Maintenance"
+          },
+          {
+            "type": "code",
+            "content": "esxcli system maintenanceMode set --enable true   # Mode maintenance\nesxcli system shutdown reboot -r \"Patch mensuel\"  # Redémarrage"
+          },
+          {
+            "type": "h2",
+            "content": "11. BONNES PRATIQUES"
+          },
+          {
+            "type": "h3",
+            "content": "Snapshots"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "❌ Jamais snapshot sur VM base de données en production (corruption)",
+              "✅ Supprimer dans 24-72h maximum",
+              "✅ Planifier fenêtre maintenance pour consolidation (I/O intensif)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Ressources VMs"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Réserver RAM critique (SQL Server, Exchange)",
+              "✅ Limiter CPU shares pour VMs tests (éviter monopolisation)",
+              "❌ Ne pas allouer 100% ressources physiques (overhead ESXi)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Stockage"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Thin provision pour VDI/tests, Thick pour production",
+              "✅ Séparer datastores : OS / Données / Logs",
+              "✅ Laisser 20% espace libre datastore (performances)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Réseau"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Réseau vMotion dédié (10 Gbps recommandé)",
+              "✅ Teaming NICs (failover automatique)",
+              "✅ Jumbo Frames (MTU 9000) pour vMotion/NFS"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "12. DÉPANNAGE RAPIDE"
+          },
+          {
+            "type": "h3",
+            "content": "VM ne démarre pas"
+          },
+          {
+            "type": "code",
+            "content": "# Vérifier logs\ntail -f /vmfs/volumes/datastore1/VM01/vmware.log\n\n# Causes fréquentes :\n- Datastore déconnecté\n- Fichier .vmx verrouillé (autre hôte)\n- Snapshot corrompu"
+          },
+          {
+            "type": "h3",
+            "content": "vMotion échoue"
+          },
+          {
+            "type": "code",
+            "content": "Erreur commune : \"The VMotion migration failed...\"\nChecks :\n1. Réseau vMotion actif : esxcli network ip interface list\n2. VMkernel vMotion enabled\n3. Stockage partagé accessible par les 2 hôtes\n4. Compatibilité CPU (EVC mode si nécessaire)"
+          },
+          {
+            "type": "h3",
+            "content": "Datastore plein"
+          },
+          {
+            "type": "code",
+            "content": "# Top 10 VMs les plus volumineuses\ndu -h /vmfs/volumes/datastore1/* | sort -rh | head -10\n\n# Consolider snapshots\nvim-cmd vmsvc/snapshot.removeall <vmid>\n\n# Supprimer vieux logs\nfind /vmfs/volumes/datastore1 -name \"*.log\" -mtime +30 -delete"
+          },
+          {
+            "type": "h2",
+            "content": "COMMANDES À RETENIR"
+          },
+          {
+            "type": "code",
+            "content": "# Snapshots\nvim-cmd vmsvc/snapshot.create <vmid> \"nom\" \"description\" 0 0\nvim-cmd vmsvc/snapshot.revert <vmid> <snapshot_id> 0\nvim-cmd vmsvc/snapshot.removeall <vmid>\n\n# Datastores\nesxcli storage nfs add -H <IP_NAS> -s <chemin> -v <nom>\nesxcli storage filesystem list\n\n# Réseau vMotion\nesxcli network ip interface add -i vmk1 -p \"vMotion\"\nvim-cmd hostsvc/vmotion/vnic_set vmk1\n\n# Maintenance\nesxcli system maintenanceMode set --enable true\nvim-cmd vmsvc/getallvms"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Date révision</strong> : 12 novembre 2025   <strong>Examen TSSR</strong> : 17 novembre 2025"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Cette fiche couvre 75% des questions CCP5 Virtualisation !</strong>"
+          }
+        ]
+      },
+      /* VIRTU_COURS */
     ],
     flashcards: [
+      {"id":"virt_ccp5_f1","recto":"Q1 — Snapshots - Utilisation et risques : Expliquez ce qu'est un snapshot VMware, donnez 2 cas d'usage et 3 risques liés à leur utilisation prolongée.","verso":"<strong>Définition</strong> (2 pts) :<br>Photo instantanée état VM (disque + mémoire + config) à instant T. Crée fichiers delta (.vmdk) pour enregistrer modifications après snapshot.<br><strong>Cas d'usage</strong> (2 pts) :<br>1. Avant mise à jour Windows/applicative risquée<br>2. Avant modification configuration système critique<br><strong>Risques prolongés</strong> (4 pts) :<br>1. <strong>Performance dégradée</strong> : Chaque écriture passe par chaîne deltas (lent)<br>2. <strong>Espace disque</strong> : Fichiers delta croissent → datastore plein<br>3. <strong>Corruption</strong> : Chaîne snapshots longue → risque corruption consolidation<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Créer\nvim-cmd vmsvc/snapshot.create 42 \"Avant_MaJ\" \"KB5012345\" 0 0\n\n# Supprimer tous\nvim-cmd vmsvc/snapshot.removeall 42</code><br><strong>Bonne pratique</strong> : Supprimer sous 72h maximum<br><strong>Points</strong> : 8/8"},
+      {"id":"virt_ccp5_f2","recto":"Q2 — vMotion - Prérequis technique : Listez les 5 prérequis pour effectuer un vMotion entre 2 hôtes ESXi. Un vMotion échoue avec erreur \"Incompatible CPU\", quelle solution ?","verso":"<strong>5 prérequis</strong> (5 pts) :<br>1. <strong>vCenter Server</strong> configuré et opérationnel<br>2. <strong>Réseau vMotion</strong> dédié (VMkernel avec vMotion enabled sur chaque ESXi)<br>3. <strong>Stockage partagé</strong> accessible par les 2 hôtes (même datastore)<br>4. <strong>Processeurs compatibles</strong> (même fabricant Intel/AMD, jeux instructions similaires)<br>5. <strong>Licences</strong> vSphere Standard minimum<br><strong>Solution erreur CPU</strong> (5 pts) :<br><strong>EVC Mode (Enhanced vMotion Compatibility)</strong> :<br>• Active au niveau cluster<br>• Masque instructions CPU récentes pour compatibilité<br>• Exemple : Cluster avec ESXi gen Intel Xeon v3 + v5 → EVC \"Intel Xeon v3\"<br><strong>Configuration</strong> :<br><code style=\"display:block;white-space:pre-wrap\">vCenter → Cluster → Configure → VMware EVC\n  Enable EVC : Intel \"Haswell\" Generation</code><br><strong>Alternative</strong> : Mettre VM hors tension, migrer (pas vMotion à chaud), redémarrer<br><strong>Points</strong> : 10/10"},
+      {"id":"virt_ccp5_f3","recto":"Q3 — vSphere HA vs Fault Tolerance : Quelle différence entre vSphere HA et Fault Tolerance ? Dans quel cas privilégier FT ?","verso":"<strong>Tableau comparatif</strong> (6 pts) :<br>Critère — vSphere HA — Fault Tolerance (FT)<br><strong>Fonctionnement</strong> — Redémarre VM sur autre hôte si crash — VM miroir active en temps réel<br><strong>Downtime</strong> — 1-2 minutes — <strong>0 seconde</strong> (bascule transparente)<br><strong>Ressources</strong> — Standard — <strong>Double</strong> (2 VMs actives)<br><strong>Prérequis</strong> — Stockage partagé — Stockage partagé + réseau FT 10 Gbps<br><strong>Limites</strong> — Aucune — Max 4 vCPU, 128 GB RAM (vSphere 7)<br><strong>Cas usage FT</strong> (2 pts) :<br>• ✅ <strong>Applications critiques</strong> : Base de données production 24/7<br>• ✅ <strong>Aucune tolérance downtime</strong> : Automates industriels, systèmes bancaires<br>• ❌ <strong>Pas pour</strong> : VMs test, serveurs web (HA suffit)<br><strong>Prérequis FT</strong> :<br>• Disques <strong>Eager Zeroed Thick</strong> (pas Thin)<br>• Réseau VMkernel FT logging dédié<br><strong>Points</strong> : 8/8"},
+      {"id":"virt_ccp5_f4","recto":"Q4 — Types disques - Thick vs Thin : Expliquez Thick Provision Lazy/Eager Zeroed et Thin Provision. Quel type obligatoire pour Fault Tolerance ?","verso":"<strong>Thick Provision Lazy Zeroed</strong> (2 pts) :<br>• Espace <strong>réservé immédiatement</strong> sur datastore<br>• Zéros écrits à la demande (rapide création)<br>• Performance : Bonne<br><strong>Thick Provision Eager Zeroed</strong> (2 pts) :<br>• Espace réservé + <strong>rempli de zéros immédiatement</strong><br>• Création longue (plusieurs minutes pour 100 GB)<br>• Performance : <strong>Meilleure</strong> (pas d'overhead premier write)<br><strong>Thin Provision</strong> (2 pts) :<br>• Espace alloué <strong>à la demande</strong> (VM 100 GB peut occuper 30 GB physiques)<br>• Risque : Sur-allocation → datastore plein<br>• Cas usage : Tests, VDI<br><strong>FT requiert Eager Zeroed Thick</strong> (1 pt) :<br>Garantit blocs disque initialisés pour synchronisation VM primaire/secondaire<br><strong>Conversion</strong> :<br><code style=\"display:block;white-space:pre-wrap\">vmkfstools -i source.vmdk -d eagerzeroedthick destination.vmdk</code><br><strong>Points</strong> : 7/7"},
+      {"id":"virt_ccp5_f5","recto":"Q5 — Datastores VMFS vs NFS : Comparez VMFS et NFS pour datastores vSphere. Donnez 2 avantages de chaque.","verso":"<strong>VMFS (VMware File System)</strong> (4 pts) :<br><strong>Définition</strong> : Système fichiers bloc propriétaire VMware<br><strong>Avantages</strong> :<br>• ✅ <strong>Performance</strong> : Accès bloc direct (SAN iSCSI, Fibre Channel)<br>• ✅ <strong>Snapshots matériels</strong> : Intégration baies SAN (VAAI)<br><strong>Inconvénients</strong> :<br>• ❌ Coût élevé (infrastructure SAN)<br>• ❌ Complexité configuration<br><strong>NFS (Network File System)</strong> (4 pts) :<br><strong>Définition</strong> : Système fichiers réseau standard (NAS)<br><strong>Avantages</strong> :<br>• ✅ <strong>Simplicité</strong> : Montage en 1 commande (IP + chemin)<br>• ✅ <strong>Économique</strong> : NAS Synology/QNAP abordables<br><strong>Inconvénients</strong> :<br>• ❌ Performance légèrement inférieure (réseau)<br>• ❌ Dépendance réseau (latence critique)<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Monter NFS\nesxcli storage nfs add -H 192.168.1.100 -s /volume1/VMs -v NFS_Prod\n\n# Lister datastores\nesxcli storage filesystem list</code><br><strong>Recommandation</strong> : NFS pour PME, VMFS pour entreprises (budget + performance)<br><strong>Points</strong> : 8/8"},
+      {"id":"virt_ccp5_f6","recto":"Q6 — DRS - Load Balancing : Qu'est-ce que DRS et quels sont les 3 modes d'automatisation ? Donnez un exemple règle d'affinité.","verso":"<strong>DRS (Distributed Resource Scheduler)</strong> (2 pts) :<br>Load balancing automatique VMs entre hôtes cluster selon charge CPU/RAM<br><strong>3 modes</strong> (3 pts) :<br>1. <strong>Manual</strong> : DRS recommande, admin valide manuellement<br>2. <strong>Partially Automated</strong> : DRS place VMs au boot, recommande migrations<br>3. <strong>Fully Automated</strong> : DRS migre automatiquement via vMotion<br><strong>Règle affinité</strong> (1 pt) :<br><code style=\"display:block;white-space:pre-wrap\">Keep VMs together : \n  VM_Web + VM_App sur même hôte (minimise latence réseau)</code><br><strong>Règle anti-affinité</strong> (exemple bonus) :<br><code style=\"display:block;white-space:pre-wrap\">Separate VMs :\n  VM_DC01 et VM_DC02 sur hôtes différents (haute disponibilité)</code><br><strong>Points</strong> : 6/6"},
+      {"id":"virt_ccp5_f7","recto":"Q7 — Réseau vSphere - VMkernel : Qu'est-ce qu'un port VMkernel ? Listez 4 usages différents avec exemple vmkX.","verso":"<strong>Définition</strong> (2 pts) :<br>Interface réseau virtuelle ESXi pour services infrastructure (pas VMs)<br><strong>4 usages</strong> (5 pts) :<br>VMkernel — Usage — Config<br><strong>vmk0</strong> — Management — Accès vCenter, SSH, HTTPS ESXi<br><strong>vmk1</strong> — vMotion — Migration VMs à chaud<br><strong>vmk2</strong> — vSAN — Stockage distribué VMware<br><strong>vmk3</strong> — Fault Tolerance — Logging FT entre VMs miroirs<br><strong>Création VMkernel vMotion</strong> :<br><code style=\"display:block;white-space:pre-wrap\">esxcli network ip interface add -i vmk1 -p \"vMotion\"\nesxcli network ip interface ipv4 set -i vmk1 -I 10.0.10.50 -N 255.255.255.0 -t static\nvim-cmd hostsvc/vmotion/vnic_set vmk1</code><br><strong>Bonne pratique</strong> : Réseau vMotion dédié 10 Gbps minimum<br><strong>Points</strong> : 7/7"},
+      {"id":"virt_ccp5_f8","recto":"Q8 — Templates et Clones : Quelle différence entre un template et un clone ? Expliquez Full Clone vs Linked Clone.","verso":"<strong>Template</strong> (2 pts) :<br>VM modèle <strong>figée</strong> (non démarrable), base déploiements multiples<br><strong>Clone</strong> (2 pts) :<br>Copie VM existante (démarrable immédiatement)<br><strong>Full Clone</strong> (2 pts) :<br>• Copie complète indépendante<br>• Occupe espace complet (100 GB source = 100 GB clone)<br>• Performances : Identiques à source<br>• Cas usage : Production<br><strong>Linked Clone</strong> (2 pts) :<br>• Disque <strong>parent partagé</strong> + fichiers delta (différences uniquement)<br>• Économie espace (10 VMs = 1 parent 50 GB + 10 deltas 5 GB)<br>• <strong>Risque</strong> : Parent corrompu → tous clones KO<br>• Cas usage : VDI, environnements tests<br><strong>Workflow template</strong> :<br><code style=\"display:block;white-space:pre-wrap\">1. Installer OS sur VM + personnaliser\n2. Sysprep Windows (généralise SID)\n3. Convert to Template\n4. Deploy VM from Template (personnalise nom, IP)</code><br><strong>Points</strong> : 8/8"},
+      {"id":"virt_ccp5_f9","recto":"Q9 — Mode Maintenance ESXi : Pourquoi mettre un hôte ESXi en mode maintenance ? Que se passe-t-il pour les VMs actives ?","verso":"<strong>Utilité mode maintenance</strong> (3 pts) :<br>• Mises à jour ESXi (patches VMware)<br>• Remplacement matériel (RAM, disques)<br>• Maintenance préventive<br>• <strong>Garantit</strong> : Pas de nouvelles VMs démarrées pendant intervention<br><strong>Impact VMs</strong> (3 pts) :<br><strong>Avec DRS Fully Automated</strong> :<br>• ✅ VMs migrées automatiquement vers autres hôtes (vMotion)<br>• ✅ Aucune interruption<br><strong>Sans DRS ou Manual</strong> :<br>• ⚠️ <strong>Choix admin</strong> :<br>• Migrer manuellement VMs (vMotion)<br>• Suspendre VMs<br>• <strong>Éteindre VMs</strong> (downtime)<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Activer\nesxcli system maintenanceMode set --enable true\n\n# Désactiver\nesxcli system maintenanceMode set --enable false\n\n# Vérifier état\nesxcli system maintenanceMode get</code><br><strong>Bonne pratique</strong> : Planifier fenêtre maintenance hors heures ouvrées<br><strong>Points</strong> : 6/6"},
+      {"id":"virt_ccp5_f10","recto":"Q10 — Dépannage - Datastore plein : Un datastore VMFS 2 TB est plein à 98%. Listez 4 actions pour libérer espace rapidement et la commande pour identifier les fichiers volumineux.","verso":"<strong>4 actions immédiates</strong> (8 pts) :<br><strong>1. Supprimer anciens snapshots</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Lister VMs avec snapshots\nvim-cmd vmsvc/getallvms | grep snapshot\n\n# Consolider snapshots VM ID 42\nvim-cmd vmsvc/snapshot.removeall 42</code><br>Gain : 10-50 GB selon durée snapshots<br><strong>2. Supprimer fichiers logs anciens</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">find /vmfs/volumes/datastore1 -name \"*.log\" -mtime +30 -delete\nfind /vmfs/volumes/datastore1 -name \"vmware-*.log\" -size +100M -delete</code><br>Gain : 5-20 GB<br><strong>3. Storage vMotion VMs non critiques</strong> (2 pts) :<br>Migrer VMs tests/dev vers autre datastore<br><strong>4. Thin Out disques VMs</strong> (2 pts) :<br>Convertir Thick → Thin si VM peu active<br><code style=\"display:block;white-space:pre-wrap\">vmkfstools -i source.vmdk -d thin destination.vmdk</code><br>Gain : 20-40% espace selon utilisation réelle<br><strong>Commande identification gros fichiers</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Top 20 fichiers volumineux\ndu -h /vmfs/volumes/datastore1/* | sort -rh | head -20\n\n# Fichiers &gt;50 GB\nfind /vmfs/volumes/datastore1 -type f -size +50G -exec du -h {} \\;</code><br><strong>Prévention</strong> :<br>• ✅ Alarmes vCenter : Alerte si datastore &gt;80%<br>• ✅ Politique snapshots : Suppression auto &gt;72h (vRealize Automation)<br>• ✅ Thin Provision pour tests/VDI<br><strong>Points</strong> : 10/10"},
+      /* VIRTU_FLASHCARDS */
       { id: 'virt_f1', recto: 'Hyperviseur VMware de type 1 (bare metal)', verso: 'ESXi : installé directement sur le matériel, sans OS hôte' },
       { id: 'virt_f2', recto: 'Plateforme centrale de gestion VMware', verso: 'vCenter Server (accès via vSphere Client web)' },
       { id: 'virt_f3', recto: 'Migration VM à chaud sans interruption sous vSphere', verso: 'vMotion : déplace la VM d\'un hôte à l\'autre sans coupure de service' },
@@ -5162,7 +5720,48 @@ const MODULES = [
       { id: 'virt_q28', difficulty: 'difficile', question: 'Protocole stockage vSAN entre hotes ESXi ?', options: [{ text: 'NFS', correct: false }, { text: 'iSCSI', correct: false }, { text: 'VMkernel traffic vSAN', correct: true }, { text: 'FC', correct: false }], explication: 'vSAN utilise le VMkernel pour le trafic de stockage distribue.' },
       { id: 'virt_q29', difficulty: 'troubleshooter', question: 'VM ne peut pas migrer vMotion: erreur CPU incompatible. Cause ?', options: [{ text: 'Version VMware Tools', correct: false }, { text: 'Compatibilite CPU differents hotes', correct: true }, { text: 'RAM insuffisante', correct: false }, { text: 'Reseau lent', correct: false }], explication: 'vMotion necessite meme famille CPU ou EVC active.' },
       { id: 'virt_q30', difficulty: 'difficile', question: 'Type de stockage Proxmox compatible Ceph ?', options: [{ text: 'Directory', correct: false }, { text: 'LVM', correct: false }, { text: 'ZFS', correct: false }, { text: 'RBD', correct: true }], explication: 'RBD = RADOS Block Device, interface Ceph.' },
-      { id: 'virt_q31', difficulty: 'troubleshooter', question: 'Conteneur LXC Proxmox ne demarre pas: lock failed. Cause ?', options: [{ text: 'Conteneur deja en cours', correct: false }, { text: 'Verrouillage fichier restant', correct: true }, { text: 'Template corrompu', correct: false }, { text: 'Disque plein', correct: false }], explication: 'Supprimer le lock: qm unlock <VMID> pour VM, pct unlock <CTID> pour CT.' }
+      { id: 'virt_q31', difficulty: 'troubleshooter', question: 'Conteneur LXC Proxmox ne demarre pas: lock failed. Cause ?', options: [{ text: 'Conteneur deja en cours', correct: false }, { text: 'Verrouillage fichier restant', correct: true }, { text: 'Template corrompu', correct: false }, { text: 'Disque plein', correct: false }], explication: 'Supprimer le lock: qm unlock <VMID> pour VM, pct unlock <CTID> pour CT.' },
+      {"id":"virt_ccp5_q1","difficulty":"normal","question":"Qu'est-ce que la <strong>virtualisation</strong> ?","options":[{"text":"Installer plusieurs OS sur plusieurs ordinateurs","correct":false},{"text":"Créer des machines virtuelles (VM) qui s'exécutent sur un serveur physique (hyperviseur)","correct":true},{"text":"Un système de sauvegarde","correct":false},{"text":"Un pare-feu","correct":false}],"explication":"Virtualisation :<br>• <strong>Principe</strong> : Partitionner un serveur physique en plusieurs machines virtuelles<br>• <strong>Bénéfices</strong> :<br>• <strong>Consolidation</strong> : 1 serveur physique → 10-50 VM<br>• <strong>Isolation</strong> : Chaque VM indépendante<br>• <strong>Flexibilité</strong> : Création/suppression rapide<br>• <strong>Économies</strong> : Réduction matériel, énergie, espace"},
+      {"id":"virt_ccp5_q2","difficulty":"normal","question":"Qu'est-ce qu'un <strong>hyperviseur</strong> ?","options":[{"text":"Un administrateur système","correct":false},{"text":"La couche logicielle qui permet de créer et gérer des machines virtuelles","correct":true},{"text":"Un système d'exploitation","correct":false},{"text":"Un câble réseau","correct":false}],"explication":"Hyperviseur (Virtual Machine Monitor) :<br>• Gère l'accès au matériel (CPU, RAM, disque, réseau)<br>• Isole les VM entre elles<br>• Répartit les ressources"},
+      {"id":"virt_ccp5_q3","difficulty":"normal","question":"Quelle est la différence entre hyperviseur <strong>Type 1</strong> (bare-metal) et <strong>Type 2</strong> (hosted) ?","options":[{"text":"Aucune différence","correct":false},{"text":"Type 1 = installé directement sur le matériel (ESXi, Hyper-V) / Type 2 = sur un OS (VMware Workstation, VirtualBox)","correct":true},{"text":"Type 1 = gratuit, Type 2 = payant","correct":false},{"text":"Type 1 = Windows, Type 2 = Linux","correct":false}],"explication":"Critère — Type 1 (Bare-Metal) — Type 2 (Hosted)<br><strong>Installation</strong> — Directement sur matériel — Sur un OS existant<br><strong>Performance</strong> — Excellente — Moyenne (overhead OS)<br><strong>Usage</strong> — Production datacenter — Tests, développement<br><strong>Exemples</strong> — VMware ESXi, Hyper-V, Xen, KVM — VMware Workstation, VirtualBox, Parallels<br><strong>Architecture Type 1</strong> :<br><code style=\"display:block;white-space:pre-wrap\">VM1  VM2  VM3\n     ↓\nHyperviseur (ESXi)\n     ↓\nMatériel physique</code><br><strong>Architecture Type 2</strong> :<br><code style=\"display:block;white-space:pre-wrap\">VM1  VM2\n     ↓\nHyperviseur (Workstation)\n     ↓\nOS Hôte (Windows/Linux)\n     ↓\nMatériel physique</code>"},
+      {"id":"virt_ccp5_q4","difficulty":"normal","question":"Quels sont les avantages de la virtualisation ?","options":[{"text":"Consolidation serveurs, réduction coûts, haute disponibilité, déploiement rapide","correct":true},{"text":"Uniquement économique","correct":false},{"text":"Aucun avantage","correct":false},{"text":"Plus lent que le physique","correct":false}],"explication":"Avantages détaillés :<br><strong>1. Consolidation</strong> :<br>• Avant : 50 serveurs physiques (1 app/serveur, utilisation 10%)<br>• Après : 5 serveurs physiques avec 50 VM (utilisation 70%)<br><strong>2. Économies</strong> :<br>• Matériel : -80% de serveurs<br>• Énergie : -70% consommation électrique<br>• Espace : -80% surface datacenter<br>• Refroidissement : -70%<br><strong>3. Haute disponibilité</strong> :<br>• HA : Redémarrage auto si panne<br>• vMotion : Migration sans coupure<br>• FT : Tolérance zéro downtime<br><strong>4. Déploiement rapide</strong> :<br>• Serveur physique : 2-4 semaines (commande, livraison, install)<br>• VM : 5 minutes (clone de template)<br><strong>5. Sauvegarde/Restauration</strong> :<br>• Snapshot instantané<br>• Backup niveau hyperviseur<br>• Restauration complète en minutes<br><strong>6. Tests et Développement</strong> :<br>• Environnements isolés<br>• Clonage facile<br>• Retour arrière rapide"},
+      {"id":"virt_ccp5_q5","difficulty":"normal","question":"Qu'est-ce que le <strong>ratio de consolidation</strong> ?","options":[{"text":"La vitesse du réseau","correct":false},{"text":"Le nombre de VM par serveur physique (ex: 20 VM sur 1 ESXi)","correct":true},{"text":"La taille des disques","correct":false},{"text":"Le nombre de snapshots","correct":false}],"explication":"Ratio de consolidation :<br>• <strong>Moyenne</strong> : 15-20 VM/serveur<br>• <strong>Cas légers</strong> : 50 VM/serveur (serveurs web, AD)<br>• <strong>Cas lourds</strong> : 5-10 VM/serveur (SQL, bases de données)<br><strong>Calcul</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Serveur physique : 48 CPU cores, 512 Go RAM\nVM moyenne : 2 vCPU, 16 Go RAM\n\nRatio théorique CPU : 48/2 = 24 VM\nRatio théorique RAM : 512/16 = 32 VM\n→ Goulot = CPU → 24 VM max</code>"},
+      {"id":"virt_ccp5_q6","difficulty":"normal","question":"Que signifie <strong>overcommit</strong> (sur-allocation) en virtualisation ?","options":[{"text":"Allouer moins de ressources que disponible","correct":false},{"text":"Allouer plus de ressources (CPU/RAM) que physiquement disponible","correct":true},{"text":"Désactiver une VM","correct":false},{"text":"Un type de stockage","correct":false}],"explication":"Overcommit (sur-allocation) :<br><strong>CPU Overcommit</strong> :<br>• Serveur physique : 16 cores<br>• Allocation VM : 40 vCPU (ratio 2.5:1)<br>• Fonctionne car : VM n'utilisent pas 100% CPU en permanence<br><strong>RAM Overcommit</strong> :<br>• Serveur physique : 256 Go RAM<br>• Allocation VM : 320 Go RAM<br>• Techniques :<br>• <strong>Transparent Page Sharing</strong> (TPS) : Partage pages mémoire identiques<br>• <strong>Ballooning</strong> : Récupère RAM inutilisée<br>• <strong>Compression</strong> : Compresse pages mémoire<br>• <strong>Swap</strong> : En dernier recours (lent)<br><strong>Risques</strong> :<br>• Overcommit excessif → Swap → Performances dégradées<br>• Recommandation : Max 1.5:1 pour RAM"},
+      {"id":"virt_ccp5_q7","difficulty":"normal","question":"Qu'est-ce qu'une <strong>VM Template</strong> (modèle) ?","options":[{"text":"Une VM en cours d'exécution","correct":false},{"text":"Une VM master pré-configurée, servant de base pour déployer rapidement de nouvelles VM","correct":true},{"text":"Un snapshot","correct":false},{"text":"Un datacenter","correct":false}],"explication":"Template (modèle) :<br>• <strong>Création</strong> :<br>1. Installer OS (Windows/Linux)<br>2. Appliquer mises à jour<br>3. Installer applications de base<br>4. Configurer paramètres standards<br>5. Sysprep (Windows) ou généralisation<br>6. Convertir en template<br>• <strong>Usage</strong> : Déployer 50 VM identiques en 30 min<br>• <strong>Statut</strong> : Lecture seule (ne peut pas être démarré)"},
+      {"id":"virt_ccp5_q8","difficulty":"normal","question":"Que signifie <strong>vMotion</strong> (VMware) ?","options":[{"text":"Déplacer une VM en cours d'exécution d'un hôte ESXi à un autre sans interruption","correct":true},{"text":"Arrêter une VM","correct":false},{"text":"Cloner une VM","correct":false},{"text":"Créer un snapshot","correct":false}],"explication":"vMotion (Live Migration) :<br>1. Copie état mémoire VM vers hôte cible<br>2. Synchronisation continue changements<br>3. Bascule finale (&lt; 1 seconde de freeze)<br>4. Redirection réseau vers nouvel hôte<br>5. VM continue de tourner<br><strong>Usages</strong> :<br>• Maintenance hôte (sans arrêter VM)<br>• Équilibrage charge (DRS)<br>• Évacuation hôte<br><strong>Prérequis</strong> :<br>• Stockage partagé (SAN/NAS)<br>• Réseau vMotion dédié (10 Gbps recommandé)<br>• CPU compatibles (même famille)<br>• vCenter (orchestration)"},
+      {"id":"virt_ccp5_q9","difficulty":"normal","question":"Quelle technologie permet de partager les ressources CPU inutilisées entre VM ?","options":[{"text":"Snapshot","correct":false},{"text":"Overcommit / Partage dynamique (CPU Shares, Reservations, Limits)","correct":true},{"text":"Template","correct":false},{"text":"ISO","correct":false}],"explication":"Gestion ressources CPU :<br><strong>Shares (Parts)</strong> :<br>• Priorité relative (Low/Normal/High/Custom)<br>• VM avec plus de shares → Plus de CPU si contention<br><strong>Reservation</strong> :<br>• CPU garanti minimum (MHz)<br>• Exemple : 2000 MHz réservés<br><strong>Limit</strong> :<br>• Plafond maximum (MHz)<br>• Exemple : Max 4000 MHz même si dispo<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">VM1 : 2 vCPU, Reservation 2000 MHz, Limit 4000 MHz, Shares High\nVM2 : 2 vCPU, Shares Normal\nVM3 : 1 vCPU, Shares Low\n\nSi CPU saturé : VM1 &gt; VM2 &gt; VM3</code>"},
+      {"id":"virt_ccp5_q10","difficulty":"normal","question":"Qu'est-ce que le <strong>VDI</strong> (Virtual Desktop Infrastructure) ?","options":[{"text":"Un serveur web","correct":false},{"text":"Des postes de travail virtualisés (bureaux virtuels) accessibles à distance","correct":true},{"text":"Un système de sauvegarde","correct":false},{"text":"Un protocole réseau","correct":false}],"explication":"VDI (Virtual Desktop Infrastructure) :<br><strong>Architecture</strong> :<br>• Datacenter : Serveurs ESXi avec VM de bureaux Windows<br>• Utilisateurs : Thin clients ou PC<br>• Protocole : VMware Horizon (PCoIP, Blast), Citrix (ICA)<br><strong>Avantages</strong> :<br>• <strong>Centralisé</strong> : Gestion facilitée (images, patches)<br>• <strong>Sécurité</strong> : Données restent au datacenter<br>• <strong>Mobilité</strong> : Accès depuis n'importe où<br>• <strong>BYOD</strong> : Utilisation devices personnels<br><strong>Types de VDI</strong> :<br>• <strong>Persistent</strong> : Bureau dédié par user (personnalisations conservées)<br>• <strong>Non-persistent</strong> : Bureau générique, réinitialisé après déconnexion<br><strong>Cas d'usage</strong> :<br>• Call centers<br>• Télétravail<br>• Contractors/consultants temporaires<br>• Postes nécessitant haute sécurité<br>### ✔️ Partie 2 : VMware vSphere - Architecture"},
+      {"id":"virt_ccp5_q11","difficulty":"normal","question":"Qu'est-ce que <strong>VMware ESXi</strong> ?","options":[{"text":"Un système d'exploitation Windows","correct":false},{"text":"Un hyperviseur Type 1 (bare-metal) qui héberge les VM","correct":true},{"text":"Un logiciel de sauvegarde","correct":false},{"text":"Un client de virtualisation","correct":false}],"explication":"VMware ESXi :<br>• <strong>Version minimale</strong> de l'hyperviseur (&lt; 1 Go)<br>• Pas d'OS sous-jacent (bare-metal)<br>• Installation sur serveur physique<br>• Accès : Interface web (Host Client), SSH, vCenter<br><strong>Versions</strong> :<br>• <strong>ESXi</strong> : Gratuit (fonctionnalités limitées)<br>• <strong>vSphere</strong> (ESXi + licence) : Payant (Standard, Enterprise, Enterprise Plus)"},
+      {"id":"virt_ccp5_q12","difficulty":"normal","question":"Qu'est-ce que <strong>VMware vCenter Server</strong> ?","options":[{"text":"Un hyperviseur","correct":false},{"text":"La console centralisée de gestion des hôtes ESXi et des VM","correct":true},{"text":"Un système de fichiers","correct":false},{"text":"Un protocole","correct":false}],"explication":"vCenter Server :<br>• <strong>Rôle</strong> : Gestion centralisée de multiples hôtes ESXi<br>• <strong>Fonctions avancées</strong> :<br>• vMotion, Storage vMotion<br>• HA (High Availability)<br>• DRS (Distributed Resource Scheduler)<br>• Distributed Switch<br>• Templates et clones<br>• <strong>Installation</strong> : Appliance Linux (VCSA) ou Windows (déprécié)"},
+      {"id":"virt_ccp5_q13","difficulty":"normal","question":"Quelle est la différence entre <strong>ESXi</strong> et <strong>vCenter</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"ESXi = hyperviseur (hôte) / vCenter = gestionnaire centralisé (plusieurs ESXi)","correct":true},{"text":"ESXi = gratuit, vCenter = payant","correct":false},{"text":"ESXi = Linux, vCenter = Windows","correct":false}],"explication":"Comparaison :<br>Critère — ESXi — vCenter<br><strong>Rôle</strong> — Hyperviseur (héberge VM) — Gestionnaire (pilote ESXi)<br><strong>Installation</strong> — Sur serveur physique — Sur VM ou appliance<br><strong>Gestion</strong> — Hôte unique — Plusieurs hôtes<br><strong>Fonctions</strong> — Basiques — Avancées (HA, DRS, vMotion)<br><strong>Licence</strong> — Gratuit ou payant — Payant<br><strong>Architecture</strong> :<br><code style=\"display:block;white-space:pre-wrap\">        vCenter Server\n             ↓\n    ┌────────┼────────┐\nESXi-1    ESXi-2    ESXi-3\n  ↓         ↓         ↓\n10 VM     12 VM     15 VM</code>"},
+      {"id":"virt_ccp5_q14","difficulty":"normal","question":"Peut-on gérer un hôte ESXi sans vCenter ?","options":[{"text":"Non, vCenter obligatoire","correct":false},{"text":"Oui, via l'interface web ESXi (Host Client) mais fonctionnalités limitées","correct":true},{"text":"Impossible de gérer ESXi","correct":false},{"text":"Uniquement en ligne de commande","correct":false}],"explication":"Gestion sans vCenter :<br>• <strong>Interface web</strong> : https://IP_ESXi/ui (ESXi Host Client)<br>• <strong>Fonctions disponibles</strong> :<br>• Créer/gérer VM<br>• Configuration réseau/stockage<br>• Monitoring basique<br>• <strong>Limitations</strong> :<br>• Pas de vMotion<br>• Pas de HA/DRS<br>• Pas de templates<br>• Gestion hôte par hôte (pas centralisée)"},
+      {"id":"virt_ccp5_q15","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Datacenter</strong> dans vSphere ?","options":[{"text":"Un bâtiment physique","correct":false},{"text":"Un conteneur logique dans vCenter pour organiser hôtes, VM, stockage","correct":true},{"text":"Un serveur","correct":false},{"text":"Un réseau","correct":false}],"explication":"Datacenter vSphere :<br>• Conteneur organisationnel dans vCenter<br>• Contient : Clusters, hôtes ESXi, VM, réseaux, datastores<br>• Permet séparation logique (par site, par client, par environnement)<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">vCenter\n├─ Datacenter Paris\n│  ├─ Cluster Production\n│  │  ├─ ESXi-01\n│  │  └─ ESXi-02\n│  └─ Cluster Dev/Test\n│     └─ ESXi-03\n└─ Datacenter Lyon\n   └─ Cluster DR\n      ├─ ESXi-04\n      └─ ESXi-05</code>"},
+      {"id":"virt_ccp5_q16","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Cluster</strong> vSphere ?","options":[{"text":"Un groupe de VM","correct":false},{"text":"Un groupe d'hôtes ESXi partageant ressources, avec HA et DRS","correct":true},{"text":"Un disque dur","correct":false},{"text":"Un snapshot","correct":false}],"explication":"Cluster vSphere :<br>• <strong>Pool de ressources</strong> : CPU/RAM partagés<br>• <strong>Fonctionnalités</strong> :<br>• HA (reprise après panne)<br>• DRS (équilibrage charge automatique)<br>• vMotion (migration VM)<br>• <strong>Prérequis</strong> : Stockage partagé<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Cluster Production (3 hôtes)\n├─ ESXi-01 : 32 cores, 256 Go RAM\n├─ ESXi-02 : 32 cores, 256 Go RAM\n└─ ESXi-03 : 32 cores, 256 Go RAM\nTotal : 96 cores, 768 Go RAM disponibles pour toutes les VM</code>"},
+      {"id":"virt_ccp5_q17","difficulty":"normal","question":"Quelle est la hiérarchie de l'architecture vSphere ?","options":[{"text":"Datacenter → Cluster → ESXi → VM","correct":true},{"text":"VM → ESXi → Cluster → Datacenter","correct":false},{"text":"ESXi → VM → Cluster","correct":false},{"text":"Cluster → Datacenter → VM","correct":false}],"explication":"Hiérarchie complète :<br><code style=\"display:block;white-space:pre-wrap\">vCenter Server\n    ↓\nDatacenter\n    ↓\nCluster\n    ↓\nHôte ESXi\n    ↓\nVM</code>"},
+      {"id":"virt_ccp5_q18","difficulty":"normal","question":"Quel port utilise vCenter pour communiquer avec ESXi ?","options":[{"text":"80","correct":false},{"text":"443 (HTTPS)","correct":true},{"text":"22","correct":false},{"text":"3389","correct":false}],"explication":"Ports VMware essentiels :<br>Service — Port — Usage<br><strong>HTTPS (vCenter/ESXi)</strong> — 443 — Gestion web, API<br><strong>vMotion</strong> — 8000 — Migration VM<br><strong>NFS</strong> — 2049 — Stockage NAS<br><strong>iSCSI</strong> — 3260 — Stockage SAN<br><strong>SSH</strong> — 22 — Administration CLI"},
+      {"id":"virt_ccp5_q19","difficulty":"normal","question":"Qu'est-ce que <strong>VMware Tools</strong> ?","options":[{"text":"Un hyperviseur","correct":false},{"text":"Des drivers et utilitaires installés dans la VM pour améliorer performances et intégration","correct":true},{"text":"Un système d'exploitation","correct":false},{"text":"Un pare-feu","correct":false}],"explication":"VMware Tools :<br>• <strong>Composants</strong> :<br>• Drivers optimisés (réseau, stockage, vidéo)<br>• Service de synchronisation horloge<br>• Agent de communication avec ESXi<br>• Utilitaires (copier-coller, drag &amp; drop)"},
+      {"id":"virt_ccp5_q20","difficulty":"normal","question":"Pourquoi installer VMware Tools dans une VM ?","options":[{"text":"Ce n'est pas utile","correct":false},{"text":"Améliore performances, synchronisation horloge, shutdown propre, copier-coller hôte/VM, drivers optimisés","correct":true},{"text":"Obligatoire pour démarrer la VM","correct":false},{"text":"Pour la sauvegarde uniquement","correct":false}],"explication":"Bénéfices VMware Tools :<br><strong>1. Performances</strong> :<br>• Drivers paravirtualisés (10-40% plus rapide)<br>• Optimisation disque/réseau<br><strong>2. Gestion</strong> :<br>• Shutdown/reboot propre depuis ESXi<br>• Récupération d'infos (IP, hostname)<br>• Exécution scripts depuis vCenter<br><strong>3. Confort</strong> :<br>• Copier-coller hôte ↔ VM<br>• Drag &amp; drop fichiers<br>• Redimensionnement écran automatique<br><strong>4. Monitoring</strong> :<br>• Heartbeat (VM vivante ?)<br>• Metrics précises (CPU, RAM, disk)<br><strong>5. Snapshots</strong> :<br>• Quiesce (flush cache, cohérence)<br><strong>Installation</strong> :<br>• <strong>Windows</strong> : Installer VMware Tools.exe<br>• <strong>Linux</strong> : <code>vmware-install.pl</code> ou packages distro (open-vm-tools)<br>### ✔️ Partie 3 : HA, DRS, vMotion"},
+      {"id":"virt_ccp5_q21","difficulty":"normal","question":"Qu'est-ce que <strong>vSphere HA</strong> (High Availability) ?","options":[{"text":"Un outil de monitoring","correct":false},{"text":"Redémarre automatiquement les VM sur un autre hôte si un hôte ESXi tombe","correct":true},{"text":"Clone les VM","correct":false},{"text":"Crée des snapshots","correct":false}],"explication":"vSphere HA (High Availability) :<br><strong>Principe</strong> :<br>1. Cluster HA surveille tous les hôtes<br>2. Si hôte tombe → Les VM sont redémarrées sur hôtes survivants<br>3. Temps d'indisponibilité : 2-5 minutes (reboot VM)<br><strong>Configuration</strong> :<br>• <strong>Admission Control</strong> : Réserve capacité pour pannes (N+1, N+2)<br>• <strong>Priorities</strong> : Ordre de redémarrage VM<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Cluster 3 hôtes : ESXi-1 (10 VM), ESXi-2 (12 VM), ESXi-3 (8 VM)\n↓\nESXi-1 tombe (panne matérielle)\n↓\nHA détecte (30 sec - 3 min)\n↓\n10 VM redémarrées sur ESXi-2 et ESXi-3</code>"},
+      {"id":"virt_ccp5_q22","difficulty":"normal","question":"Comment fonctionne vSphere HA lors d'une panne d'hôte ?","options":[{"text":"Les VM restent arrêtées","correct":false},{"text":"HA détecte la panne, les VM sont redémarrées sur les hôtes survivants du cluster","correct":true},{"text":"Les VM sont supprimées","correct":false},{"text":"Il faut redémarrer manuellement","correct":false}],"explication":"Mécanisme HA :<br><strong>Détection panne</strong> :<br>• <strong>Heartbeat réseau</strong> : Ping entre hôtes toutes les secondes<br>• <strong>Heartbeat datastore</strong> : Écriture fichier partagé<br>• Si les 2 échouent → Hôte déclaré mort<br><strong>Actions</strong> :<br>1. Master HA prend contrôle<br>2. Vérifie ressources disponibles<br>3. Place VM sur hôtes selon priorités<br>4. Power On VM<br><strong>Limitations</strong> :<br>• VM arrêtées brutalement (pas shutdown propre)<br>• Applications doivent supporter arrêt brutal"},
+      {"id":"virt_ccp5_q23","difficulty":"normal","question":"Qu'est-ce que <strong>vSphere DRS</strong> (Distributed Resource Scheduler) ?","options":[{"text":"Un système de sauvegarde","correct":false},{"text":"Équilibre automatiquement la charge CPU/RAM en déplaçant les VM entre hôtes (via vMotion)","correct":true},{"text":"Un pare-feu","correct":false},{"text":"Un snapshot","correct":false}],"explication":"vSphere DRS (Distributed Resource Scheduler) :<br><strong>Principe</strong> :<br>• Surveille charge CPU/RAM de tous les hôtes<br>• Si déséquilibre → Migre VM automatiquement (via vMotion)<br>• Maintient cluster équilibré<br><strong>Modes</strong> :<br>• <strong>Manual</strong> : Recommandations seulement<br>• <strong>Partially Automated</strong> : Recommande + applique au power on<br>• <strong>Fully Automated</strong> : Applique automatiquement (recommandé)<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Avant DRS :\nESXi-1 : 90% CPU (10 VM)\nESXi-2 : 30% CPU (3 VM)\n\nAprès DRS :\nESXi-1 : 60% CPU (7 VM) ← 3 VM migrées\nESXi-2 : 60% CPU (6 VM)</code>"},
+      {"id":"virt_ccp5_q24","difficulty":"normal","question":"Quelle est la différence entre <strong>HA</strong> et <strong>DRS</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"HA = disponibilité (reprise après panne) / DRS = performance (équilibrage charge)","correct":true},{"text":"HA = gratuit, DRS = payant","correct":false},{"text":"HA = Windows, DRS = Linux","correct":false}],"explication":"Comparaison :<br>Critère — HA — DRS<br><strong>Objectif</strong> — Disponibilité — Performance<br><strong>Déclencheur</strong> — Panne hôte — Déséquilibre charge<br><strong>Action</strong> — Redémarre VM — Migre VM (vMotion)<br><strong>Downtime</strong> — 2-5 min (reboot) — 0 (live migration)<br><strong>Quand</strong> — Réactif (après incident) — Proactif (avant problème)<br><strong>Utilisation combinée</strong> :<br>• DRS équilibre en continu<br>• Si panne → HA redémarre<br>• Après redémarrage HA → DRS rééquilibre"},
+      {"id":"virt_ccp5_q25","difficulty":"normal","question":"Qu'est-ce que <strong>vMotion</strong> permet de faire ?","options":[{"text":"Créer une VM","correct":false},{"text":"Migrer une VM allumée d'un hôte ESXi à un autre sans interruption (Live Migration)","correct":true},{"text":"Supprimer une VM","correct":false},{"text":"Créer un template","correct":false}],"explication":"vMotion détails :<br><strong>Étapes</strong> :<br>1. <strong>Pré-copie mémoire</strong> : Copie RAM VM vers hôte cible (VM tourne)<br>2. <strong>Itérations</strong> : Copie pages modifiées (plusieurs passes)<br>3. <strong>Switchover</strong> : Freeze VM brièvement (&lt; 1 sec), bascule finale<br>4. <strong>Activation</strong> : VM reprend sur nouvel hôte<br>5. <strong>Nettoyage</strong> : Ancien hôte libère ressources<br><strong>Durée</strong> : 10-60 secondes selon taille mémoire et bande passante<br><strong>Impact utilisateur</strong> : Aucun (imperceptible)"},
+      {"id":"virt_ccp5_q26","difficulty":"normal","question":"Quelles sont les conditions pour utiliser vMotion ?","options":[{"text":"Stockage partagé (SAN/NAS), réseau vMotion dédié, CPU compatibles","correct":true},{"text":"Aucune condition","correct":false},{"text":"VM éteinte obligatoire","correct":false},{"text":"Un seul hôte ESXi","correct":false}],"explication":"Prérequis vMotion :<br><strong>1. Stockage partagé</strong> :<br>• SAN (FC, iSCSI) ou NAS (NFS)<br>• VM stockées sur datastore accessible par les 2 hôtes<br><strong>2. Réseau vMotion</strong> :<br>• VMkernel port type \"vMotion\"<br>• <strong>Recommandé</strong> : Réseau dédié 10 Gbps<br>• Même VLAN entre hôtes<br><strong>3. CPU compatibles</strong> :<br>• Même famille/génération (Intel ↔ Intel, AMD ↔ AMD)<br>• EVC (Enhanced vMotion Compatibility) pour masquer différences mineures<br><strong>4. vCenter</strong> :<br>• Orchestration vMotion<br><strong>5. Licences</strong> :<br>• vSphere Standard minimum"},
+      {"id":"virt_ccp5_q27","difficulty":"normal","question":"Qu'est-ce que <strong>Storage vMotion</strong> ?","options":[{"text":"Déplacer une VM entre hôtes","correct":false},{"text":"Déplacer les disques d'une VM d'un datastore à un autre (VM allumée ou éteinte)","correct":true},{"text":"Créer un snapshot","correct":false},{"text":"Cloner une VM","correct":false}],"explication":"Storage vMotion :<br>• <strong>Usage</strong> : Migration stockage sans downtime<br>• <strong>Scénarios</strong> :<br>• Datastore plein → Migrer vers autre<br>• Upgrade SAN<br>• Maintenance stockage<br>• Optimisation performance (SSD vs HDD)<br><strong>Différence avec vMotion</strong> :<br>• <strong>vMotion</strong> : Migration compute (hôte ESXi)<br>• <strong>Storage vMotion</strong> : Migration stockage (datastore)<br>• <strong>Combiné</strong> : Migration compute + stockage simultanée"},
+      {"id":"virt_ccp5_q28","difficulty":"normal","question":"Qu'est-ce que <strong>Fault Tolerance</strong> (FT) ?","options":[{"text":"Un snapshot","correct":false},{"text":"Réplication synchrone d'une VM (VM miroir active en temps réel, 0 downtime si panne)","correct":true},{"text":"Un backup","correct":false},{"text":"Un template","correct":false}],"explication":"Fault Tolerance (FT) :<br><strong>Principe</strong> :<br>• VM primaire + VM secondaire (miroir exact)<br>• Exécution synchrone (lockstep)<br>• Si primaire tombe → Secondaire prend le relais instantanément (0 downtime)<br><strong>Différence avec HA</strong> :<br>Critère — HA — FT<br><strong>Downtime</strong> — 2-5 min (reboot) — 0 sec (instantané)<br><strong>Overhead</strong> — Faible — Élevé (2x ressources)<br><strong>Usage</strong> — Standard — Applications ultra-critiques<br><strong>Limitations</strong> :<br>• Max 8 vCPU par VM FT<br>• Performance impact (30-50%)<br>• Coût (double ressources)<br><strong>Cas d'usage</strong> :<br>• Bases de données critiques<br>• Serveurs de paiement<br>• Contrôle industriel<br>### ✔️ Partie 4 : Stockage"},
+      {"id":"virt_ccp5_q29","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Datastore</strong> ?","options":[{"text":"Une VM","correct":false},{"text":"Un espace de stockage où sont stockés les fichiers des VM (VMDK, VMX, snapshots)","correct":true},{"text":"Un réseau","correct":false},{"text":"Un hyperviseur","correct":false}],"explication":"Datastore :<br>• <strong>Définition</strong> : Container logique de stockage<br>• <strong>Contient</strong> : Fichiers VM (.vmdk, .vmx, .vswp, snapshots)<br>• <strong>Sources</strong> : SAN (FC, iSCSI), NAS (NFS), Local<br><strong>Types</strong> :<br>• <strong>VMFS</strong> : Système de fichiers VMware (bloc)<br>• <strong>NFS</strong> : Network File System (fichiers)<br>• <strong>vSAN</strong> : Stockage distribué software-defined"},
+      {"id":"virt_ccp5_q30","difficulty":"normal","question":"Qu'est-ce que <strong>VMFS</strong> (Virtual Machine File System) ?","options":[{"text":"Un protocole réseau","correct":false},{"text":"Le système de fichiers propriétaire VMware pour les datastores (accès concurrent par plusieurs ESXi)","correct":true},{"text":"Un hyperviseur","correct":false},{"text":"Une VM","correct":false}],"explication":"VMFS (Virtual Machine File System) :<br><strong>Caractéristiques</strong> :<br>• <strong>Accès concurrent</strong> : Plusieurs ESXi en lecture/écriture simultanée<br>• <strong>Clustering</strong> : Lock distribué<br>• <strong>Taille</strong> : Jusqu'à 64 To (VMFS6)<br>• <strong>Fichiers</strong> : Jusqu'à 62 To<br><strong>Versions</strong> :<br>• VMFS5 : vSphere 5.x/6.x (max 2 To fichiers)<br>• VMFS6 : vSphere 6.5+ (max 62 To fichiers, GPT)"},
+      {"id":"virt_ccp5_q31","difficulty":"normal","question":"Quels sont les 3 protocoles de stockage supportés par vSphere ?","options":[{"text":"HTTP, FTP, SMB","correct":false},{"text":"<strong>Fibre Channel (FC), iSCSI, NFS</strong>","correct":true},{"text":"SMTP, POP3, IMAP","correct":false},{"text":"SSH, Telnet, RDP","correct":false}],"explication":"Protocoles de stockage :<br>Protocol — Type — Transport — Port — Avantages — Inconvénients<br><strong>Fibre Channel</strong> — Bloc — FC SAN — - — Très rapide, fiable — Coût élevé, complexe<br><strong>iSCSI</strong> — Bloc — IP (Ethernet) — 3260 — Coût réduit, flexible — Performance moyenne<br><strong>NFS</strong> — Fichier — IP (Ethernet) — 2049 — Simple, pas de LUN — Latence réseau"},
+      {"id":"virt_ccp5_q32","difficulty":"normal","question":"Quelle est la différence entre <strong>NFS</strong> et <strong>iSCSI</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"NFS = stockage fichiers (partage NAS) / iSCSI = stockage bloc (SAN sur IP)","correct":true},{"text":"NFS = Windows, iSCSI = Linux","correct":false},{"text":"NFS = lent, iSCSI = rapide","correct":false}],"explication":"Différences :<br><strong>iSCSI</strong> :<br>• <strong>Type</strong> : Stockage bloc (SAN sur IP)<br>• <strong>Format</strong> : LUN (volumes bruts)<br>• <strong>Système fichiers</strong> : VMFS créé par ESXi<br>• <strong>Initiateur</strong> : ESXi (client iSCSI)<br>• <strong>Cible</strong> : Serveur de stockage (target)<br><strong>NFS</strong> :<br>• <strong>Type</strong> : Stockage fichier (NAS)<br>• <strong>Format</strong> : Partage réseau<br>• <strong>Système fichiers</strong> : NFS (géré par NAS)<br>• <strong>Montage</strong> : ESXi monte export NFS<br>• <strong>Permissions</strong> : Lecture/écriture<br><strong>Choix</strong> :<br>• <strong>iSCSI</strong> : Performance, boot depuis SAN<br>• <strong>NFS</strong> : Simplicité, flexibilité, déduplication côté NAS"},
+      {"id":"virt_ccp5_q33","difficulty":"normal","question":"Qu'est-ce qu'un <strong>LUN</strong> en stockage iSCSI/FC ?","options":[{"text":"Un hyperviseur","correct":false},{"text":"Une unité logique de stockage (volume présenté par le SAN)","correct":true},{"text":"Une VM","correct":false},{"text":"Un snapshot","correct":false}],"explication":"LUN (Logical Unit Number) :<br>• <strong>Définition</strong> : Volume logique présenté par SAN/NAS<br>• <strong>Exemple</strong> : SAN présente LUN0 (2 To), LUN1 (5 To)<br>• <strong>Usage</strong> : ESXi formate LUN en VMFS → Datastore<br><strong>Architecture</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Baie de stockage SAN (20 To)\n├─ LUN 0 : 2 To (Datastore_Prod)\n├─ LUN 1 : 5 To (Datastore_Dev)\n└─ LUN 2 : 10 To (Datastore_Backup)</code><br><strong>Masking</strong> : Attribuer LUN à hôtes spécifiques (sécurité)"},
+      {"id":"virt_ccp5_q34","difficulty":"normal","question":"Quel protocole utilise le port <strong>3260</strong> ?","options":[{"text":"NFS","correct":false},{"text":"iSCSI","correct":true},{"text":"Fibre Channel","correct":false},{"text":"SMB","correct":false}],"explication":"Ports stockage :<br>Protocol — Port — Type<br><strong>iSCSI</strong> — 3260 TCP — SAN<br><strong>NFS</strong> — 2049 TCP/UDP — NAS<br><strong>SMB/CIFS</strong> — 445 TCP — NAS Windows<br>### ✔️ Partie 5 : Snapshots, Clones, Templates"},
+      {"id":"virt_ccp5_q35","difficulty":"normal","question":"Qu'est-ce qu'un <strong>snapshot</strong> ?","options":[{"text":"Une copie complète de la VM","correct":false},{"text":"Un état figé de la VM à un instant T (delta disks, pas une copie complète)","correct":true},{"text":"Un template","correct":false},{"text":"Un backup","correct":false}],"explication":"Snapshot VMware :<br><strong>Principe</strong> :<br>• Fige état VM (disque + optionnel mémoire)<br>• Création d'un <strong>delta disk</strong> (.vmdk-000001.vmdk)<br>• Nouvelles écritures → Delta disk<br>• Disque de base (parent) → Lecture seule<br><strong>Contenu</strong> :<br>• <strong>Disk</strong> : Changements disque<br>• <strong>Memory</strong> (option) : Contenu RAM<br>• <strong>VM Settings</strong> : Configuration<br><strong>Utilisation</strong> :<br>• Avant mise à jour (retour arrière si problème)<br>• Tests (déploiement, config)<br>• Développement"},
+      {"id":"virt_ccp5_q36","difficulty":"normal","question":"Quelle est la différence entre un <strong>snapshot</strong> et un <strong>backup</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"Snapshot = même datastore, temporaire, retour arrière rapide / Backup = copie externe, long terme","correct":true},{"text":"Snapshot = externe, Backup = local","correct":false},{"text":"Ce sont des synonymes","correct":false}],"explication":"Comparaison :<br>Critère — Snapshot — Backup<br><strong>Emplacement</strong> — Même datastore — Externe (NAS, cloud, bande)<br><strong>Durée</strong> — Court terme (heures/jours) — Long terme (semaines/mois/ans)<br><strong>But</strong> — Retour arrière rapide — Protection sinistre, archivage<br><strong>Vitesse création</strong> — Secondes — Minutes/heures<br><strong>Vitesse restauration</strong> — Instantané (revert) — Lent<br><strong>Protection</strong> — ❌ Si datastore HS → Perdu — ✅ Copie indépendante<br><strong>Impact</strong> — Performance (chaîne delta) — Aucun<br><strong>IMPORTANT</strong> : Snapshot ≠ Backup !"},
+      {"id":"virt_ccp5_q37","difficulty":"normal","question":"Peut-on garder des snapshots indéfiniment ?","options":[{"text":"Oui, sans problème","correct":false},{"text":"Non ! Impact performances (chaîne delta disks), espace disque, risque de perte si trop nombreux","correct":true},{"text":"Oui, c'est recommandé","correct":false},{"text":"Les snapshots disparaissent automatiquement","correct":false}],"explication":"Problèmes snapshots long terme :<br><strong>1. Performance</strong> :<br>• Chaîne delta disks : VM → Snap1 → Snap2 → Snap3<br>• Lecture = parcourir chaîne (lent)<br>• Max 32 snapshots par VM<br><strong>2. Espace disque</strong> :<br>• Delta disks grandissent (toutes les écritures)<br>• Peut atteindre taille disque de base<br>• Datastore plein → VM freeze !<br><strong>3. Consolidation</strong> :<br>• Fusion snapshots (consolidate) = opération lourde<br>• Downtime possible<br><strong>Bonnes pratiques</strong> :<br>• Max <strong>72 heures</strong> de rétention<br>• Éviter snapshots sur VM production<br>• Surveiller taille delta disks<br>• Supprimer après usage"},
+      {"id":"virt_ccp5_q38","difficulty":"normal","question":"Quelle est la différence entre un <strong>clone</strong> et un <strong>template</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"Clone = copie indépendante (modifiable) / Template = master en lecture seule (pour déploiement multiple)","correct":true},{"text":"Clone = Windows, Template = Linux","correct":false},{"text":"Clone = gratuit, Template = payant","correct":false}],"explication":"Différences :<br>Critère — Clone — Template<br><strong>Type</strong> — VM complète indépendante — Master en lecture seule<br><strong>Modifiable</strong> — ✅ Oui — ❌ Non (convert en VM first)<br><strong>Démarrage</strong> — ✅ Peut démarrer — ❌ Ne peut pas démarrer<br><strong>Usage</strong> — Copie unique — Déploiements multiples<br><strong>Espace</strong> — Full (copie complète) — Full<br><strong>Clone</strong> :<br>• Copie VM existante<br>• Indépendant (changements n'affectent pas source)<br><strong>Template</strong> :<br>• VM convertie en template<br>• Utilisé pour déployer 10/50/100 VM identiques"},
+      {"id":"virt_ccp5_q39","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Linked Clone</strong> ?","options":[{"text":"Une copie complète","correct":false},{"text":"Un clone partageant le disque de base (parent) avec des delta disks (économie d'espace)","correct":true},{"text":"Un snapshot","correct":false},{"text":"Un template","correct":false}],"explication":"Linked Clone :<br><strong>Principe</strong> :<br>• Disque de base (parent) partagé<br>• Chaque clone a son delta disk (différences)<br>• Économie d'espace massive<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Template Windows (40 Go)\n├─ Linked Clone 1 : Delta 2 Go\n├─ Linked Clone 2 : Delta 3 Go\n└─ Linked Clone 3 : Delta 1 Go\n\nTotal : 40 + 2 + 3 + 1 = 46 Go (vs 120 Go pour 3 clones complets)</code><br><strong>Inconvénients</strong> :<br>• <strong>Dépendance</strong> : Si parent corrompu → Tous les clones HS<br>• <strong>Performance</strong> : Légèrement plus lent<br><strong>Usage</strong> :<br>• VDI (bureaux virtuels non-persistants)<br>• Labs/tests"},
+      {"id":"virt_ccp5_q40","difficulty":"normal","question":"Quels fichiers composent une VM VMware ?","options":[{"text":"Uniquement .vmx","correct":false},{"text":"<strong>.vmx</strong> (config), <strong>.vmdk</strong> (disque virtuel), <strong>.nvram</strong> (BIOS), <strong>.vswp</strong> (swap), <strong>.log</strong> (logs)","correct":true},{"text":".exe et .dll","correct":false},{"text":".iso uniquement","correct":false}],"explication":"Fichiers VM VMware :<br>Fichier — Rôle<br><strong>.vmx</strong> — Configuration VM (CPU, RAM, network)<br><strong>.vmdk</strong> (descriptor) — Pointeur vers fichier disque<br><strong>-flat.vmdk</strong> — Données disque (gros fichier)<br><strong>.nvram</strong> — BIOS/EFI settings<br><strong>.vswp</strong> — Swap file (taille = RAM VM)<br><strong>.log</strong> — Logs (vmware.log, vmware-1.log...)<br><strong>.vmsd</strong> — Métadonnées snapshots<br><strong>-000001.vmdk</strong> — Delta disk (snapshot)<br><strong>.vmsn</strong> — État snapshot (avec mémoire)<br><strong>Exemple structure</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Datastore1/\n└─ VM_Web/\n   ├─ VM_Web.vmx (10 Ko)\n   ├─ VM_Web.vmdk (1 Ko)\n   ├─ VM_Web-flat.vmdk (40 Go)\n   ├─ VM_Web.nvram (256 Ko)\n   ├─ VM_Web.vswp (8 Go)\n   └─ vmware.log (500 Ko)</code>"},
+      /* VIRTU_QCM */
     ],
   },
   {
@@ -15946,6 +16545,552 @@ role where I can grow my infrastructure and security skills.</pre>
           }
         ]
       },
+      {
+        "id": "ccp5-vmware-vsphere",
+        "titre": "CCP5 — VMware vSphere (Fiche de révision)",
+        "sections": [
+          {
+            "type": "p",
+            "content": "<strong>Certification TSSR</strong> - CCP5 : Maintenir infrastructure virtualisée"
+          },
+          {
+            "type": "h2",
+            "content": "1. ARCHITECTURE vSPHERE"
+          },
+          {
+            "type": "h3",
+            "content": "Composants essentiels"
+          },
+          {
+            "type": "code",
+            "content": "vCenter Server (gestionnaire centralisé)\n    └── Datacenter\n          ├── Cluster (HA/DRS activés)\n          │     ├── ESXi Host 1 (hyperviseur)\n          │     │     ├── VM1, VM2, VM3\n          │     │     └── vSwitch (réseau virtuel)\n          │     └── ESXi Host 2\n          │           └── VM4, VM5, VM6\n          └── Datastores (stockage partagé)\n                ├── VMFS (VMware)\n                └── NFS (Linux)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>ESXi</strong> : Hyperviseur bare-metal (type 1), installé directement sur serveur   <strong>vCenter</strong> : Gestion centralisée, requis pour HA/DRS/vMotion   <strong>Datastore</strong> : Stockage VMs (disques VMDK, ISO, templates)"
+          },
+          {
+            "type": "h2",
+            "content": "2. SNAPSHOTS"
+          },
+          {
+            "type": "h3",
+            "content": "Définition"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Snapshot</strong> = Photo instantanée état VM (disque + mémoire + config)"
+          },
+          {
+            "type": "h3",
+            "content": "Utilisation"
+          },
+          {
+            "type": "code",
+            "content": "AVANT mise à jour risquée → Créer snapshot\nSI problème → Restaurer snapshot\nSI OK → Supprimer snapshot (consolider disques)"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes ESXi (vim-cmd)"
+          },
+          {
+            "type": "code",
+            "content": "# Lister VMs\nvim-cmd vmsvc/getallvms\n\n# Créer snapshot\nvim-cmd vmsvc/snapshot.create <vmid> \"Avant_MaJ_Windows\" \"Snapshot avant KB5012345\" 0 0\n\n# Lister snapshots\nvim-cmd vmsvc/snapshot.get <vmid>\n\n# Restaurer snapshot\nvim-cmd vmsvc/snapshot.revert <vmid> <snapshot_id> 0\n\n# Supprimer snapshot\nvim-cmd vmsvc/snapshot.remove <vmid> <snapshot_id>"
+          },
+          {
+            "type": "h3",
+            "content": "ATTENTION"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "❌ <strong>Pas de sauvegarde</strong> : Snapshot ≠ backup (même datastore)",
+              "⚠️ <strong>Performance</strong> : Snapshot &gt; 72h ralentit VM (fichiers delta croissants)",
+              "⚠️ <strong>Espace disque</strong> : Snapshot consomme espace (delta disks)",
+              "✅ <strong>Bonne pratique</strong> : Supprimer après validation (consolide automatiquement)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "3. vMOTION"
+          },
+          {
+            "type": "h3",
+            "content": "Définition"
+          },
+          {
+            "type": "p",
+            "content": "<strong>vMotion</strong> = Migration à chaud VM entre hôtes ESXi <strong>SANS interruption</strong>"
+          },
+          {
+            "type": "h3",
+            "content": "Prérequis"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "✅ vCenter Server configuré",
+              "✅ Réseau vMotion dédié (VMkernel avec vMotion enabled)",
+              "✅ Stockage partagé (même datastore accessible par les 2 ESXi)",
+              "✅ Processeurs compatibles (même fabricant Intel/AMD, EVC mode si nécessaire)",
+              "✅ Licences vSphere Standard minimum"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Configuration réseau vMotion"
+          },
+          {
+            "type": "code",
+            "content": "# ESXi Shell : Créer VMkernel pour vMotion\nesxcli network ip interface add -i vmk1 -p \"vMotion\"\nesxcli network ip interface ipv4 set -i vmk1 -I 10.0.10.10 -N 255.255.255.0 -t static\nvim-cmd hostsvc/vmotion/vnic_set vmk1"
+          },
+          {
+            "type": "h3",
+            "content": "Types vMotion"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>vMotion standard</strong> : Migration VM (stockage reste)",
+              "<strong>Storage vMotion</strong> : Migration disques VM (VM reste sur même hôte)",
+              "<strong>Cross vSwitch vMotion</strong> : Change vSwitch pendant migration",
+              "<strong>Long Distance vMotion</strong> : Entre sites (latence &lt;150ms, vSphere 6+)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "4. vSPHERE HA (High Availability)"
+          },
+          {
+            "type": "h3",
+            "content": "Fonctionnement"
+          },
+          {
+            "type": "p",
+            "content": "Si <strong>ESXi hôte crash</strong> → VMs redémarrent automatiquement sur autres hôtes cluster"
+          },
+          {
+            "type": "h3",
+            "content": "Configuration"
+          },
+          {
+            "type": "code",
+            "content": "vCenter → Cluster → Configure → vSphere HA\n  ☑ Turn On vSphere HA\n  Admission Control : \n    - Host failures tolerated: 1 (réserve ressources pour 1 panne)\n  VM Monitoring:\n    - VM Monitoring: Enabled (redémarre VM si guest OS freeze)"
+          },
+          {
+            "type": "h3",
+            "content": "Prérequis"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Minimum 2 hôtes ESXi dans cluster",
+              "Stockage partagé (datastores accessibles par tous hôtes)",
+              "Réseau management fiable (heartbeat entre hôtes)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Différence HA vs FT"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Critère",
+              "HA",
+              "FT (Fault Tolerance)"
+            ],
+            "rows": [
+              [
+                "<strong>Tolérance</strong>",
+                "Redémarrage VM (downtime 1-2min)",
+                "<strong>0 downtime</strong> (VM miroir active)"
+              ],
+              [
+                "<strong>Ressources</strong>",
+                "Économique",
+                "Double ressources (2 VMs actives)"
+              ],
+              [
+                "<strong>Cas usage</strong>",
+                "Applications standard",
+                "Applications critiques (base prod)"
+              ]
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "5. TYPES DE DISQUES VIRTUELS"
+          },
+          {
+            "type": "h3",
+            "content": "Thick Provision (épais)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Lazy Zeroed Thick</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Espace réservé immédiatement",
+              "Zéros écrits à la demande (plus rapide création)",
+              "Performance : ⭐⭐⭐"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Eager Zeroed Thick</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Espace réservé + rempli de zéros immédiatement",
+              "Création longue mais <strong>requis pour FT</strong>",
+              "Performance : ⭐⭐⭐⭐⭐ (meilleure)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Thin Provision (dynamique)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Espace alloué à la demande (VM 100GB peut occuper 30GB)",
+              "<strong>Risque</strong> : Sur-allocation → datastore plein",
+              "Performance : ⭐⭐ (fragmentation)",
+              "<strong>Cas usage</strong> : Environnements tests, VDI"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Commande conversion"
+          },
+          {
+            "type": "code",
+            "content": "vmkfstools -i source.vmdk -d thin destination.vmdk\nvmkfstools -i source.vmdk -d eagerzeroedthick destination.vmdk"
+          },
+          {
+            "type": "h2",
+            "content": "6. DATASTORES"
+          },
+          {
+            "type": "h3",
+            "content": "VMFS (VMware File System)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Système fichiers VMware propriétaire",
+              "<strong>Support</strong> : Bloc (SAN iSCSI, Fibre Channel)",
+              "<strong>Avantages</strong> : Locking fichiers, snapshots matériels",
+              "<strong>Version actuelle</strong> : VMFS6 (blocs 512e/4Kn)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "NFS (Network File System)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Système fichiers réseau standard",
+              "<strong>Support</strong> : NAS (Synology, QNAP, serveurs Linux)",
+              "<strong>Avantages</strong> : Simplicité administration, économique",
+              "<strong>Versions</strong> : NFSv3 (default), NFSv4.1 (authentification Kerberos)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Comparaison"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Critère",
+              "VMFS",
+              "NFS"
+            ],
+            "rows": [
+              [
+                "<strong>Type</strong>",
+                "Bloc",
+                "Fichier"
+              ],
+              [
+                "<strong>Performance</strong>",
+                "⭐⭐⭐⭐⭐",
+                "⭐⭐⭐⭐"
+              ],
+              [
+                "<strong>Coût</strong>",
+                "Élevé (SAN)",
+                "Économique (NAS)"
+              ],
+              [
+                "<strong>Snapshots</strong>",
+                "Matériels",
+                "Logiciels"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Commandes"
+          },
+          {
+            "type": "code",
+            "content": "# Lister datastores\nesxcli storage filesystem list\n\n# Monter datastore NFS\nesxcli storage nfs add -H 192.168.1.100 -s /volume1/VMstore -v NFS_Datastore01\n\n# Augmenter datastore VMFS\nvmkfstools -X 500G /vmfs/volumes/datastore1"
+          },
+          {
+            "type": "h2",
+            "content": "7. DRS (Distributed Resource Scheduler)"
+          },
+          {
+            "type": "h3",
+            "content": "Fonctionnement"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Load balancing automatique</strong> : Déplace VMs entre hôtes pour équilibrer CPU/RAM"
+          },
+          {
+            "type": "h3",
+            "content": "Modes"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Manual</strong> : DRS recommande, admin exécute",
+              "<strong>Partially Automated</strong> : DRS place VMs au démarrage, recommande migrations",
+              "<strong>Fully Automated</strong> : DRS migre automatiquement (vMotion)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Règles DRS"
+          },
+          {
+            "type": "code",
+            "content": "Affinity Rules (affinité) :\n  - Keep VMs together : VM1 + VM2 sur même hôte (performance réseau)\n  \nAnti-Affinity Rules (anti-affinité) :\n  - Separate VMs : VM_DC1 et VM_DC2 sur hôtes différents (HA)"
+          },
+          {
+            "type": "h2",
+            "content": "8. RÉSEAU vSPHERE"
+          },
+          {
+            "type": "h3",
+            "content": "vSwitch Standard"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Configuré localement par hôte ESXi",
+              "Gratuit (inclus ESXi)",
+              "Administration manuelle multi-hôtes"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "vSwitch Distributed (dvSwitch)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Configuration centralisée via vCenter",
+              "Licence Enterprise Plus requise",
+              "<strong>Avantages</strong> : Policies réseau uniformes, Network I/O Control"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Port Groups"
+          },
+          {
+            "type": "code",
+            "content": "Port Group \"Production\" → VLAN 10\nPort Group \"DMZ\"        → VLAN 20\nPort Group \"Admin\"      → VLAN 99"
+          },
+          {
+            "type": "h3",
+            "content": "VMkernel Ports (vmkX)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>vmk0</strong> : Management (accès ESXi)",
+              "<strong>vmk1</strong> : vMotion",
+              "<strong>vmk2</strong> : vSAN",
+              "<strong>vmk3</strong> : Fault Tolerance"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "9. TEMPLATES & CLONES"
+          },
+          {
+            "type": "h3",
+            "content": "Template"
+          },
+          {
+            "type": "p",
+            "content": "VM modèle figée (non démarrable), base déploiements rapides"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Workflow</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "1. Installer OS sur VM + personnaliser\n2. Sysprep Windows / cloud-init Linux\n3. Convertir VM en template\n4. Déployer VMs depuis template (nom, IP, etc.)"
+          },
+          {
+            "type": "h3",
+            "content": "Types clones"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Full Clone</strong> : Copie complète indépendante",
+              "<strong>Linked Clone</strong> : Disque parent partagé (delta disks)",
+              "Avantage : Gain espace (10 VMs = 1 parent + 10 petits deltas)",
+              "Inconvénient : Dépendance (parent corrompu = tous clones KO)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "10. COMMANDES ESXCLI ESSENTIELLES"
+          },
+          {
+            "type": "h3",
+            "content": "Réseau"
+          },
+          {
+            "type": "code",
+            "content": "esxcli network nic list                    # Cartes réseau physiques\nesxcli network vswitch standard list       # vSwitches\nesxcli network ip interface ipv4 get       # Config IP VMkernel"
+          },
+          {
+            "type": "h3",
+            "content": "Stockage"
+          },
+          {
+            "type": "code",
+            "content": "esxcli storage core adapter list           # Adaptateurs (vmhbaX)\nesxcli storage vmfs extent list            # Datastores VMFS\nesxcli storage nfs list                    # Datastores NFS"
+          },
+          {
+            "type": "h3",
+            "content": "VMs"
+          },
+          {
+            "type": "code",
+            "content": "vim-cmd vmsvc/getallvms                    # Liste VMs\nvim-cmd vmsvc/power.on <vmid>              # Démarrer VM\nvim-cmd vmsvc/power.off <vmid>             # Éteindre VM"
+          },
+          {
+            "type": "h3",
+            "content": "Maintenance"
+          },
+          {
+            "type": "code",
+            "content": "esxcli system maintenanceMode set --enable true   # Mode maintenance\nesxcli system shutdown reboot -r \"Patch mensuel\"  # Redémarrage"
+          },
+          {
+            "type": "h2",
+            "content": "11. BONNES PRATIQUES"
+          },
+          {
+            "type": "h3",
+            "content": "Snapshots"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "❌ Jamais snapshot sur VM base de données en production (corruption)",
+              "✅ Supprimer dans 24-72h maximum",
+              "✅ Planifier fenêtre maintenance pour consolidation (I/O intensif)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Ressources VMs"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Réserver RAM critique (SQL Server, Exchange)",
+              "✅ Limiter CPU shares pour VMs tests (éviter monopolisation)",
+              "❌ Ne pas allouer 100% ressources physiques (overhead ESXi)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Stockage"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Thin provision pour VDI/tests, Thick pour production",
+              "✅ Séparer datastores : OS / Données / Logs",
+              "✅ Laisser 20% espace libre datastore (performances)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Réseau"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Réseau vMotion dédié (10 Gbps recommandé)",
+              "✅ Teaming NICs (failover automatique)",
+              "✅ Jumbo Frames (MTU 9000) pour vMotion/NFS"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "12. DÉPANNAGE RAPIDE"
+          },
+          {
+            "type": "h3",
+            "content": "VM ne démarre pas"
+          },
+          {
+            "type": "code",
+            "content": "# Vérifier logs\ntail -f /vmfs/volumes/datastore1/VM01/vmware.log\n\n# Causes fréquentes :\n- Datastore déconnecté\n- Fichier .vmx verrouillé (autre hôte)\n- Snapshot corrompu"
+          },
+          {
+            "type": "h3",
+            "content": "vMotion échoue"
+          },
+          {
+            "type": "code",
+            "content": "Erreur commune : \"The VMotion migration failed...\"\nChecks :\n1. Réseau vMotion actif : esxcli network ip interface list\n2. VMkernel vMotion enabled\n3. Stockage partagé accessible par les 2 hôtes\n4. Compatibilité CPU (EVC mode si nécessaire)"
+          },
+          {
+            "type": "h3",
+            "content": "Datastore plein"
+          },
+          {
+            "type": "code",
+            "content": "# Top 10 VMs les plus volumineuses\ndu -h /vmfs/volumes/datastore1/* | sort -rh | head -10\n\n# Consolider snapshots\nvim-cmd vmsvc/snapshot.removeall <vmid>\n\n# Supprimer vieux logs\nfind /vmfs/volumes/datastore1 -name \"*.log\" -mtime +30 -delete"
+          },
+          {
+            "type": "h2",
+            "content": "COMMANDES À RETENIR"
+          },
+          {
+            "type": "code",
+            "content": "# Snapshots\nvim-cmd vmsvc/snapshot.create <vmid> \"nom\" \"description\" 0 0\nvim-cmd vmsvc/snapshot.revert <vmid> <snapshot_id> 0\nvim-cmd vmsvc/snapshot.removeall <vmid>\n\n# Datastores\nesxcli storage nfs add -H <IP_NAS> -s <chemin> -v <nom>\nesxcli storage filesystem list\n\n# Réseau vMotion\nesxcli network ip interface add -i vmk1 -p \"vMotion\"\nvim-cmd hostsvc/vmotion/vnic_set vmk1\n\n# Maintenance\nesxcli system maintenanceMode set --enable true\nvim-cmd vmsvc/getallvms"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Date révision</strong> : 12 novembre 2025   <strong>Examen TSSR</strong> : 17 novembre 2025"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Cette fiche couvre 75% des questions CCP5 Virtualisation !</strong>"
+          }
+        ]
+      },
       /* EXAMEN_COURS */
     ],
     flashcards: [
@@ -16034,6 +17179,16 @@ role where I can grow my infrastructure and security skills.</pre>
       {"id":"exam_ccp4_ex18","recto":"Exercice 18 — Supernetting (Agrégation de routes)<br><strong>Questions</strong> :<br>a) Quelle est la route agrégée (supernet) minimale qui couvre ces 4 réseaux ?<br>b) Quel est le masque de cette route agrégée ?<br>c) Combien d'adresses au total dans ce supernet ?","verso":"<strong>Résolution</strong> :<br><strong>Analyse</strong> :<br>• 192.168.0.0/24 = 192.168.0.0<br>• 192.168.1.0/24 = 192.168.1.0<br>• 192.168.2.0/24 = 192.168.2.0<br>• 192.168.3.0/24 = 192.168.3.0<br><strong>Binaire 3ème octet</strong> :<br>• 0 = 00000000<br>• 1 = 00000001<br>• 2 = 00000010<br>• 3 = 00000011<br><strong>Bits communs</strong> : 6 premiers bits (000000)<br><strong>Réponses</strong> :<br>• a) Route agrégée : <strong>192.168.0.0/22</strong><br>• b) Masque : <strong>255.255.252.0</strong><br>• c) Adresses : <strong>1024</strong> (4 × 256)<br><strong>Points</strong> : 5/5"},
       {"id":"exam_ccp4_ex19","recto":"Exercice 19 — Problème d'examen avancé<br><strong>Questions</strong> :<br>a) Quelle est la représentation CIDR du VLAN originel ?<br>b) Représentez le découpage final (CIDR de chaque segment)<br>c) Quelles sont les différentes plages d'adresses ?<br>d) À quoi correspond la dernière adresse IP de chaque VLAN ?","verso":"<strong>Résolution</strong> :<br><strong>a) CIDR originel</strong> :<br>• 1022 hôtes utilisables → 2^10 - 2 = 1022<br>• Donc 2^10 adresses total = 1024<br>• <strong>192.168.0.0/22</strong> (0.0 à 3.255)<br><strong>b) Découpage</strong> :<br>• <strong>Segment 1</strong> (254) : 192.168.0.0/24 (CIDR /24)<br>• <strong>Segment 2</strong> (254) : 192.168.1.0/24 (CIDR /24)<br>• <strong>Segment 3</strong> (254) : 192.168.2.0/24 (CIDR /24)<br>• <strong>Segment 4</strong> (126) : 192.168.3.0/25 (CIDR /25)<br>• <strong>Segment 5</strong> (62) : 192.168.3.128/26 (CIDR /26)<br>• <strong>Segment 6</strong> (62) : 192.168.3.192/26 (CIDR /26)<br><strong>c) Plages</strong> :<br>• Seg 1 : 192.168.0.1 - 192.168.0.254<br>• Seg 2 : 192.168.1.1 - 192.168.1.254<br>• Seg 3 : 192.168.2.1 - 192.168.2.254<br>• Seg 4 : 192.168.3.1 - 192.168.3.126<br>• Seg 5 : 192.168.3.129 - 192.168.3.190<br>• Seg 6 : 192.168.3.193 - 192.168.3.254<br><strong>d) Dernière IP</strong> :<br>• Segment 1 : <strong>192.168.0.255</strong> (broadcast)<br>• Segment 2 : <strong>192.168.1.255</strong> (broadcast)<br>• Segment 3 : <strong>192.168.2.255</strong> (broadcast)<br>• Segment 4 : <strong>192.168.3.127</strong> (broadcast)<br>• Segment 5 : <strong>192.168.3.191</strong> (broadcast)<br>• Segment 6 : <strong>192.168.3.255</strong> (broadcast)<br><strong>Points</strong> : 5/5"},
       {"id":"exam_ccp4_ex20","recto":"Exercice 20 — Routage et subnetting combinés<br><strong>Questions</strong> :<br>a) Quel routage sera choisi par le routeur ? Justifiez<br>b) Quelle est la plage d'IP du /22 ?<br>c) Combien d'hôtes dans le /22 ?<br>d) Pourquoi le routeur préfère-t-il cette route ?","verso":"<strong>Réponses</strong> :<br><strong>a) Route choisie</strong> : <strong>10.10.0.0/22 via OSPF</strong><br><strong>Justification</strong> :<br>• Principe du <strong>masque le plus long</strong> (Longest Prefix Match)<br>• /22 est plus spécifique que /16<br>• Le routeur choisit TOUJOURS la route avec le masque le plus long<br><strong>b) Plage /22</strong> :<br>• /22 = Bloc de 4 au 3ème octet<br>• <strong>10.10.0.0 - 10.10.3.255</strong><br><strong>c) Hôtes /22</strong> :<br>• 2^10 - 2 = <strong>1022 hôtes</strong><br><strong>d) Préférence</strong> :<br>• Masque plus long = route plus spécifique<br>• Plus une route est spécifique, plus elle est prioritaire<br>• /22 &gt; /16 en spécificité<br><strong>Points</strong> : 5/5<br>## 📊 BARÈME TOTAL : 100 POINTS<br><strong>Score total</strong> : /100 points (5 points par exercice)<br>Score — Niveau<br>90-100 — ⭐⭐⭐ Expert - Prêt pour l'examen !<br>75-89 — ⭐⭐ Très bon - Quelques révisions<br>60-74 — ⭐ Bien - Revoir les exercices ratés<br>40-59 — ⚠️ Moyen - Relire la fiche de révision<br>0-39 — 🔴 Insuffisant - Refaire tous les exercices<br>## 🎯 MÉTHODE DE CALCUL RAPIDE"},
+      {"id":"exam_ccp5_f1","recto":"Q1 — Snapshots - Utilisation et risques : Expliquez ce qu'est un snapshot VMware, donnez 2 cas d'usage et 3 risques liés à leur utilisation prolongée.","verso":"<strong>Définition</strong> (2 pts) :<br>Photo instantanée état VM (disque + mémoire + config) à instant T. Crée fichiers delta (.vmdk) pour enregistrer modifications après snapshot.<br><strong>Cas d'usage</strong> (2 pts) :<br>1. Avant mise à jour Windows/applicative risquée<br>2. Avant modification configuration système critique<br><strong>Risques prolongés</strong> (4 pts) :<br>1. <strong>Performance dégradée</strong> : Chaque écriture passe par chaîne deltas (lent)<br>2. <strong>Espace disque</strong> : Fichiers delta croissent → datastore plein<br>3. <strong>Corruption</strong> : Chaîne snapshots longue → risque corruption consolidation<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Créer\nvim-cmd vmsvc/snapshot.create 42 \"Avant_MaJ\" \"KB5012345\" 0 0\n\n# Supprimer tous\nvim-cmd vmsvc/snapshot.removeall 42</code><br><strong>Bonne pratique</strong> : Supprimer sous 72h maximum<br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp5_f2","recto":"Q2 — vMotion - Prérequis technique : Listez les 5 prérequis pour effectuer un vMotion entre 2 hôtes ESXi. Un vMotion échoue avec erreur \"Incompatible CPU\", quelle solution ?","verso":"<strong>5 prérequis</strong> (5 pts) :<br>1. <strong>vCenter Server</strong> configuré et opérationnel<br>2. <strong>Réseau vMotion</strong> dédié (VMkernel avec vMotion enabled sur chaque ESXi)<br>3. <strong>Stockage partagé</strong> accessible par les 2 hôtes (même datastore)<br>4. <strong>Processeurs compatibles</strong> (même fabricant Intel/AMD, jeux instructions similaires)<br>5. <strong>Licences</strong> vSphere Standard minimum<br><strong>Solution erreur CPU</strong> (5 pts) :<br><strong>EVC Mode (Enhanced vMotion Compatibility)</strong> :<br>• Active au niveau cluster<br>• Masque instructions CPU récentes pour compatibilité<br>• Exemple : Cluster avec ESXi gen Intel Xeon v3 + v5 → EVC \"Intel Xeon v3\"<br><strong>Configuration</strong> :<br><code style=\"display:block;white-space:pre-wrap\">vCenter → Cluster → Configure → VMware EVC\n  Enable EVC : Intel \"Haswell\" Generation</code><br><strong>Alternative</strong> : Mettre VM hors tension, migrer (pas vMotion à chaud), redémarrer<br><strong>Points</strong> : 10/10"},
+      {"id":"exam_ccp5_f3","recto":"Q3 — vSphere HA vs Fault Tolerance : Quelle différence entre vSphere HA et Fault Tolerance ? Dans quel cas privilégier FT ?","verso":"<strong>Tableau comparatif</strong> (6 pts) :<br>Critère — vSphere HA — Fault Tolerance (FT)<br><strong>Fonctionnement</strong> — Redémarre VM sur autre hôte si crash — VM miroir active en temps réel<br><strong>Downtime</strong> — 1-2 minutes — <strong>0 seconde</strong> (bascule transparente)<br><strong>Ressources</strong> — Standard — <strong>Double</strong> (2 VMs actives)<br><strong>Prérequis</strong> — Stockage partagé — Stockage partagé + réseau FT 10 Gbps<br><strong>Limites</strong> — Aucune — Max 4 vCPU, 128 GB RAM (vSphere 7)<br><strong>Cas usage FT</strong> (2 pts) :<br>• ✅ <strong>Applications critiques</strong> : Base de données production 24/7<br>• ✅ <strong>Aucune tolérance downtime</strong> : Automates industriels, systèmes bancaires<br>• ❌ <strong>Pas pour</strong> : VMs test, serveurs web (HA suffit)<br><strong>Prérequis FT</strong> :<br>• Disques <strong>Eager Zeroed Thick</strong> (pas Thin)<br>• Réseau VMkernel FT logging dédié<br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp5_f4","recto":"Q4 — Types disques - Thick vs Thin : Expliquez Thick Provision Lazy/Eager Zeroed et Thin Provision. Quel type obligatoire pour Fault Tolerance ?","verso":"<strong>Thick Provision Lazy Zeroed</strong> (2 pts) :<br>• Espace <strong>réservé immédiatement</strong> sur datastore<br>• Zéros écrits à la demande (rapide création)<br>• Performance : Bonne<br><strong>Thick Provision Eager Zeroed</strong> (2 pts) :<br>• Espace réservé + <strong>rempli de zéros immédiatement</strong><br>• Création longue (plusieurs minutes pour 100 GB)<br>• Performance : <strong>Meilleure</strong> (pas d'overhead premier write)<br><strong>Thin Provision</strong> (2 pts) :<br>• Espace alloué <strong>à la demande</strong> (VM 100 GB peut occuper 30 GB physiques)<br>• Risque : Sur-allocation → datastore plein<br>• Cas usage : Tests, VDI<br><strong>FT requiert Eager Zeroed Thick</strong> (1 pt) :<br>Garantit blocs disque initialisés pour synchronisation VM primaire/secondaire<br><strong>Conversion</strong> :<br><code style=\"display:block;white-space:pre-wrap\">vmkfstools -i source.vmdk -d eagerzeroedthick destination.vmdk</code><br><strong>Points</strong> : 7/7"},
+      {"id":"exam_ccp5_f5","recto":"Q5 — Datastores VMFS vs NFS : Comparez VMFS et NFS pour datastores vSphere. Donnez 2 avantages de chaque.","verso":"<strong>VMFS (VMware File System)</strong> (4 pts) :<br><strong>Définition</strong> : Système fichiers bloc propriétaire VMware<br><strong>Avantages</strong> :<br>• ✅ <strong>Performance</strong> : Accès bloc direct (SAN iSCSI, Fibre Channel)<br>• ✅ <strong>Snapshots matériels</strong> : Intégration baies SAN (VAAI)<br><strong>Inconvénients</strong> :<br>• ❌ Coût élevé (infrastructure SAN)<br>• ❌ Complexité configuration<br><strong>NFS (Network File System)</strong> (4 pts) :<br><strong>Définition</strong> : Système fichiers réseau standard (NAS)<br><strong>Avantages</strong> :<br>• ✅ <strong>Simplicité</strong> : Montage en 1 commande (IP + chemin)<br>• ✅ <strong>Économique</strong> : NAS Synology/QNAP abordables<br><strong>Inconvénients</strong> :<br>• ❌ Performance légèrement inférieure (réseau)<br>• ❌ Dépendance réseau (latence critique)<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Monter NFS\nesxcli storage nfs add -H 192.168.1.100 -s /volume1/VMs -v NFS_Prod\n\n# Lister datastores\nesxcli storage filesystem list</code><br><strong>Recommandation</strong> : NFS pour PME, VMFS pour entreprises (budget + performance)<br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp5_f6","recto":"Q6 — DRS - Load Balancing : Qu'est-ce que DRS et quels sont les 3 modes d'automatisation ? Donnez un exemple règle d'affinité.","verso":"<strong>DRS (Distributed Resource Scheduler)</strong> (2 pts) :<br>Load balancing automatique VMs entre hôtes cluster selon charge CPU/RAM<br><strong>3 modes</strong> (3 pts) :<br>1. <strong>Manual</strong> : DRS recommande, admin valide manuellement<br>2. <strong>Partially Automated</strong> : DRS place VMs au boot, recommande migrations<br>3. <strong>Fully Automated</strong> : DRS migre automatiquement via vMotion<br><strong>Règle affinité</strong> (1 pt) :<br><code style=\"display:block;white-space:pre-wrap\">Keep VMs together : \n  VM_Web + VM_App sur même hôte (minimise latence réseau)</code><br><strong>Règle anti-affinité</strong> (exemple bonus) :<br><code style=\"display:block;white-space:pre-wrap\">Separate VMs :\n  VM_DC01 et VM_DC02 sur hôtes différents (haute disponibilité)</code><br><strong>Points</strong> : 6/6"},
+      {"id":"exam_ccp5_f7","recto":"Q7 — Réseau vSphere - VMkernel : Qu'est-ce qu'un port VMkernel ? Listez 4 usages différents avec exemple vmkX.","verso":"<strong>Définition</strong> (2 pts) :<br>Interface réseau virtuelle ESXi pour services infrastructure (pas VMs)<br><strong>4 usages</strong> (5 pts) :<br>VMkernel — Usage — Config<br><strong>vmk0</strong> — Management — Accès vCenter, SSH, HTTPS ESXi<br><strong>vmk1</strong> — vMotion — Migration VMs à chaud<br><strong>vmk2</strong> — vSAN — Stockage distribué VMware<br><strong>vmk3</strong> — Fault Tolerance — Logging FT entre VMs miroirs<br><strong>Création VMkernel vMotion</strong> :<br><code style=\"display:block;white-space:pre-wrap\">esxcli network ip interface add -i vmk1 -p \"vMotion\"\nesxcli network ip interface ipv4 set -i vmk1 -I 10.0.10.50 -N 255.255.255.0 -t static\nvim-cmd hostsvc/vmotion/vnic_set vmk1</code><br><strong>Bonne pratique</strong> : Réseau vMotion dédié 10 Gbps minimum<br><strong>Points</strong> : 7/7"},
+      {"id":"exam_ccp5_f8","recto":"Q8 — Templates et Clones : Quelle différence entre un template et un clone ? Expliquez Full Clone vs Linked Clone.","verso":"<strong>Template</strong> (2 pts) :<br>VM modèle <strong>figée</strong> (non démarrable), base déploiements multiples<br><strong>Clone</strong> (2 pts) :<br>Copie VM existante (démarrable immédiatement)<br><strong>Full Clone</strong> (2 pts) :<br>• Copie complète indépendante<br>• Occupe espace complet (100 GB source = 100 GB clone)<br>• Performances : Identiques à source<br>• Cas usage : Production<br><strong>Linked Clone</strong> (2 pts) :<br>• Disque <strong>parent partagé</strong> + fichiers delta (différences uniquement)<br>• Économie espace (10 VMs = 1 parent 50 GB + 10 deltas 5 GB)<br>• <strong>Risque</strong> : Parent corrompu → tous clones KO<br>• Cas usage : VDI, environnements tests<br><strong>Workflow template</strong> :<br><code style=\"display:block;white-space:pre-wrap\">1. Installer OS sur VM + personnaliser\n2. Sysprep Windows (généralise SID)\n3. Convert to Template\n4. Deploy VM from Template (personnalise nom, IP)</code><br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp5_f9","recto":"Q9 — Mode Maintenance ESXi : Pourquoi mettre un hôte ESXi en mode maintenance ? Que se passe-t-il pour les VMs actives ?","verso":"<strong>Utilité mode maintenance</strong> (3 pts) :<br>• Mises à jour ESXi (patches VMware)<br>• Remplacement matériel (RAM, disques)<br>• Maintenance préventive<br>• <strong>Garantit</strong> : Pas de nouvelles VMs démarrées pendant intervention<br><strong>Impact VMs</strong> (3 pts) :<br><strong>Avec DRS Fully Automated</strong> :<br>• ✅ VMs migrées automatiquement vers autres hôtes (vMotion)<br>• ✅ Aucune interruption<br><strong>Sans DRS ou Manual</strong> :<br>• ⚠️ <strong>Choix admin</strong> :<br>• Migrer manuellement VMs (vMotion)<br>• Suspendre VMs<br>• <strong>Éteindre VMs</strong> (downtime)<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Activer\nesxcli system maintenanceMode set --enable true\n\n# Désactiver\nesxcli system maintenanceMode set --enable false\n\n# Vérifier état\nesxcli system maintenanceMode get</code><br><strong>Bonne pratique</strong> : Planifier fenêtre maintenance hors heures ouvrées<br><strong>Points</strong> : 6/6"},
+      {"id":"exam_ccp5_f10","recto":"Q10 — Dépannage - Datastore plein : Un datastore VMFS 2 TB est plein à 98%. Listez 4 actions pour libérer espace rapidement et la commande pour identifier les fichiers volumineux.","verso":"<strong>4 actions immédiates</strong> (8 pts) :<br><strong>1. Supprimer anciens snapshots</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Lister VMs avec snapshots\nvim-cmd vmsvc/getallvms | grep snapshot\n\n# Consolider snapshots VM ID 42\nvim-cmd vmsvc/snapshot.removeall 42</code><br>Gain : 10-50 GB selon durée snapshots<br><strong>2. Supprimer fichiers logs anciens</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">find /vmfs/volumes/datastore1 -name \"*.log\" -mtime +30 -delete\nfind /vmfs/volumes/datastore1 -name \"vmware-*.log\" -size +100M -delete</code><br>Gain : 5-20 GB<br><strong>3. Storage vMotion VMs non critiques</strong> (2 pts) :<br>Migrer VMs tests/dev vers autre datastore<br><strong>4. Thin Out disques VMs</strong> (2 pts) :<br>Convertir Thick → Thin si VM peu active<br><code style=\"display:block;white-space:pre-wrap\">vmkfstools -i source.vmdk -d thin destination.vmdk</code><br>Gain : 20-40% espace selon utilisation réelle<br><strong>Commande identification gros fichiers</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Top 20 fichiers volumineux\ndu -h /vmfs/volumes/datastore1/* | sort -rh | head -20\n\n# Fichiers &gt;50 GB\nfind /vmfs/volumes/datastore1 -type f -size +50G -exec du -h {} \\;</code><br><strong>Prévention</strong> :<br>• ✅ Alarmes vCenter : Alerte si datastore &gt;80%<br>• ✅ Politique snapshots : Suppression auto &gt;72h (vRealize Automation)<br>• ✅ Thin Provision pour tests/VDI<br><strong>Points</strong> : 10/10"},
       /* EXAMEN_FLASHCARDS */
     ],
     qcm: [
@@ -16216,6 +17371,46 @@ role where I can grow my infrastructure and security skills.</pre>
       {"id":"exam_ccp4_q58","difficulty":"normal","question":"Quel port utilise le protocole Kerberos ?","options":[{"text":"TCP 88","correct":false},{"text":"UDP 88","correct":false},{"text":"TCP et UDP 88","correct":true},{"text":"TCP 389","correct":false}],"explication":"<strong>Kerberos</strong> :<br>• Port <strong>TCP et UDP 88</strong><br>• Protocole d'<strong>authentification</strong> réseau<br>• Utilisé par <strong>Active Directory</strong><br>• Basé sur tickets (TGT, TGS)<br><strong>Fonctionnement</strong> :<br>1. Client demande TGT au KDC (Key Distribution Center)<br>2. Client reçoit TGT chiffré<br>3. Client demande ticket de service (TGS)<br>4. Client accède au service avec le ticket"},
       {"id":"exam_ccp4_q59","difficulty":"normal","question":"Le protocole RDP (Remote Desktop Protocol) utilise le port :","options":[{"text":"22","correct":false},{"text":"23","correct":false},{"text":"3389","correct":true},{"text":"5900","correct":false}],"explication":"<strong>RDP (Remote Desktop Protocol)</strong> :<br>• Port <strong>TCP 3389</strong><br>• Protocole <strong>Microsoft</strong> pour bureau à distance<br>• Connexion graphique à un Windows distant<br><strong>Alternatives</strong> :<br>• <strong>VNC</strong> : Port 5900 (TCP)<br>• <strong>SSH</strong> : Port 22 (ligne de commande)<br>• <strong>TeamViewer</strong> : Port dynamique"},
       {"id":"exam_ccp4_q60","difficulty":"normal","question":"Quelle est la wildcard mask correspondant au masque 255.255.255.240 ?","options":[{"text":"0.0.0.15","correct":true},{"text":"0.0.0.240","correct":false},{"text":"255.255.255.15","correct":false},{"text":"0.0.0.255","correct":false}],"explication":"<strong>Wildcard mask</strong> = <strong>Inverse du masque de sous-réseau</strong><br><strong>Calcul</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Masque de sous-réseau : 255.255.255.240\nWildcard mask : 255.255.255.255 - 255.255.255.240 = 0.0.0.15 </code><br><strong>Règle wildcard</strong> :<br>• <strong>0</strong> = Doit correspondre (check)<br>• <strong>1</strong> = Peut être n'importe quoi (don't care)<br><strong>Exemples</strong> :<br>Masque — Wildcard<br>255.255.255.0 — 0.0.0.255<br>255.255.255.192 — 0.0.0.63<br>255.255.255.240 — 0.0.0.15<br>255.255.255.252 — 0.0.0.3<br><strong>Usage</strong> : ACL Cisco, OSPF, EIGRP"},
+      {"id":"exam_ccp5_q1","difficulty":"normal","question":"Qu'est-ce que la <strong>virtualisation</strong> ?","options":[{"text":"Installer plusieurs OS sur plusieurs ordinateurs","correct":false},{"text":"Créer des machines virtuelles (VM) qui s'exécutent sur un serveur physique (hyperviseur)","correct":true},{"text":"Un système de sauvegarde","correct":false},{"text":"Un pare-feu","correct":false}],"explication":"Virtualisation :<br>• <strong>Principe</strong> : Partitionner un serveur physique en plusieurs machines virtuelles<br>• <strong>Bénéfices</strong> :<br>• <strong>Consolidation</strong> : 1 serveur physique → 10-50 VM<br>• <strong>Isolation</strong> : Chaque VM indépendante<br>• <strong>Flexibilité</strong> : Création/suppression rapide<br>• <strong>Économies</strong> : Réduction matériel, énergie, espace"},
+      {"id":"exam_ccp5_q2","difficulty":"normal","question":"Qu'est-ce qu'un <strong>hyperviseur</strong> ?","options":[{"text":"Un administrateur système","correct":false},{"text":"La couche logicielle qui permet de créer et gérer des machines virtuelles","correct":true},{"text":"Un système d'exploitation","correct":false},{"text":"Un câble réseau","correct":false}],"explication":"Hyperviseur (Virtual Machine Monitor) :<br>• Gère l'accès au matériel (CPU, RAM, disque, réseau)<br>• Isole les VM entre elles<br>• Répartit les ressources"},
+      {"id":"exam_ccp5_q3","difficulty":"normal","question":"Quelle est la différence entre hyperviseur <strong>Type 1</strong> (bare-metal) et <strong>Type 2</strong> (hosted) ?","options":[{"text":"Aucune différence","correct":false},{"text":"Type 1 = installé directement sur le matériel (ESXi, Hyper-V) / Type 2 = sur un OS (VMware Workstation, VirtualBox)","correct":true},{"text":"Type 1 = gratuit, Type 2 = payant","correct":false},{"text":"Type 1 = Windows, Type 2 = Linux","correct":false}],"explication":"Critère — Type 1 (Bare-Metal) — Type 2 (Hosted)<br><strong>Installation</strong> — Directement sur matériel — Sur un OS existant<br><strong>Performance</strong> — Excellente — Moyenne (overhead OS)<br><strong>Usage</strong> — Production datacenter — Tests, développement<br><strong>Exemples</strong> — VMware ESXi, Hyper-V, Xen, KVM — VMware Workstation, VirtualBox, Parallels<br><strong>Architecture Type 1</strong> :<br><code style=\"display:block;white-space:pre-wrap\">VM1  VM2  VM3\n     ↓\nHyperviseur (ESXi)\n     ↓\nMatériel physique</code><br><strong>Architecture Type 2</strong> :<br><code style=\"display:block;white-space:pre-wrap\">VM1  VM2\n     ↓\nHyperviseur (Workstation)\n     ↓\nOS Hôte (Windows/Linux)\n     ↓\nMatériel physique</code>"},
+      {"id":"exam_ccp5_q4","difficulty":"normal","question":"Quels sont les avantages de la virtualisation ?","options":[{"text":"Consolidation serveurs, réduction coûts, haute disponibilité, déploiement rapide","correct":true},{"text":"Uniquement économique","correct":false},{"text":"Aucun avantage","correct":false},{"text":"Plus lent que le physique","correct":false}],"explication":"Avantages détaillés :<br><strong>1. Consolidation</strong> :<br>• Avant : 50 serveurs physiques (1 app/serveur, utilisation 10%)<br>• Après : 5 serveurs physiques avec 50 VM (utilisation 70%)<br><strong>2. Économies</strong> :<br>• Matériel : -80% de serveurs<br>• Énergie : -70% consommation électrique<br>• Espace : -80% surface datacenter<br>• Refroidissement : -70%<br><strong>3. Haute disponibilité</strong> :<br>• HA : Redémarrage auto si panne<br>• vMotion : Migration sans coupure<br>• FT : Tolérance zéro downtime<br><strong>4. Déploiement rapide</strong> :<br>• Serveur physique : 2-4 semaines (commande, livraison, install)<br>• VM : 5 minutes (clone de template)<br><strong>5. Sauvegarde/Restauration</strong> :<br>• Snapshot instantané<br>• Backup niveau hyperviseur<br>• Restauration complète en minutes<br><strong>6. Tests et Développement</strong> :<br>• Environnements isolés<br>• Clonage facile<br>• Retour arrière rapide"},
+      {"id":"exam_ccp5_q5","difficulty":"normal","question":"Qu'est-ce que le <strong>ratio de consolidation</strong> ?","options":[{"text":"La vitesse du réseau","correct":false},{"text":"Le nombre de VM par serveur physique (ex: 20 VM sur 1 ESXi)","correct":true},{"text":"La taille des disques","correct":false},{"text":"Le nombre de snapshots","correct":false}],"explication":"Ratio de consolidation :<br>• <strong>Moyenne</strong> : 15-20 VM/serveur<br>• <strong>Cas légers</strong> : 50 VM/serveur (serveurs web, AD)<br>• <strong>Cas lourds</strong> : 5-10 VM/serveur (SQL, bases de données)<br><strong>Calcul</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Serveur physique : 48 CPU cores, 512 Go RAM\nVM moyenne : 2 vCPU, 16 Go RAM\n\nRatio théorique CPU : 48/2 = 24 VM\nRatio théorique RAM : 512/16 = 32 VM\n→ Goulot = CPU → 24 VM max</code>"},
+      {"id":"exam_ccp5_q6","difficulty":"normal","question":"Que signifie <strong>overcommit</strong> (sur-allocation) en virtualisation ?","options":[{"text":"Allouer moins de ressources que disponible","correct":false},{"text":"Allouer plus de ressources (CPU/RAM) que physiquement disponible","correct":true},{"text":"Désactiver une VM","correct":false},{"text":"Un type de stockage","correct":false}],"explication":"Overcommit (sur-allocation) :<br><strong>CPU Overcommit</strong> :<br>• Serveur physique : 16 cores<br>• Allocation VM : 40 vCPU (ratio 2.5:1)<br>• Fonctionne car : VM n'utilisent pas 100% CPU en permanence<br><strong>RAM Overcommit</strong> :<br>• Serveur physique : 256 Go RAM<br>• Allocation VM : 320 Go RAM<br>• Techniques :<br>• <strong>Transparent Page Sharing</strong> (TPS) : Partage pages mémoire identiques<br>• <strong>Ballooning</strong> : Récupère RAM inutilisée<br>• <strong>Compression</strong> : Compresse pages mémoire<br>• <strong>Swap</strong> : En dernier recours (lent)<br><strong>Risques</strong> :<br>• Overcommit excessif → Swap → Performances dégradées<br>• Recommandation : Max 1.5:1 pour RAM"},
+      {"id":"exam_ccp5_q7","difficulty":"normal","question":"Qu'est-ce qu'une <strong>VM Template</strong> (modèle) ?","options":[{"text":"Une VM en cours d'exécution","correct":false},{"text":"Une VM master pré-configurée, servant de base pour déployer rapidement de nouvelles VM","correct":true},{"text":"Un snapshot","correct":false},{"text":"Un datacenter","correct":false}],"explication":"Template (modèle) :<br>• <strong>Création</strong> :<br>1. Installer OS (Windows/Linux)<br>2. Appliquer mises à jour<br>3. Installer applications de base<br>4. Configurer paramètres standards<br>5. Sysprep (Windows) ou généralisation<br>6. Convertir en template<br>• <strong>Usage</strong> : Déployer 50 VM identiques en 30 min<br>• <strong>Statut</strong> : Lecture seule (ne peut pas être démarré)"},
+      {"id":"exam_ccp5_q8","difficulty":"normal","question":"Que signifie <strong>vMotion</strong> (VMware) ?","options":[{"text":"Déplacer une VM en cours d'exécution d'un hôte ESXi à un autre sans interruption","correct":true},{"text":"Arrêter une VM","correct":false},{"text":"Cloner une VM","correct":false},{"text":"Créer un snapshot","correct":false}],"explication":"vMotion (Live Migration) :<br>1. Copie état mémoire VM vers hôte cible<br>2. Synchronisation continue changements<br>3. Bascule finale (&lt; 1 seconde de freeze)<br>4. Redirection réseau vers nouvel hôte<br>5. VM continue de tourner<br><strong>Usages</strong> :<br>• Maintenance hôte (sans arrêter VM)<br>• Équilibrage charge (DRS)<br>• Évacuation hôte<br><strong>Prérequis</strong> :<br>• Stockage partagé (SAN/NAS)<br>• Réseau vMotion dédié (10 Gbps recommandé)<br>• CPU compatibles (même famille)<br>• vCenter (orchestration)"},
+      {"id":"exam_ccp5_q9","difficulty":"normal","question":"Quelle technologie permet de partager les ressources CPU inutilisées entre VM ?","options":[{"text":"Snapshot","correct":false},{"text":"Overcommit / Partage dynamique (CPU Shares, Reservations, Limits)","correct":true},{"text":"Template","correct":false},{"text":"ISO","correct":false}],"explication":"Gestion ressources CPU :<br><strong>Shares (Parts)</strong> :<br>• Priorité relative (Low/Normal/High/Custom)<br>• VM avec plus de shares → Plus de CPU si contention<br><strong>Reservation</strong> :<br>• CPU garanti minimum (MHz)<br>• Exemple : 2000 MHz réservés<br><strong>Limit</strong> :<br>• Plafond maximum (MHz)<br>• Exemple : Max 4000 MHz même si dispo<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">VM1 : 2 vCPU, Reservation 2000 MHz, Limit 4000 MHz, Shares High\nVM2 : 2 vCPU, Shares Normal\nVM3 : 1 vCPU, Shares Low\n\nSi CPU saturé : VM1 &gt; VM2 &gt; VM3</code>"},
+      {"id":"exam_ccp5_q10","difficulty":"normal","question":"Qu'est-ce que le <strong>VDI</strong> (Virtual Desktop Infrastructure) ?","options":[{"text":"Un serveur web","correct":false},{"text":"Des postes de travail virtualisés (bureaux virtuels) accessibles à distance","correct":true},{"text":"Un système de sauvegarde","correct":false},{"text":"Un protocole réseau","correct":false}],"explication":"VDI (Virtual Desktop Infrastructure) :<br><strong>Architecture</strong> :<br>• Datacenter : Serveurs ESXi avec VM de bureaux Windows<br>• Utilisateurs : Thin clients ou PC<br>• Protocole : VMware Horizon (PCoIP, Blast), Citrix (ICA)<br><strong>Avantages</strong> :<br>• <strong>Centralisé</strong> : Gestion facilitée (images, patches)<br>• <strong>Sécurité</strong> : Données restent au datacenter<br>• <strong>Mobilité</strong> : Accès depuis n'importe où<br>• <strong>BYOD</strong> : Utilisation devices personnels<br><strong>Types de VDI</strong> :<br>• <strong>Persistent</strong> : Bureau dédié par user (personnalisations conservées)<br>• <strong>Non-persistent</strong> : Bureau générique, réinitialisé après déconnexion<br><strong>Cas d'usage</strong> :<br>• Call centers<br>• Télétravail<br>• Contractors/consultants temporaires<br>• Postes nécessitant haute sécurité<br>### ✔️ Partie 2 : VMware vSphere - Architecture"},
+      {"id":"exam_ccp5_q11","difficulty":"normal","question":"Qu'est-ce que <strong>VMware ESXi</strong> ?","options":[{"text":"Un système d'exploitation Windows","correct":false},{"text":"Un hyperviseur Type 1 (bare-metal) qui héberge les VM","correct":true},{"text":"Un logiciel de sauvegarde","correct":false},{"text":"Un client de virtualisation","correct":false}],"explication":"VMware ESXi :<br>• <strong>Version minimale</strong> de l'hyperviseur (&lt; 1 Go)<br>• Pas d'OS sous-jacent (bare-metal)<br>• Installation sur serveur physique<br>• Accès : Interface web (Host Client), SSH, vCenter<br><strong>Versions</strong> :<br>• <strong>ESXi</strong> : Gratuit (fonctionnalités limitées)<br>• <strong>vSphere</strong> (ESXi + licence) : Payant (Standard, Enterprise, Enterprise Plus)"},
+      {"id":"exam_ccp5_q12","difficulty":"normal","question":"Qu'est-ce que <strong>VMware vCenter Server</strong> ?","options":[{"text":"Un hyperviseur","correct":false},{"text":"La console centralisée de gestion des hôtes ESXi et des VM","correct":true},{"text":"Un système de fichiers","correct":false},{"text":"Un protocole","correct":false}],"explication":"vCenter Server :<br>• <strong>Rôle</strong> : Gestion centralisée de multiples hôtes ESXi<br>• <strong>Fonctions avancées</strong> :<br>• vMotion, Storage vMotion<br>• HA (High Availability)<br>• DRS (Distributed Resource Scheduler)<br>• Distributed Switch<br>• Templates et clones<br>• <strong>Installation</strong> : Appliance Linux (VCSA) ou Windows (déprécié)"},
+      {"id":"exam_ccp5_q13","difficulty":"normal","question":"Quelle est la différence entre <strong>ESXi</strong> et <strong>vCenter</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"ESXi = hyperviseur (hôte) / vCenter = gestionnaire centralisé (plusieurs ESXi)","correct":true},{"text":"ESXi = gratuit, vCenter = payant","correct":false},{"text":"ESXi = Linux, vCenter = Windows","correct":false}],"explication":"Comparaison :<br>Critère — ESXi — vCenter<br><strong>Rôle</strong> — Hyperviseur (héberge VM) — Gestionnaire (pilote ESXi)<br><strong>Installation</strong> — Sur serveur physique — Sur VM ou appliance<br><strong>Gestion</strong> — Hôte unique — Plusieurs hôtes<br><strong>Fonctions</strong> — Basiques — Avancées (HA, DRS, vMotion)<br><strong>Licence</strong> — Gratuit ou payant — Payant<br><strong>Architecture</strong> :<br><code style=\"display:block;white-space:pre-wrap\">        vCenter Server\n             ↓\n    ┌────────┼────────┐\nESXi-1    ESXi-2    ESXi-3\n  ↓         ↓         ↓\n10 VM     12 VM     15 VM</code>"},
+      {"id":"exam_ccp5_q14","difficulty":"normal","question":"Peut-on gérer un hôte ESXi sans vCenter ?","options":[{"text":"Non, vCenter obligatoire","correct":false},{"text":"Oui, via l'interface web ESXi (Host Client) mais fonctionnalités limitées","correct":true},{"text":"Impossible de gérer ESXi","correct":false},{"text":"Uniquement en ligne de commande","correct":false}],"explication":"Gestion sans vCenter :<br>• <strong>Interface web</strong> : https://IP_ESXi/ui (ESXi Host Client)<br>• <strong>Fonctions disponibles</strong> :<br>• Créer/gérer VM<br>• Configuration réseau/stockage<br>• Monitoring basique<br>• <strong>Limitations</strong> :<br>• Pas de vMotion<br>• Pas de HA/DRS<br>• Pas de templates<br>• Gestion hôte par hôte (pas centralisée)"},
+      {"id":"exam_ccp5_q15","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Datacenter</strong> dans vSphere ?","options":[{"text":"Un bâtiment physique","correct":false},{"text":"Un conteneur logique dans vCenter pour organiser hôtes, VM, stockage","correct":true},{"text":"Un serveur","correct":false},{"text":"Un réseau","correct":false}],"explication":"Datacenter vSphere :<br>• Conteneur organisationnel dans vCenter<br>• Contient : Clusters, hôtes ESXi, VM, réseaux, datastores<br>• Permet séparation logique (par site, par client, par environnement)<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">vCenter\n├─ Datacenter Paris\n│  ├─ Cluster Production\n│  │  ├─ ESXi-01\n│  │  └─ ESXi-02\n│  └─ Cluster Dev/Test\n│     └─ ESXi-03\n└─ Datacenter Lyon\n   └─ Cluster DR\n      ├─ ESXi-04\n      └─ ESXi-05</code>"},
+      {"id":"exam_ccp5_q16","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Cluster</strong> vSphere ?","options":[{"text":"Un groupe de VM","correct":false},{"text":"Un groupe d'hôtes ESXi partageant ressources, avec HA et DRS","correct":true},{"text":"Un disque dur","correct":false},{"text":"Un snapshot","correct":false}],"explication":"Cluster vSphere :<br>• <strong>Pool de ressources</strong> : CPU/RAM partagés<br>• <strong>Fonctionnalités</strong> :<br>• HA (reprise après panne)<br>• DRS (équilibrage charge automatique)<br>• vMotion (migration VM)<br>• <strong>Prérequis</strong> : Stockage partagé<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Cluster Production (3 hôtes)\n├─ ESXi-01 : 32 cores, 256 Go RAM\n├─ ESXi-02 : 32 cores, 256 Go RAM\n└─ ESXi-03 : 32 cores, 256 Go RAM\nTotal : 96 cores, 768 Go RAM disponibles pour toutes les VM</code>"},
+      {"id":"exam_ccp5_q17","difficulty":"normal","question":"Quelle est la hiérarchie de l'architecture vSphere ?","options":[{"text":"Datacenter → Cluster → ESXi → VM","correct":true},{"text":"VM → ESXi → Cluster → Datacenter","correct":false},{"text":"ESXi → VM → Cluster","correct":false},{"text":"Cluster → Datacenter → VM","correct":false}],"explication":"Hiérarchie complète :<br><code style=\"display:block;white-space:pre-wrap\">vCenter Server\n    ↓\nDatacenter\n    ↓\nCluster\n    ↓\nHôte ESXi\n    ↓\nVM</code>"},
+      {"id":"exam_ccp5_q18","difficulty":"normal","question":"Quel port utilise vCenter pour communiquer avec ESXi ?","options":[{"text":"80","correct":false},{"text":"443 (HTTPS)","correct":true},{"text":"22","correct":false},{"text":"3389","correct":false}],"explication":"Ports VMware essentiels :<br>Service — Port — Usage<br><strong>HTTPS (vCenter/ESXi)</strong> — 443 — Gestion web, API<br><strong>vMotion</strong> — 8000 — Migration VM<br><strong>NFS</strong> — 2049 — Stockage NAS<br><strong>iSCSI</strong> — 3260 — Stockage SAN<br><strong>SSH</strong> — 22 — Administration CLI"},
+      {"id":"exam_ccp5_q19","difficulty":"normal","question":"Qu'est-ce que <strong>VMware Tools</strong> ?","options":[{"text":"Un hyperviseur","correct":false},{"text":"Des drivers et utilitaires installés dans la VM pour améliorer performances et intégration","correct":true},{"text":"Un système d'exploitation","correct":false},{"text":"Un pare-feu","correct":false}],"explication":"VMware Tools :<br>• <strong>Composants</strong> :<br>• Drivers optimisés (réseau, stockage, vidéo)<br>• Service de synchronisation horloge<br>• Agent de communication avec ESXi<br>• Utilitaires (copier-coller, drag &amp; drop)"},
+      {"id":"exam_ccp5_q20","difficulty":"normal","question":"Pourquoi installer VMware Tools dans une VM ?","options":[{"text":"Ce n'est pas utile","correct":false},{"text":"Améliore performances, synchronisation horloge, shutdown propre, copier-coller hôte/VM, drivers optimisés","correct":true},{"text":"Obligatoire pour démarrer la VM","correct":false},{"text":"Pour la sauvegarde uniquement","correct":false}],"explication":"Bénéfices VMware Tools :<br><strong>1. Performances</strong> :<br>• Drivers paravirtualisés (10-40% plus rapide)<br>• Optimisation disque/réseau<br><strong>2. Gestion</strong> :<br>• Shutdown/reboot propre depuis ESXi<br>• Récupération d'infos (IP, hostname)<br>• Exécution scripts depuis vCenter<br><strong>3. Confort</strong> :<br>• Copier-coller hôte ↔ VM<br>• Drag &amp; drop fichiers<br>• Redimensionnement écran automatique<br><strong>4. Monitoring</strong> :<br>• Heartbeat (VM vivante ?)<br>• Metrics précises (CPU, RAM, disk)<br><strong>5. Snapshots</strong> :<br>• Quiesce (flush cache, cohérence)<br><strong>Installation</strong> :<br>• <strong>Windows</strong> : Installer VMware Tools.exe<br>• <strong>Linux</strong> : <code>vmware-install.pl</code> ou packages distro (open-vm-tools)<br>### ✔️ Partie 3 : HA, DRS, vMotion"},
+      {"id":"exam_ccp5_q21","difficulty":"normal","question":"Qu'est-ce que <strong>vSphere HA</strong> (High Availability) ?","options":[{"text":"Un outil de monitoring","correct":false},{"text":"Redémarre automatiquement les VM sur un autre hôte si un hôte ESXi tombe","correct":true},{"text":"Clone les VM","correct":false},{"text":"Crée des snapshots","correct":false}],"explication":"vSphere HA (High Availability) :<br><strong>Principe</strong> :<br>1. Cluster HA surveille tous les hôtes<br>2. Si hôte tombe → Les VM sont redémarrées sur hôtes survivants<br>3. Temps d'indisponibilité : 2-5 minutes (reboot VM)<br><strong>Configuration</strong> :<br>• <strong>Admission Control</strong> : Réserve capacité pour pannes (N+1, N+2)<br>• <strong>Priorities</strong> : Ordre de redémarrage VM<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Cluster 3 hôtes : ESXi-1 (10 VM), ESXi-2 (12 VM), ESXi-3 (8 VM)\n↓\nESXi-1 tombe (panne matérielle)\n↓\nHA détecte (30 sec - 3 min)\n↓\n10 VM redémarrées sur ESXi-2 et ESXi-3</code>"},
+      {"id":"exam_ccp5_q22","difficulty":"normal","question":"Comment fonctionne vSphere HA lors d'une panne d'hôte ?","options":[{"text":"Les VM restent arrêtées","correct":false},{"text":"HA détecte la panne, les VM sont redémarrées sur les hôtes survivants du cluster","correct":true},{"text":"Les VM sont supprimées","correct":false},{"text":"Il faut redémarrer manuellement","correct":false}],"explication":"Mécanisme HA :<br><strong>Détection panne</strong> :<br>• <strong>Heartbeat réseau</strong> : Ping entre hôtes toutes les secondes<br>• <strong>Heartbeat datastore</strong> : Écriture fichier partagé<br>• Si les 2 échouent → Hôte déclaré mort<br><strong>Actions</strong> :<br>1. Master HA prend contrôle<br>2. Vérifie ressources disponibles<br>3. Place VM sur hôtes selon priorités<br>4. Power On VM<br><strong>Limitations</strong> :<br>• VM arrêtées brutalement (pas shutdown propre)<br>• Applications doivent supporter arrêt brutal"},
+      {"id":"exam_ccp5_q23","difficulty":"normal","question":"Qu'est-ce que <strong>vSphere DRS</strong> (Distributed Resource Scheduler) ?","options":[{"text":"Un système de sauvegarde","correct":false},{"text":"Équilibre automatiquement la charge CPU/RAM en déplaçant les VM entre hôtes (via vMotion)","correct":true},{"text":"Un pare-feu","correct":false},{"text":"Un snapshot","correct":false}],"explication":"vSphere DRS (Distributed Resource Scheduler) :<br><strong>Principe</strong> :<br>• Surveille charge CPU/RAM de tous les hôtes<br>• Si déséquilibre → Migre VM automatiquement (via vMotion)<br>• Maintient cluster équilibré<br><strong>Modes</strong> :<br>• <strong>Manual</strong> : Recommandations seulement<br>• <strong>Partially Automated</strong> : Recommande + applique au power on<br>• <strong>Fully Automated</strong> : Applique automatiquement (recommandé)<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Avant DRS :\nESXi-1 : 90% CPU (10 VM)\nESXi-2 : 30% CPU (3 VM)\n\nAprès DRS :\nESXi-1 : 60% CPU (7 VM) ← 3 VM migrées\nESXi-2 : 60% CPU (6 VM)</code>"},
+      {"id":"exam_ccp5_q24","difficulty":"normal","question":"Quelle est la différence entre <strong>HA</strong> et <strong>DRS</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"HA = disponibilité (reprise après panne) / DRS = performance (équilibrage charge)","correct":true},{"text":"HA = gratuit, DRS = payant","correct":false},{"text":"HA = Windows, DRS = Linux","correct":false}],"explication":"Comparaison :<br>Critère — HA — DRS<br><strong>Objectif</strong> — Disponibilité — Performance<br><strong>Déclencheur</strong> — Panne hôte — Déséquilibre charge<br><strong>Action</strong> — Redémarre VM — Migre VM (vMotion)<br><strong>Downtime</strong> — 2-5 min (reboot) — 0 (live migration)<br><strong>Quand</strong> — Réactif (après incident) — Proactif (avant problème)<br><strong>Utilisation combinée</strong> :<br>• DRS équilibre en continu<br>• Si panne → HA redémarre<br>• Après redémarrage HA → DRS rééquilibre"},
+      {"id":"exam_ccp5_q25","difficulty":"normal","question":"Qu'est-ce que <strong>vMotion</strong> permet de faire ?","options":[{"text":"Créer une VM","correct":false},{"text":"Migrer une VM allumée d'un hôte ESXi à un autre sans interruption (Live Migration)","correct":true},{"text":"Supprimer une VM","correct":false},{"text":"Créer un template","correct":false}],"explication":"vMotion détails :<br><strong>Étapes</strong> :<br>1. <strong>Pré-copie mémoire</strong> : Copie RAM VM vers hôte cible (VM tourne)<br>2. <strong>Itérations</strong> : Copie pages modifiées (plusieurs passes)<br>3. <strong>Switchover</strong> : Freeze VM brièvement (&lt; 1 sec), bascule finale<br>4. <strong>Activation</strong> : VM reprend sur nouvel hôte<br>5. <strong>Nettoyage</strong> : Ancien hôte libère ressources<br><strong>Durée</strong> : 10-60 secondes selon taille mémoire et bande passante<br><strong>Impact utilisateur</strong> : Aucun (imperceptible)"},
+      {"id":"exam_ccp5_q26","difficulty":"normal","question":"Quelles sont les conditions pour utiliser vMotion ?","options":[{"text":"Stockage partagé (SAN/NAS), réseau vMotion dédié, CPU compatibles","correct":true},{"text":"Aucune condition","correct":false},{"text":"VM éteinte obligatoire","correct":false},{"text":"Un seul hôte ESXi","correct":false}],"explication":"Prérequis vMotion :<br><strong>1. Stockage partagé</strong> :<br>• SAN (FC, iSCSI) ou NAS (NFS)<br>• VM stockées sur datastore accessible par les 2 hôtes<br><strong>2. Réseau vMotion</strong> :<br>• VMkernel port type \"vMotion\"<br>• <strong>Recommandé</strong> : Réseau dédié 10 Gbps<br>• Même VLAN entre hôtes<br><strong>3. CPU compatibles</strong> :<br>• Même famille/génération (Intel ↔ Intel, AMD ↔ AMD)<br>• EVC (Enhanced vMotion Compatibility) pour masquer différences mineures<br><strong>4. vCenter</strong> :<br>• Orchestration vMotion<br><strong>5. Licences</strong> :<br>• vSphere Standard minimum"},
+      {"id":"exam_ccp5_q27","difficulty":"normal","question":"Qu'est-ce que <strong>Storage vMotion</strong> ?","options":[{"text":"Déplacer une VM entre hôtes","correct":false},{"text":"Déplacer les disques d'une VM d'un datastore à un autre (VM allumée ou éteinte)","correct":true},{"text":"Créer un snapshot","correct":false},{"text":"Cloner une VM","correct":false}],"explication":"Storage vMotion :<br>• <strong>Usage</strong> : Migration stockage sans downtime<br>• <strong>Scénarios</strong> :<br>• Datastore plein → Migrer vers autre<br>• Upgrade SAN<br>• Maintenance stockage<br>• Optimisation performance (SSD vs HDD)<br><strong>Différence avec vMotion</strong> :<br>• <strong>vMotion</strong> : Migration compute (hôte ESXi)<br>• <strong>Storage vMotion</strong> : Migration stockage (datastore)<br>• <strong>Combiné</strong> : Migration compute + stockage simultanée"},
+      {"id":"exam_ccp5_q28","difficulty":"normal","question":"Qu'est-ce que <strong>Fault Tolerance</strong> (FT) ?","options":[{"text":"Un snapshot","correct":false},{"text":"Réplication synchrone d'une VM (VM miroir active en temps réel, 0 downtime si panne)","correct":true},{"text":"Un backup","correct":false},{"text":"Un template","correct":false}],"explication":"Fault Tolerance (FT) :<br><strong>Principe</strong> :<br>• VM primaire + VM secondaire (miroir exact)<br>• Exécution synchrone (lockstep)<br>• Si primaire tombe → Secondaire prend le relais instantanément (0 downtime)<br><strong>Différence avec HA</strong> :<br>Critère — HA — FT<br><strong>Downtime</strong> — 2-5 min (reboot) — 0 sec (instantané)<br><strong>Overhead</strong> — Faible — Élevé (2x ressources)<br><strong>Usage</strong> — Standard — Applications ultra-critiques<br><strong>Limitations</strong> :<br>• Max 8 vCPU par VM FT<br>• Performance impact (30-50%)<br>• Coût (double ressources)<br><strong>Cas d'usage</strong> :<br>• Bases de données critiques<br>• Serveurs de paiement<br>• Contrôle industriel<br>### ✔️ Partie 4 : Stockage"},
+      {"id":"exam_ccp5_q29","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Datastore</strong> ?","options":[{"text":"Une VM","correct":false},{"text":"Un espace de stockage où sont stockés les fichiers des VM (VMDK, VMX, snapshots)","correct":true},{"text":"Un réseau","correct":false},{"text":"Un hyperviseur","correct":false}],"explication":"Datastore :<br>• <strong>Définition</strong> : Container logique de stockage<br>• <strong>Contient</strong> : Fichiers VM (.vmdk, .vmx, .vswp, snapshots)<br>• <strong>Sources</strong> : SAN (FC, iSCSI), NAS (NFS), Local<br><strong>Types</strong> :<br>• <strong>VMFS</strong> : Système de fichiers VMware (bloc)<br>• <strong>NFS</strong> : Network File System (fichiers)<br>• <strong>vSAN</strong> : Stockage distribué software-defined"},
+      {"id":"exam_ccp5_q30","difficulty":"normal","question":"Qu'est-ce que <strong>VMFS</strong> (Virtual Machine File System) ?","options":[{"text":"Un protocole réseau","correct":false},{"text":"Le système de fichiers propriétaire VMware pour les datastores (accès concurrent par plusieurs ESXi)","correct":true},{"text":"Un hyperviseur","correct":false},{"text":"Une VM","correct":false}],"explication":"VMFS (Virtual Machine File System) :<br><strong>Caractéristiques</strong> :<br>• <strong>Accès concurrent</strong> : Plusieurs ESXi en lecture/écriture simultanée<br>• <strong>Clustering</strong> : Lock distribué<br>• <strong>Taille</strong> : Jusqu'à 64 To (VMFS6)<br>• <strong>Fichiers</strong> : Jusqu'à 62 To<br><strong>Versions</strong> :<br>• VMFS5 : vSphere 5.x/6.x (max 2 To fichiers)<br>• VMFS6 : vSphere 6.5+ (max 62 To fichiers, GPT)"},
+      {"id":"exam_ccp5_q31","difficulty":"normal","question":"Quels sont les 3 protocoles de stockage supportés par vSphere ?","options":[{"text":"HTTP, FTP, SMB","correct":false},{"text":"<strong>Fibre Channel (FC), iSCSI, NFS</strong>","correct":true},{"text":"SMTP, POP3, IMAP","correct":false},{"text":"SSH, Telnet, RDP","correct":false}],"explication":"Protocoles de stockage :<br>Protocol — Type — Transport — Port — Avantages — Inconvénients<br><strong>Fibre Channel</strong> — Bloc — FC SAN — - — Très rapide, fiable — Coût élevé, complexe<br><strong>iSCSI</strong> — Bloc — IP (Ethernet) — 3260 — Coût réduit, flexible — Performance moyenne<br><strong>NFS</strong> — Fichier — IP (Ethernet) — 2049 — Simple, pas de LUN — Latence réseau"},
+      {"id":"exam_ccp5_q32","difficulty":"normal","question":"Quelle est la différence entre <strong>NFS</strong> et <strong>iSCSI</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"NFS = stockage fichiers (partage NAS) / iSCSI = stockage bloc (SAN sur IP)","correct":true},{"text":"NFS = Windows, iSCSI = Linux","correct":false},{"text":"NFS = lent, iSCSI = rapide","correct":false}],"explication":"Différences :<br><strong>iSCSI</strong> :<br>• <strong>Type</strong> : Stockage bloc (SAN sur IP)<br>• <strong>Format</strong> : LUN (volumes bruts)<br>• <strong>Système fichiers</strong> : VMFS créé par ESXi<br>• <strong>Initiateur</strong> : ESXi (client iSCSI)<br>• <strong>Cible</strong> : Serveur de stockage (target)<br><strong>NFS</strong> :<br>• <strong>Type</strong> : Stockage fichier (NAS)<br>• <strong>Format</strong> : Partage réseau<br>• <strong>Système fichiers</strong> : NFS (géré par NAS)<br>• <strong>Montage</strong> : ESXi monte export NFS<br>• <strong>Permissions</strong> : Lecture/écriture<br><strong>Choix</strong> :<br>• <strong>iSCSI</strong> : Performance, boot depuis SAN<br>• <strong>NFS</strong> : Simplicité, flexibilité, déduplication côté NAS"},
+      {"id":"exam_ccp5_q33","difficulty":"normal","question":"Qu'est-ce qu'un <strong>LUN</strong> en stockage iSCSI/FC ?","options":[{"text":"Un hyperviseur","correct":false},{"text":"Une unité logique de stockage (volume présenté par le SAN)","correct":true},{"text":"Une VM","correct":false},{"text":"Un snapshot","correct":false}],"explication":"LUN (Logical Unit Number) :<br>• <strong>Définition</strong> : Volume logique présenté par SAN/NAS<br>• <strong>Exemple</strong> : SAN présente LUN0 (2 To), LUN1 (5 To)<br>• <strong>Usage</strong> : ESXi formate LUN en VMFS → Datastore<br><strong>Architecture</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Baie de stockage SAN (20 To)\n├─ LUN 0 : 2 To (Datastore_Prod)\n├─ LUN 1 : 5 To (Datastore_Dev)\n└─ LUN 2 : 10 To (Datastore_Backup)</code><br><strong>Masking</strong> : Attribuer LUN à hôtes spécifiques (sécurité)"},
+      {"id":"exam_ccp5_q34","difficulty":"normal","question":"Quel protocole utilise le port <strong>3260</strong> ?","options":[{"text":"NFS","correct":false},{"text":"iSCSI","correct":true},{"text":"Fibre Channel","correct":false},{"text":"SMB","correct":false}],"explication":"Ports stockage :<br>Protocol — Port — Type<br><strong>iSCSI</strong> — 3260 TCP — SAN<br><strong>NFS</strong> — 2049 TCP/UDP — NAS<br><strong>SMB/CIFS</strong> — 445 TCP — NAS Windows<br>### ✔️ Partie 5 : Snapshots, Clones, Templates"},
+      {"id":"exam_ccp5_q35","difficulty":"normal","question":"Qu'est-ce qu'un <strong>snapshot</strong> ?","options":[{"text":"Une copie complète de la VM","correct":false},{"text":"Un état figé de la VM à un instant T (delta disks, pas une copie complète)","correct":true},{"text":"Un template","correct":false},{"text":"Un backup","correct":false}],"explication":"Snapshot VMware :<br><strong>Principe</strong> :<br>• Fige état VM (disque + optionnel mémoire)<br>• Création d'un <strong>delta disk</strong> (.vmdk-000001.vmdk)<br>• Nouvelles écritures → Delta disk<br>• Disque de base (parent) → Lecture seule<br><strong>Contenu</strong> :<br>• <strong>Disk</strong> : Changements disque<br>• <strong>Memory</strong> (option) : Contenu RAM<br>• <strong>VM Settings</strong> : Configuration<br><strong>Utilisation</strong> :<br>• Avant mise à jour (retour arrière si problème)<br>• Tests (déploiement, config)<br>• Développement"},
+      {"id":"exam_ccp5_q36","difficulty":"normal","question":"Quelle est la différence entre un <strong>snapshot</strong> et un <strong>backup</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"Snapshot = même datastore, temporaire, retour arrière rapide / Backup = copie externe, long terme","correct":true},{"text":"Snapshot = externe, Backup = local","correct":false},{"text":"Ce sont des synonymes","correct":false}],"explication":"Comparaison :<br>Critère — Snapshot — Backup<br><strong>Emplacement</strong> — Même datastore — Externe (NAS, cloud, bande)<br><strong>Durée</strong> — Court terme (heures/jours) — Long terme (semaines/mois/ans)<br><strong>But</strong> — Retour arrière rapide — Protection sinistre, archivage<br><strong>Vitesse création</strong> — Secondes — Minutes/heures<br><strong>Vitesse restauration</strong> — Instantané (revert) — Lent<br><strong>Protection</strong> — ❌ Si datastore HS → Perdu — ✅ Copie indépendante<br><strong>Impact</strong> — Performance (chaîne delta) — Aucun<br><strong>IMPORTANT</strong> : Snapshot ≠ Backup !"},
+      {"id":"exam_ccp5_q37","difficulty":"normal","question":"Peut-on garder des snapshots indéfiniment ?","options":[{"text":"Oui, sans problème","correct":false},{"text":"Non ! Impact performances (chaîne delta disks), espace disque, risque de perte si trop nombreux","correct":true},{"text":"Oui, c'est recommandé","correct":false},{"text":"Les snapshots disparaissent automatiquement","correct":false}],"explication":"Problèmes snapshots long terme :<br><strong>1. Performance</strong> :<br>• Chaîne delta disks : VM → Snap1 → Snap2 → Snap3<br>• Lecture = parcourir chaîne (lent)<br>• Max 32 snapshots par VM<br><strong>2. Espace disque</strong> :<br>• Delta disks grandissent (toutes les écritures)<br>• Peut atteindre taille disque de base<br>• Datastore plein → VM freeze !<br><strong>3. Consolidation</strong> :<br>• Fusion snapshots (consolidate) = opération lourde<br>• Downtime possible<br><strong>Bonnes pratiques</strong> :<br>• Max <strong>72 heures</strong> de rétention<br>• Éviter snapshots sur VM production<br>• Surveiller taille delta disks<br>• Supprimer après usage"},
+      {"id":"exam_ccp5_q38","difficulty":"normal","question":"Quelle est la différence entre un <strong>clone</strong> et un <strong>template</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"Clone = copie indépendante (modifiable) / Template = master en lecture seule (pour déploiement multiple)","correct":true},{"text":"Clone = Windows, Template = Linux","correct":false},{"text":"Clone = gratuit, Template = payant","correct":false}],"explication":"Différences :<br>Critère — Clone — Template<br><strong>Type</strong> — VM complète indépendante — Master en lecture seule<br><strong>Modifiable</strong> — ✅ Oui — ❌ Non (convert en VM first)<br><strong>Démarrage</strong> — ✅ Peut démarrer — ❌ Ne peut pas démarrer<br><strong>Usage</strong> — Copie unique — Déploiements multiples<br><strong>Espace</strong> — Full (copie complète) — Full<br><strong>Clone</strong> :<br>• Copie VM existante<br>• Indépendant (changements n'affectent pas source)<br><strong>Template</strong> :<br>• VM convertie en template<br>• Utilisé pour déployer 10/50/100 VM identiques"},
+      {"id":"exam_ccp5_q39","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Linked Clone</strong> ?","options":[{"text":"Une copie complète","correct":false},{"text":"Un clone partageant le disque de base (parent) avec des delta disks (économie d'espace)","correct":true},{"text":"Un snapshot","correct":false},{"text":"Un template","correct":false}],"explication":"Linked Clone :<br><strong>Principe</strong> :<br>• Disque de base (parent) partagé<br>• Chaque clone a son delta disk (différences)<br>• Économie d'espace massive<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Template Windows (40 Go)\n├─ Linked Clone 1 : Delta 2 Go\n├─ Linked Clone 2 : Delta 3 Go\n└─ Linked Clone 3 : Delta 1 Go\n\nTotal : 40 + 2 + 3 + 1 = 46 Go (vs 120 Go pour 3 clones complets)</code><br><strong>Inconvénients</strong> :<br>• <strong>Dépendance</strong> : Si parent corrompu → Tous les clones HS<br>• <strong>Performance</strong> : Légèrement plus lent<br><strong>Usage</strong> :<br>• VDI (bureaux virtuels non-persistants)<br>• Labs/tests"},
+      {"id":"exam_ccp5_q40","difficulty":"normal","question":"Quels fichiers composent une VM VMware ?","options":[{"text":"Uniquement .vmx","correct":false},{"text":"<strong>.vmx</strong> (config), <strong>.vmdk</strong> (disque virtuel), <strong>.nvram</strong> (BIOS), <strong>.vswp</strong> (swap), <strong>.log</strong> (logs)","correct":true},{"text":".exe et .dll","correct":false},{"text":".iso uniquement","correct":false}],"explication":"Fichiers VM VMware :<br>Fichier — Rôle<br><strong>.vmx</strong> — Configuration VM (CPU, RAM, network)<br><strong>.vmdk</strong> (descriptor) — Pointeur vers fichier disque<br><strong>-flat.vmdk</strong> — Données disque (gros fichier)<br><strong>.nvram</strong> — BIOS/EFI settings<br><strong>.vswp</strong> — Swap file (taille = RAM VM)<br><strong>.log</strong> — Logs (vmware.log, vmware-1.log...)<br><strong>.vmsd</strong> — Métadonnées snapshots<br><strong>-000001.vmdk</strong> — Delta disk (snapshot)<br><strong>.vmsn</strong> — État snapshot (avec mémoire)<br><strong>Exemple structure</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Datastore1/\n└─ VM_Web/\n   ├─ VM_Web.vmx (10 Ko)\n   ├─ VM_Web.vmdk (1 Ko)\n   ├─ VM_Web-flat.vmdk (40 Go)\n   ├─ VM_Web.nvram (256 Ko)\n   ├─ VM_Web.vswp (8 Go)\n   └─ vmware.log (500 Ko)</code>"},
       /* EXAMEN_QCM */
     ],
   },

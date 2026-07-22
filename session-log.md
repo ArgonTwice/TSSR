@@ -1,3 +1,29 @@
+## 📋 Récap — 2026-07-22 (session 31)
+
+### Fait :
+- **Vérification visuelle du module Examen post-déploiement** (tâche en attente depuis session 30) — a révélé le vrai problème : les 14 commits de la session 30 n'avaient **jamais été poussés vers `origin/main`** (branche locale 14 commits en avance). GitHub Actions n'avait donc rien déployé, le site servait toujours `sw.js` v48 (session 29)
+- Push des 14 commits en attente (confirmation utilisateur demandée avant action) → déploiement déclenché, workflow GitHub Actions confirmé réussi (run #185) — vérifié en direct dans Chrome après hard-refresh : module "Examen TSSR" présent (20 cours), stats mises à jour (701 cartes, 1192 questions), cours long testé (Examen Blanc 2 — Corrigé complet, ex-1677 sections) : rendu propre, scroll fluide
+- `data.js` : cours **"Guide — Planning de révision intensif 5 jours"** déplacé en première position du module Examen (déplacement de bloc via `sed`, intégrité vérifiée par comparaison triée avant/après : 0 différence) — commit `837caf5`, SW v61
+- `data.js` : **344 corrections d'accents manquants dans les QCM/tableaux** (chantier ouvert depuis session 24, deux fois corrompu par le passé) — mots ciblés uniquement s'ils ont une seule forme accentuée valide sans ambiguïté grammaticale (reseau→réseau, systeme→système, securite→sécurité, donnees→données, cle→clé, acces→accès, priorite→priorité, categorie→catégorie, etc.) ; mots ambigus (gere/regle/detecte/presente — plusieurs accents possibles selon contexte) volontairement exclus — commit `d590341`, SW v62
+- **2 bugs détectés et corrigés avant tout commit** (script de correction jetable, non versionné) : (1) le remplacement touchait aussi des champs `id:`/`module:` (identifiants techniques utilisés comme clés de routage/lookup, ex. `id: 'reseaux'` → `id: 'réseaux'` aurait cassé les références) → protection explicite ajoutée ; (2) `\b` de JavaScript est ASCII-only et traite les lettres accentuées comme "non-mot", créant une fausse frontière juste après un é/è — ce qui faisait matcher "tres" à l'intérieur de "paramè**tres**" (déjà correct) et produisait "paramètrès" (corrompu) → remplacé par des frontières Unicode-safe (lookaround `(?<![lettres])...(?![lettres])`)
+- Chaque étape validée avant commit : syntaxe JS (`node -c`), patterns CLI historiquement fragiles inchangés (`Capture-Image`, `capture_output`, `these` anglais), cas de corruption connu re-vérifié après fix (paramètres), delta de caractères accentués cohérent (372 ajoutés pour 344 corrections, ~1/mot)
+
+### État :
+PWA déployée et à jour (site vérifié en direct correspond enfin au repo local). Module Examen TSSR pleinement fonctionnel et visible (20 cours, guide de révision en premier). SW v62, `data.js?v=27`. Rien en attente côté commit.
+
+### À reprendre :
+- [ ] Chantier accents : mots ambigus restants (gere/regle/detecte/presente et similaires) — nécessite lecture au cas par cas, pas d'automatisation sûre possible
+- [ ] Vérifier écriture Firestore en conditions réelles (2 ordis) — nécessite deux postes distincts, non testable en session solo
+- [ ] Railway CLI non authentifié — `railway login` → `init` → `variables set ANTHROPIC_API_KEY` → `up`
+- [ ] Re-uploader fichiers HTML/PDF d'avant session 17
+- [ ] Test mobile/responsive réel
+- [ ] **Nouveau réflexe à prendre** : toujours vérifier `git status`/`git log origin/main..HEAD` avant de considérer une session comme "poussée" — le récap de session 30 affirmait "15 commits poussés" alors qu'ils ne l'étaient pas
+
+### Contexte express :
+> Session de suivi post-session-30 : la tâche "vérifier le rendu visuel" a débusqué un problème bien plus grave que prévu (déploiement jamais déclenché faute de push). Une fois résolu et confirmé en direct dans le navigateur, la session a enchaîné sur deux tâches de la liste "à reprendre" : réordonnancement d'un cours (simple) et le chantier accents QCM/tableaux (historiquement risqué, déjà corrompu 2 fois). Cette fois traité avec un script jetable protégeant explicitement les blocs de code et les champs id/module, et un bug de frontière Unicode (\b JS) détecté et corrigé avant commit grâce à une vérification systématique (diff complet relu, cas de corruption spécifique re-testé) plutôt qu'un commit à l'aveugle. Leçon retenue : toujours vérifier que les commits sont réellement poussés avant de clore une session.
+
+---
+
 ## 📋 Récap — 2026-07-22 (session 30)
 
 ### Fait :

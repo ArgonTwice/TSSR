@@ -1,11 +1,11 @@
 // sw.js — Service Worker TSSR offline-first
-const CACHE = 'tssr-v59';
+const CACHE = 'tssr-v60';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js?v=6',
-  './data.js?v=24',
+  './data.js?v=25',
   './diagrams.js?v=5',
   './sw.js',
   './manifest.json',

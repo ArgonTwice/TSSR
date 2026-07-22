@@ -262,6 +262,7 @@ function renderNav() {
     { label: 'Fondamentaux',        modules: ['numerisation', 'securite', 'anglais-technique'] },
     { label: 'Infrastructure',      modules: ['stockage', 'virtualisation', 'supervision', 'cloud', 'telephonie-voip', 'iot'] },
     { label: 'Support & Projet',    modules: ['support', 'support-avance', 'documentation'] },
+    { label: 'Examen',              modules: ['examen'] },
   ];
 
   const sq = sidebarSearchQuery;

@@ -4906,8 +4906,532 @@ const MODULES = [
 
     ],
   },
+      {
+        "id": "ccp9-deploiement-postes-enrich",
+        "titre": "CCP9 — Déploiement de Postes (Fiche de révision)",
+        "sections": [
+          {
+            "type": "p",
+            "content": "<strong>Certification TSSR</strong> - CCP9 : Déploiement et maintenance postes de travail"
+          },
+          {
+            "type": "h2",
+            "content": "1. WDS (Windows Deployment Services)"
+          },
+          {
+            "type": "h3",
+            "content": "Rôle serveur"
+          },
+          {
+            "type": "p",
+            "content": "Déploiement OS Windows via réseau (PXE boot)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Installation</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Install-WindowsFeature WDS -IncludeManagementTools"
+          },
+          {
+            "type": "h3",
+            "content": "Prérequis"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Active Directory configuré",
+              "Serveur DHCP actif (options 66/67)",
+              "Partition NTFS pour images"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Configuration DHCP"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Option 66</strong> : IP serveur WDS   <strong>Option 67</strong> : Fichier boot <code>boot\\x64\\wdsnbp.com</code>"
+          },
+          {
+            "type": "h2",
+            "content": "2. IMAGES SYSTÈME"
+          },
+          {
+            "type": "h3",
+            "content": "Sysprep (Généralisation)"
+          },
+          {
+            "type": "p",
+            "content": "Prépare image Windows (supprime infos spécifiques machine)"
+          },
+          {
+            "type": "code",
+            "content": "C:\\Windows\\System32\\Sysprep\\sysprep.exe /generalize /oobe /shutdown"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Paramètres</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<code>/generalize</code> : Supprime SID, nom machine",
+              "<code>/oobe</code> : Redémarre sur écran bienvenue",
+              "<code>/shutdown</code> : Éteint après (pour capture)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Types images WDS"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Image Boot (WinPE)</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Démarre poste par réseau",
+              "Capture/applique images install"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Image Install</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "OS Windows complet",
+              "Capturé après Sysprep",
+              "Format .WIM (Windows Imaging)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "3. MDT (Microsoft Deployment Toolkit)"
+          },
+          {
+            "type": "h3",
+            "content": "Avantages vs WDS"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Automatisation complète (zéro-touch)",
+              "Task sequences personnalisables",
+              "Drivers, applications, configurations",
+              "Intégration WSUS, AD"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Workflow MDT"
+          },
+          {
+            "type": "code",
+            "content": "1. Import OS + Drivers + Apps\n2. Create Task Sequence\n3. Update Deployment Share\n4. Boot PXE ou clé USB\n5. Déploiement automatisé"
+          },
+          {
+            "type": "h2",
+            "content": "4. FICHIERS RÉPONSES (UNATTEND.XML)"
+          },
+          {
+            "type": "h3",
+            "content": "Utilité"
+          },
+          {
+            "type": "p",
+            "content": "Automatise installation Windows (nom, domaine, clé produit, partitions)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Outil</strong> : Windows System Image Manager (WSIM)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Sections clés</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "<settings pass=\"windowsPE\">\n  <!-- Partitionnement disque -->\n</settings>\n\n<settings pass=\"specialize\">\n  <ComputerName>PC-%RAND:4%</ComputerName>\n  <TimeZone>Romance Standard Time</TimeZone>\n</settings>\n\n<settings pass=\"oobeSystem\">\n  <UserAccounts>\n    <AdministratorPassword>P@ssw0rd</AdministratorPassword>\n  </UserAccounts>\n  <AutoLogon>\n    <Enabled>true</Enabled>\n  </AutoLogon>\n</settings>"
+          },
+          {
+            "type": "h2",
+            "content": "5. CLONAGE DISQUE"
+          },
+          {
+            "type": "h3",
+            "content": "Clonezilla"
+          },
+          {
+            "type": "p",
+            "content": "Outil libre clonage disque/partition"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Modes</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>device-device</strong> : Clonage direct disque → disque",
+              "<strong>device-image</strong> : Sauvegarde disque → image",
+              "<strong>multicast</strong> : 1 image → N postes simultanés"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Commande exemple</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "ocs-sr -g auto -e1 auto -e2 -r -j2 -c -p true savedisk image_pc /dev/sda"
+          },
+          {
+            "type": "h3",
+            "content": "Acronis, Norton Ghost"
+          },
+          {
+            "type": "p",
+            "content": "Solutions commerciales clonage (interface graphique)"
+          },
+          {
+            "type": "h2",
+            "content": "6. PXE BOOT"
+          },
+          {
+            "type": "h3",
+            "content": "Principe"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Preboot eXecution Environment</strong> : Boot réseau sans disque local"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Séquence</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "1. PC allume, cherche DHCP\n2. DHCP répond : IP + serveur TFTP (WDS)\n3. TFTP télécharge boot.wim (WinPE)\n4. WinPE charge, liste images disponibles\n5. Sélection image → Déploiement"
+          },
+          {
+            "type": "p",
+            "content": "<strong>BIOS config</strong> : Boot Order → Network/PXE en premier"
+          },
+          {
+            "type": "h2",
+            "content": "7. DRIVERS INJECTION"
+          },
+          {
+            "type": "h3",
+            "content": "Problème"
+          },
+          {
+            "type": "p",
+            "content": "Image générique ne contient pas drivers spécifiques matériels"
+          },
+          {
+            "type": "h3",
+            "content": "Solutions"
+          },
+          {
+            "type": "p",
+            "content": "<strong>MDT</strong> : Import drivers par modèle"
+          },
+          {
+            "type": "code",
+            "content": "Deployment Workbench → Drivers\n→ Import Drivers (dossier constructeur)\n→ Task Sequence applique selon modèle détecté"
+          },
+          {
+            "type": "p",
+            "content": "<strong>DISM</strong> : Injection offline"
+          },
+          {
+            "type": "code",
+            "content": "# Monter image\nDism /Mount-Wim /WimFile:C:\\install.wim /Index:1 /MountDir:C:\\mount\n\n# Ajouter drivers\nDism /Image:C:\\mount /Add-Driver /Driver:C:\\drivers /Recurse\n\n# Démonter et sauvegarder\nDism /Unmount-Wim /MountDir:C:\\mount /Commit"
+          },
+          {
+            "type": "h2",
+            "content": "8. APPLICATIONS POST-INSTALL"
+          },
+          {
+            "type": "h3",
+            "content": "GPO Software Installation"
+          },
+          {
+            "type": "code",
+            "content": "Computer Config → Policies → Software Settings → Software Installation\n→ New → Package\n   Path: \\\\SRV-FILE01\\Apps\\7zip.msi\n   Deployment: Assigned (install auto)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formats supportés</strong> : .MSI (Windows Installer)"
+          },
+          {
+            "type": "h3",
+            "content": "Scripts post-déploiement"
+          },
+          {
+            "type": "code",
+            "content": "# Script dans Task Sequence MDT\nInstall-Package -Name 7zip -Force\nInstall-Package -Name GoogleChrome -Force\nInstall-Package -Name AdobeReader -Force"
+          },
+          {
+            "type": "h3",
+            "content": "Chocolatey (gestionnaire paquets)"
+          },
+          {
+            "type": "code",
+            "content": "# Installer Chocolatey\nSet-ExecutionPolicy Bypass -Force\niex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))\n\n# Installer apps\nchoco install googlechrome firefox 7zip -y"
+          },
+          {
+            "type": "h2",
+            "content": "9. CONFIGURATION AUTOMATIQUE"
+          },
+          {
+            "type": "h3",
+            "content": "Join domaine automatique"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Unattend.xml</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "<settings pass=\"specialize\">\n  <JoinDomain>\n    <Credentials>\n      <Domain>entreprise.local</Domain>\n      <Username>admin_deploy</Username>\n      <Password>P@ssw0rd</Password>\n    </Credentials>\n    <JoinDomain>entreprise.local</JoinDomain>\n  </JoinDomain>\n</settings>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>PowerShell</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Add-Computer -DomainName \"entreprise.local\" -Credential (Get-Credential) -Restart"
+          },
+          {
+            "type": "h3",
+            "content": "Rename Computer"
+          },
+          {
+            "type": "code",
+            "content": "Rename-Computer -NewName \"PC-RH-01\" -Restart"
+          },
+          {
+            "type": "h2",
+            "content": "10. ACTIVATION WINDOWS"
+          },
+          {
+            "type": "h3",
+            "content": "KMS (Key Management Service)"
+          },
+          {
+            "type": "p",
+            "content": "Activation volume entreprise (180j renouvelables)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Serveur KMS</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "slmgr /ipk <KMS_Host_Key>\nslmgr /ato"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Client</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "slmgr /ipk <Volume_License_Key>\nslmgr /skms kms.entreprise.local:1688\nslmgr /ato"
+          },
+          {
+            "type": "h3",
+            "content": "MAK (Multiple Activation Key)"
+          },
+          {
+            "type": "p",
+            "content": "Clé à activations limitées (ex: 500 activations)"
+          },
+          {
+            "type": "h2",
+            "content": "11. OUTILS DIAGNOSTIC"
+          },
+          {
+            "type": "h3",
+            "content": "Windows PE (WinPE)"
+          },
+          {
+            "type": "p",
+            "content": "Environnement minimal boot réseau/USB"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Création USB WinPE</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "copype amd64 C:\\WinPE_amd64\nMakeWinPEMedia /UFD C:\\WinPE_amd64 E:"
+          },
+          {
+            "type": "h3",
+            "content": "DISM commandes"
+          },
+          {
+            "type": "code",
+            "content": "# Info image\nDism /Get-WimInfo /WimFile:install.wim\n\n# Liste images\nDism /Get-ImageInfo /ImageFile:install.wim\n\n# Appliquer image\nDism /Apply-Image /ImageFile:install.wim /Index:1 /ApplyDir:C:\\"
+          },
+          {
+            "type": "h2",
+            "content": "12. MAINTENANCE IMAGES"
+          },
+          {
+            "type": "h3",
+            "content": "Mise à jour offline"
+          },
+          {
+            "type": "code",
+            "content": "# Monter\nDism /Mount-Wim /WimFile:install.wim /Index:1 /MountDir:C:\\mount\n\n# Injecter MAJ\nDism /Image:C:\\mount /Add-Package /PackagePath:C:\\updates\\\n\n# Nettoyer composants\nDism /Image:C:\\mount /Cleanup-Image /StartComponentCleanup\n\n# Sauvegarder\nDism /Unmount-Wim /MountDir:C:\\mount /Commit"
+          },
+          {
+            "type": "h3",
+            "content": "Optimisation taille"
+          },
+          {
+            "type": "code",
+            "content": "# Export (recompresse)\nDism /Export-Image /SourceImageFile:install.wim /SourceIndex:1 `\n  /DestinationImageFile:install-optimized.wim /Compress:max"
+          },
+          {
+            "type": "h2",
+            "content": "13. DÉPLOIEMENT MULTICAST"
+          },
+          {
+            "type": "h3",
+            "content": "WDS Multicast"
+          },
+          {
+            "type": "p",
+            "content": "1 serveur → N postes simultanément (économie bande passante)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Config WDS</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Multicast Transmissions → Create Multicast Transmission\n  Transmission name: Deploy_Win10\n  Image: Windows 10 Pro\n  Type: Auto-Cast (démarre automatiquement)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Avantages</strong> : 100 postes = 1 flux réseau (vs 100 flux unicast)"
+          },
+          {
+            "type": "h2",
+            "content": "14. BONNES PRATIQUES"
+          },
+          {
+            "type": "h3",
+            "content": "Nommage postes"
+          },
+          {
+            "type": "code",
+            "content": "Standard : SITE-DEPT-TYPE-NUM\nExemple : PAR-RH-DT-001\n  PAR = Paris\n  RH = Service\n  DT = Desktop\n  001 = Numéro séquentiel"
+          },
+          {
+            "type": "h3",
+            "content": "Documentation"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Inventaire matériel (CPU, RAM, HDD)",
+              "✅ Drivers spécifiques modèles",
+              "✅ Applications standard par profil",
+              "✅ Changelog images (versions, dates)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Tests"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ VM test avant déploiement masse",
+              "✅ Vérifier drivers (réseau, vidéo)",
+              "✅ Join domaine automatique",
+              "✅ Applications installées"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "15. SCÉNARIOS PRATIQUES"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 1 : Déployer 50 postes identiques"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution</strong> : WDS multicast + image Sysprep"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 2 : 3 profils (RH, IT, Compta)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution</strong> : MDT Task Sequences + Applications sélectives"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 3 : Mise à jour image mensuelle"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution</strong> : DISM /Mount + /Add-Package + /Cleanup + /Commit"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 4 : Drivers multiples constructeurs"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution</strong> : MDT Selection Profiles par modèle"
+          },
+          {
+            "type": "h2",
+            "content": "COMMANDES ESSENTIELLES"
+          },
+          {
+            "type": "code",
+            "content": "# Sysprep\nsysprep /generalize /oobe /shutdown\n\n# DISM\nDism /Mount-Wim /WimFile:x.wim /Index:1 /MountDir:C:\\mount\nDism /Image:C:\\mount /Add-Driver /Driver:C:\\drivers /Recurse\nDism /Unmount-Wim /MountDir:C:\\mount /Commit\n\n# Domaine\nAdd-Computer -DomainName \"entreprise.local\" -Restart\n\n# Activation\nslmgr /ipk <clé>\nslmgr /ato\n\n# WDS\nwdsutil /Add-Image /ImageFile:install.wim /ImageType:Install"
+          },
+          {
+            "type": "p",
+            "content": "<strong>WORKFLOW COMPLET</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "1. Poste référence : Install Windows + Apps + Sysprep\n2. Capturer image : Boot WinPE → Capture vers WDS\n3. Import MDT : OS + Drivers + Apps\n4. Task Sequence : Partitions + OS + Drivers + Apps + Domain Join\n5. Déploiement : PXE boot → Auto-install\n6. Tests : Vérif drivers, apps, domaine\n7. Production : Multicast 50+ postes"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Date révision</strong> : 12 novembre 2025"
+          }
+        ]
+      },
+      /* WINDOWSSERVER_COURS */
     ],
     flashcards: [
+      {"id":"wsrv_ccp9_f1","recto":"Q1 — Workflow déploiement complet : Décrivez étapes complètes déploiement 100 postes Windows 10 identiques avec domaine AD.","verso":"<strong>Réponse modèle</strong> (12 pts) :<br><strong>1. Préparation poste référence</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- Installer Windows 10 propre\n- Installer applications standard (Office, Chrome, 7zip)\n- Configurer paramètres (fond écran, GPO locales)\n- Exécuter Sysprep /generalize /oobe /shutdown</code><br><strong>2. Capture image</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- Boot WinPE via PXE\n- Capture disque C: → fichier .WIM\n- Upload vers WDS : C:\\RemoteInstall\\Images\\</code><br><strong>3. Configuration WDS</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- Import image install\n- DHCP options 66/67 configurées\n- Multicast transmission créée (100 postes simultanés)</code><br><strong>4. Déploiement</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- Boot 100 postes PXE (F12)\n- Sélection image Windows 10\n- Déploiement multicast automatique\n- Join domaine via unattend.xml</code><br><strong>5. Post-config</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- GPO appliquent : imprimantes, lecteurs réseau, applications\n- Activation KMS automatique\n- Tests : réseau, applications, domaine</code>"},
+      {"id":"wsrv_ccp9_f2","recto":"Q2 — Sysprep et Unattend.xml : Créez fichier unattend.xml pour : nom PC \"PC-%RAND:4%\", join domaine \"entreprise.local\", admin MDP \"P@ss123\".","verso":"<strong>Réponse modèle</strong> (10 pts) :<br><code style=\"display:block;white-space:pre-wrap\">&lt;?xml version=\"1.0\" encoding=\"utf-8\"?&gt;\n&lt;unattend xmlns=\"urn:schemas-microsoft-com:unattend\"&gt;\n  \n  &lt;!-- Partitionnement --&gt;\n  &lt;settings pass=\"windowsPE\"&gt;\n    &lt;component name=\"Microsoft-Windows-Setup\"&gt;\n      &lt;DiskConfiguration&gt;\n        &lt;Disk wcm:action=\"add\"&gt;\n          &lt;CreatePartitions&gt;\n            &lt;CreatePartition wcm:action=\"add\"&gt;\n              &lt;Order&gt;1&lt;/Order&gt;\n              &lt;Size&gt;100&lt;/Size&gt;\n              &lt;Type&gt;Primary&lt;/Type&gt;\n            &lt;/CreatePartition&gt;\n            &lt;CreatePartition wcm:action=\"add\"&gt;\n              &lt;Extend&gt;true&lt;/Extend&gt;\n              &lt;Order&gt;2&lt;/Order&gt;\n              &lt;Type&gt;Primary&lt;/Type&gt;\n            &lt;/CreatePartition&gt;\n          &lt;/CreatePartitions&gt;\n        &lt;/Disk&gt;\n      &lt;/DiskConfiguration&gt;\n    &lt;/component&gt;\n  &lt;/settings&gt;\n\n  &lt;!-- Nom PC + Domaine --&gt;\n  &lt;settings pass=\"specialize\"&gt;\n    &lt;component name=\"Microsoft-Windows-Shell-Setup\"&gt;\n      &lt;ComputerName&gt;PC-%RAND:4%&lt;/ComputerName&gt;\n    &lt;/component&gt;\n    \n    &lt;component name=\"Microsoft-Windows-UnattendedJoin\"&gt;\n      &lt;Identification&gt;\n        &lt;Credentials&gt;\n          &lt;Domain&gt;entreprise.local&lt;/Domain&gt;\n          &lt;Username&gt;admin_deploy&lt;/Username&gt;\n          &lt;Password&gt;P@ss123&lt;/Password&gt;\n        &lt;/Credentials&gt;\n        &lt;JoinDomain&gt;entreprise.local&lt;/JoinDomain&gt;\n      &lt;/Identification&gt;\n    &lt;/component&gt;\n  &lt;/settings&gt;\n\n  &lt;!-- OOBE --&gt;\n  &lt;settings pass=\"oobeSystem\"&gt;\n    &lt;component name=\"Microsoft-Windows-Shell-Setup\"&gt;\n      &lt;OOBE&gt;\n        &lt;HideEULAPage&gt;true&lt;/HideEULAPage&gt;\n        &lt;ProtectYourPC&gt;1&lt;/ProtectYourPC&gt;\n        &lt;NetworkLocation&gt;Work&lt;/NetworkLocation&gt;\n      &lt;/OOBE&gt;\n      &lt;UserAccounts&gt;\n        &lt;AdministratorPassword&gt;\n          &lt;Value&gt;P@ss123&lt;/Value&gt;\n          &lt;PlainText&gt;true&lt;/PlainText&gt;\n        &lt;/AdministratorPassword&gt;\n      &lt;/UserAccounts&gt;\n    &lt;/component&gt;\n  &lt;/settings&gt;\n  \n&lt;/unattend&gt;</code><br><strong>Points clés</strong> : <code>%RAND:4%</code> = 4 chiffres aléatoires (PC-7842), join domaine auto."},
+      {"id":"wsrv_ccp9_f3","recto":"Q3 — DISM Drivers injection : Injectez drivers réseau Intel depuis C:\\Drivers\\Intel dans image install.wim (index 1).","verso":"<strong>Réponse modèle</strong> (8 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># 1. Monter image (3 pts)\nDism /Mount-Wim /WimFile:\"C:\\Images\\install.wim\" /Index:1 /MountDir:\"C:\\mount\"\n\n# 2. Injecter drivers (3 pts)\nDism /Image:\"C:\\mount\" /Add-Driver /Driver:\"C:\\Drivers\\Intel\" /Recurse\n\n# Vérifier drivers ajoutés\nDism /Image:\"C:\\mount\" /Get-Drivers\n\n# 3. Démonter et sauvegarder (2 pts)\nDism /Unmount-Wim /MountDir:\"C:\\mount\" /Commit</code><br><strong>Explications</strong> :<br>• <code>/Recurse</code> : Scan sous-dossiers<br>• <code>/Commit</code> : Sauvegarde modifs (sinon <code>/Discard</code>)<br>• Index 1 = généralement Windows 10 Pro"},
+      {"id":"wsrv_ccp9_f4","recto":"Q4 — MDT Task Sequence : Créez Task Sequence MDT pour : partition 100GB C:, install Win10, drivers, Office 365, join domaine.","verso":"<strong>Réponse modèle</strong> (10 pts) :<br><strong>Étapes MDT Deployment Workbench</strong> :<br><strong>1. Import OS</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Operating Systems → Import → Full set of source files\nSource: D:\\Sources\\Windows10</code><br><strong>2. Import Applications</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Applications → New Application\n  Type: Application with source files\n  Source: \\\\SRV\\Apps\\Office365\n  Command: setup.exe /configure config.xml</code><br><strong>3. Create Task Sequence</strong> (6 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Task Sequences → New Task Sequence\n  ID: W10_Deploy\n  Name: Windows 10 Standard Deploy\n  Template: Standard Client Task Sequence\n  OS: Windows 10 Pro x64\n  \nCustomize Sequence:\n  Preinstall:\n    └─ Format and Partition (100GB C:, NTFS)\n  \n  Install:\n    └─ Install Operating System\n    └─ Apply Windows Updates\n  \n  Postinstall:\n    └─ Install Applications\n        └─ Install Office 365\n    └─ Inject Drivers (Selection Profile: All Drivers)\n    └─ Windows Update (Post-App Installation)\n    └─ Recover from Domain (join: entreprise.local)\n    └─ Activate Windows (KMS: kms.entreprise.local)</code><br><strong>Update Deployment Share</strong> : Génère boot files LiteTouch."},
+      {"id":"wsrv_ccp9_f5","recto":"Q5 — WDS Multicast : Configurez transmission multicast WDS pour déployer 50 postes simultanément. Quelle économie bande passante ?","verso":"<strong>Réponse modèle</strong> (8 pts) :<br><strong>Configuration WDS</strong> (5 pts) :<br><code style=\"display:block;white-space:pre-wrap\">WDS Console → Multicast Transmissions → Create Multicast Transmission\n\n  Name: Deploy_Win10_Multicast\n  Image Group: ImageGroup1\n  Image Name: Windows 10 Pro\n  \n  Type:\n    ☑ Auto-Cast (démarre dès clients connectés)\n    Min clients: 5\n    Start delay: 2 minutes\n  \n  Transport Settings:\n    Network profile: Custom\n    Transfer rate: 50 Mbps\n    Multicast IP range: 239.0.0.1 - 239.255.255.255</code><br><strong>Économie bande passante</strong> (3 pts) :<br><strong>Unicast</strong> (sans multicast) :<br>• 50 postes × 5 GB image = 250 GB trafic réseau<br>• 50 flux simultanés = saturation réseau 1 Gbps<br><strong>Multicast</strong> :<br>• 1 flux multicast × 5 GB = 5 GB trafic<br>• <strong>Économie = 98%</strong> (245 GB économisés)<br>• Temps déploiement identique pour 1 ou 50 postes"},
+      {"id":"wsrv_ccp9_f6","recto":"Q6 — Activation KMS : Configurez serveur KMS puis activez 10 clients Windows 10. Commandes ?","verso":"<strong>Réponse modèle</strong> (7 pts) :<br><strong>Serveur KMS</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Installer clé KMS Host\nslmgr /ipk &lt;KMS_Host_Key_Volume_License&gt;\n\n# Activer serveur\nslmgr /ato\n\n# Publier dans DNS (auto si AD)\nslmgr /sdns\n\n# Vérifier statut\nslmgr /dlv</code><br><strong>Clients</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Sur chaque client (ou GPO/script)\n\n# Installer clé GVLK (Generic Volume License Key)\nslmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX\n\n# Pointer vers KMS\nslmgr /skms kms.entreprise.local:1688\n\n# Activer\nslmgr /ato\n\n# Vérifier\nslmgr /dli</code><br><strong>Renouvellement</strong> : Automatique tous les 180 jours (client contacte KMS).<br><strong>Prérequis KMS</strong> : Minimum 25 clients Windows (ou 5 serveurs) pour activation."},
+      /* WINDOWSSERVER_FLASHCARDS */
       { id: 'wsrv_f1', recto: 'Que fait Sysprep /generalize ?', verso: 'Supprime le SID, le nom machine et les infos spécifiques avant de cloner ou capturer une image' },
       { id: 'wsrv_f2', recto: 'Commande DISM pour capturer une image', verso: 'DISM /Capture-Image /ImageFile:C:\\images\\win.wim /CaptureDir:D:\\ /Name:"WinRef"' },
       { id: 'wsrv_f3', recto: 'Commande DISM pour appliquer une image WIM', verso: 'DISM /Apply-Image /ImageFile:win.wim /Index:1 /ApplyDir:D:\\' },
@@ -4949,7 +5473,28 @@ const MODULES = [
       { id: 'wsrv_q27', difficulty: 'difficile', question: 'Variable PS stockant resultats pipeline ?', options: [{ text: '$_', correct: false }, { text: '$?', correct: false }, { text: '$input', correct: true }, { text: '$^', correct: false }], explication: '$input accumule les entrees du pipeline.' },
       { id: 'wsrv_q28', difficulty: 'troubleshooter', question: 'ConvertTo-HTML cree fichier vide. Cause ?', options: [{ text: 'Sortie non capturee', correct: true }, { text: 'Pipeline non ferme', correct: false }, { text: 'Fichier bloque', correct: false }, { text: 'Encoding', correct: false }], explication: 'ConvertTo-HTML emet des chaines. Rediriger avec Out-File.' },
       { id: 'wsrv_q29', difficulty: 'difficile', question: 'Composant SCCM poussant les logiciels clients ?', options: [{ text: 'Site server', correct: false }, { text: 'Distribution point', correct: true }, { text: 'Management point', correct: false }, { text: 'Software update point', correct: false }], explication: 'DP distribue le contenu aux clients. MP pointe les politiques.' },
-      { id: 'wsrv_q30', difficulty: 'troubleshooter', question: 'Client SCCM ne recoit pas les politiques. Cause probable ?', options: [{ text: 'Client desinstalle', correct: false }, { text: 'Boundary group non configure', correct: true }, { text: 'Distribution point hors ligne', correct: false }, { text: 'Port 80 ferme', correct: false }], explication: 'Boundary groups assignent les sites aux clients.' }
+      { id: 'wsrv_q30', difficulty: 'troubleshooter', question: 'Client SCCM ne recoit pas les politiques. Cause probable ?', options: [{ text: 'Client desinstalle', correct: false }, { text: 'Boundary group non configure', correct: true }, { text: 'Distribution point hors ligne', correct: false }, { text: 'Port 80 ferme', correct: false }], explication: 'Boundary groups assignent les sites aux clients.' },
+      {"id":"wsrv_ccp9_q1","difficulty":"normal","question":"Que fait Sysprep /generalize ?","options":[{"text":"Compresse image","correct":false},{"text":"Supprime SID et infos machine spécifiques","correct":true},{"text":"Chiffre disque","correct":false},{"text":"Crée partition","correct":false}],"explication":"<strong>Explication</strong> : <code>sysprep /generalize</code> supprime les informations spécifiques (SID, nom PC, activation) pour rendre l'image réutilisable. <code>/oobe</code> lance l'expérience de première utilisation au prochain boot. Sans généralisation, deux PCs auraient le même SID (problème de sécurité AD).<br><code style=\"display:block;white-space:pre-wrap\">C:\\Windows\\System32\\Sysprep\\sysprep.exe /generalize /oobe /shutdown</code><br><strong>Cas d'usage</strong> : Préparer un PC maître Windows 10/11 avant capture d'image pour déploiement sur 100 postes identiques."},
+      {"id":"wsrv_ccp9_q2","difficulty":"normal","question":"Prérequis WDS ?","options":[{"text":"Active Directory + DHCP + NTFS","correct":true},{"text":"Internet uniquement","correct":false},{"text":"VMware vSphere","correct":false},{"text":"Linux serveur","correct":false}],"explication":"<strong>Explication</strong> : WDS s'intègre à AD pour authentifier les clients et gérer les permissions. DHCP fournit les adresses IP et les options PXE (66/67). DNS résout le nom du serveur WDS. NTFS est obligatoire pour stocker les images (ACL et compression).<br>Composant — Rôle<br><strong>AD</strong> — Authentification/autorisation<br><strong>DHCP</strong> — Attribution IP + options PXE<br><strong>DNS</strong> — Résolution nom serveur<br><strong>NTFS</strong> — Stockage images (ACL)<br><strong>Cas d'usage</strong> : Infrastructure Server 2022 avec domaine contoso.local pour déployer 200 postes Win11."},
+      {"id":"wsrv_ccp9_q3","difficulty":"normal","question":"Que signifie PXE ?","options":[{"text":"Pre-eXecution Environment (boot réseau)","correct":true},{"text":"Partition eXtended Environment","correct":false},{"text":"Post eXecution Engine","correct":false},{"text":"Protocol eXchange Ethernet","correct":false}],"explication":"<strong>Explication</strong> : Le client PXE (firmware réseau) envoie une requête DHCP pour obtenir IP + adresse serveur TFTP. Il télécharge le bootloader (wdsnbp.com) puis le menu de démarrage via TFTP. Aucun support local nécessaire (USB, disque vide).<br><code style=\"display:block;white-space:pre-wrap\">Client PXE → DHCP Discover → DHCP Offer (IP + options 66/67) → TFTP boot.wim</code><br><strong>Cas d'usage</strong> : Déployer Windows sur 50 PCs neufs sans clé USB ni intervention manuelle."},
+      {"id":"wsrv_ccp9_q4","difficulty":"normal","question":"Format image Windows Deployment ?","options":[{"text":"ISO","correct":false},{"text":"WIM (Windows Imaging)","correct":true},{"text":"VMDK","correct":false},{"text":"VHD","correct":false}],"explication":"<strong>Explication</strong> : WIM (Windows Imaging Format) est un format basé fichiers (pas secteurs comme Ghost). Supporte compression LZX, multi-index (plusieurs éditions dans 1 fichier) et montage lecture/écriture. DISM est l'outil natif pour monter, modifier et appliquer les WIM.<br><code style=\"display:block;white-space:pre-wrap\">Dism /Get-ImageInfo /ImageFile:install.wim  # Lister les index\nDism /Mount-Wim /WimFile:install.wim /Index:1 /MountDir:C:\\Mount</code><br><strong>Cas d'usage</strong> : Un seul install.wim contient Win11 Pro (index 1) et Enterprise (index 2) pour économiser l'espace."},
+      {"id":"wsrv_ccp9_q5","difficulty":"normal","question":"Avantage MDT sur WDS seul ?","options":[{"text":"Plus rapide","correct":false},{"text":"Automatisation complète (Task Sequences, drivers, apps)","correct":true},{"text":"Gratuit","correct":false},{"text":"Boot PXE","correct":false}],"explication":"<strong>Explication</strong> : WDS déploie uniquement l'image OS brute. MDT ajoute des Task Sequences pour automatiser installation d'apps, injection drivers, configuration BIOS, jonction domaine et personnalisation post-déploiement. MDT utilise WDS comme mécanisme de transport.<br>Critère — WDS — MDT<br><strong>OS seul</strong> — ✓ — ✓<br><strong>Applications</strong> — ✗ — ✓<br><strong>Drivers</strong> — Limité — ✓ Inject auto<br><strong>Personnalisation</strong> — Unattend.xml — Task Sequences<br><strong>Cas d'usage</strong> : MDT pour déployer Win11 + Office 365 + drivers HP + join domaine en 1 clic."},
+      {"id":"wsrv_ccp9_q6","difficulty":"normal","question":"Utilité fichier unattend.xml ?","options":[{"text":"Pilotes réseau","correct":false},{"text":"Automatise réponses installation Windows","correct":true},{"text":"Chiffrement données","correct":false},{"text":"Compression image","correct":false}],"explication":"<strong>Explication</strong> : Unattend.xml contient les réponses aux questions du setup Windows. Sections principales : <strong>windowsPE</strong> (partitions, clé), <strong>specialize</strong> (nom PC, domaine), <strong>oobeSystem</strong> (compte local, fuseau). Créé avec Windows SIM (System Image Manager).<br>Section — Contenu<br><strong>windowsPE</strong> — Partitionnement, langue, clé produit<br><strong>specialize</strong> — Nom PC, join domaine, réseau<br><strong>oobeSystem</strong> — Compte admin, skip OOBE<br><strong>Cas d'usage</strong> : Déployer 100 PCs avec nom auto PC-001 à PC-100 et jonction domaine contoso.local sans interaction."},
+      {"id":"wsrv_ccp9_q7","difficulty":"normal","question":"Options DHCP pour PXE ?","options":[{"text":"66 (serveur TFTP) + 67 (fichier boot)","correct":true},{"text":"3 (gateway) + 6 (DNS)","correct":false},{"text":"15 (domain) + 44 (WINS)","correct":false},{"text":"82 (relay)","correct":false}],"explication":"<strong>Explication</strong> : Option 66 indique l'IP ou nom DNS du serveur TFTP/WDS. Option 67 spécifie le chemin du bootloader réseau (ex: <code>boot\\x64\\wdsnbp.com</code> pour UEFI x64). Le client PXE télécharge ce fichier pour afficher le menu WDS.<br><code style=\"display:block;white-space:pre-wrap\">Set-DhcpServerv4OptionValue -OptionId 66 -Value \"192.168.1.10\"\nSet-DhcpServerv4OptionValue -OptionId 67 -Value \"boot\\x64\\wdsnbp.com\"</code><br><strong>Cas d'usage</strong> : Configuration DHCP pour permettre à 200 PCs UEFI de booter en PXE sur le serveur WDS."},
+      {"id":"wsrv_ccp9_q8","difficulty":"normal","question":"Mode Clonezilla pour déployer 1 image → 50 PCs simultanément ?","options":[{"text":"Device-device","correct":false},{"text":"Multicast","correct":true},{"text":"Unicast","correct":false},{"text":"Broadcast","correct":false}],"explication":"<strong>Explication</strong> : Le multicast WDS envoie l'image une seule fois sur une adresse IP multicast (239.x.x.x). Tous les clients reçoivent le même flux simultanément. Économise massivement la bande passante : 50 PCs = 1x trafic au lieu de 50x en unicast.<br>Type — Bande passante — Vitesse<br><strong>Unicast</strong> — N × taille image — Rapide par client<br><strong>Multicast</strong> — 1 × taille image — Lent (attente tous)<br><strong>Cas d'usage</strong> : Déployer 100 PCs simultanément dans une salle de formation sans saturer le réseau 1 Gbps."},
+      {"id":"wsrv_ccp9_q9","difficulty":"normal","question":"Monter image WIM en lecture/écriture ?","options":[{"text":"<code>Dism /Mount-Wim /WimFile:x.wim /Index:1 /MountDir:C:\\mount</code>","correct":true},{"text":"<code>Dism /Open-Image</code>","correct":false},{"text":"<code>Mount-WindowsImage</code>","correct":false},{"text":"<code>wiminfo</code>","correct":false}],"explication":"<strong>Explication</strong> : <code>/Mount-Wim</code> monte l'image en lecture/écriture. <code>/Add-Driver</code> injecte drivers .inf, <code>/Add-Package</code> installe mises à jour .cab/.msu. <code>/Commit-Wim</code> sauvegarde les modifications, <code>/Unmount-Wim /Discard</code> annule. Workflow classique : mount → modify → commit.<br><code style=\"display:block;white-space:pre-wrap\">Dism /Mount-Wim /WimFile:install.wim /Index:1 /MountDir:C:\\Mount\nDism /Image:C:\\Mount /Add-Driver /Driver:C:\\Drivers /Recurse\nDism /Commit-Wim /MountDir:C:\\Mount</code><br><strong>Cas d'usage</strong> : Intégrer drivers réseau HP dans une image Win11 avant déploiement sur 50 PC HP."},
+      {"id":"wsrv_ccp9_q10","difficulty":"normal","question":"Différence KMS vs MAK ?","options":[{"text":"KMS = serveur local renouvelle 180j, MAK = activations limitées Internet","correct":true},{"text":"Aucune","correct":false},{"text":"KMS payant, MAK gratuit","correct":false},{"text":"KMS home, MAK entreprise","correct":false}],"explication":"<strong>Explication</strong> : KMS (Key Management Service) active via serveur local, renouvellement tous les 180j, minimum 25 PCs/5 servers. MAK (Multiple Activation Key) active directement sur serveurs Microsoft, compteur décrémenté, pas de renouvellement. KMS préféré en entreprise (pas de connexion Internet).<br>Type — Serveur — Renouvellement — Minimum<br><strong>KMS</strong> — Local — 180 jours — 25 PCs<br><strong>MAK</strong> — Microsoft — Non — 1 activation<br><strong>Cas d'usage</strong> : KMS pour 500 PCs en réseau privé, MAK pour 10 laptops nomades sans VPN."},
+      {"id":"wsrv_ccp9_q11","difficulty":"normal","question":"Commande PowerShell joindre domaine ?","options":[{"text":"<code>Join-Domain</code>","correct":false},{"text":"<code>Add-Computer -DomainName \"entreprise.local\"</code>","correct":true},{"text":"<code>Set-Domain</code>","correct":false},{"text":"<code>Connect-AD</code>","correct":false}],"explication":"<strong>Explication</strong> : <code>Add-Computer</code> joint un PC au domaine AD via PowerShell. <code>-Credential</code> spécifie un compte autorisé (Domain Admins ou délégation OU). <code>-Restart</code> redémarre automatiquement après jonction. Alternative : section <code>&lt;Identification&gt;</code> dans unattend.xml.<br><code style=\"display:block;white-space:pre-wrap\">$Cred = Get-Credential CONTOSO\\admin\nAdd-Computer -DomainName contoso.local -Credential $Cred -Restart -Force</code><br><strong>Cas d'usage</strong> : Script post-déploiement qui joint automatiquement 100 PCs au domaine après installation OS."},
+      {"id":"wsrv_ccp9_q12","difficulty":"normal","question":"Injecter drivers dans image offline ?","options":[{"text":"<code>Dism /Add-Driver /Driver:C:\\drivers /Recurse</code>","correct":true},{"text":"<code>Install-Driver</code>","correct":false},{"text":"<code>Import-Drivers</code>","correct":false},{"text":"Impossible offline","correct":false}],"explication":"<strong>Explication</strong> : Monter l'image avec <code>/Mount-Wim</code>, puis utiliser <code>/Add-Driver /Driver:C:\\Drivers /Recurse</code> pour scanner tous les sous-dossiers et injecter les .inf détectés. <code>/ForceUnsigned</code> force l'ajout de drivers non signés. Commit pour sauvegarder.<br><code style=\"display:block;white-space:pre-wrap\">Dism /Image:C:\\Mount /Add-Driver /Driver:C:\\Drivers\\HP /Recurse\nDism /Image:C:\\Mount /Get-Drivers  # Vérifier injection</code><br><strong>Cas d'usage</strong> : Intégrer drivers réseau, chipset et GPU Dell dans une image avant déploiement sur parc homogène."},
+      {"id":"wsrv_ccp9_q13","difficulty":"normal","question":"Windows PE (Preinstallation Environment) sert à ?","options":[{"text":"Environnement minimal boot réseau/USB","correct":true},{"text":"Antivirus","correct":false},{"text":"Navigateur web","correct":false},{"text":"Suite bureautique","correct":false}],"explication":"<strong>Explication</strong> : WinPE (Windows Preinstallation Environment) est un mini-Windows bootable (500 Mo) basé sur le noyau NT. Utilisé pour capturer/appliquer des images, exécuter DISM, partitionner des disques ou dépanner un OS corrompu. Chargé en RAM, ne persiste pas après reboot.<br><code style=\"display:block;white-space:pre-wrap\"># Créer WinPE personnalisé\ncopype amd64 C:\\WinPE\nDism /Mount-Wim /WimFile:C:\\WinPE\\media\\sources\\boot.wim /Index:1 /MountDir:C:\\Mount</code><br><strong>Cas d'usage</strong> : Booter sur une clé USB WinPE pour capturer l'image d'un PC maître avec DISM."},
+      {"id":"wsrv_ccp9_q14","difficulty":"normal","question":"Avantage déploiement multicast ?","options":[{"text":"Plus sécurisé","correct":false},{"text":"1 flux réseau pour N postes (économie BP)","correct":true},{"text":"Plus rapide","correct":false},{"text":"Pas besoin DHCP","correct":false}],"explication":"<strong>Explication</strong> : En unicast, le serveur WDS envoie l'image séparément à chaque client : 100 clients × 5 Go = 500 Go trafic réseau. En multicast, un seul flux partagé : 1 × 5 Go = 5 Go trafic total. Gain critique sur liens &lt;10 Gbps.<br>Scénario — Unicast — Multicast<br><strong>10 PCs × 5 Go</strong> — 50 Go — 5 Go<br><strong>100 PCs × 5 Go</strong> — 500 Go — 5 Go<br><strong>Cas d'usage</strong> : Multicast obligatoire pour déployer 200 PCs simultanément sur un réseau 1 Gbps (éviter saturation)."},
+      {"id":"wsrv_ccp9_q15","difficulty":"normal","question":"Que contient Task Sequence ?","options":[{"text":"Drivers uniquement","correct":false},{"text":"Séquence automatisée (partition + OS + drivers + apps + config)","correct":true},{"text":"Fichier ISO","correct":false},{"text":"Clé produit","correct":false}],"explication":"<strong>Explication</strong> : Une Task Sequence MDT est une liste ordonnée d'actions : partitionner, appliquer OS, injecter drivers, installer apps, joindre domaine, exécuter scripts. Supporte conditions (WMI queries), variables (%Model%) et groupes pour personnalisation par modèle PC.<br>Étape — Action<br><strong>1. Partition</strong> — Format C:, créer partitions<br><strong>2. OS</strong> — Appliquer install.wim<br><strong>3. Drivers</strong> — Injection auto par modèle<br><strong>4. Apps</strong> — Chrome, Office, 7-Zip<br><strong>5. Domain</strong> — Join + rename<br><strong>Cas d'usage</strong> : Task Sequence qui déploie Win11 + drivers Dell + Office 365 + join domaine en 45 min sans interaction."},
+      {"id":"wsrv_ccp9_q16","difficulty":"normal","question":"Qu'est-ce que Chocolatey ?","options":[{"text":"Gestionnaire paquets Windows (apps)","correct":true},{"text":"Logiciel sauvegarde","correct":false},{"text":"Antivirus","correct":false},{"text":"Navigateur","correct":false}],"explication":"<strong>Explication</strong> : Chocolatey installe logiciels via ligne de commande (comme apt/yum Linux). Syntaxe : <code>choco install &lt;package&gt;</code>. Paramètre <code>-y</code> pour accepter automatiquement. Utile en scripts post-déploiement pour installer des apps standardisées sans intervention.<br><code style=\"display:block;white-space:pre-wrap\">choco install googlechrome firefox 7zip adobereader -y\nchoco upgrade all -y  # Tout mettre à jour</code><br><strong>Cas d'usage</strong> : Script MDT qui installe automatiquement Chrome, 7-Zip, VLC sur tous les nouveaux PCs."},
+      {"id":"wsrv_ccp9_q17","difficulty":"normal","question":"Format requis déploiement logiciel GPO ?","options":[{"text":".EXE","correct":false},{"text":".MSI","correct":true},{"text":".ZIP","correct":false},{"text":".BAT","correct":false}],"explication":"<strong>Explication</strong> : GPO Software Installation (Computer Configuration\\Software Settings) déploie uniquement les packages .MSI. Les .EXE doivent être repackagés en MSI ou déployés via script. Mode Published (utilisateur) ou Assigned (forcé au boot/logon).<br><code style=\"display:block;white-space:pre-wrap\"># Structure partage\n\\\\SRV01\\Packages$\\7-Zip\\7z.msi\n\\\\SRV01\\Packages$\\Chrome\\chrome.msi\n\nGPO : Assigned → Installe au boot PC</code><br><strong>Cas d'usage</strong> : GPO qui déploie 7-Zip.msi sur tous les PCs du domaine au prochain redémarrage."},
+      {"id":"wsrv_ccp9_q18","difficulty":"normal","question":"Réduire taille image WIM ?","options":[{"text":"<code>Dism /Export-Image /Compress:max</code>","correct":true},{"text":"<code>Dism /Shrink</code>","correct":false},{"text":"<code>Compact-Image</code>","correct":false},{"text":"ZIP","correct":false}],"explication":"<strong>Explication</strong> : <code>/Export-Image</code> reconstruit le WIM en éliminant les fichiers supprimés et recompressant avec LZX maximum. Une image modifiée 10 fois accumule des deltas : export nettoie et réduit la taille de 20-40%. Améliore aussi les performances de déploiement.<br><code style=\"display:block;white-space:pre-wrap\">Dism /Export-Image /SourceImageFile:install.wim /SourceIndex:1 ^\n     /DestinationImageFile:install_optimized.wim /Compress:max</code><br><strong>Cas d'usage</strong> : Optimiser un install.wim de 8 Go devenu 12 Go après 15 modifications DISM pour revenir à 7 Go."},
+      {"id":"wsrv_ccp9_q19","difficulty":"normal","question":"Standard nommage PC entreprise ?","options":[{"text":"PC001, PC002","correct":false},{"text":"SITE-DEPT-TYPE-NUM (ex: PAR-RH-DT-001)","correct":true},{"text":"Nom utilisateur","correct":false},{"text":"Aléatoire","correct":false}],"explication":"<strong>Explication</strong> : Postes standardisés (même OS, apps, config) simplifient le troubleshooting (problèmes reproductibles), l'inventaire (moins de variantes) et l'application GPO (pas de cas particuliers). Réduit les coûts de support et formation.<br>Avantage — Impact<br><strong>Support</strong> — Scripts universels<br><strong>GPO</strong> — Application homogène<br><strong>Formation</strong> — Une procédure pour tous<br><strong>Inventaire</strong> — 2 images au lieu de 20<br><strong>Cas d'usage</strong> : Entreprise 500 PCs avec 2 images (Bureau et Laptop) au lieu de 50 configurations différentes."},
+      {"id":"wsrv_ccp9_q20","difficulty":"normal","question":"Étapes capture image référence ?","options":[{"text":"Sysprep → Boot WinPE → Capture → Import WDS","correct":true},{"text":"Copier C:\\ directement","correct":false},{"text":"ZIP dossier Windows","correct":false},{"text":"Snapshot VM","correct":false}],"explication":"<strong>Explication</strong> : Workflow complet : 1) Configurer PC maître (OS + apps), 2) Sysprep /generalize, 3) Booter en WinPE, 4) Capturer avec DISM, 5) Importer dans WDS/MDT, 6) Déployer via PXE. Le cycle itératif permet de mettre à jour l'image en recapturant le maître.<br><code style=\"display:block;white-space:pre-wrap\">PC Maître → Sysprep → Boot WinPE → DISM /Capture → install.wim → WDS → PXE Deploy</code><br><strong>Cas d'usage</strong> : Créer image Win11 Pro + Office + drivers Dell, puis déployer sur 200 PC identiques en 1h."},
+      /* WINDOWSSERVER_QCM */
     ],
   },
 
@@ -21511,6 +22056,522 @@ role where I can grow my infrastructure and security skills.</pre>
           }
         ]
       },
+      {
+        "id": "ccp9-deploiement-postes",
+        "titre": "CCP9 — Déploiement de Postes (Fiche de révision)",
+        "sections": [
+          {
+            "type": "p",
+            "content": "<strong>Certification TSSR</strong> - CCP9 : Déploiement et maintenance postes de travail"
+          },
+          {
+            "type": "h2",
+            "content": "1. WDS (Windows Deployment Services)"
+          },
+          {
+            "type": "h3",
+            "content": "Rôle serveur"
+          },
+          {
+            "type": "p",
+            "content": "Déploiement OS Windows via réseau (PXE boot)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Installation</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Install-WindowsFeature WDS -IncludeManagementTools"
+          },
+          {
+            "type": "h3",
+            "content": "Prérequis"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Active Directory configuré",
+              "Serveur DHCP actif (options 66/67)",
+              "Partition NTFS pour images"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Configuration DHCP"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Option 66</strong> : IP serveur WDS   <strong>Option 67</strong> : Fichier boot <code>boot\\x64\\wdsnbp.com</code>"
+          },
+          {
+            "type": "h2",
+            "content": "2. IMAGES SYSTÈME"
+          },
+          {
+            "type": "h3",
+            "content": "Sysprep (Généralisation)"
+          },
+          {
+            "type": "p",
+            "content": "Prépare image Windows (supprime infos spécifiques machine)"
+          },
+          {
+            "type": "code",
+            "content": "C:\\Windows\\System32\\Sysprep\\sysprep.exe /generalize /oobe /shutdown"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Paramètres</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<code>/generalize</code> : Supprime SID, nom machine",
+              "<code>/oobe</code> : Redémarre sur écran bienvenue",
+              "<code>/shutdown</code> : Éteint après (pour capture)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Types images WDS"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Image Boot (WinPE)</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Démarre poste par réseau",
+              "Capture/applique images install"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Image Install</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "OS Windows complet",
+              "Capturé après Sysprep",
+              "Format .WIM (Windows Imaging)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "3. MDT (Microsoft Deployment Toolkit)"
+          },
+          {
+            "type": "h3",
+            "content": "Avantages vs WDS"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Automatisation complète (zéro-touch)",
+              "Task sequences personnalisables",
+              "Drivers, applications, configurations",
+              "Intégration WSUS, AD"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Workflow MDT"
+          },
+          {
+            "type": "code",
+            "content": "1. Import OS + Drivers + Apps\n2. Create Task Sequence\n3. Update Deployment Share\n4. Boot PXE ou clé USB\n5. Déploiement automatisé"
+          },
+          {
+            "type": "h2",
+            "content": "4. FICHIERS RÉPONSES (UNATTEND.XML)"
+          },
+          {
+            "type": "h3",
+            "content": "Utilité"
+          },
+          {
+            "type": "p",
+            "content": "Automatise installation Windows (nom, domaine, clé produit, partitions)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Outil</strong> : Windows System Image Manager (WSIM)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Sections clés</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "<settings pass=\"windowsPE\">\n  <!-- Partitionnement disque -->\n</settings>\n\n<settings pass=\"specialize\">\n  <ComputerName>PC-%RAND:4%</ComputerName>\n  <TimeZone>Romance Standard Time</TimeZone>\n</settings>\n\n<settings pass=\"oobeSystem\">\n  <UserAccounts>\n    <AdministratorPassword>P@ssw0rd</AdministratorPassword>\n  </UserAccounts>\n  <AutoLogon>\n    <Enabled>true</Enabled>\n  </AutoLogon>\n</settings>"
+          },
+          {
+            "type": "h2",
+            "content": "5. CLONAGE DISQUE"
+          },
+          {
+            "type": "h3",
+            "content": "Clonezilla"
+          },
+          {
+            "type": "p",
+            "content": "Outil libre clonage disque/partition"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Modes</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>device-device</strong> : Clonage direct disque → disque",
+              "<strong>device-image</strong> : Sauvegarde disque → image",
+              "<strong>multicast</strong> : 1 image → N postes simultanés"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Commande exemple</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "ocs-sr -g auto -e1 auto -e2 -r -j2 -c -p true savedisk image_pc /dev/sda"
+          },
+          {
+            "type": "h3",
+            "content": "Acronis, Norton Ghost"
+          },
+          {
+            "type": "p",
+            "content": "Solutions commerciales clonage (interface graphique)"
+          },
+          {
+            "type": "h2",
+            "content": "6. PXE BOOT"
+          },
+          {
+            "type": "h3",
+            "content": "Principe"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Preboot eXecution Environment</strong> : Boot réseau sans disque local"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Séquence</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "1. PC allume, cherche DHCP\n2. DHCP répond : IP + serveur TFTP (WDS)\n3. TFTP télécharge boot.wim (WinPE)\n4. WinPE charge, liste images disponibles\n5. Sélection image → Déploiement"
+          },
+          {
+            "type": "p",
+            "content": "<strong>BIOS config</strong> : Boot Order → Network/PXE en premier"
+          },
+          {
+            "type": "h2",
+            "content": "7. DRIVERS INJECTION"
+          },
+          {
+            "type": "h3",
+            "content": "Problème"
+          },
+          {
+            "type": "p",
+            "content": "Image générique ne contient pas drivers spécifiques matériels"
+          },
+          {
+            "type": "h3",
+            "content": "Solutions"
+          },
+          {
+            "type": "p",
+            "content": "<strong>MDT</strong> : Import drivers par modèle"
+          },
+          {
+            "type": "code",
+            "content": "Deployment Workbench → Drivers\n→ Import Drivers (dossier constructeur)\n→ Task Sequence applique selon modèle détecté"
+          },
+          {
+            "type": "p",
+            "content": "<strong>DISM</strong> : Injection offline"
+          },
+          {
+            "type": "code",
+            "content": "# Monter image\nDism /Mount-Wim /WimFile:C:\\install.wim /Index:1 /MountDir:C:\\mount\n\n# Ajouter drivers\nDism /Image:C:\\mount /Add-Driver /Driver:C:\\drivers /Recurse\n\n# Démonter et sauvegarder\nDism /Unmount-Wim /MountDir:C:\\mount /Commit"
+          },
+          {
+            "type": "h2",
+            "content": "8. APPLICATIONS POST-INSTALL"
+          },
+          {
+            "type": "h3",
+            "content": "GPO Software Installation"
+          },
+          {
+            "type": "code",
+            "content": "Computer Config → Policies → Software Settings → Software Installation\n→ New → Package\n   Path: \\\\SRV-FILE01\\Apps\\7zip.msi\n   Deployment: Assigned (install auto)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Formats supportés</strong> : .MSI (Windows Installer)"
+          },
+          {
+            "type": "h3",
+            "content": "Scripts post-déploiement"
+          },
+          {
+            "type": "code",
+            "content": "# Script dans Task Sequence MDT\nInstall-Package -Name 7zip -Force\nInstall-Package -Name GoogleChrome -Force\nInstall-Package -Name AdobeReader -Force"
+          },
+          {
+            "type": "h3",
+            "content": "Chocolatey (gestionnaire paquets)"
+          },
+          {
+            "type": "code",
+            "content": "# Installer Chocolatey\nSet-ExecutionPolicy Bypass -Force\niex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))\n\n# Installer apps\nchoco install googlechrome firefox 7zip -y"
+          },
+          {
+            "type": "h2",
+            "content": "9. CONFIGURATION AUTOMATIQUE"
+          },
+          {
+            "type": "h3",
+            "content": "Join domaine automatique"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Unattend.xml</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "<settings pass=\"specialize\">\n  <JoinDomain>\n    <Credentials>\n      <Domain>entreprise.local</Domain>\n      <Username>admin_deploy</Username>\n      <Password>P@ssw0rd</Password>\n    </Credentials>\n    <JoinDomain>entreprise.local</JoinDomain>\n  </JoinDomain>\n</settings>"
+          },
+          {
+            "type": "p",
+            "content": "<strong>PowerShell</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Add-Computer -DomainName \"entreprise.local\" -Credential (Get-Credential) -Restart"
+          },
+          {
+            "type": "h3",
+            "content": "Rename Computer"
+          },
+          {
+            "type": "code",
+            "content": "Rename-Computer -NewName \"PC-RH-01\" -Restart"
+          },
+          {
+            "type": "h2",
+            "content": "10. ACTIVATION WINDOWS"
+          },
+          {
+            "type": "h3",
+            "content": "KMS (Key Management Service)"
+          },
+          {
+            "type": "p",
+            "content": "Activation volume entreprise (180j renouvelables)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Serveur KMS</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "slmgr /ipk <KMS_Host_Key>\nslmgr /ato"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Client</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "slmgr /ipk <Volume_License_Key>\nslmgr /skms kms.entreprise.local:1688\nslmgr /ato"
+          },
+          {
+            "type": "h3",
+            "content": "MAK (Multiple Activation Key)"
+          },
+          {
+            "type": "p",
+            "content": "Clé à activations limitées (ex: 500 activations)"
+          },
+          {
+            "type": "h2",
+            "content": "11. OUTILS DIAGNOSTIC"
+          },
+          {
+            "type": "h3",
+            "content": "Windows PE (WinPE)"
+          },
+          {
+            "type": "p",
+            "content": "Environnement minimal boot réseau/USB"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Création USB WinPE</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "copype amd64 C:\\WinPE_amd64\nMakeWinPEMedia /UFD C:\\WinPE_amd64 E:"
+          },
+          {
+            "type": "h3",
+            "content": "DISM commandes"
+          },
+          {
+            "type": "code",
+            "content": "# Info image\nDism /Get-WimInfo /WimFile:install.wim\n\n# Liste images\nDism /Get-ImageInfo /ImageFile:install.wim\n\n# Appliquer image\nDism /Apply-Image /ImageFile:install.wim /Index:1 /ApplyDir:C:\\"
+          },
+          {
+            "type": "h2",
+            "content": "12. MAINTENANCE IMAGES"
+          },
+          {
+            "type": "h3",
+            "content": "Mise à jour offline"
+          },
+          {
+            "type": "code",
+            "content": "# Monter\nDism /Mount-Wim /WimFile:install.wim /Index:1 /MountDir:C:\\mount\n\n# Injecter MAJ\nDism /Image:C:\\mount /Add-Package /PackagePath:C:\\updates\\\n\n# Nettoyer composants\nDism /Image:C:\\mount /Cleanup-Image /StartComponentCleanup\n\n# Sauvegarder\nDism /Unmount-Wim /MountDir:C:\\mount /Commit"
+          },
+          {
+            "type": "h3",
+            "content": "Optimisation taille"
+          },
+          {
+            "type": "code",
+            "content": "# Export (recompresse)\nDism /Export-Image /SourceImageFile:install.wim /SourceIndex:1 `\n  /DestinationImageFile:install-optimized.wim /Compress:max"
+          },
+          {
+            "type": "h2",
+            "content": "13. DÉPLOIEMENT MULTICAST"
+          },
+          {
+            "type": "h3",
+            "content": "WDS Multicast"
+          },
+          {
+            "type": "p",
+            "content": "1 serveur → N postes simultanément (économie bande passante)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Config WDS</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Multicast Transmissions → Create Multicast Transmission\n  Transmission name: Deploy_Win10\n  Image: Windows 10 Pro\n  Type: Auto-Cast (démarre automatiquement)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Avantages</strong> : 100 postes = 1 flux réseau (vs 100 flux unicast)"
+          },
+          {
+            "type": "h2",
+            "content": "14. BONNES PRATIQUES"
+          },
+          {
+            "type": "h3",
+            "content": "Nommage postes"
+          },
+          {
+            "type": "code",
+            "content": "Standard : SITE-DEPT-TYPE-NUM\nExemple : PAR-RH-DT-001\n  PAR = Paris\n  RH = Service\n  DT = Desktop\n  001 = Numéro séquentiel"
+          },
+          {
+            "type": "h3",
+            "content": "Documentation"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Inventaire matériel (CPU, RAM, HDD)",
+              "✅ Drivers spécifiques modèles",
+              "✅ Applications standard par profil",
+              "✅ Changelog images (versions, dates)"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Tests"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ VM test avant déploiement masse",
+              "✅ Vérifier drivers (réseau, vidéo)",
+              "✅ Join domaine automatique",
+              "✅ Applications installées"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "15. SCÉNARIOS PRATIQUES"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 1 : Déployer 50 postes identiques"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution</strong> : WDS multicast + image Sysprep"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 2 : 3 profils (RH, IT, Compta)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution</strong> : MDT Task Sequences + Applications sélectives"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 3 : Mise à jour image mensuelle"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution</strong> : DISM /Mount + /Add-Package + /Cleanup + /Commit"
+          },
+          {
+            "type": "h3",
+            "content": "Scénario 4 : Drivers multiples constructeurs"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution</strong> : MDT Selection Profiles par modèle"
+          },
+          {
+            "type": "h2",
+            "content": "COMMANDES ESSENTIELLES"
+          },
+          {
+            "type": "code",
+            "content": "# Sysprep\nsysprep /generalize /oobe /shutdown\n\n# DISM\nDism /Mount-Wim /WimFile:x.wim /Index:1 /MountDir:C:\\mount\nDism /Image:C:\\mount /Add-Driver /Driver:C:\\drivers /Recurse\nDism /Unmount-Wim /MountDir:C:\\mount /Commit\n\n# Domaine\nAdd-Computer -DomainName \"entreprise.local\" -Restart\n\n# Activation\nslmgr /ipk <clé>\nslmgr /ato\n\n# WDS\nwdsutil /Add-Image /ImageFile:install.wim /ImageType:Install"
+          },
+          {
+            "type": "p",
+            "content": "<strong>WORKFLOW COMPLET</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "1. Poste référence : Install Windows + Apps + Sysprep\n2. Capturer image : Boot WinPE → Capture vers WDS\n3. Import MDT : OS + Drivers + Apps\n4. Task Sequence : Partitions + OS + Drivers + Apps + Domain Join\n5. Déploiement : PXE boot → Auto-install\n6. Tests : Vérif drivers, apps, domaine\n7. Production : Multicast 50+ postes"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Date révision</strong> : 12 novembre 2025"
+          }
+        ]
+      },
       /* EXAMEN_COURS */
     ],
     flashcards: [
@@ -21663,6 +22724,12 @@ role where I can grow my infrastructure and security skills.</pre>
       {"id":"exam_ccp8_f13","recto":"Q13 — Stockage des sauvegardes","verso":"<strong>Pour respecter la règle 3-2-1</strong> :<br><strong>Emplacement 1 : Local (même site)</strong> :<br>• <strong>Quoi</strong> : Disque dur interne serveur, baie de stockage, NAS<br>• <strong>Avantages</strong> :<br>• Restauration très rapide (réseau local)<br>• Pas de coût de bande passante<br>• Accès immédiat<br>• <strong>Inconvénients</strong> :<br>• Vulnérable sinistres locaux (incendie, inondation)<br>• Ransomware peut y accéder<br>• <strong>Usage</strong> : Sauvegardes quotidiennes, snapshots<br>• <strong>Exemple</strong> : NAS Synology dans salle serveur<br><strong>Emplacement 2 : Distant même ville/région</strong> :<br>• <strong>Quoi</strong> : Datacenter tiers, bureau secondaire, stockage partenaire<br>• <strong>Avantages</strong> :<br>• Protection contre sinistre du site principal<br>• Restauration relativement rapide (bande passante correcte)<br>• <strong>Inconvénients</strong> :<br>• Sinistre régional (inondation zone) affecte les 2 sites<br>• Coût hébergement<br>• <strong>Usage</strong> : Sauvegardes hebdomadaires<br>• <strong>Exemple</strong> : Bureau secondaire à 20 km avec serveur backup<br><strong>Emplacement 3 : Cloud/Off-site géographiquement distant</strong> :<br>• <strong>Quoi</strong> : Cloud Azure, AWS S3, Google Cloud, datacenter distant &gt;100km<br>• <strong>Avantages</strong> :<br>• Protection maximale (sinistre géographique)<br>• Réplication multi-régions possible<br>• Scalabilité illimitée<br>• <strong>Inconvénients</strong> :<br>• Restauration plus lente (bande passante Internet)<br>• Coût mensuel récurrent<br>• Dépendance connectivité<br>• <strong>Usage</strong> : Sauvegardes mensuelles, archives long terme<br>• <strong>Exemple</strong> : Azure Blob Storage région Nord Europe + Europe Ouest<br><strong>Schéma complet</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Production (Paris)\n    ↓\n┌───────────────────────────────────────┐\n│ Copie 1 (Local)                      │\n│ NAS dans salle serveur               │\n│ Quotidien, snapshots                 │\n│ Restauration : Minutes               │\n└───────────────────────────────────────┘\n    ↓\n┌───────────────────────────────────────┐\n│ Copie 2 (Distant - même région)     │\n│ Bureau secondaire (50 km)            │\n│ Hebdomadaire                         │\n│ Restauration : 1-2h                  │\n└───────────────────────────────────────┘\n    ↓\n┌───────────────────────────────────────┐\n│ Copie 3 (Off-site cloud)             │\n│ Azure Storage (Amsterdam)            │\n│ Mensuel + archives                   │\n│ Restauration : 4-12h                 │\n└───────────────────────────────────────┘</code><br><strong>Supports différents (règle 3-2-1)</strong> :<br>• <strong>Support 1</strong> : SSD/HDD (production + local)<br>• <strong>Support 2</strong> : Bandes LTO ou HDD différent (distant)<br>• <strong>Support 3</strong> : Cloud (architecture différente)<br><strong>Bonnes pratiques</strong> :<br>• ✅ Chiffrement sur tous les emplacements<br>• ✅ Vérification intégrité régulière<br>• ✅ Tests restauration depuis chaque emplacement<br>• ✅ Documentation accès (urgence)<br>• ✅ Monitoring espace disponible<br><strong>Coûts estimés (TPE/PME)</strong> :<br>• Local (NAS 10 To) : 1 500€<br>• Distant (colocation) : 100€/mois<br>• Cloud (Azure/AWS) : 50-200€/mois"},
       {"id":"exam_ccp8_f14","recto":"Q14 — Réplication vs Sauvegarde","verso":"<strong>Réplication de données</strong> :<br>• <strong>Principe</strong> : Copie <strong>synchrone ou asynchrone</strong> en temps réel ou quasi-réel<br>• <strong>Objectif</strong> : <strong>Haute disponibilité</strong> (HA), continuité de service<br>• <strong>Fréquence</strong> : Continue (secondes/minutes)<br>• <strong>RPO</strong> : Très faible (&lt;1 minute possible)<br>• <strong>Technologie</strong> : Réplication bloc/fichier, clustering, base données<br>• <strong>Versions</strong> : 1 seule (état actuel) ou quelques versions récentes<br>• <strong>Usage</strong> : PCA, failover automatique<br><strong>Sauvegarde (Backup)</strong> :<br>• <strong>Principe</strong> : Copie <strong>ponctuelle et indépendante</strong> des données<br>• <strong>Objectif</strong> : <strong>Restauration après incident</strong>, archivage<br>• <strong>Fréquence</strong> : Planifiée (horaire/quotidien/hebdo)<br>• <strong>RPO</strong> : Selon fréquence (heures/jours)<br>• <strong>Technologie</strong> : Copy, snapshot, backup logiciel<br>• <strong>Versions</strong> : Multiples (historique, rétention)<br>• <strong>Usage</strong> : Récupération données, erreur humaine, ransomware<br><strong>Différences clés</strong> :<br>Critère — Réplication — Sauvegarde<br><strong>Objectif</strong> — Disponibilité — Récupération<br><strong>Fréquence</strong> — Continue — Planifiée<br><strong>Versions</strong> — 1 (actualisé) — Multiples (historique)<br><strong>RPO</strong> — Secondes — Heures/jours<br><strong>RTO</strong> — Secondes/minutes — Minutes/heures<br><strong>Automatisme</strong> — Basculement auto — Restauration manuelle<br><strong>Erreur humaine</strong> — ❌ Répliquée ! — ✅ Protégé (versions)<br><strong>Ransomware</strong> — ❌ Chiffré aussi ! — ✅ Copie saine<br><strong>Peut-on se passer de l'une si on a l'autre ?</strong><br><strong>NON ! Elles sont COMPLÉMENTAIRES</strong> :<br><strong>Scénarios où la réplication SEULE est insuffisante</strong> :<br><strong>1. Suppression accidentelle</strong> :<br>• Admin supprime base de données à 10h<br>• Réplication propage la suppression immédiatement<br>• <strong>Besoin backup</strong> : Restaurer version 8h<br><strong>2. Ransomware</strong> :<br>• Malware chiffre les données à 14h<br>• Réplication chiffre le réplica aussi<br>• <strong>Besoin backup</strong> : Restaurer version saine (hier)<br><strong>3. Corruption de données</strong> :<br>• Base de données corrompue par bug applicatif<br>• Réplication propage la corruption<br>• <strong>Besoin backup</strong> : Restaurer version antérieure<br><strong>4. Obligations légales</strong> :<br>• Archivage 7 ans requis<br>• Réplication ne garde pas l'historique<br>• <strong>Besoin backup</strong> : Sauvegardes mensuelles archivées<br><strong>Scénarios où la sauvegarde SEULE est insuffisante</strong> :<br><strong>1. Panne serveur</strong> :<br>• Serveur HS à 15h, RTO = 30 min<br>• Restauration backup prend 2h<br>• <strong>Besoin réplication</strong> : Failover automatique en 2 min<br><strong>2. Maintenance</strong> :<br>• Mise à jour serveur principal<br>• Sauvegarde ne permet pas de maintenir le service<br>• <strong>Besoin réplication</strong> : Bascule sur réplica pendant MAJ<br><strong>Stratégie OPTIMALE</strong> :<br><code style=\"display:block;white-space:pre-wrap\">┌─────────────────────────────────────────────────────┐\n│ Production (Paris)                                   │\n└─────────────────────────────────────────────────────┘\n         ↓                           ↓\n    Réplication                 Sauvegarde\n    (temps réel)                (quotidien)\n         ↓                           ↓\n┌──────────────────────┐    ┌──────────────────────┐\n│ Réplica (Lyon)       │    │ Backup (Cloud)       │\n│ Failover auto        │    │ Versions multiples   │\n│ RPO &lt; 1 min          │    │ Rétention 90 jours   │\n│ RTO &lt; 5 min          │    │ Protection ransomware│\n└──────────────────────┘    └──────────────────────┘</code><br><strong>Exemple concret - E-commerce</strong> :<br>• <strong>Réplication</strong> : Base de données Paris → Lyon (async 30s)<br>• Si Paris tombe → Lyon prend le relais (RTO 2 min)<br>• <strong>Sauvegarde</strong> : Quotidien vers Azure (rétention 90 jours)<br>• Si ransomware → Restaurer backup d'hier<br>• Si erreur humaine → Restaurer version antérieure<br><strong>Conclusion</strong> : <strong>Les deux sont nécessaires</strong> pour une stratégie complète !"},
       {"id":"exam_ccp8_f15","recto":"Q15 — Politique de rétention","verso":"<strong>Contrainte</strong> : Conservation <strong>7 ans</strong> (légal)<br><strong>Problèmes à résoudre</strong> :<br>• Coût stockage (7 ans × sauvegardes = énorme !)<br>• Performance restauration<br>• Conformité légale<br><strong>Politique de rétention optimisée</strong> :<br><strong>Niveau 1 : Court terme (0-30 jours)</strong> - Restauration fréquente<br>• <strong>Type</strong> : Incrémentales quotidiennes<br>• <strong>Stockage</strong> : Disque rapide (local/NAS)<br>• <strong>Rétention</strong> : 30 jours<br>• <strong>Coût</strong> : Moyen (10 To)<br>• <strong>Usage</strong> : Erreurs utilisateurs, fichiers supprimés<br><strong>Niveau 2 : Moyen terme (1-12 mois)</strong> - Restauration occasionnelle<br>• <strong>Type</strong> : Complètes hebdomadaires<br>• <strong>Stockage</strong> : Disque standard (cloud tier cool)<br>• <strong>Rétention</strong> : 12 mois (52 sauvegardes hebdo)<br>• <strong>Coût</strong> : Faible (déduplication, compression)<br>• <strong>Usage</strong> : Projets terminés, audits internes<br><strong>Niveau 3 : Long terme (1-7 ans)</strong> - Archivage légal<br>• <strong>Type</strong> : Complètes mensuelles<br>• <strong>Stockage</strong> : Bandes LTO ou cloud archive (Azure Archive, AWS Glacier)<br>• <strong>Rétention</strong> : 84 mois (7 ans × 12)<br>• <strong>Coût</strong> : Très faible (0,004€/Go/mois Azure Archive)<br>• <strong>Usage</strong> : Conformité légale, litiges<br><strong>Calendrier de rétention</strong> :<br>Période — Type — Fréquence — Nombre — Stockage — Coût/mois<br>0-30j — Incrémentale — Quotidien — 30 — NAS local — 100€<br>1-12 mois — Complète — Hebdo — 52 — Cloud Standard — 150€<br>1-7 ans — Complète — Mensuel — 84 — Cloud Archive — 50€<br><strong>TOTAL</strong> — <strong>166</strong> — <strong>300€/mois</strong><br><strong>Optimisations techniques</strong> :<br><strong>1. Déduplication</strong> :<br>• Stocke les blocs uniques une seule fois<br>• Économie : 70-90% d'espace<br>• <strong>Exemple</strong> : 100 To réels → 15 To stockés<br><strong>2. Compression</strong> :<br>• Réduit la taille des données (50-70%)<br>• <strong>Exemple</strong> : Fichiers texte, logs, BDD<br><strong>3. Archivage intelligent</strong> :<br>• Données froides → Tier archive automatique<br>• Accès rare → Coût minimal<br><strong>4. Versioning intelligent</strong> :<br>• <strong>GFS</strong> : Garder seulement dernier backup de chaque niveau<br>• Dernier quotidien de chaque semaine → Hebdo<br>• Dernier hebdo de chaque mois → Mensuel<br>• Dernier mensuel de chaque année → Annuel (7 ans)<br><strong>Exemple de transformation</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Au lieu de garder TOUTES les sauvegardes quotidiennes 7 ans :\n- 7 ans × 365 jours = 2555 sauvegardes !!! (ingérable)\n\nAvec GFS optimisé :\n- Quotidiennes : 30 (1 mois)\n- Hebdomadaires : 52 (1 an)\n- Mensuelles : 84 (7 ans)\n= 166 sauvegardes TOTAL (optimisé !)</code><br><strong>Tableau récapitulatif stockage</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Années 1-7 : Mensuelles (cloud archive)\n  ↓\nMois 1-12 : Hebdomadaires (cloud standard)\n  ↓\nJours 1-30 : Quotidiennes (local/NAS)\n  ↓\nProduction</code><br><strong>Coûts estimés (PME - 10 To données)</strong> :<br><strong>Avec déduplication/compression (90% économie)</strong> :<br>• Local 30j : 1 To × 10€/To = 10€<br>• Cloud 12 mois : 5 To × 20€/To = 100€<br>• Archive 7 ans : 50 To × 2€/To = 100€<br><strong>Total</strong> : ~210€/mois pour 7 ans de rétention<br><strong>Vs sans optimisation</strong> :<br>• 10 To × 2555 sauvegardes × 10€/To = <strong>255 000€/mois</strong> (impossible !)<br><strong>Conformité légale</strong> :<br>• ✅ Rétention 7 ans respectée<br>• ✅ Intégrité vérifiable (checksums)<br>• ✅ Accès tracé (logs)<br>• ✅ Chiffrement (RGPD)<br>• ✅ Tests restauration trimestriels<br><strong>Technologies recommandées</strong> :<br>• <strong>Veeam Backup &amp; Replication</strong> : GFS, dédup, cloud tier<br>• <strong>Azure Backup</strong> : Rétention longue, tiers automatiques<br>• <strong>Bandes LTO-9</strong> : Archivage 7 ans (économique, pérenne)"},
+      {"id":"exam_ccp9_f1","recto":"Q1 — Workflow déploiement complet : Décrivez étapes complètes déploiement 100 postes Windows 10 identiques avec domaine AD.","verso":"<strong>Réponse modèle</strong> (12 pts) :<br><strong>1. Préparation poste référence</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- Installer Windows 10 propre\n- Installer applications standard (Office, Chrome, 7zip)\n- Configurer paramètres (fond écran, GPO locales)\n- Exécuter Sysprep /generalize /oobe /shutdown</code><br><strong>2. Capture image</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- Boot WinPE via PXE\n- Capture disque C: → fichier .WIM\n- Upload vers WDS : C:\\RemoteInstall\\Images\\</code><br><strong>3. Configuration WDS</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- Import image install\n- DHCP options 66/67 configurées\n- Multicast transmission créée (100 postes simultanés)</code><br><strong>4. Déploiement</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- Boot 100 postes PXE (F12)\n- Sélection image Windows 10\n- Déploiement multicast automatique\n- Join domaine via unattend.xml</code><br><strong>5. Post-config</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">- GPO appliquent : imprimantes, lecteurs réseau, applications\n- Activation KMS automatique\n- Tests : réseau, applications, domaine</code>"},
+      {"id":"exam_ccp9_f2","recto":"Q2 — Sysprep et Unattend.xml : Créez fichier unattend.xml pour : nom PC \"PC-%RAND:4%\", join domaine \"entreprise.local\", admin MDP \"P@ss123\".","verso":"<strong>Réponse modèle</strong> (10 pts) :<br><code style=\"display:block;white-space:pre-wrap\">&lt;?xml version=\"1.0\" encoding=\"utf-8\"?&gt;\n&lt;unattend xmlns=\"urn:schemas-microsoft-com:unattend\"&gt;\n  \n  &lt;!-- Partitionnement --&gt;\n  &lt;settings pass=\"windowsPE\"&gt;\n    &lt;component name=\"Microsoft-Windows-Setup\"&gt;\n      &lt;DiskConfiguration&gt;\n        &lt;Disk wcm:action=\"add\"&gt;\n          &lt;CreatePartitions&gt;\n            &lt;CreatePartition wcm:action=\"add\"&gt;\n              &lt;Order&gt;1&lt;/Order&gt;\n              &lt;Size&gt;100&lt;/Size&gt;\n              &lt;Type&gt;Primary&lt;/Type&gt;\n            &lt;/CreatePartition&gt;\n            &lt;CreatePartition wcm:action=\"add\"&gt;\n              &lt;Extend&gt;true&lt;/Extend&gt;\n              &lt;Order&gt;2&lt;/Order&gt;\n              &lt;Type&gt;Primary&lt;/Type&gt;\n            &lt;/CreatePartition&gt;\n          &lt;/CreatePartitions&gt;\n        &lt;/Disk&gt;\n      &lt;/DiskConfiguration&gt;\n    &lt;/component&gt;\n  &lt;/settings&gt;\n\n  &lt;!-- Nom PC + Domaine --&gt;\n  &lt;settings pass=\"specialize\"&gt;\n    &lt;component name=\"Microsoft-Windows-Shell-Setup\"&gt;\n      &lt;ComputerName&gt;PC-%RAND:4%&lt;/ComputerName&gt;\n    &lt;/component&gt;\n    \n    &lt;component name=\"Microsoft-Windows-UnattendedJoin\"&gt;\n      &lt;Identification&gt;\n        &lt;Credentials&gt;\n          &lt;Domain&gt;entreprise.local&lt;/Domain&gt;\n          &lt;Username&gt;admin_deploy&lt;/Username&gt;\n          &lt;Password&gt;P@ss123&lt;/Password&gt;\n        &lt;/Credentials&gt;\n        &lt;JoinDomain&gt;entreprise.local&lt;/JoinDomain&gt;\n      &lt;/Identification&gt;\n    &lt;/component&gt;\n  &lt;/settings&gt;\n\n  &lt;!-- OOBE --&gt;\n  &lt;settings pass=\"oobeSystem\"&gt;\n    &lt;component name=\"Microsoft-Windows-Shell-Setup\"&gt;\n      &lt;OOBE&gt;\n        &lt;HideEULAPage&gt;true&lt;/HideEULAPage&gt;\n        &lt;ProtectYourPC&gt;1&lt;/ProtectYourPC&gt;\n        &lt;NetworkLocation&gt;Work&lt;/NetworkLocation&gt;\n      &lt;/OOBE&gt;\n      &lt;UserAccounts&gt;\n        &lt;AdministratorPassword&gt;\n          &lt;Value&gt;P@ss123&lt;/Value&gt;\n          &lt;PlainText&gt;true&lt;/PlainText&gt;\n        &lt;/AdministratorPassword&gt;\n      &lt;/UserAccounts&gt;\n    &lt;/component&gt;\n  &lt;/settings&gt;\n  \n&lt;/unattend&gt;</code><br><strong>Points clés</strong> : <code>%RAND:4%</code> = 4 chiffres aléatoires (PC-7842), join domaine auto."},
+      {"id":"exam_ccp9_f3","recto":"Q3 — DISM Drivers injection : Injectez drivers réseau Intel depuis C:\\Drivers\\Intel dans image install.wim (index 1).","verso":"<strong>Réponse modèle</strong> (8 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># 1. Monter image (3 pts)\nDism /Mount-Wim /WimFile:\"C:\\Images\\install.wim\" /Index:1 /MountDir:\"C:\\mount\"\n\n# 2. Injecter drivers (3 pts)\nDism /Image:\"C:\\mount\" /Add-Driver /Driver:\"C:\\Drivers\\Intel\" /Recurse\n\n# Vérifier drivers ajoutés\nDism /Image:\"C:\\mount\" /Get-Drivers\n\n# 3. Démonter et sauvegarder (2 pts)\nDism /Unmount-Wim /MountDir:\"C:\\mount\" /Commit</code><br><strong>Explications</strong> :<br>• <code>/Recurse</code> : Scan sous-dossiers<br>• <code>/Commit</code> : Sauvegarde modifs (sinon <code>/Discard</code>)<br>• Index 1 = généralement Windows 10 Pro"},
+      {"id":"exam_ccp9_f4","recto":"Q4 — MDT Task Sequence : Créez Task Sequence MDT pour : partition 100GB C:, install Win10, drivers, Office 365, join domaine.","verso":"<strong>Réponse modèle</strong> (10 pts) :<br><strong>Étapes MDT Deployment Workbench</strong> :<br><strong>1. Import OS</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Operating Systems → Import → Full set of source files\nSource: D:\\Sources\\Windows10</code><br><strong>2. Import Applications</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Applications → New Application\n  Type: Application with source files\n  Source: \\\\SRV\\Apps\\Office365\n  Command: setup.exe /configure config.xml</code><br><strong>3. Create Task Sequence</strong> (6 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Task Sequences → New Task Sequence\n  ID: W10_Deploy\n  Name: Windows 10 Standard Deploy\n  Template: Standard Client Task Sequence\n  OS: Windows 10 Pro x64\n  \nCustomize Sequence:\n  Preinstall:\n    └─ Format and Partition (100GB C:, NTFS)\n  \n  Install:\n    └─ Install Operating System\n    └─ Apply Windows Updates\n  \n  Postinstall:\n    └─ Install Applications\n        └─ Install Office 365\n    └─ Inject Drivers (Selection Profile: All Drivers)\n    └─ Windows Update (Post-App Installation)\n    └─ Recover from Domain (join: entreprise.local)\n    └─ Activate Windows (KMS: kms.entreprise.local)</code><br><strong>Update Deployment Share</strong> : Génère boot files LiteTouch."},
+      {"id":"exam_ccp9_f5","recto":"Q5 — WDS Multicast : Configurez transmission multicast WDS pour déployer 50 postes simultanément. Quelle économie bande passante ?","verso":"<strong>Réponse modèle</strong> (8 pts) :<br><strong>Configuration WDS</strong> (5 pts) :<br><code style=\"display:block;white-space:pre-wrap\">WDS Console → Multicast Transmissions → Create Multicast Transmission\n\n  Name: Deploy_Win10_Multicast\n  Image Group: ImageGroup1\n  Image Name: Windows 10 Pro\n  \n  Type:\n    ☑ Auto-Cast (démarre dès clients connectés)\n    Min clients: 5\n    Start delay: 2 minutes\n  \n  Transport Settings:\n    Network profile: Custom\n    Transfer rate: 50 Mbps\n    Multicast IP range: 239.0.0.1 - 239.255.255.255</code><br><strong>Économie bande passante</strong> (3 pts) :<br><strong>Unicast</strong> (sans multicast) :<br>• 50 postes × 5 GB image = 250 GB trafic réseau<br>• 50 flux simultanés = saturation réseau 1 Gbps<br><strong>Multicast</strong> :<br>• 1 flux multicast × 5 GB = 5 GB trafic<br>• <strong>Économie = 98%</strong> (245 GB économisés)<br>• Temps déploiement identique pour 1 ou 50 postes"},
+      {"id":"exam_ccp9_f6","recto":"Q6 — Activation KMS : Configurez serveur KMS puis activez 10 clients Windows 10. Commandes ?","verso":"<strong>Réponse modèle</strong> (7 pts) :<br><strong>Serveur KMS</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Installer clé KMS Host\nslmgr /ipk &lt;KMS_Host_Key_Volume_License&gt;\n\n# Activer serveur\nslmgr /ato\n\n# Publier dans DNS (auto si AD)\nslmgr /sdns\n\n# Vérifier statut\nslmgr /dlv</code><br><strong>Clients</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Sur chaque client (ou GPO/script)\n\n# Installer clé GVLK (Generic Volume License Key)\nslmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX\n\n# Pointer vers KMS\nslmgr /skms kms.entreprise.local:1688\n\n# Activer\nslmgr /ato\n\n# Vérifier\nslmgr /dli</code><br><strong>Renouvellement</strong> : Automatique tous les 180 jours (client contacte KMS).<br><strong>Prérequis KMS</strong> : Minimum 25 clients Windows (ou 5 serveurs) pour activation."},
       /* EXAMEN_FLASHCARDS */
     ],
     qcm: [
@@ -21925,6 +22992,26 @@ role where I can grow my infrastructure and security skills.</pre>
       {"id":"exam_ccp8_q18","difficulty":"normal","question":"<code>dd if=/dev/sda of=/backup/disk.img bs=4M</code> fait quoi ?","options":[{"text":"Formate disque","correct":false},{"text":"Clone disque complet bit-à-bit","correct":true},{"text":"Sauvegarde fichiers uniquement","correct":false},{"text":"Compresse partition","correct":false}],"explication":"<strong>✅ Réponse correcte : B) dd if=/dev/sda of=/dev/sdb</strong><br><strong>📋 Explication détaillée</strong> :<br><code>dd</code> (Data Duplicator, surnommé \"Disk Destroyer\" car dangereux si mal utilisé) est l'outil Unix/Linux de bas niveau pour copier des données brutes bit à bit, sans se préoccuper du système de fichiers.<br><strong>🔹 Syntaxe complète dd</strong> :<br>Option — Description — Valeur — Exemple<br><strong>if=</strong> — Input File (source) — Fichier/Device — <code>if=/dev/sda</code><br><strong>of=</strong> — Output File (destination) — Fichier/Device — <code>of=/dev/sdb</code><br><strong>bs=</strong> — Block Size (taille bloc) — Bytes (K, M, G) — <code>bs=4M</code> (optimal SSD)<br><strong>count=</strong> — Nombre blocs à copier — Nombre — <code>count=1000</code><br><strong>skip=</strong> — Sauter blocs en entrée — Nombre — <code>skip=100</code><br><strong>seek=</strong> — Sauter blocs en sortie — Nombre — <code>seek=100</code><br><strong>conv=</strong> — Options conversion — sync, noerror, sparse — <code>conv=noerror,sync</code><br><strong>status=</strong> — Affichage progression — none, progress — <code>status=progress</code><br><strong>🔹 Cas d'usage clonage</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># 1. CLONAGE DISQUE COMPLET (bit à bit)\nsudo dd if=/dev/sda of=/dev/sdb bs=4M status=progress\n# Copie TOUT : partitions, MBR, boot, données\n# Attention : /dev/sdb sera ÉCRASÉ complètement !\n\n# Résultat :\n# /dev/sdb devient clone EXACT de /dev/sda\n# ├─ Même taille (ou plus grand)\n# ├─ Même partitions\n# ├─ Même UUID (problème si boot simultané)\n# └─ Bootable si source bootable\n\n# 2. CLONAGE PARTITION SPÉCIFIQUE\nsudo dd if=/dev/sda1 of=/dev/sdb1 bs=4M status=progress\n# Clone uniquement partition 1\n\n# 3. SAUVEGARDE DISQUE vers IMAGE\nsudo dd if=/dev/sda of=/backup/disk_image.img bs=4M status=progress conv=sync,noerror\n# Crée fichier image complet du disque\n# conv=noerror : Continue malgré erreurs lecture\n# conv=sync : Remplit blocs erreur par zéros\n\n# 4. RESTAURATION depuis IMAGE\nsudo dd if=/backup/disk_image.img of=/dev/sda bs=4M status=progress\n\n# 5. CLONAGE avec COMPRESSION (économie espace)\nsudo dd if=/dev/sda bs=4M status=progress | gzip -c &gt; /backup/disk_image.img.gz\n# Compression à la volée\n\n# Restauration :\ngunzip -c /backup/disk_image.img.gz | sudo dd of=/dev/sda bs=4M status=progress\n\n# 6. CLONAGE via RÉSEAU (SSH)\nsudo dd if=/dev/sda bs=4M | ssh user@remote \"dd of=/dev/sdb bs=4M\"\n# Transfère et clone sur machine distante\n\n# 7. CLONAGE MBR uniquement (512 bytes)\nsudo dd if=/dev/sda of=/backup/mbr_backup.img bs=512 count=1\n# Sauvegarde Master Boot Record\n\n# Restauration :\nsudo dd if=/backup/mbr_backup.img of=/dev/sda bs=512 count=1\n\n# 8. WIPE DISQUE (écrasage sécurisé)\nsudo dd if=/dev/zero of=/dev/sda bs=4M status=progress\n# Remplit disque de zéros (effacement)\n\n# Ou plus sécurisé (random) :\nsudo dd if=/dev/urandom of=/dev/sda bs=4M status=progress\n\n# 9. BENCHMARK DISQUE (test vitesse écriture)\nsudo dd if=/dev/zero of=/tmp/testfile bs=1G count=1 oflag=direct\n# Mesure vitesse écriture pure (sans cache)\n\n# 10. COPIE FICHIER avec progression\ndd if=large_file.iso of=/dev/sdb bs=4M status=progress\n# Copie ISO vers clé USB bootable</code><br><strong>🔹 Block Size (bs) optimal</strong> :<br><code style=\"display:block;white-space:pre-wrap\">📊 IMPACT BLOCK SIZE sur performance :\n\nTest : Copie disque 100 GB HDD → SSD\n\nbs=512 (par défaut) :\n├─ Taille bloc : 512 bytes\n├─ Nombre opérations I/O : 200 millions\n├─ Temps : ⚠️ 8 heures\n└─ Vitesse : 3,5 MB/s\n\nbs=4K :\n├─ Taille bloc : 4 KB\n├─ Nombre opérations I/O : 25 millions\n├─ Temps : 90 minutes\n└─ Vitesse : 18 MB/s\n\nbs=1M :\n├─ Taille bloc : 1 MB\n├─ Nombre opérations I/O : 100 000\n├─ Temps : 15 minutes\n└─ Vitesse : 110 MB/s\n\nbs=4M (recommandé SSD) :\n├─ Taille bloc : 4 MB\n├─ Nombre opérations I/O : 25 000\n├─ Temps : ✅ 12 minutes\n└─ Vitesse : ✅ 140 MB/s\n\nbs=64M (trop gros) :\n├─ Taille bloc : 64 MB\n├─ Nombre opérations I/O : 1 562\n├─ Temps : ⚠️ 16 minutes\n└─ Vitesse : 105 MB/s (overhead mémoire)\n\n🎯 RECOMMANDATIONS :\n├─ HDD → HDD : bs=4M ou bs=8M\n├─ SSD → SSD : bs=4M ou bs=16M\n├─ NVMe → NVMe : bs=16M ou bs=32M\n└─ Réseau : bs=1M (latence)</code><br><strong>⚙️ Script clonage sécurisé</strong> :<br><code style=\"display:block;white-space:pre-wrap\">#!/bin/bash\n# clone-disk.sh : Clonage sécurisé avec vérifications\n\nSOURCE=\"/dev/sda\"\nDESTINATION=\"/dev/sdb\"\nLOG=\"/var/log/disk-clone.log\"\n\n# Fonction log\nlog() {\n    echo \"$(date '+%Y-%m-%d %H:%M:%S') - $1\" | tee -a $LOG\n}\n\n# Vérifications préliminaires\nlog \"Début clonage $SOURCE → $DESTINATION\"\n\n# 1. Vérifier source existe\nif [ ! -b \"$SOURCE\" ]; then\n    log \"❌ ERREUR : $SOURCE n'existe pas\"\n    exit 1\nfi\n\n# 2. Vérifier destination existe\nif [ ! -b \"$DESTINATION\" ]; then\n    log \"❌ ERREUR : $DESTINATION n'existe pas\"\n    exit 1\nfi\n\n# 3. Vérifier destination pas montée\nif mount | grep -q \"$DESTINATION\"; then\n    log \"❌ ERREUR : $DESTINATION est montée, démontez d'abord\"\n    exit 1\nfi\n\n# 4. Vérifier taille destination &gt;= source\nSOURCE_SIZE=$(blockdev --getsize64 $SOURCE)\nDEST_SIZE=$(blockdev --getsize64 $DESTINATION)\n\nlog \"Taille source : $(numfmt --to=iec-i --suffix=B $SOURCE_SIZE)\"\nlog \"Taille destination : $(numfmt --to=iec-i --suffix=B $DEST_SIZE)\"\n\nif [ $DEST_SIZE -lt $SOURCE_SIZE ]; then\n    log \"❌ ERREUR : Destination trop petite\"\n    exit 1\nfi\n\n# 5. Confirmation utilisateur\necho \"⚠️ ATTENTION : $DESTINATION sera COMPLÈTEMENT ÉCRASÉ !\"\necho \"Source : $SOURCE ($SOURCE_SIZE bytes)\"\necho \"Destination : $DESTINATION ($DEST_SIZE bytes)\"\nread -p \"Continuer ? (yes/no) : \" CONFIRM\n\nif [ \"$CONFIRM\" != \"yes\" ]; then\n    log \"Annulé par utilisateur\"\n    exit 0\nfi\n\n# 6. Lancer clonage\nlog \"Début copie bit à bit...\"\nSTART_TIME=$(date +%s)\n\ndd if=$SOURCE of=$DESTINATION bs=4M status=progress conv=noerror,sync 2&gt;&amp;1 | tee -a $LOG\n\nEXIT_CODE=${PIPESTATUS[0]}\nEND_TIME=$(date +%s)\nDURATION=$((END_TIME - START_TIME))\n\n# 7. Vérifier résultat\nif [ $EXIT_CODE -eq 0 ]; then\n    log \"✅ Clonage terminé avec succès\"\n    log \"Durée : $DURATION secondes ($((DURATION / 60)) minutes)\"\n    \n    # 8. Vérification intégrité (checksums)\n    log \"Vérification intégrité (peut prendre du temps)...\"\n    \n    SOURCE_MD5=$(dd if=$SOURCE bs=4M | md5sum | awk '{print $1}')\n    DEST_MD5=$(dd if=$DESTINATION bs=4M count=$((SOURCE_SIZE / 4194304)) | md5sum | awk '{print $1}')\n    \n    if [ \"$SOURCE_MD5\" == \"$DEST_MD5\" ]; then\n        log \"✅ Intégrité vérifiée : Checksums identiques\"\n    else\n        log \"❌ AVERTISSEMENT : Checksums différents !\"\n        log \"   Source MD5 : $SOURCE_MD5\"\n        log \"   Dest MD5   : $DEST_MD5\"\n    fi\n    \nelse\n    log \"❌ Clonage échoué (code $EXIT_CODE)\"\n    exit 1\nfi\n\nlog \"Processus terminé\"</code><br><strong>🔹 dd vs autres outils</strong> :<br>Outil — Niveau — Vitesse — Compression — Réseau — Système fichiers — Use case<br><strong>dd</strong> — Bloc brut — ⚡⚡⚡⚡ — ❌ (manuel) — ⚠️ SSH — ❌ Ignore — Clone exact, forensics<br><strong>rsync</strong> — Fichiers — ⚡⚡⚡⚡⚡ — ✅ -z — ✅ Natif — ✅ Aware — Sync incrémentale<br><strong>clonezilla</strong> — Partition — ⚡⚡⚡⚡ — ✅ Intégré — ✅ Multicast — ✅ Aware — Déploiement mass<br><strong>partclone</strong> — Partition — ⚡⚡⚡⚡⚡ — ✅ Intégré — ❌ — ✅ Aware — Backup optimisé<br><strong>tar</strong> — Fichiers — ⚡⚡⚡ — ✅ Intégré — ⚠️ SSH — ✅ Aware — Archives portables<br><strong>🔹 Pièges fréquents dd</strong> :<br><code style=\"display:block;white-space:pre-wrap\">⚠️ ERREURS COURANTES :\n\n1️⃣ INVERSION if/of (catastrophique) :\n❌ dd if=/dev/sdb of=/dev/sda\n   → Écrase PRODUCTION par disque vide !\n\n✅ dd if=/dev/sda of=/dev/sdb\n   → Clone production vers backup\n\n2️⃣ OUBLI sudo :\n❌ dd if=/dev/sda of=/dev/sdb\n   → Permission denied\n\n✅ sudo dd if=/dev/sda of=/dev/sdb\n\n3️⃣ DESTINATION TROP PETITE :\n❌ dd if=/dev/sda (1TB) of=/dev/sdb (500GB)\n   → Erreur ou données tronquées\n\n✅ Vérifier tailles avec : lsblk -b\n\n4️⃣ UUID DUPLIQUÉS :\nProblème : Clone a même UUID que source\n→ Conflits si boot simultané\n\nSolution :\n# Générer nouveaux UUIDs\nsudo tune2fs -U random /dev/sdb1\nsudo tune2fs -U random /dev/sdb2\n\n5️⃣ PARTITION MONTÉE :\n❌ dd vers partition montée\n   → Corruption garantie\n\n✅ Démonter d'abord : sudo umount /dev/sdb1</code><br><strong>⚙️ dd pour création clé USB bootable</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Créer clé USB bootable Ubuntu\n# ⚠️ ÉCRASE COMPLÈTEMENT clé USB !\n\n# 1. Identifier clé USB\nlsblk\n# Résultat : /dev/sdc (8 GB)\n\n# 2. Démonter si monté\nsudo umount /dev/sdc*\n\n# 3. Copier ISO sur clé\nsudo dd if=ubuntu-24.04-desktop-amd64.iso of=/dev/sdc bs=4M status=progress oflag=sync\n\n# 4. Synchroniser (flush buffers)\nsudo sync\n\n# 5. Éjecter\nsudo eject /dev/sdc\n\n# Clé bootable prête !</code><br><strong>🔹 Forensics / Investigation</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Copie forensique (investigation cybersécurité)\n# But : Préserver image exacte pour analyse\n\n# 1. Copie avec hash intégrité\nsudo dd if=/dev/sda bs=4M conv=noerror,sync | tee &gt;(sha256sum &gt; /evidence/disk.sha256) &gt; /evidence/disk.img\n\n# 2. Vérifier intégrité\nsha256sum -c /evidence/disk.sha256\n\n# 3. Montage en lecture seule (analyse)\nsudo mount -o ro,loop,offset=1048576 /evidence/disk.img /mnt/forensic\n\n# Analyse sans modifier preuve</code><br><strong>💡 Points clés</strong> :<br>• dd = Copie BRUTE (ignorer système fichiers)<br>• bs=4M optimal pour SSD/HDD modernes<br>• TOUJOURS vérifier if/of (inversion = catastrophe)<br>• status=progress indispensable (suivi)<br>• conv=noerror,sync pour disques défectueux<br><strong>🎯 Cas réel</strong> : Upgrade serveur (HDD 1TB → SSD 2TB). <code>dd if=/dev/sda of=/dev/sdb bs=4M status=progress</code>. Temps : 18 minutes. Serveur redémarre sur SSD sans réinstall."},
       {"id":"exam_ccp8_q19","difficulty":"normal","question":"Avantage principal ?","options":[{"text":"Compression maximale","correct":false},{"text":"Démarrage VM directement depuis backup","correct":true},{"text":"Restauration plus rapide que normale","correct":false},{"text":"Coût réduit","correct":false}],"explication":"<strong>✅ Réponse correcte : B) Démarrer VM directement depuis repository backup</strong><br><strong>📋 Explication détaillée</strong> :<br>Instant VM Recovery est une fonctionnalité Veeam permettant de démarrer une VM directement depuis le repository de backup en quelques minutes, sans attendre la restauration complète des données (qui peut prendre des heures).<br><strong>🔹 Fonctionnement technique</strong> :<br><code style=\"display:block;white-space:pre-wrap\">⚡ PROCESSUS INSTANT VM RECOVERY :\n\nÉTAPE 1 : Détection panne VM production\n├─ VM-PROD-SQL crashe (corruption, panne serveur)\n├─ Temps écoulé : 0 minute\n└─ Décision : Instant Recovery\n\nÉTAPE 2 : Montage backup comme datastore\n├─ Veeam publie backup sur ESXi\n├─ Backup Repository monté via NFS\n├─ VM lit données DIRECTEMENT depuis backup\n├─ Temps : ⚡ 2-3 minutes\n└─ État : VM démarre depuis backup\n\nÉTAPE 3 : VM opérationnelle (temporaire)\n├─ VM fonctionne en production\n├─ Lectures : Depuis backup repository\n├─ Écritures : Vers snapshot delta (cache)\n├─ Temps : +2 minutes (boot VM)\n└─ RTO : ✅ ~5 minutes TOTAL\n\nÉTAPE 4 : Migration automatique (Quick Migration)\n├─ Storage vMotion en arrière-plan\n├─ Données copiées vers datastore production\n├─ Transparent pour utilisateurs (0 downtime)\n├─ Durée : 30 min - 2h selon taille\n└─ Fin : VM sur stockage production, repository libéré\n\n┌─────────────────────────────────────────┐\n│ TEMPS TOTAL RTO                         │\n├─────────────────────────────────────────┤\n│ Restauration traditionnelle : 2-4h      │ ❌\n│ Instant VM Recovery : 5 min             │ ✅\n├─────────────────────────────────────────┤\n│ GAIN : 96-98% temps indisponibilité     │\n└─────────────────────────────────────────┘</code><br><strong>🔹 Architecture technique</strong> :<br><code style=\"display:block;white-space:pre-wrap\">🏗️ COMPOSANTS IMPLIQUÉS :\n\n┌──────────────────────────────────────────┐\n│  VEEAM BACKUP SERVER                     │\n│  ├─ Contrôleur Instant Recovery          │\n│  └─ Orchestration migration              │\n└────────────┬─────────────────────────────┘\n             │\n    ┌────────▼────────┐\n    │ BACKUP REPOSITORY│\n    │  ├─ Backup files │\n    │  └─ NFS Export   │\n    └────────┬─────────┘\n             │ NFS Mount\n    ┌────────▼─────────────────────────────┐\n    │  ESXI HOST                            │\n    │  ├─ Datastore : [Veeam-Instant-xxx]  │ ← Backup monté\n    │  ├─ VM démarre depuis backup         │\n    │  └─ Snapshot delta (écritures)       │\n    └───────────────────────────────────────┘\n             │ Storage vMotion\n    ┌────────▼─────────────────────────────┐\n    │  DATASTORE PRODUCTION                 │\n    │  └─ VM migrée (final)                │\n    └───────────────────────────────────────┘</code><br><strong>⚙️ Procédure PowerShell</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># 1. Identifier restore point\n$VM = \"SERVEUR-SQL-PROD\"\n$RestorePoint = Get-VBRRestorePoint -Name $VM | \n    Sort-Object CreationTime -Descending | \n    Select-Object -First 1\n\nWrite-Host \"Restore point : $($RestorePoint.CreationTime)\"\n\n# 2. Lancer Instant VM Recovery\n$InstantRecovery = Start-VBRInstantRecovery `\n    -RestorePoint $RestorePoint `\n    -ServerName \"ESXI-HOST-02.local\" `\n    -VMName \"$VM-InstantRecovery\" `\n    -Reason \"Panne serveur production\" `\n    -PowerOn\n\nWrite-Host \"✅ VM démarrée en mode Instant Recovery\"\nWrite-Host \"Temps écoulé : $((Get-Date) - $StartTime)\"\n\n# 3. Vérifier état VM\nGet-VBRInstantRecovery | Where-Object {$_.VMName -like \"*$VM*\"} | \n    Select-Object VMName, State, StartTime, HostName\n\n# Output :\n# VMName                      : SERVEUR-SQL-PROD-InstantRecovery\n# State                       : Working\n# StartTime                   : 19/12/2025 14:35:00\n# HostName                    : ESXI-HOST-02.local\n\n# 4. Tester connectivité/services\nStart-Sleep -Seconds 60  # Attendre boot complet\n\n$VMGuest = Get-VM -Name \"$VM-InstantRecovery\"\n$IP = $VMGuest.Guest.IPAddress[0]\n\nWrite-Host \"IP VM : $IP\"\nTest-Connection -ComputerName $IP -Count 2\n\n# 5. Migration vers production (Quick Migration)\n# Méthode 1 : Automatique (recommandé)\nStart-VBRQuickMigration `\n    -InstantRecovery $InstantRecovery `\n    -TargetDatastore \"DATASTORE-PROD-01\" `\n    -DeleteSourceVM:$false\n\n# Méthode 2 : Manuelle (Storage vMotion GUI)\n# vSphere Client → VM → Migrate → Change storage → Select datastore\n\n# 6. Surveiller progression migration\nGet-VBRQuickMigration | Where-Object {$_.VMName -like \"*$VM*\"} |\n    Select-Object VMName, State, Progress, StartTime\n\n# Output :\n# VMName    : SERVEUR-SQL-PROD-InstantRecovery\n# State     : Migrating\n# Progress  : 45%\n# StartTime : 19/12/2025 14:40:00\n\n# 7. Finaliser (après migration complète)\nStop-VBRInstantRecovery -InstantRecovery $InstantRecovery\n\nWrite-Host \"✅ Migration terminée, VM sur stockage production\"</code><br><strong>🔹 Comparaison restauration traditionnelle vs Instant Recovery</strong> :<br><code style=\"display:block;white-space:pre-wrap\">📊 SCÉNARIO : VM SQL Server 500 GB\n\n❌ RESTAURATION TRADITIONNELLE :\n┌─────────────────────────────────────────┐\n│ ÉTAPES                                  │\n├─────────────────────────────────────────┤\n│ 1. Créer VM vide           : 5 min      │\n│ 2. Restaurer VMDK          : 90 min     │\n│ 3. Attacher disques        : 2 min      │\n│ 4. Démarrer VM             : 3 min      │\n│ 5. Vérifier intégrité SQL  : 10 min     │\n├─────────────────────────────────────────┤\n│ RTO TOTAL                  : 110 min    │ ⚠️\n└─────────────────────────────────────────┘\n\n✅ INSTANT VM RECOVERY :\n┌─────────────────────────────────────────┐\n│ ÉTAPES                                  │\n├─────────────────────────────────────────┤\n│ 1. Publier backup          : 2 min      │\n│ 2. Démarrer VM depuis backup: 3 min     │\n│ 3. Vérifier SQL            : 2 min      │\n├─────────────────────────────────────────┤\n│ RTO TOTAL                  : 7 min      │ ✅\n│ Migration arrière-plan     : 60 min     │ (transparent)\n└─────────────────────────────────────────┘\n\n🎯 GAIN RTO : 110 min → 7 min (94% réduction)</code><br><strong>🔹 Limitations et considérations</strong> :<br><code style=\"display:block;white-space:pre-wrap\">⚠️ LIMITATIONS INSTANT VM RECOVERY :\n\n1️⃣ PERFORMANCE :\n├─ Lectures depuis repository (plus lent que production)\n├─ Impact : 20-40% performance vs storage prod\n├─ Acceptable : Court terme (quelques heures)\n└─ Mitigation : Migration rapide vers production\n\n2️⃣ CHARGE REPOSITORY :\n├─ I/O soutenu pendant utilisation VM\n├─ Impact autres backups/restores\n└─ Best practice : Repository dédié (SSD)\n\n3️⃣ RÉSEAU :\n├─ Trafic I/O via réseau (NFS/iSCSI)\n├─ Bande passante : 1 Gbps minimum (10 Gbps recommandé)\n└─ Latence : &lt; 5ms (backup repository proche ESXi)\n\n4️⃣ SNAPSHOTS :\n├─ Écritures VM → Snapshot delta\n├─ Croissance snapshot rapide (haute activité)\n└─ Migration obligatoire avant saturation\n\n5️⃣ LICENSING :\n├─ Fonctionnalité : Veeam Enterprise Plus\n├─ Pas disponible : Standard/Essentials\n└─ Alternative : U-AIR (Universal Application-Item Recovery)</code><br><strong>⚙️ Configuration repository optimisé</strong> :<br><code style=\"display:block;white-space:pre-wrap\">🚀 BEST PRACTICES REPOSITORY INSTANT RECOVERY :\n\n💾 STOCKAGE :\n├─ Type : SSD ou All-Flash (IOPS élevés)\n├─ RAID : 10 ou 6 (performance + redondance)\n├─ Capacité : 3-5× taille VM critiques\n└─ Déduplication : Post-process (pas inline)\n\n🌐 RÉSEAU :\n├─ Connexion : 10 GbE minimum\n├─ VLAN dédié : Trafic backup/restore isolé\n├─ LAG/LACP : 2× 10 GbE agrégés = 20 Gbps\n└─ Jumbo Frames : MTU 9000\n\n📊 EXEMPLE CONFIGURATION :\n┌─────────────────────────────────────────┐\n│ Repository : Dell PowerVault ME4024     │\n│ ├─ Disques : 24× 1,92 TB SSD (RAID 10)  │\n│ ├─ Capacité : 23 TB utilisables         │\n│ ├─ IOPS : 450 000 lectures              │\n│ ├─ Connexion : 4× 10 GbE (LAG)          │\n│ └─ Coût : ~45 000€                      │\n└─────────────────────────────────────────┘</code><br><strong>🔹 Cas d'usage réels</strong> :<br><code style=\"display:block;white-space:pre-wrap\">🏥 CAS 1 : Hôpital - Serveur PACS (imagerie médicale)\nIncident : Crash serveur PACS (panne RAID controller)\n├─ VM : 2 TB données images médicales\n├─ Criticité : MAXIMALE (vie patients)\n├─ Solution : Instant VM Recovery\n├─ Temps restauration : 8 minutes\n├─ Résultat : Radiologues accès images, 0 patient impacté\n└─ Migration prod : 3 heures (arrière-plan, nuit)\n\n💰 CAS 2 : E-commerce - Serveur web Black Friday\nIncident : Corruption base MySQL (bug applicatif)\n├─ VM : 800 GB (DB + logs)\n├─ Perte CA : 5000€/heure\n├─ Solution : Instant VM Recovery (backup J-1)\n├─ Temps : 6 minutes\n├─ Résultat : Site en ligne, perte CA minimale (500€)\n└─ RPO : 24h acceptable (données transactionnelles)\n\n🏦 CAS 3 : Banque - Contrôleur domaine AD\nIncident : Ransomware chiffre DC principal\n├─ VM : 200 GB\n├─ Impact : Authentification impossible (2000 users)\n├─ Solution : Instant VM Recovery (backup 4h avant)\n├─ Temps : 4 minutes\n├─ Résultat : Users ré-authentifiés immédiatement\n└─ RPO : 4h (acceptable pour AD)</code><br><strong>🔹 Alternatives Hyper-V</strong> :<br><code style=\"display:block;white-space:pre-wrap\">📌 HYPER-V ÉQUIVALENTS :\n\n1️⃣ VEEAM INSTANT VM RECOVERY (Hyper-V)\n├─ Même principe que VMware\n├─ Backup publié via SMB\n└─ Migration via Live Migration\n\n2️⃣ WINDOWS SERVER BACKUP (natif)\n├─ Restauration vers Hyper-V\n├─ Pas de \"Instant\" (restauration complète)\n└─ Gratuit mais limité\n\nCode PowerShell Hyper-V :\n# Instant Recovery Hyper-V\nStart-VBRHvInstantRecovery `\n    -RestorePoint $RestorePoint `\n    -Server \"HYPERV-02\" `\n    -DatastoreName \"Volume-Backup\" `\n    -VMName \"VM-Recovery\"</code><br><strong>🔹 Checklist utilisation</strong> :<br><code style=\"display:block;white-space:pre-wrap\">☑️ CHECKLIST INSTANT VM RECOVERY\n\n▢ AVANT INCIDENT :\n  ▢ Repository SSD configuré\n  ▢ Réseau 10 GbE entre Veeam/ESXi\n  ▢ Tests mensuels Instant Recovery\n  ▢ Documentation procédure à jour\n  ▢ Licences Enterprise Plus actives\n\n▢ PENDANT INCIDENT :\n  ▢ Identifier dernier restore point valide\n  ▢ Vérifier ressources ESXi disponibles (CPU/RAM)\n  ▢ Lancer Instant Recovery\n  ▢ Surveiller boot VM\n  ▢ Tester services/connectivité\n\n▢ APRÈS RECOVERY :\n  ▢ Planifier Quick Migration\n  ▢ Exécuter migration (heures creuses)\n  ▢ Vérifier VM sur stockage prod\n  ▢ Arrêter Instant Recovery\n  ▢ Post-mortem incident (causes, améliorations)</code><br><strong>💡 Points clés</strong> :<br>• Instant Recovery = RTO de quelques MINUTES (vs heures)<br>• VM fonctionne depuis backup (temporaire)<br>• Migration arrière-plan vers production (transparent)<br>• Nécessite repository performant (SSD, 10 GbE)<br><strong>🎯 ROI</strong> : Downtime évité = ROI immédiat. Exemple : E-commerce 5k€/h indispo → Instant Recovery (6 min) économise 4900€ vs restauration standard (110 min)."},
       {"id":"exam_ccp8_q20","difficulty":"normal","question":"Politique 7-4-12 signifie ?","options":[{"text":"7 quotidiennes, 4 hebdomadaires, 12 mensuelles","correct":true},{"text":"7 jours, 4 mois, 12 ans","correct":false},{"text":"7 serveurs, 4 sites, 12 bandes","correct":false},{"text":"7h sauvegarde, 4h transfert, 12h rétention","correct":false}],"explication":"<strong>✅ Réponse correcte : A) 7 quotidiens, 4 hebdomadaires, 12 mensuels, 7 annuels</strong><br><strong>📋 Explication détaillée</strong> :<br>La rétention GFS (Grandfather-Father-Son) pour conformité légale doit tenir compte des obligations réglementaires de conservation des données, qui varient selon les secteurs mais nécessitent généralement des archives longue durée (5-10 ans minimum).<br><strong>🔹 Schéma GFS étendu 7-4-12-7</strong> :<br><code style=\"display:block;white-space:pre-wrap\">📅 ROTATION GFS CONFORMITÉ LÉGALE :\n\n👶 SON (Quotidiens) : 7 jours\n├─ Fréquence : Chaque jour ouvrable\n├─ Rétention : 1 semaine\n├─ Quantité : 7 backups\n└─ Usage : Récupération rapide erreurs récentes\n\n👨 FATHER (Hebdomadaires) : 4 semaines\n├─ Fréquence : Chaque dimanche\n├─ Rétention : 1 mois (4 semaines)\n├─ Quantité : 4 backups\n└─ Usage : Point restauration moyen terme\n\n👴 GRANDFATHER (Mensuels) : 12 mois\n├─ Fréquence : Dernier dimanche du mois\n├─ Rétention : 1 an (12 mois)\n├─ Quantité : 12 backups\n└─ Usage : Archives trimestrielles/annuelles\n\n🏛️ GREAT-GRANDFATHER (Annuels) : 7 ans\n├─ Fréquence : 31 décembre de chaque année\n├─ Rétention : 7 ans (conformité comptable)\n├─ Quantité : 7 backups\n└─ Usage : Archives légales/audit\n\n┌─────────────────────────────────────────┐\n│ TOTAL POINTS RESTAURATION : 7+4+12+7=30 │\n└─────────────────────────────────────────┘</code><br><strong>🔹 Obligations légales par secteur</strong> :<br>Secteur — Réglementation — Durée conservation — Données concernées — GFS recommandé<br><strong>Comptabilité</strong> — Code commerce (France) — <strong>10 ans</strong> — Factures, bilans, pièces comptables — 7-4-12-10<br><strong>Santé</strong> — Code santé publique — <strong>20 ans</strong> — Dossiers médicaux — 7-4-12-20<br><strong>Banque</strong> — AMF, ACPR — <strong>5-10 ans</strong> — Transactions, contrats — 7-4-60-10<br><strong>Assurance</strong> — Code assurances — <strong>10 ans</strong> — Contrats, sinistres — 7-4-12-10<br><strong>Paie/RH</strong> — Code du travail — <strong>5 ans</strong> — Bulletins salaires, contrats — 7-4-12-5<br><strong>Marchés publics</strong> — Code marchés publics — <strong>10 ans</strong> — Contrats, marchés — 7-4-12-10<br><strong>Données personnelles</strong> — RGPD — <strong>Selon finalité</strong> — Données clients/employés — 7-4-12-X<br><strong>⚙️ Configuration Veeam GFS étendu</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Configuration GFS 7-4-12-7 (conformité standard)\n\n$Job = Get-VBRJob -Name \"Backup-Comptabilite\"\n\n# Activer tous niveaux GFS\nSet-VBRJobOptions -Job $Job `\n    -GFSWeekly:$true `\n    -GFSWeeklyKeep 4 `\n    -GFSMonthly:$true `\n    -GFSMonthlyKeep 12 `\n    -GFSYearly:$true `\n    -GFSYearlyKeep 7\n\n# Vérifier configuration\nGet-VBRJobOptions -Job $Job | Select-Object GFS*\n\n# Résultat :\n# GFSWeekly          : True\n# GFSWeeklyKeep      : 4\n# GFSMonthly         : True\n# GFSMonthlyKeep     : 12\n# GFSYearly          : True\n# GFSYearlyKeep      : 7\n\n# Politique quotidienne (via Retention Policy)\nSet-VBRJobOptions -Job $Job `\n    -BackupRetentionPolicy Days `\n    -BackupRetentionPolicyValue 7\n\n# Lister tous restore points avec type GFS\nGet-VBRRestorePoint | Where-Object {$_.IsGFS} | \n    Select-Object VMName, CreationTime, \n        @{N=\"Type\";E={\n            switch ($_.GFSFlags) {\n                \"Weekly\" {\"Hebdomadaire\"}\n                \"Monthly\" {\"Mensuel\"}\n                \"Yearly\" {\"Annuel\"}\n                default {\"Quotidien\"}\n            }\n        }},\n        @{N=\"Expiration\";E={$_.ExpirationDate}}\n\n# Output exemple :\n# VMName          CreationTime         Type          Expiration\n# ------          ------------         ----          ----------\n# SRV-COMPTA      19/12/2025 02:00    Quotidien     26/12/2025\n# SRV-COMPTA      15/12/2025 02:00    Hebdomadaire  12/01/2026\n# SRV-COMPTA      01/12/2025 02:00    Mensuel       01/12/2026\n# SRV-COMPTA      31/12/2024 02:00    Annuel        31/12/2031</code><br><strong>🔹 Calcul stockage nécessaire</strong> :<br><code style=\"display:block;white-space:pre-wrap\">💾 EXEMPLE : Serveur ERP 1 TB avec GFS 7-4-12-7\n\nMÉTHODE 1 : Backups complets uniquement (non optimisé)\n├─ Quotidiens : 7 × 1 TB = 7 TB\n├─ Hebdomadaires : 4 × 1 TB = 4 TB\n├─ Mensuels : 12 × 1 TB = 12 TB\n├─ Annuels : 7 × 1 TB = 7 TB\n└─ TOTAL : 30 TB (⚠️ Coûteux)\n\nMÉTHODE 2 : Incrémentaux + Synthétiques (optimisé)\n├─ 1 Full initial : 1 TB\n├─ Incrémentaux quotidiens (2% change/jour) :\n│   └─ 7 jours × 20 GB = 140 GB\n├─ Synthétiques hebdomadaires : 4 × 1 TB = 4 TB\n├─ Mensuels : 12 × 1 TB = 12 TB\n├─ Annuels : 7 × 1 TB = 7 TB\n└─ TOTAL : ~24,1 TB (20% économie)\n\nMÉTHODE 3 : Déduplication + Compression (très optimisé)\n├─ Ratio dédup : 10:1 (VMs similaires)\n├─ Ratio compression : 2:1 (gzip level 6)\n├─ Calcul : 24,1 TB / 10 / 2 = 1,2 TB\n└─ TOTAL : ~1,2 TB (95% économie !)\n\n🎯 Recommandation : Méthode 3 (Veeam avec dédup + compression)</code><br><strong>🔹 Politique de déplacement (tiering)</strong> :<br><code style=\"display:block;white-space:pre-wrap\">🗄️ ARCHIVAGE MULTI-TIERS (optimisation coûts) :\n\nTIER 1 : QUOTIDIENS + HEBDOMADAIRES (chaud)\n├─ Support : SSD/NAS (accès rapide)\n├─ Données : 7 jours + 4 semaines = 11 backups\n├─ Coût : 200€/TB/an\n├─ RTO : &lt; 1 heure\n└─ Exemple : 11 TB × 200€ = 2200€/an\n\nTIER 2 : MENSUELS (tiède)\n├─ Support : HDD/S3 Standard\n├─ Données : 12 mois = 12 backups\n├─ Coût : 50€/TB/an\n├─ RTO : 2-4 heures\n└─ Exemple : 12 TB × 50€ = 600€/an\n\nTIER 3 : ANNUELS (froid)\n├─ Support : LTO/S3 Glacier Deep Archive\n├─ Données : 7 ans = 7 backups\n├─ Coût : 12€/TB/an\n├─ RTO : 12-48 heures\n└─ Exemple : 7 TB × 12€ = 84€/an\n\nCOÛT TOTAL ANNUEL : 2200 + 600 + 84 = 2884€\nVS Tout SSD : 30 TB × 200€ = 6000€\n🎯 ÉCONOMIE : 52% grâce tiering intelligent</code><br><strong>⚙️ Configuration AWS S3 Lifecycle (tiering automatique)</strong> :<br><code style=\"display:block;white-space:pre-wrap\">{\n  \"Rules\": [\n    {\n      \"Id\": \"GFS-Lifecycle-Policy\",\n      \"Status\": \"Enabled\",\n      \"Transitions\": [\n        {\n          \"Days\": 7,\n          \"StorageClass\": \"STANDARD_IA\"\n        },\n        {\n          \"Days\": 30,\n          \"StorageClass\": \"GLACIER_IR\"\n        },\n        {\n          \"Days\": 365,\n          \"StorageClass\": \"DEEP_ARCHIVE\"\n        }\n      ],\n      \"NoncurrentVersionTransitions\": [\n        {\n          \"NoncurrentDays\": 7,\n          \"StorageClass\": \"GLACIER\"\n        }\n      ],\n      \"Expiration\": {\n        \"Days\": 2555\n      }\n    }\n  ]\n}</code><br><code style=\"display:block;white-space:pre-wrap\"># Appliquer lifecycle policy\naws s3api put-bucket-lifecycle-configuration \\\n    --bucket backup-archives-comptabilite \\\n    --lifecycle-configuration file://lifecycle-gfs.json\n\n# Vérifier politique\naws s3api get-bucket-lifecycle-configuration \\\n    --bucket backup-archives-comptabilite\n\n# Résultat :\n# 0-7 jours : S3 Standard (accès fréquent)\n# 7-30 jours : S3 Standard-IA (accès peu fréquent)\n# 30-365 jours : S3 Glacier Instant Retrieval\n# 365+ jours : S3 Glacier Deep Archive (&lt; 1€/TB/mois)\n# Expiration : 2555 jours (7 ans)</code><br><strong>🔹 Documentation conformité</strong> :<br><code style=\"display:block;white-space:pre-wrap\">📋 REGISTRE BACKUPS (conformité audit)\n\nObligatoire pour prouver conformité lors audits/contrôles.\n</code>"},
+      {"id":"exam_ccp9_q1","difficulty":"normal","question":"Que fait Sysprep /generalize ?","options":[{"text":"Compresse image","correct":false},{"text":"Supprime SID et infos machine spécifiques","correct":true},{"text":"Chiffre disque","correct":false},{"text":"Crée partition","correct":false}],"explication":"<strong>Explication</strong> : <code>sysprep /generalize</code> supprime les informations spécifiques (SID, nom PC, activation) pour rendre l'image réutilisable. <code>/oobe</code> lance l'expérience de première utilisation au prochain boot. Sans généralisation, deux PCs auraient le même SID (problème de sécurité AD).<br><code style=\"display:block;white-space:pre-wrap\">C:\\Windows\\System32\\Sysprep\\sysprep.exe /generalize /oobe /shutdown</code><br><strong>Cas d'usage</strong> : Préparer un PC maître Windows 10/11 avant capture d'image pour déploiement sur 100 postes identiques."},
+      {"id":"exam_ccp9_q2","difficulty":"normal","question":"Prérequis WDS ?","options":[{"text":"Active Directory + DHCP + NTFS","correct":true},{"text":"Internet uniquement","correct":false},{"text":"VMware vSphere","correct":false},{"text":"Linux serveur","correct":false}],"explication":"<strong>Explication</strong> : WDS s'intègre à AD pour authentifier les clients et gérer les permissions. DHCP fournit les adresses IP et les options PXE (66/67). DNS résout le nom du serveur WDS. NTFS est obligatoire pour stocker les images (ACL et compression).<br>Composant — Rôle<br><strong>AD</strong> — Authentification/autorisation<br><strong>DHCP</strong> — Attribution IP + options PXE<br><strong>DNS</strong> — Résolution nom serveur<br><strong>NTFS</strong> — Stockage images (ACL)<br><strong>Cas d'usage</strong> : Infrastructure Server 2022 avec domaine contoso.local pour déployer 200 postes Win11."},
+      {"id":"exam_ccp9_q3","difficulty":"normal","question":"Que signifie PXE ?","options":[{"text":"Pre-eXecution Environment (boot réseau)","correct":true},{"text":"Partition eXtended Environment","correct":false},{"text":"Post eXecution Engine","correct":false},{"text":"Protocol eXchange Ethernet","correct":false}],"explication":"<strong>Explication</strong> : Le client PXE (firmware réseau) envoie une requête DHCP pour obtenir IP + adresse serveur TFTP. Il télécharge le bootloader (wdsnbp.com) puis le menu de démarrage via TFTP. Aucun support local nécessaire (USB, disque vide).<br><code style=\"display:block;white-space:pre-wrap\">Client PXE → DHCP Discover → DHCP Offer (IP + options 66/67) → TFTP boot.wim</code><br><strong>Cas d'usage</strong> : Déployer Windows sur 50 PCs neufs sans clé USB ni intervention manuelle."},
+      {"id":"exam_ccp9_q4","difficulty":"normal","question":"Format image Windows Deployment ?","options":[{"text":"ISO","correct":false},{"text":"WIM (Windows Imaging)","correct":true},{"text":"VMDK","correct":false},{"text":"VHD","correct":false}],"explication":"<strong>Explication</strong> : WIM (Windows Imaging Format) est un format basé fichiers (pas secteurs comme Ghost). Supporte compression LZX, multi-index (plusieurs éditions dans 1 fichier) et montage lecture/écriture. DISM est l'outil natif pour monter, modifier et appliquer les WIM.<br><code style=\"display:block;white-space:pre-wrap\">Dism /Get-ImageInfo /ImageFile:install.wim  # Lister les index\nDism /Mount-Wim /WimFile:install.wim /Index:1 /MountDir:C:\\Mount</code><br><strong>Cas d'usage</strong> : Un seul install.wim contient Win11 Pro (index 1) et Enterprise (index 2) pour économiser l'espace."},
+      {"id":"exam_ccp9_q5","difficulty":"normal","question":"Avantage MDT sur WDS seul ?","options":[{"text":"Plus rapide","correct":false},{"text":"Automatisation complète (Task Sequences, drivers, apps)","correct":true},{"text":"Gratuit","correct":false},{"text":"Boot PXE","correct":false}],"explication":"<strong>Explication</strong> : WDS déploie uniquement l'image OS brute. MDT ajoute des Task Sequences pour automatiser installation d'apps, injection drivers, configuration BIOS, jonction domaine et personnalisation post-déploiement. MDT utilise WDS comme mécanisme de transport.<br>Critère — WDS — MDT<br><strong>OS seul</strong> — ✓ — ✓<br><strong>Applications</strong> — ✗ — ✓<br><strong>Drivers</strong> — Limité — ✓ Inject auto<br><strong>Personnalisation</strong> — Unattend.xml — Task Sequences<br><strong>Cas d'usage</strong> : MDT pour déployer Win11 + Office 365 + drivers HP + join domaine en 1 clic."},
+      {"id":"exam_ccp9_q6","difficulty":"normal","question":"Utilité fichier unattend.xml ?","options":[{"text":"Pilotes réseau","correct":false},{"text":"Automatise réponses installation Windows","correct":true},{"text":"Chiffrement données","correct":false},{"text":"Compression image","correct":false}],"explication":"<strong>Explication</strong> : Unattend.xml contient les réponses aux questions du setup Windows. Sections principales : <strong>windowsPE</strong> (partitions, clé), <strong>specialize</strong> (nom PC, domaine), <strong>oobeSystem</strong> (compte local, fuseau). Créé avec Windows SIM (System Image Manager).<br>Section — Contenu<br><strong>windowsPE</strong> — Partitionnement, langue, clé produit<br><strong>specialize</strong> — Nom PC, join domaine, réseau<br><strong>oobeSystem</strong> — Compte admin, skip OOBE<br><strong>Cas d'usage</strong> : Déployer 100 PCs avec nom auto PC-001 à PC-100 et jonction domaine contoso.local sans interaction."},
+      {"id":"exam_ccp9_q7","difficulty":"normal","question":"Options DHCP pour PXE ?","options":[{"text":"66 (serveur TFTP) + 67 (fichier boot)","correct":true},{"text":"3 (gateway) + 6 (DNS)","correct":false},{"text":"15 (domain) + 44 (WINS)","correct":false},{"text":"82 (relay)","correct":false}],"explication":"<strong>Explication</strong> : Option 66 indique l'IP ou nom DNS du serveur TFTP/WDS. Option 67 spécifie le chemin du bootloader réseau (ex: <code>boot\\x64\\wdsnbp.com</code> pour UEFI x64). Le client PXE télécharge ce fichier pour afficher le menu WDS.<br><code style=\"display:block;white-space:pre-wrap\">Set-DhcpServerv4OptionValue -OptionId 66 -Value \"192.168.1.10\"\nSet-DhcpServerv4OptionValue -OptionId 67 -Value \"boot\\x64\\wdsnbp.com\"</code><br><strong>Cas d'usage</strong> : Configuration DHCP pour permettre à 200 PCs UEFI de booter en PXE sur le serveur WDS."},
+      {"id":"exam_ccp9_q8","difficulty":"normal","question":"Mode Clonezilla pour déployer 1 image → 50 PCs simultanément ?","options":[{"text":"Device-device","correct":false},{"text":"Multicast","correct":true},{"text":"Unicast","correct":false},{"text":"Broadcast","correct":false}],"explication":"<strong>Explication</strong> : Le multicast WDS envoie l'image une seule fois sur une adresse IP multicast (239.x.x.x). Tous les clients reçoivent le même flux simultanément. Économise massivement la bande passante : 50 PCs = 1x trafic au lieu de 50x en unicast.<br>Type — Bande passante — Vitesse<br><strong>Unicast</strong> — N × taille image — Rapide par client<br><strong>Multicast</strong> — 1 × taille image — Lent (attente tous)<br><strong>Cas d'usage</strong> : Déployer 100 PCs simultanément dans une salle de formation sans saturer le réseau 1 Gbps."},
+      {"id":"exam_ccp9_q9","difficulty":"normal","question":"Monter image WIM en lecture/écriture ?","options":[{"text":"<code>Dism /Mount-Wim /WimFile:x.wim /Index:1 /MountDir:C:\\mount</code>","correct":true},{"text":"<code>Dism /Open-Image</code>","correct":false},{"text":"<code>Mount-WindowsImage</code>","correct":false},{"text":"<code>wiminfo</code>","correct":false}],"explication":"<strong>Explication</strong> : <code>/Mount-Wim</code> monte l'image en lecture/écriture. <code>/Add-Driver</code> injecte drivers .inf, <code>/Add-Package</code> installe mises à jour .cab/.msu. <code>/Commit-Wim</code> sauvegarde les modifications, <code>/Unmount-Wim /Discard</code> annule. Workflow classique : mount → modify → commit.<br><code style=\"display:block;white-space:pre-wrap\">Dism /Mount-Wim /WimFile:install.wim /Index:1 /MountDir:C:\\Mount\nDism /Image:C:\\Mount /Add-Driver /Driver:C:\\Drivers /Recurse\nDism /Commit-Wim /MountDir:C:\\Mount</code><br><strong>Cas d'usage</strong> : Intégrer drivers réseau HP dans une image Win11 avant déploiement sur 50 PC HP."},
+      {"id":"exam_ccp9_q10","difficulty":"normal","question":"Différence KMS vs MAK ?","options":[{"text":"KMS = serveur local renouvelle 180j, MAK = activations limitées Internet","correct":true},{"text":"Aucune","correct":false},{"text":"KMS payant, MAK gratuit","correct":false},{"text":"KMS home, MAK entreprise","correct":false}],"explication":"<strong>Explication</strong> : KMS (Key Management Service) active via serveur local, renouvellement tous les 180j, minimum 25 PCs/5 servers. MAK (Multiple Activation Key) active directement sur serveurs Microsoft, compteur décrémenté, pas de renouvellement. KMS préféré en entreprise (pas de connexion Internet).<br>Type — Serveur — Renouvellement — Minimum<br><strong>KMS</strong> — Local — 180 jours — 25 PCs<br><strong>MAK</strong> — Microsoft — Non — 1 activation<br><strong>Cas d'usage</strong> : KMS pour 500 PCs en réseau privé, MAK pour 10 laptops nomades sans VPN."},
+      {"id":"exam_ccp9_q11","difficulty":"normal","question":"Commande PowerShell joindre domaine ?","options":[{"text":"<code>Join-Domain</code>","correct":false},{"text":"<code>Add-Computer -DomainName \"entreprise.local\"</code>","correct":true},{"text":"<code>Set-Domain</code>","correct":false},{"text":"<code>Connect-AD</code>","correct":false}],"explication":"<strong>Explication</strong> : <code>Add-Computer</code> joint un PC au domaine AD via PowerShell. <code>-Credential</code> spécifie un compte autorisé (Domain Admins ou délégation OU). <code>-Restart</code> redémarre automatiquement après jonction. Alternative : section <code>&lt;Identification&gt;</code> dans unattend.xml.<br><code style=\"display:block;white-space:pre-wrap\">$Cred = Get-Credential CONTOSO\\admin\nAdd-Computer -DomainName contoso.local -Credential $Cred -Restart -Force</code><br><strong>Cas d'usage</strong> : Script post-déploiement qui joint automatiquement 100 PCs au domaine après installation OS."},
+      {"id":"exam_ccp9_q12","difficulty":"normal","question":"Injecter drivers dans image offline ?","options":[{"text":"<code>Dism /Add-Driver /Driver:C:\\drivers /Recurse</code>","correct":true},{"text":"<code>Install-Driver</code>","correct":false},{"text":"<code>Import-Drivers</code>","correct":false},{"text":"Impossible offline","correct":false}],"explication":"<strong>Explication</strong> : Monter l'image avec <code>/Mount-Wim</code>, puis utiliser <code>/Add-Driver /Driver:C:\\Drivers /Recurse</code> pour scanner tous les sous-dossiers et injecter les .inf détectés. <code>/ForceUnsigned</code> force l'ajout de drivers non signés. Commit pour sauvegarder.<br><code style=\"display:block;white-space:pre-wrap\">Dism /Image:C:\\Mount /Add-Driver /Driver:C:\\Drivers\\HP /Recurse\nDism /Image:C:\\Mount /Get-Drivers  # Vérifier injection</code><br><strong>Cas d'usage</strong> : Intégrer drivers réseau, chipset et GPU Dell dans une image avant déploiement sur parc homogène."},
+      {"id":"exam_ccp9_q13","difficulty":"normal","question":"Windows PE (Preinstallation Environment) sert à ?","options":[{"text":"Environnement minimal boot réseau/USB","correct":true},{"text":"Antivirus","correct":false},{"text":"Navigateur web","correct":false},{"text":"Suite bureautique","correct":false}],"explication":"<strong>Explication</strong> : WinPE (Windows Preinstallation Environment) est un mini-Windows bootable (500 Mo) basé sur le noyau NT. Utilisé pour capturer/appliquer des images, exécuter DISM, partitionner des disques ou dépanner un OS corrompu. Chargé en RAM, ne persiste pas après reboot.<br><code style=\"display:block;white-space:pre-wrap\"># Créer WinPE personnalisé\ncopype amd64 C:\\WinPE\nDism /Mount-Wim /WimFile:C:\\WinPE\\media\\sources\\boot.wim /Index:1 /MountDir:C:\\Mount</code><br><strong>Cas d'usage</strong> : Booter sur une clé USB WinPE pour capturer l'image d'un PC maître avec DISM."},
+      {"id":"exam_ccp9_q14","difficulty":"normal","question":"Avantage déploiement multicast ?","options":[{"text":"Plus sécurisé","correct":false},{"text":"1 flux réseau pour N postes (économie BP)","correct":true},{"text":"Plus rapide","correct":false},{"text":"Pas besoin DHCP","correct":false}],"explication":"<strong>Explication</strong> : En unicast, le serveur WDS envoie l'image séparément à chaque client : 100 clients × 5 Go = 500 Go trafic réseau. En multicast, un seul flux partagé : 1 × 5 Go = 5 Go trafic total. Gain critique sur liens &lt;10 Gbps.<br>Scénario — Unicast — Multicast<br><strong>10 PCs × 5 Go</strong> — 50 Go — 5 Go<br><strong>100 PCs × 5 Go</strong> — 500 Go — 5 Go<br><strong>Cas d'usage</strong> : Multicast obligatoire pour déployer 200 PCs simultanément sur un réseau 1 Gbps (éviter saturation)."},
+      {"id":"exam_ccp9_q15","difficulty":"normal","question":"Que contient Task Sequence ?","options":[{"text":"Drivers uniquement","correct":false},{"text":"Séquence automatisée (partition + OS + drivers + apps + config)","correct":true},{"text":"Fichier ISO","correct":false},{"text":"Clé produit","correct":false}],"explication":"<strong>Explication</strong> : Une Task Sequence MDT est une liste ordonnée d'actions : partitionner, appliquer OS, injecter drivers, installer apps, joindre domaine, exécuter scripts. Supporte conditions (WMI queries), variables (%Model%) et groupes pour personnalisation par modèle PC.<br>Étape — Action<br><strong>1. Partition</strong> — Format C:, créer partitions<br><strong>2. OS</strong> — Appliquer install.wim<br><strong>3. Drivers</strong> — Injection auto par modèle<br><strong>4. Apps</strong> — Chrome, Office, 7-Zip<br><strong>5. Domain</strong> — Join + rename<br><strong>Cas d'usage</strong> : Task Sequence qui déploie Win11 + drivers Dell + Office 365 + join domaine en 45 min sans interaction."},
+      {"id":"exam_ccp9_q16","difficulty":"normal","question":"Qu'est-ce que Chocolatey ?","options":[{"text":"Gestionnaire paquets Windows (apps)","correct":true},{"text":"Logiciel sauvegarde","correct":false},{"text":"Antivirus","correct":false},{"text":"Navigateur","correct":false}],"explication":"<strong>Explication</strong> : Chocolatey installe logiciels via ligne de commande (comme apt/yum Linux). Syntaxe : <code>choco install &lt;package&gt;</code>. Paramètre <code>-y</code> pour accepter automatiquement. Utile en scripts post-déploiement pour installer des apps standardisées sans intervention.<br><code style=\"display:block;white-space:pre-wrap\">choco install googlechrome firefox 7zip adobereader -y\nchoco upgrade all -y  # Tout mettre à jour</code><br><strong>Cas d'usage</strong> : Script MDT qui installe automatiquement Chrome, 7-Zip, VLC sur tous les nouveaux PCs."},
+      {"id":"exam_ccp9_q17","difficulty":"normal","question":"Format requis déploiement logiciel GPO ?","options":[{"text":".EXE","correct":false},{"text":".MSI","correct":true},{"text":".ZIP","correct":false},{"text":".BAT","correct":false}],"explication":"<strong>Explication</strong> : GPO Software Installation (Computer Configuration\\Software Settings) déploie uniquement les packages .MSI. Les .EXE doivent être repackagés en MSI ou déployés via script. Mode Published (utilisateur) ou Assigned (forcé au boot/logon).<br><code style=\"display:block;white-space:pre-wrap\"># Structure partage\n\\\\SRV01\\Packages$\\7-Zip\\7z.msi\n\\\\SRV01\\Packages$\\Chrome\\chrome.msi\n\nGPO : Assigned → Installe au boot PC</code><br><strong>Cas d'usage</strong> : GPO qui déploie 7-Zip.msi sur tous les PCs du domaine au prochain redémarrage."},
+      {"id":"exam_ccp9_q18","difficulty":"normal","question":"Réduire taille image WIM ?","options":[{"text":"<code>Dism /Export-Image /Compress:max</code>","correct":true},{"text":"<code>Dism /Shrink</code>","correct":false},{"text":"<code>Compact-Image</code>","correct":false},{"text":"ZIP","correct":false}],"explication":"<strong>Explication</strong> : <code>/Export-Image</code> reconstruit le WIM en éliminant les fichiers supprimés et recompressant avec LZX maximum. Une image modifiée 10 fois accumule des deltas : export nettoie et réduit la taille de 20-40%. Améliore aussi les performances de déploiement.<br><code style=\"display:block;white-space:pre-wrap\">Dism /Export-Image /SourceImageFile:install.wim /SourceIndex:1 ^\n     /DestinationImageFile:install_optimized.wim /Compress:max</code><br><strong>Cas d'usage</strong> : Optimiser un install.wim de 8 Go devenu 12 Go après 15 modifications DISM pour revenir à 7 Go."},
+      {"id":"exam_ccp9_q19","difficulty":"normal","question":"Standard nommage PC entreprise ?","options":[{"text":"PC001, PC002","correct":false},{"text":"SITE-DEPT-TYPE-NUM (ex: PAR-RH-DT-001)","correct":true},{"text":"Nom utilisateur","correct":false},{"text":"Aléatoire","correct":false}],"explication":"<strong>Explication</strong> : Postes standardisés (même OS, apps, config) simplifient le troubleshooting (problèmes reproductibles), l'inventaire (moins de variantes) et l'application GPO (pas de cas particuliers). Réduit les coûts de support et formation.<br>Avantage — Impact<br><strong>Support</strong> — Scripts universels<br><strong>GPO</strong> — Application homogène<br><strong>Formation</strong> — Une procédure pour tous<br><strong>Inventaire</strong> — 2 images au lieu de 20<br><strong>Cas d'usage</strong> : Entreprise 500 PCs avec 2 images (Bureau et Laptop) au lieu de 50 configurations différentes."},
+      {"id":"exam_ccp9_q20","difficulty":"normal","question":"Étapes capture image référence ?","options":[{"text":"Sysprep → Boot WinPE → Capture → Import WDS","correct":true},{"text":"Copier C:\\ directement","correct":false},{"text":"ZIP dossier Windows","correct":false},{"text":"Snapshot VM","correct":false}],"explication":"<strong>Explication</strong> : Workflow complet : 1) Configurer PC maître (OS + apps), 2) Sysprep /generalize, 3) Booter en WinPE, 4) Capturer avec DISM, 5) Importer dans WDS/MDT, 6) Déployer via PXE. Le cycle itératif permet de mettre à jour l'image en recapturant le maître.<br><code style=\"display:block;white-space:pre-wrap\">PC Maître → Sysprep → Boot WinPE → DISM /Capture → install.wim → WDS → PXE Deploy</code><br><strong>Cas d'usage</strong> : Créer image Win11 Pro + Office + drivers Dell, puis déployer sur 200 PC identiques en 1h."},
       /* EXAMEN_QCM */
     ],
   },

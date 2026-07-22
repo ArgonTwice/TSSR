@@ -3473,8 +3473,500 @@ const MODULES = [
           { type: 'svg', content: '<svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg" font-family="monospace" style="display:block;max-width:100%;border-radius:8px"><rect width="560" height="220" rx="8" fill="#0d1117"/><text x="280" y="22" fill="#e2e8f0" text-anchor="middle" font-size="12" font-weight="bold">Architecture Azure AD Connect Hybride</text><rect x="10" y="35" width="175" height="170" rx="6" fill="#0f2027" stroke="#3b82f6" stroke-width="1.5"/><text x="97" y="54" fill="#60a5fa" text-anchor="middle" font-size="10" font-weight="bold">On-Premise</text><rect x="22" y="62" width="151" height="28" rx="4" fill="#1e293b" stroke="#475569"/><text x="97" y="76" fill="#e2e8f0" text-anchor="middle" font-size="9" font-weight="bold">AD Domain Controller</text><text x="97" y="87" fill="#94a3b8" text-anchor="middle" font-size="8">tssr.local</text><rect x="22" y="98" width="151" height="28" rx="4" fill="#1e293b" stroke="#475569"/><text x="97" y="112" fill="#e2e8f0" text-anchor="middle" font-size="9" font-weight="bold">Azure AD Connect</text><text x="97" y="123" fill="#94a3b8" text-anchor="middle" font-size="8">Serveur dédié</text><rect x="22" y="134" width="68" height="22" rx="3" fill="#14532d" stroke="#22c55e" stroke-width="1"/><text x="56" y="149" fill="#86efac" text-anchor="middle" font-size="8">PHS/PTA</text><rect x="105" y="134" width="68" height="22" rx="3" fill="#14532d" stroke="#22c55e" stroke-width="1"/><text x="139" y="149" fill="#86efac" text-anchor="middle" font-size="8">Seamless SSO</text><rect x="22" y="163" width="151" height="22" rx="3" fill="#1c1917" stroke="#d97706" stroke-width="1"/><text x="97" y="178" fill="#fbbf24" text-anchor="middle" font-size="8">Kerberos / NTLM</text><rect x="375" y="35" width="175" height="170" rx="6" fill="#0f1f2e" stroke="#7c3aed" stroke-width="1.5"/><text x="462" y="54" fill="#a78bfa" text-anchor="middle" font-size="10" font-weight="bold">Azure Cloud</text><rect x="387" y="62" width="151" height="28" rx="4" fill="#1e293b" stroke="#475569"/><text x="462" y="76" fill="#e2e8f0" text-anchor="middle" font-size="9" font-weight="bold">Azure AD (Entra ID)</text><text x="462" y="87" fill="#94a3b8" text-anchor="middle" font-size="8">tssr.onmicrosoft.com</text><rect x="387" y="98" width="68" height="22" rx="3" fill="#1e293b" stroke="#475569"/><text x="421" y="113" fill="#94a3b8" text-anchor="middle" font-size="8">Office 365</text><rect x="469" y="98" width="69" height="22" rx="3" fill="#1e293b" stroke="#475569"/><text x="503" y="113" fill="#94a3b8" text-anchor="middle" font-size="8">Azure Apps</text><rect x="387" y="128" width="151" height="22" rx="3" fill="#1c1917" stroke="#d97706" stroke-width="1"/><text x="462" y="143" fill="#fbbf24" text-anchor="middle" font-size="8">Conditional Access / MFA</text><rect x="387" y="158" width="151" height="22" rx="3" fill="#0c1a0f" stroke="#22c55e" stroke-width="1"/><text x="462" y="173" fill="#86efac" text-anchor="middle" font-size="8">SSPR (Password Writeback)</text><line x1="185" y1="112" x2="240" y2="112" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr)"/><line x1="240" y1="125" x2="185" y2="125" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3"/><line x1="320" y1="112" x2="375" y2="112" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr)"/><line x1="375" y1="125" x2="320" y2="125" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3"/><rect x="220" y="95" width="120" height="45" rx="5" fill="#0d1117" stroke="#334155"/><text x="280" y="112" fill="#e2e8f0" text-anchor="middle" font-size="9" font-weight="bold">HTTPS 443</text><text x="280" y="124" fill="#60a5fa" text-anchor="middle" font-size="8">Sync toutes 30min</text><text x="280" y="135" fill="#7c3aed" text-anchor="middle" font-size="8">Writeback MDP</text><defs><marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/></marker></defs></svg>' },
         ],
       },
+      {
+        "id": "ad-avance-fiche-ccp2",
+        "titre": "Windows Server / AD / PowerShell — Fiche de synthèse (CCP2)",
+        "sections": [
+          {
+            "type": "p",
+            "content": "<strong>Certification TSSR</strong> - CCP2 : Exploiter des serveurs Windows et un domaine ActiveDirectory"
+          },
+          {
+            "type": "h2",
+            "content": "1. ACTIVE DIRECTORY (AD)"
+          },
+          {
+            "type": "h3",
+            "content": "Structure hiérarchique"
+          },
+          {
+            "type": "code",
+            "content": "FORÊT (Forest)\n  └── DOMAINE (Domain)\n        └── UNITÉS ORGANISATIONNELLES (OU)\n              └── OBJETS (Users, Computers, Groups)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Forêt</strong> : Limite sécurité, schéma AD commun, relations d'approbation   <strong>Domaine</strong> : Limite administrative, réplication, politiques   <strong>OU</strong> : Conteneurs personnalisables, application GPO   <strong>Objets</strong> : Utilisateurs, ordinateurs, groupes"
+          },
+          {
+            "type": "h3",
+            "content": "Contrôleur de domaine (DC)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Rôles FSMO</strong> (5 rôles) :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Forêt</strong> (2) : Maître de schéma, Maître d'attribution de noms de domaine",
+              "<strong>Domaine</strong> (3) : Émulateur PDC, Maître RID, Maître d'infrastructure"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Commandes</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# Installer AD DS\nInstall-WindowsFeature AD-Domain-Services -IncludeManagementTools\n\n# Promouvoir serveur en DC\nInstall-ADDSForest -DomainName \"entreprise.local\"\n\n# Vérifier rôles FSMO\nGet-ADDomain | Select-Object PDCEmulator, RIDMaster, InfrastructureMaster"
+          },
+          {
+            "type": "h2",
+            "content": "2. GESTION UTILISATEURS ET GROUPES"
+          },
+          {
+            "type": "h3",
+            "content": "Créer utilisateur"
+          },
+          {
+            "type": "p",
+            "content": "<strong>PowerShell</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "New-ADUser -Name \"Jean Dupont\" `\n  -GivenName \"Jean\" `\n  -Surname \"Dupont\" `\n  -SamAccountName \"jdupont\" `\n  -UserPrincipalName \"jdupont@entreprise.local\" `\n  -Path \"OU=Utilisateurs,DC=entreprise,DC=local\" `\n  -AccountPassword (ConvertTo-SecureString \"P@ssw0rd123!\" -AsPlainText -Force) `\n  -Enabled $true"
+          },
+          {
+            "type": "h3",
+            "content": "Créer groupe"
+          },
+          {
+            "type": "code",
+            "content": "New-ADGroup -Name \"GRP_RH\" `\n  -GroupScope Global `\n  -GroupCategory Security `\n  -Path \"OU=Groupes,DC=entreprise,DC=local\"\n\n# Ajouter membre\nAdd-ADGroupMember -Identity \"GRP_RH\" -Members \"jdupont\""
+          },
+          {
+            "type": "h3",
+            "content": "Recherches utiles"
+          },
+          {
+            "type": "code",
+            "content": "# Utilisateurs désactivés\nGet-ADUser -Filter {Enabled -eq $false}\n\n# Utilisateurs OU spécifique\nGet-ADUser -SearchBase \"OU=RH,DC=entreprise,DC=local\" -Filter *\n\n# Dernière connexion >90 jours\n$date = (Get-Date).AddDays(-90)\nGet-ADUser -Filter {LastLogonDate -lt $date} -Properties LastLogonDate"
+          },
+          {
+            "type": "h2",
+            "content": "3. STRATÉGIES DE GROUPE (GPO)"
+          },
+          {
+            "type": "h3",
+            "content": "Chemins GPO essentiels"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Configuration ordinateur</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Computer Configuration\n  └── Policies\n        ├── Software Settings\n        ├── Windows Settings\n        │     ├── Security Settings (mots de passe, audit, pare-feu)\n        │     └── Scripts (démarrage/arrêt)\n        └── Administrative Templates\n              ├── System (USB, BitLocker, Windows Update)\n              └── Network (Wi-Fi, VPN)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Configuration utilisateur</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "User Configuration\n  └── Policies\n        ├── Software Settings\n        ├── Windows Settings\n        │     ├── Folder Redirection\n        │     └── Scripts (ouverture/fermeture session)\n        └── Administrative Templates\n              ├── Desktop (fond d'écran, widgets)\n              └── Start Menu (épingler applications)"
+          },
+          {
+            "type": "h3",
+            "content": "GPO courantes"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Bloquer clés USB</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Computer Config → Admin Templates → System → Removable Storage Access\n→ All Removable Storage: Deny all access = Enabled"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Mappage lecteurs réseau</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "User Config → Preferences → Windows Settings → Drive Maps\n→ New → Mapped Drive\n   Action: Create\n   Location: \\\\SRV-FILE01\\Partages\n   Drive Letter: P:"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Stratégie mots de passe</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Computer Config → Policies → Windows Settings → Security Settings → Account Policies → Password Policy\n→ Minimum password length: 12 characters\n→ Password must meet complexity requirements: Enabled\n→ Maximum password age: 90 days"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes GPO"
+          },
+          {
+            "type": "code",
+            "content": "# Créer GPO\nNew-GPO -Name \"GPO-Securite-RH\"\n\n# Lier GPO à OU\nNew-GPLink -Name \"GPO-Securite-RH\" -Target \"OU=RH,DC=entreprise,DC=local\"\n\n# Forcer application\ngpupdate /force\n\n# Rapport GPO utilisateur\ngpresult /r\ngpresult /h rapport.html"
+          },
+          {
+            "type": "h2",
+            "content": "4. DNS WINDOWS SERVER"
+          },
+          {
+            "type": "h3",
+            "content": "Types d'enregistrements"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "TYPE",
+              "DESCRIPTION",
+              "EXEMPLE"
+            ],
+            "rows": [
+              [
+                "<strong>A</strong>",
+                "IPv4 vers nom",
+                "intranet.entreprise.local → 192.168.10.30"
+              ],
+              [
+                "<strong>AAAA</strong>",
+                "IPv6 vers nom",
+                "serveur → 2001:db8::1"
+              ],
+              [
+                "<strong>CNAME</strong>",
+                "Alias",
+                "www → intranet"
+              ],
+              [
+                "<strong>MX</strong>",
+                "Serveur mail",
+                "mail.entreprise.local priorité 10"
+              ],
+              [
+                "<strong>PTR</strong>",
+                "Reverse (IP→nom)",
+                "192.168.10.30 → SRV-DC01"
+              ],
+              [
+                "<strong>SRV</strong>",
+                "Service AD",
+                "_ldap._tcp.entreprise.local"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Commandes DNS"
+          },
+          {
+            "type": "code",
+            "content": "# Créer zone principale\nAdd-DnsServerPrimaryZone -Name \"entreprise.local\" -ZoneFile \"entreprise.local.dns\"\n\n# Ajouter enregistrement A\nAdd-DnsServerResourceRecordA -Name \"intranet\" `\n  -ZoneName \"entreprise.local\" `\n  -IPv4Address \"192.168.10.30\"\n\n# Ajouter CNAME\nAdd-DnsServerResourceRecordCName -Name \"www\" `\n  -ZoneName \"entreprise.local\" `\n  -HostNameAlias \"intranet.entreprise.local\"\n\n# Tests\nnslookup intranet.entreprise.local\nResolve-DnsName intranet.entreprise.local"
+          },
+          {
+            "type": "h2",
+            "content": "5. PERMISSIONS NTFS vs PARTAGE"
+          },
+          {
+            "type": "h3",
+            "content": "NTFS (local + réseau)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Permissions</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Lecture</strong> : Voir fichiers/dossiers",
+              "<strong>Écriture</strong> : Créer fichiers",
+              "<strong>Modification</strong> : Lire + Écrire + Supprimer",
+              "<strong>Contrôle total</strong> : Toutes permissions + modifier ACL"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Commandes</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# Voir permissions\nGet-Acl \"C:\\Partages\\RH\"\n\n# Ajouter permission\n$acl = Get-Acl \"C:\\Partages\\RH\"\n$rule = New-Object System.Security.AccessControl.FileSystemAccessRule(\n    \"ENTREPRISE\\GRP_RH\", \"Modify\", \"ContainerInherit,ObjectInherit\", \"None\", \"Allow\"\n)\n$acl.SetAccessRule($rule)\nSet-Acl \"C:\\Partages\\RH\" $acl"
+          },
+          {
+            "type": "h3",
+            "content": "Partage SMB (réseau uniquement)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Permissions</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Lecture</strong> : Lire fichiers",
+              "<strong>Modification</strong> : Lire + Écrire",
+              "<strong>Contrôle total</strong> : Toutes permissions"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Commandes</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# Créer partage\nNew-SmbShare -Name \"RH_Partage\" -Path \"C:\\Partages\\RH\" -FullAccess \"Tout le monde\"\n\n# Modifier permissions partage\nGrant-SmbShareAccess -Name \"RH_Partage\" -AccountName \"ENTREPRISE\\GRP_RH\" -AccessRight Full"
+          },
+          {
+            "type": "h3",
+            "content": "Règle cumulative"
+          },
+          {
+            "type": "p",
+            "content": "<strong>NTFS Lecture + SMB Contrôle total = Lecture finale</strong> (plus restrictive gagne)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Bonne pratique</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Partage SMB : \"Tout le monde\" = Contrôle total",
+              "Gérer finesse via NTFS uniquement"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "6. POWERSHELL AVANCÉ"
+          },
+          {
+            "type": "h3",
+            "content": "Variables et types"
+          },
+          {
+            "type": "code",
+            "content": "$nom = \"Dupont\"                    # String\n$age = 35                          # Int\n$actif = $true                     # Boolean\n$liste = @(\"PC01\", \"PC02\")         # Array\n$hash = @{Nom=\"Dupont\"; Age=35}    # Hashtable"
+          },
+          {
+            "type": "h3",
+            "content": "Boucles"
+          },
+          {
+            "type": "code",
+            "content": "# ForEach\n$pcs = Get-ADComputer -Filter *\nforeach ($pc in $pcs) {\n    Write-Host $pc.Name\n}\n\n# ForEach-Object (pipeline)\nGet-ADUser -Filter * | ForEach-Object { $_.SamAccountName }\n\n# While\n$i = 0\nwhile ($i -lt 10) {\n    Write-Host $i\n    $i++\n}"
+          },
+          {
+            "type": "h3",
+            "content": "Conditions"
+          },
+          {
+            "type": "code",
+            "content": "if ($age -ge 18) {\n    Write-Host \"Majeur\"\n} elseif ($age -ge 16) {\n    Write-Host \"Mineur avec permis\"\n} else {\n    Write-Host \"Mineur\"\n}"
+          },
+          {
+            "type": "h3",
+            "content": "Fonctions"
+          },
+          {
+            "type": "code",
+            "content": "function Get-DiskSpace {\n    param(\n        [string]$ComputerName = \"localhost\"\n    )\n    \n    Get-WmiObject Win32_LogicalDisk -ComputerName $ComputerName | \n        Where-Object {$_.DriveType -eq 3} | \n        Select-Object DeviceID, \n            @{Name=\"SizeGB\";Expression={[math]::Round($_.Size/1GB,2)}},\n            @{Name=\"FreeGB\";Expression={[math]::Round($_.FreeSpace/1GB,2)}}\n}\n\n# Utilisation\nGet-DiskSpace -ComputerName \"SRV-FILE01\""
+          },
+          {
+            "type": "h3",
+            "content": "Modules AD"
+          },
+          {
+            "type": "code",
+            "content": "# Importer module\nImport-Module ActiveDirectory\n\n# Commandes essentielles\nGet-ADUser -Identity \"jdupont\"\nGet-ADComputer -Filter {OperatingSystem -like \"*Server*\"}\nGet-ADGroup -Identity \"GRP_RH\"\nGet-ADGroupMember -Identity \"Domain Admins\""
+          },
+          {
+            "type": "h2",
+            "content": "7. SERVICES WINDOWS"
+          },
+          {
+            "type": "h3",
+            "content": "Gestion services"
+          },
+          {
+            "type": "code",
+            "content": "# Lister services\nGet-Service | Where-Object {$_.Status -eq \"Running\"}\n\n# Démarrer/Arrêter\nStart-Service -Name \"Spooler\"\nStop-Service -Name \"Spooler\"\nRestart-Service -Name \"Spooler\"\n\n# Configurer démarrage automatique\nSet-Service -Name \"Spooler\" -StartupType Automatic"
+          },
+          {
+            "type": "h3",
+            "content": "Services critiques AD"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>DNS Client</strong> : Résolution noms",
+              "<strong>Netlogon</strong> : Authentification domaine",
+              "<strong>Active Directory Domain Services</strong> : Contrôleur domaine",
+              "<strong>DFS Replication</strong> : Réplication fichiers",
+              "<strong>Windows Time</strong> : Synchronisation horloge (crucial AD)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "8. WINDOWS UPDATE / WSUS"
+          },
+          {
+            "type": "h3",
+            "content": "WSUS (Windows Server Update Services)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Rôle</strong> : Serveur central distribution mises à jour Windows"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Avantages</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Contrôle déploiement mises à jour",
+              "Économie bande passante (1 téléchargement)",
+              "Tests avant production"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>GPO WSUS</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Computer Config → Admin Templates → Windows Components → Windows Update\n→ Configure Automatic Updates: Enabled\n→ Specify intranet Microsoft update service location:\n   http://srv-wsus.entreprise.local:8530"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes"
+          },
+          {
+            "type": "code",
+            "content": "# Forcer recherche mises à jour\nStart-WUScan\n\n# Installer mises à jour\nInstall-WindowsUpdate -AcceptAll -AutoReboot\n\n# Historique\nGet-WindowsUpdateLog"
+          },
+          {
+            "type": "h2",
+            "content": "9. SAUVEGARDE WINDOWS SERVER"
+          },
+          {
+            "type": "h3",
+            "content": "Windows Server Backup"
+          },
+          {
+            "type": "code",
+            "content": "# Installer fonctionnalité\nInstall-WindowsFeature Windows-Server-Backup\n\n# Sauv egarde complète vers disque externe\nwbadmin start backup -backupTarget:E: -include:C: -allCritical -quiet\n\n# Sauvegarde état système (AD, registre, boot)\nwbadmin start systemstatebackup -backupTarget:E: -quiet\n\n# Restauration fichiers\nwbadmin start recovery -version:12/11/2025-10:00 -itemType:File -items:C:\\Data"
+          },
+          {
+            "type": "h2",
+            "content": "10. SCRIPTS POWERSHELL UTILES"
+          },
+          {
+            "type": "h3",
+            "content": "Script 1 : Création utilisateurs en masse (CSV)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>users.csv</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Prenom,Nom,Login,OU\nJean,Dupont,jdupont,\"OU=RH,DC=entreprise,DC=local\"\nMarie,Martin,mmartin,\"OU=Comptabilite,DC=entreprise,DC=local\""
+          },
+          {
+            "type": "p",
+            "content": "<strong>Script</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Import-Csv \"users.csv\" | ForEach-Object {\n    $password = ConvertTo-SecureString \"P@ssw0rd123!\" -AsPlainText -Force\n    \n    New-ADUser -Name \"$($_.Prenom) $($_.Nom)\" `\n        -GivenName $_.Prenom `\n        -Surname $_.Nom `\n        -SamAccountName $_.Login `\n        -UserPrincipalName \"$($_.Login)@entreprise.local\" `\n        -Path $_.OU `\n        -AccountPassword $password `\n        -Enabled $true\n    \n    Write-Host \"Utilisateur $($_.Login) cree\" -ForegroundColor Green\n}"
+          },
+          {
+            "type": "h3",
+            "content": "Script 2 : Rapport espace disque serveurs"
+          },
+          {
+            "type": "code",
+            "content": "$serveurs = @(\"SRV-DC01\", \"SRV-FILE01\", \"SRV-WEB01\")\n$rapport = @()\n\nforeach ($srv in $serveurs) {\n    $disques = Get-WmiObject Win32_LogicalDisk -ComputerName $srv -Filter \"DriveType=3\"\n    \n    foreach ($disque in $disques) {\n        $rapport += [PSCustomObject]@{\n            Serveur = $srv\n            Lecteur = $disque.DeviceID\n            TailleGo = [math]::Round($disque.Size/1GB, 2)\n            LibreGo = [math]::Round($disque.FreeSpace/1GB, 2)\n            PourcentLibre = [math]::Round(($disque.FreeSpace/$disque.Size)*100, 2)\n        }\n    }\n}\n\n$rapport | Export-Csv \"rapport_disques.csv\" -NoTypeInformation\n$rapport | Where-Object {$_.PourcentLibre -lt 20} | Format-Table -AutoSize"
+          },
+          {
+            "type": "h3",
+            "content": "Script 3 : Désactiver comptes inactifs >90 jours"
+          },
+          {
+            "type": "code",
+            "content": "$date = (Get-Date).AddDays(-90)\n\nGet-ADUser -Filter {Enabled -eq $true} -Properties LastLogonDate | \n    Where-Object {$_.LastLogonDate -lt $date} | \n    ForEach-Object {\n        Disable-ADAccount -Identity $_.SamAccountName\n        Write-Host \"Compte $($_.SamAccountName) desactive (inactif depuis $($_.LastLogonDate))\" -ForegroundColor Yellow\n    }"
+          },
+          {
+            "type": "h2",
+            "content": "COMMANDES ESSENTIELLES À RETENIR"
+          },
+          {
+            "type": "h3",
+            "content": "Active Directory"
+          },
+          {
+            "type": "code",
+            "content": "Get-ADUser, New-ADUser, Set-ADUser, Remove-ADUser\nGet-ADGroup, New-ADGroup, Add-ADGroupMember\nGet-ADComputer"
+          },
+          {
+            "type": "h3",
+            "content": "GPO"
+          },
+          {
+            "type": "code",
+            "content": "New-GPO, New-GPLink\ngpupdate /force\ngpresult /r"
+          },
+          {
+            "type": "h3",
+            "content": "DNS"
+          },
+          {
+            "type": "code",
+            "content": "Add-DnsServerResourceRecordA\nAdd-DnsServerResourceRecordCName\nnslookup, Resolve-DnsName"
+          },
+          {
+            "type": "h3",
+            "content": "Permissions"
+          },
+          {
+            "type": "code",
+            "content": "Get-Acl, Set-Acl\nNew-SmbShare, Grant-SmbShareAccess"
+          },
+          {
+            "type": "h3",
+            "content": "Services"
+          },
+          {
+            "type": "code",
+            "content": "Get-Service, Start-Service, Stop-Service, Restart-Service"
+          }
+        ]
+      },
+      /* ADAVANCE_COURS */
     ],
     flashcards: [
+      {"id":"ad_ccp2_f1","recto":"Q1 — Architecture Active Directory : Expliquez la différence entre une <strong>forêt</strong>, un <strong>domaine</strong> et une <strong>unité organisationnelle (OU)</strong> dans Active Directory. Donnez un cas d'usage concret pour chacun.","verso":"<strong>Forêt</strong> (2 pts) :<br>• Limite sécurité maximale<br>• Schéma AD commun (définitions objets)<br>• Relations d'approbation entre domaines<br>• <strong>Cas d'usage</strong> : Entreprise multi-sociétés (Holding avec 3 filiales → 1 forêt, 3 domaines)<br><strong>Domaine</strong> (3 pts) :<br>• Limite administrative et de réplication<br>• Base de données AD unique<br>• Politiques de sécurité (GPO) communes<br>• <strong>Cas d'usage</strong> : Société avec siège Paris + agence Lyon → 1 domaine <code>entreprise.local</code>, réplication automatique<br><strong>Unité Organisationnelle (OU)</strong> (3 pts) :<br>• Conteneur personnalisable d'objets<br>• Permet délégation administration<br>• Application sélective de GPO<br>• <strong>Cas d'usage</strong> : OU \"RH\", \"Comptabilite\", \"IT\" → GPO mappage lecteurs différents par service<br><strong>Exemple concret</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Forêt : groupe-multinationale.com\n  └── Domaine : france.groupe-multinationale.com\n        ├── OU : Paris\n        │     ├── OU : RH\n        │     └── OU : IT\n        └── OU : Lyon</code><br><strong>Points</strong> : 8/8"},
+      {"id":"ad_ccp2_f2","recto":"Q2 — Rôles FSMO : Citez les 5 rôles FSMO et expliquez les conséquences de l'indisponibilité du rôle <strong>Émulateur PDC</strong>.","verso":"<strong>Les 5 rôles FSMO</strong> (3 pts) :<br>1. <strong>Maître de schéma</strong> (forêt) - Modifications schéma AD<br>2. <strong>Maître d'attribution de noms</strong> (forêt) - Ajout/suppression domaines<br>3. <strong>Émulateur PDC</strong> (domaine) - Sync horaire, verrou comptes, réplication prioritaire<br>4. <strong>Maître RID</strong> (domaine) - Distribution pools identifiants uniques<br>5. <strong>Maître d'infrastructure</strong> (domaine) - Références objets inter-domaines<br><strong>Conséquences indisponibilité Émulateur PDC</strong> (3 pts) :<br>• ❌ Authentification échoue après 3 tentatives incorrectes (pas de verrouillage)<br>• ❌ Modifications mots de passe non répliquées immédiatement (délai 15min)<br>• ❌ Désynchronisation horaire Kerberos → échecs authentification (tolérance 5min)<br>• ❌ Anciennes GPO appliquées (pas de nouvelles)<br><strong>Commande vérification</strong> :<br><code style=\"display:block;white-space:pre-wrap\">netdom query fsmo\nGet-ADDomain | Select-Object PDCEmulator, RIDMaster, InfrastructureMaster</code><br><strong>Points</strong> : 6/6"},
+      {"id":"ad_ccp2_f3","recto":"Q3 — Stratégie de groupe - Dépannage : Un utilisateur du service RH ne voit pas le lecteur réseau <code>P:</code> mappé vers <code>\\\\SRV-FILE01\\RH_Partage</code> alors que la GPO est correctement liée à l'OU \"RH\". Listez 5 causes possibles et la commande de diagnostic à exécuter.","verso":"<strong>5 causes possibles</strong> (5 pts) :<br>1. GPO pas appliquée (délai réplication, cache local)<br>2. Ordre GPO (une autre GPO bloque avec \"Appliqué\" désactivé)<br>3. Filtrage sécurité (utilisateur pas dans groupe autorisé)<br>4. Blocage héritage GPO niveau OU supérieur<br>5. Partage réseau inaccessible (permissions SMB/NTFS, service arrêté)<br><strong>Commande diagnostic</strong> (5 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Vérifier GPO appliquées\ngpresult /r /scope:user\n# ou rapport HTML détaillé\ngpresult /h C:\\rapport_gpo.html /user ENTREPRISE\\jdupont\n\n# Forcer application immédiate\ngpupdate /force\n\n# Tester accès partage\nTest-Path \"\\\\SRV-FILE01\\RH_Partage\"\nGet-SmbShare -Name \"RH_Partage\" -CimSession SRV-FILE01</code><br><strong>Démarche dépannage</strong> :<br>1. <code>gpresult /r</code> → Vérifier si GPO listée<br>2. Si non listée → <code>gpupdate /force</code><br>3. Si listée mais lecteur absent → Vérifier permissions utilisateur sur partage<br>4. Tester manuellement <code>net use P: \\\\SRV-FILE01\\RH_Partage</code><br><strong>Points</strong> : 10/10"},
+      {"id":"ad_ccp2_f4","recto":"Q4 — Permissions NTFS vs SMB : Un dossier <code>C:\\Partages\\Comptabilite</code> a les permissions suivantes : - <strong>NTFS</strong> : Groupe \"GRP_Compta\" = Modification - <strong>Partage SMB \"Compta_Partage\"</strong> : Groupe \"GRP_Compta\" = Lecture seule","verso":"Quelles permissions effectives aura un membre de \"GRP_Compta\" accédant via <code>\\\\SRV01\\Compta_Partage</code> ? Justifiez.<br><strong>Permissions effectives</strong> (3 pts) :<br>✅ <strong>LECTURE SEULE</strong><br><strong>Justification</strong> (5 pts) :<br>• Règle cumulative : <strong>La plus restrictive gagne</strong><br>• Accès local (direct sur serveur) : NTFS seul → <strong>Modification</strong><br>• Accès réseau (via <code>\\\\</code>) : Intersection NTFS ∩ SMB → <strong>min(Modification, Lecture) = Lecture</strong><br><strong>Tableau récapitulatif</strong> :<br>Accès — NTFS — SMB — Effectif<br>Local — Modification — N/A — <strong>Modification</strong><br>Réseau — Modification — Lecture — <strong>Lecture</strong><br><strong>Bonne pratique</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Partage SMB permissif (Contrôle total à tous)\nNew-SmbShare -Name \"Compta_Partage\" -Path \"C:\\Partages\\Comptabilite\" -FullAccess \"Tout le monde\"\n\n# Sécurité fine via NTFS uniquement\n$acl = Get-Acl \"C:\\Partages\\Comptabilite\"\n$rule = New-Object System.Security.AccessControl.FileSystemAccessRule(\"GRP_Compta\", \"Modify\", \"ContainerInherit,ObjectInherit\", \"None\", \"Allow\")\n$acl.SetAccessRule($rule)\nSet-Acl \"C:\\Partages\\Comptabilite\" $acl</code><br><strong>Points</strong> : 8/8"},
+      {"id":"ad_ccp2_f5","recto":"Q5 — PowerShell - Script création utilisateurs : Écrivez un script PowerShell qui crée 3 utilisateurs à partir d'un fichier CSV avec colonnes <code>Prenom,Nom,Service</code>. Le login doit être <code>prenom.nom</code>, le mot de passe temporaire <code>Welcome2025!</code>, placés dans l'OU correspondant au service (<code>OU=RH,DC=entreprise,DC=local</code>).","verso":"<strong>Fichier CSV</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Prenom,Nom,Service\nJean,Dupont,RH\nMarie,Martin,Comptabilite\nPierre,Durand,IT</code><br><strong>Script PowerShell</strong> (10 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Importer module AD\nImport-Module ActiveDirectory\n\n# Importer CSV\n$utilisateurs = Import-Csv -Path \"C:\\Scripts\\utilisateurs.csv\"\n\n# Mot de passe temporaire\n$password = ConvertTo-SecureString \"Welcome2025!\" -AsPlainText -Force\n\n# Parcourir utilisateurs\nforeach ($user in $utilisateurs) {\n    # Construction login\n    $login = \"$($user.Prenom).$($user.Nom)\".ToLower()\n    \n    # Construction chemin OU\n    $ou = \"OU=$($user.Service),DC=entreprise,DC=local\"\n    \n    # Vérifier si OU existe\n    try {\n        Get-ADOrganizationalUnit -Identity $ou -ErrorAction Stop\n        \n        # Créer utilisateur\n        New-ADUser -Name \"$($user.Prenom) $($user.Nom)\" `\n            -GivenName $user.Prenom `\n            -Surname $user.Nom `\n            -SamAccountName $login `\n            -UserPrincipalName \"$login@entreprise.local\" `\n            -Path $ou `\n            -AccountPassword $password `\n            -Enabled $true `\n            -ChangePasswordAtLogon $true\n        \n        Write-Host \"[OK] Utilisateur $login cree dans $ou\" -ForegroundColor Green\n        \n    } catch {\n        Write-Host \"[ERREUR] OU $ou introuvable pour $login\" -ForegroundColor Red\n    }\n}</code><br><strong>Points clés notation</strong> :<br>• Import-Module + Import-Csv (2 pts)<br>• Boucle foreach (2 pts)<br>• Construction login avec <code>.ToLower()</code> (2 pts)<br>• Paramètres New-ADUser corrects (3 pts)<br>• Gestion erreur Try/Catch (1 pt)<br><strong>Points</strong> : 12/12"},
+      {"id":"ad_ccp2_f6","recto":"Q6 — DNS Windows Server : Expliquez la différence entre un enregistrement <strong>A</strong>, <strong>CNAME</strong> et <strong>PTR</strong>. Donnez la commande PowerShell pour créer chacun.","verso":"<strong>Enregistrement A</strong> (2 pts) :<br>• Associe <strong>nom d'hôte → adresse IPv4</strong><br>• Exemple : <code>intranet.entreprise.local</code> → <code>192.168.10.50</code><br><strong>Commande</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Add-DnsServerResourceRecordA -Name \"intranet\" `\n  -ZoneName \"entreprise.local\" `\n  -IPv4Address \"192.168.10.50\"</code><br><strong>Enregistrement CNAME (Canonical Name)</strong> (2 pts) :<br>• <strong>Alias</strong> pointant vers un autre nom DNS<br>• Exemple : <code>www</code> → <code>intranet.entreprise.local</code><br>• Utile : Plusieurs noms pour même serveur<br><strong>Commande</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Add-DnsServerResourceRecordCName -Name \"www\" `\n  -ZoneName \"entreprise.local\" `\n  -HostNameAlias \"intranet.entreprise.local\"</code><br><strong>Enregistrement PTR (Pointer)</strong> (2 pts) :<br>• <strong>Résolution inverse</strong> : adresse IP → nom d'hôte<br>• Zone reverse : <code>10.168.192.in-addr.arpa</code><br>• Utilisé par : vérifications email (anti-spam)<br><strong>Commande</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Add-DnsServerResourceRecordPtr -Name \"50\" `\n  -ZoneName \"10.168.192.in-addr.arpa\" `\n  -PtrDomainName \"intranet.entreprise.local\"</code><br><strong>Test</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">nslookup intranet.entreprise.local          # Test A\nnslookup www.entreprise.local               # Test CNAME\nnslookup 192.168.10.50                      # Test PTR</code><br><strong>Points</strong> : 8/8"},
+      {"id":"ad_ccp2_f7","recto":"Q7 — GPO - Bloquer clés USB : Un responsable sécurité demande de bloquer l'utilisation des clés USB sur les postes du service Comptabilité, tout en autorisant les souris/claviers USB. Décrivez la configuration GPO et le chemin complet.","verso":"<strong>Chemin GPO</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Computer Configuration\n  └── Policies\n        └── Administrative Templates\n              └── System\n                    └── Removable Storage Access</code><br><strong>Configuration</strong> (3 pts) :<br>1. <strong>Activer</strong> : <code>All Removable Storage classes: Deny all access</code><br>OU (plus sélectif) :<br>• <code>Removable Disks: Deny read access</code> = <strong>Enabled</strong><br>• <code>Removable Disks: Deny write access</code> = <strong>Enabled</strong><br>• <code>Removable Disks: Deny execute access</code> = <strong>Enabled</strong><br>2. <strong>Exception souris/claviers</strong> :<br>Ne PAS activer <code>CD and DVD: Deny...</code> ni restreindre périphériques HID (Human Interface Devices)<br><strong>Application</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Créer GPO\nNew-GPO -Name \"GPO-Blocage-USB-Comptabilite\"\n\n# Lier à OU\nNew-GPLink -Name \"GPO-Blocage-USB-Comptabilite\" `\n  -Target \"OU=Comptabilite,DC=entreprise,DC=local\" `\n  -LinkEnabled Yes\n\n# Forcer application\nInvoke-GPUpdate -Computer \"PC-COMPTA-01\" -Force</code><br><strong>Test</strong> :<br>Brancher clé USB → Message \"Accès refusé par stratégie de groupe\"<br><strong>Points</strong> : 6/6"},
+      {"id":"ad_ccp2_f8","recto":"Q8 — WSUS - Gestion mises à jour : Expliquez le rôle de WSUS et comment configurer les postes clients pour utiliser le serveur WSUS <code>srv-wsus.entreprise.local</code> via GPO.","verso":"<strong>Rôle WSUS</strong> (3 pts) :<br>• <strong>Windows Server Update Services</strong> : Serveur local de distribution mises à jour<br>• Avantages :<br>• ✅ Contrôle déploiement (tester avant production)<br>• ✅ Économie bande passante (1 seul téléchargement depuis Microsoft)<br>• ✅ Planification maintenance<br><strong>Configuration GPO</strong> (4 pts) :<br><strong>Chemin</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Computer Configuration → Policies → Administrative Templates\n  → Windows Components → Windows Update</code><br><strong>Paramètres à configurer</strong> :<br>1. <strong>Configure Automatic Updates</strong> :<br>• Enabled<br>• Option : <code>4 - Auto download and schedule the install</code><br>• Scheduled install day : <code>0 - Every day</code> ou jour spécifique<br>• Scheduled install time : <code>03:00</code> (nuit)<br>2. <strong>Specify intranet Microsoft update service location</strong> :<br>• Enabled<br>• Set the intranet update service : <code>http://srv-wsus.entreprise.local:8530</code><br>• Set the intranet statistics server : <code>http://srv-wsus.entreprise.local:8530</code><br>3. <strong>Allow Automatic Updates immediate installation</strong> :<br>• Enabled (installe mises à jour mineures sans reboot)<br><strong>Commandes test client</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Afficher config\ngpresult /r | Select-String \"Update\"\n\n# Forcer détection\nwuauclt /detectnow\n# Ou Windows 10/11\nUsoClient StartScan\n\n# Vérifier connexion WSUS\nGet-ItemProperty -Path \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\"</code><br><strong>Points</strong> : 7/7"},
+      {"id":"ad_ccp2_f9","recto":"Q9 — Sauvegarde Active Directory : Quelle est la différence entre une sauvegarde complète du serveur et une sauvegarde de l'état système ? Donnez les commandes pour effectuer chacune.","verso":"<strong>Sauvegarde complète (Full Backup)</strong> (3 pts) :<br>• Contenu : Tous les fichiers, applications, OS, données<br>• Taille : Volumineuse (plusieurs dizaines/centaines GB)<br>• Temps restore : Long<br>• Cas d'usage : Disaster recovery (serveur entier détruit)<br><strong>Sauvegarde état système (System State)</strong> (3 pts) :<br>• Contenu spécifique Windows :<br>• Base AD (NTDS.dit)<br>• Registre système<br>• Fichiers démarrage (Boot files)<br>• SYSVOL (GPO, scripts)<br>• Certificats (si serveur CA)<br>• Taille : Quelques GB<br>• Temps restore : Rapide<br>• Cas d'usage : Corruption AD, récupération GPO<br><strong>Commandes</strong> (2 pts) :<br><strong>Installation fonctionnalité</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Install-WindowsFeature Windows-Server-Backup -IncludeManagementTools</code><br><strong>Sauvegarde complète</strong> :<br><code style=\"display:block;white-space:pre-wrap\">wbadmin start backup -backupTarget:E: -include:C:,D: -allCritical -quiet</code><br><strong>Sauvegarde état système</strong> :<br><code style=\"display:block;white-space:pre-wrap\">wbadmin start systemstatebackup -backupTarget:E: -quiet</code><br><strong>Restauration état système</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Redémarrer en mode restauration AD (DSRM)\nwbadmin start systemstaterecovery -version:12/11/2025-10:00</code><br><strong>Bonne pratique</strong> : Sauvegarde état système quotidienne + complète hebdomadaire<br><strong>Points</strong> : 8/8"},
+      {"id":"ad_ccp2_f10","recto":"Q10 — Délégation d'administration OU : Le service RH doit pouvoir réinitialiser les mots de passe des utilisateurs de l'OU \"RH\" sans être administrateurs du domaine. Expliquez comment déléguer cette permission.","verso":"<strong>Méthode GUI</strong> (3 pts) :<br>1. Ouvrir <strong>Active Directory Users and Computers</strong><br>2. Clic droit sur OU \"RH\" → <strong>Delegate Control</strong><br>3. Ajouter groupe <strong>GRP_RH_Support</strong><br>4. Tâches à déléguer :<br>• ☑ Reset user passwords and force password change at next logon<br>5. Terminer<br><strong>Méthode PowerShell</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Importer module\nImport-Module ActiveDirectory\n\n# Créer groupe délégation\nNew-ADGroup -Name \"GRP_RH_Support\" -GroupScope Global -Path \"OU=Groupes,DC=entreprise,DC=local\"\n\n# Déléguer permission\n$ou = \"OU=RH,DC=entreprise,DC=local\"\n$group = \"ENTREPRISE\\GRP_RH_Support\"\n\n# Récupérer ACL OU\n$acl = Get-Acl \"AD:\\$ou\"\n\n# Créer règles permissions\n$identity = [System.Security.Principal.NTAccount]$group\n\n# Permission : Reset password\n$guidPwdReset = [GUID]\"00299570-246d-11d0-a768-00aa006e0529\"\n$ruleReset = New-Object System.DirectoryServices.ActiveDirectoryAccessRule(\n    $identity,\n    [System.DirectoryServices.ActiveDirectoryRights]::ExtendedRight,\n    [System.Security.AccessControl.AccessControlType]::Allow,\n    $guidPwdReset,\n    [System.DirectoryServices.ActiveDirectorySecurityInheritance]::Descendents\n)\n$acl.AddAccessRule($ruleReset)\n\n# Appliquer ACL\nSet-Acl \"AD:\\$ou\" $acl\n\nWrite-Host \"Delegation reussie pour $group sur $ou\"</code><br><strong>Test</strong> :<br>Membre de GRP_RH_Support peut :<br>• ✅ Réinitialiser mots de passe OU RH<br>• ❌ Modifier autres propriétés utilisateurs (sauf si délégué)<br><strong>Points</strong> : 7/7"},
+      {"id":"ad_ccp2_f11","recto":"Q11 — Stratégie de mots de passe fine (FGPP) : Les utilisateurs standard doivent avoir des mots de passe de 12 caractères minimum, mais les administrateurs doivent utiliser 16 caractères. Comment implémenter cela avec les stratégies de mots de passe fines (FGPP) ?","verso":"<strong>Contexte</strong> (2 pts) :<br>• Avant Windows Server 2008 : 1 seule stratégie mot de passe par domaine<br>• FGPP (Fine-Grained Password Policy) : Stratégies différentes par groupe/utilisateur<br>• Stockées dans : <code>CN=Password Settings Container,CN=System,DC=entreprise,DC=local</code><br><strong>Configuration</strong> (6 pts) :<br><strong>Stratégie 1 - Utilisateurs standard</strong> :<br><code style=\"display:block;white-space:pre-wrap\">New-ADFineGrainedPasswordPolicy -Name \"PSO-Standard\" `\n  -Precedence 200 `\n  -MinPasswordLength 12 `\n  -PasswordHistoryCount 24 `\n  -MaxPasswordAge 90.00:00:00 `\n  -MinPasswordAge 1.00:00:00 `\n  -ComplexityEnabled $true `\n  -ReversibleEncryptionEnabled $false `\n  -LockoutDuration 00:30:00 `\n  -LockoutObservationWindow 00:30:00 `\n  -LockoutThreshold 5\n\n# Appliquer au groupe utilisateurs standard\nAdd-ADFineGrainedPasswordPolicySubject -Identity \"PSO-Standard\" -Subjects \"GRP_Utilisateurs\"</code><br><strong>Stratégie 2 - Administrateurs</strong> :<br><code style=\"display:block;white-space:pre-wrap\">New-ADFineGrainedPasswordPolicy -Name \"PSO-Admins\" `\n  -Precedence 100 `\n  -MinPasswordLength 16 `\n  -PasswordHistoryCount 48 `\n  -MaxPasswordAge 60.00:00:00 `\n  -MinPasswordAge 1.00:00:00 `\n  -ComplexityEnabled $true `\n  -ReversibleEncryptionEnabled $false `\n  -LockoutDuration 01:00:00 `\n  -LockoutObservationWindow 00:15:00 `\n  -LockoutThreshold 3\n\n# Appliquer aux groupes admins\nAdd-ADFineGrainedPasswordPolicySubject -Identity \"PSO-Admins\" -Subjects \"Domain Admins\",\"GRP_IT_Admins\"</code><br><strong>Points clés</strong> :<br>• <code>Precedence</code> plus FAIBLE = priorité plus HAUTE (100 &gt; 200)<br>• Admins : 16 car, historique 48, verrouillage 3 tentatives<br>• Standard : 12 car, historique 24, verrouillage 5 tentatives<br><strong>Vérification</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Get-ADFineGrainedPasswordPolicy -Filter *\nGet-ADUserResultantPasswordPolicy -Identity \"jdupont\"</code><br><strong>Points</strong> : 8/8"},
+      {"id":"ad_ccp2_f12","recto":"Q12 — DFS - Espace de noms : Qu'est-ce que DFS (Distributed File System) et quel avantage apporte-t-il pour le partage de fichiers en entreprise ?","verso":"<strong>Définition DFS</strong> (2 pts) :<br>• <strong>DFS Namespaces</strong> : Virtualisation chemins UNC<br>• <strong>DFS Replication</strong> : Synchronisation multi-sites<br><strong>Avantages</strong> (4 pts) :<br><strong>Sans DFS</strong> (problème) :<br><code style=\"display:block;white-space:pre-wrap\">Utilisateur Paris : \\\\SRV-PARIS\\Partages\\Commun\nUtilisateur Lyon : \\\\SRV-LYON\\Partages\\Commun</code><br>→ Chemins différents, confusion, scripts à adapter<br><strong>Avec DFS</strong> (solution) :<br><code style=\"display:block;white-space:pre-wrap\">Tous les utilisateurs : \\\\entreprise.local\\DFS\\Commun</code><br>→ Redirection automatique vers serveur le plus proche<br><strong>Exemple configuration</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Créer espace de noms\nNew-DfsnRoot -Path \"\\\\entreprise.local\\DFS\" -TargetPath \"\\\\SRV-DC01\\DFS\" -Type DomainV2\n\n# Ajouter dossier virtuel\nNew-DfsnFolder -Path \"\\\\entreprise.local\\DFS\\Commun\" -TargetPath \"\\\\SRV-PARIS\\Partages\\Commun\"\n\n# Ajouter cible Lyon (réplication)\nNew-DfsnFolderTarget -Path \"\\\\entreprise.local\\DFS\\Commun\" -TargetPath \"\\\\SRV-LYON\\Partages\\Commun\"</code><br><strong>Avantages clés</strong> :<br>• ✅ Tolérance panne (si SRV-PARIS down → bascule SRV-LYON)<br>• ✅ Optimisation géographique (routage automatique site le plus proche)<br>• ✅ Simplification administration (1 chemin unique)<br><strong>Points</strong> : 6/6"},
+      {"id":"ad_ccp2_f13","recto":"Q13 — BitLocker - Chiffrement disque : Un laptop contient des données sensibles. Comment activer BitLocker via PowerShell et sauvegarder la clé de récupération dans Active Directory ?","verso":"<strong>Prérequis</strong> (2 pts) :<br>• TPM (Trusted Platform Module) version 1.2+ sur PC<br>• Windows Professionnel/Entreprise (pas Home)<br>• GPO \"Store BitLocker recovery in AD\" activée<br><strong>Activation BitLocker</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Vérifier TPM\nGet-Tpm\n\n# Activer BitLocker sur C:\nEnable-BitLocker -MountPoint \"C:\" `\n  -EncryptionMethod XtsAes256 `\n  -UsedSpaceOnly `\n  -TpmProtector\n\n# Ajouter mot de passe récupération\nAdd-BitLockerKeyProtector -MountPoint \"C:\" -RecoveryPasswordProtector</code><br><strong>Sauvegarde clé dans AD</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Récupérer ID clé\n$keyID = (Get-BitLockerVolume -MountPoint \"C:\").KeyProtector | Where-Object {$_.KeyProtectorType -eq \"RecoveryPassword\"} | Select-Object -ExpandProperty KeyProtectorId\n\n# Sauvegarder dans AD\nBackup-BitLockerKeyProtector -MountPoint \"C:\" -KeyProtectorId $keyID\n\n# Vérifier sauvegarde\nGet-ADComputer -Identity \"LAPTOP-01\" -Properties \"msTPM-OwnerInformation\"</code><br><strong>GPO automatisation</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Computer Config → Policies → Admin Templates → Windows Components → BitLocker Drive Encryption → Operating System Drives\n→ Choose how BitLocker-protected OS drives can be recovered\n  ☑ Save BitLocker recovery information to AD DS\n  ☑ Do not enable BitLocker until recovery information is stored</code><br><strong>Récupération</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Afficher clé récupération\nmanage-bde -protectors -get C:</code><br><strong>Points</strong> : 7/7"},
+      {"id":"ad_ccp2_f14","recto":"Q14 — Audit Active Directory : Le DSI demande un rapport mensuel des modifications de groupes d'administration (ajout/suppression membres). Comment configurer l'audit et extraire ces informations ?","verso":"<strong>Configuration audit</strong> (4 pts) :<br><strong>1. Activer audit via GPO</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Computer Config → Policies → Windows Settings → Security Settings → Advanced Audit Policy\n  → DS Access\n    ☑ Audit Directory Service Changes : Success</code><br><strong>2. Activer audit sur objet AD</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Audit groupe \"Domain Admins\"\n$group = Get-ADGroup \"Domain Admins\"\n$acl = Get-Acl \"AD:\\$($group.DistinguishedName)\" -Audit\n\n# Règle audit : Toute modification\n$rule = New-Object System.DirectoryServices.ActiveDirectoryAuditRule(\n    [System.Security.Principal.SecurityIdentifier]\"S-1-1-0\",  # Everyone\n    [System.DirectoryServices.ActiveDirectoryRights]::WriteProperty,\n    [System.Security.AccessControl.AuditFlags]::Success\n)\n\n$acl.AddAuditRule($rule)\nSet-Acl \"AD:\\$($group.DistinguishedName)\" $acl -AuditRules $rule</code><br><strong>Extraction événements</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Événements modifications groupes AD (Event ID 4728/4729/4732/4733)\nGet-WinEvent -FilterHashtable @{\n    LogName='Security'\n    ID=4728,4729,4732,4733\n    StartTime=(Get-Date).AddDays(-30)\n} | ForEach-Object {\n    [PSCustomObject]@{\n        Date = $_.TimeCreated\n        Utilisateur = $_.Properties[6].Value\n        Groupe = $_.Properties[2].Value\n        Membre = $_.Properties[0].Value\n        Action = switch ($_.Id) {\n            4728 {\"Ajout membre groupe global\"}\n            4729 {\"Suppression membre groupe global\"}\n            4732 {\"Ajout membre groupe local\"}\n            4733 {\"Suppression membre groupe local\"}\n        }\n    }\n} | Export-Csv \"Rapport-Audit-Groupes.csv\" -NoTypeInformation\n\nWrite-Host \"Rapport genere : Rapport-Audit-Groupes.csv\"</code><br><strong>Event IDs importants</strong> :<br>• <strong>4728</strong> : Membre ajouté groupe sécurité global<br>• <strong>4729</strong> : Membre supprimé groupe sécurité global<br>• <strong>4732</strong> : Membre ajouté groupe local<br>• <strong>4733</strong> : Membre supprimé groupe local<br>• <strong>4720</strong> : Compte utilisateur créé<br>• <strong>4726</strong> : Compte utilisateur supprimé<br><strong>Points</strong> : 8/8"},
+      {"id":"ad_ccp2_f15","recto":"Q15 — PowerShell - Recherche comptes inactifs : Créez un script PowerShell qui génère un rapport CSV des comptes utilisateurs inactifs (&gt;180 jours sans connexion), incluant les colonnes : Nom, Login, OU, DernièreConnexion, Désactivé. Le script doit proposer de désactiver automatiquement ces comptes.","verso":"<strong>Script complet</strong> (10 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Paramètres\n$joursInactivite = 180\n$dateLimite = (Get-Date).AddDays(-$joursInactivite)\n$rapportCsv = \"C:\\Scripts\\Comptes-Inactifs-$(Get-Date -Format 'yyyyMMdd').csv\"\n\n# Import module AD\nImport-Module ActiveDirectory\n\nWrite-Host \"Recherche comptes inactifs &gt; $joursInactivite jours...\" -ForegroundColor Cyan\n\n# Récupérer utilisateurs inactifs\n$utilisateursInactifs = Get-ADUser -Filter {Enabled -eq $true} `\n    -Properties LastLogonDate, DistinguishedName | \n    Where-Object {\n        ($_.LastLogonDate -lt $dateLimite) -or ($_.LastLogonDate -eq $null)\n    } | \n    Select-Object @{Name=\"Nom\";Expression={$_.Name}},\n                  @{Name=\"Login\";Expression={$_.SamAccountName}},\n                  @{Name=\"OU\";Expression={($_.DistinguishedName -split ',',2)[1]}},\n                  @{Name=\"DerniereConnexion\";Expression={\n                      if ($_.LastLogonDate) {$_.LastLogonDate} else {\"Jamais\"}\n                  }},\n                  @{Name=\"Desactive\";Expression={\"Non\"}}\n\n# Afficher résumé\nWrite-Host \"`n$($utilisateursInactifs.Count) comptes inactifs trouves :\" -ForegroundColor Yellow\n$utilisateursInactifs | Format-Table -AutoSize\n\n# Exporter CSV\n$utilisateursInactifs | Export-Csv -Path $rapportCsv -NoTypeInformation -Encoding UTF8\nWrite-Host \"`nRapport CSV : $rapportCsv\" -ForegroundColor Green\n\n# Proposition désactivation\n$desactiver = Read-Host \"`nDesactiver automatiquement ces comptes ? (O/N)\"\n\nif ($desactiver -eq \"O\") {\n    foreach ($user in $utilisateursInactifs) {\n        try {\n            Disable-ADAccount -Identity $user.Login\n            \n            # Ajouter commentaire\n            Set-ADUser -Identity $user.Login `\n                -Description \"Desactive automatiquement le $(Get-Date -Format 'dd/MM/yyyy') - Inactivite &gt; $joursInactivite jours\"\n            \n            Write-Host \"[OK] $($user.Login) desactive\" -ForegroundColor Green\n            \n        } catch {\n            Write-Host \"[ERREUR] Impossible de desactiver $($user.Login) : $_\" -ForegroundColor Red\n        }\n    }\n    \n    Write-Host \"`n$($utilisateursInactifs.Count) comptes desactives\" -ForegroundColor Cyan\n    \n} else {\n    Write-Host \"`nDesactivation annulee. Rapport disponible dans $rapportCsv\" -ForegroundColor Yellow\n}</code><br><strong>Points notation</strong> :<br>• Import module + paramètres (1 pt)<br>• Get-ADUser avec filtre Enabled (2 pts)<br>• Where-Object LastLogonDate &lt; dateLimite (2 pts)<br>• Select-Object avec colonnes personnalisées (2 pts)<br>• Export-Csv (1 pt)<br>• Boucle désactivation avec Try/Catch (2 pts)<br><strong>Points</strong> : 10/10"},
+      /* ADAVANCE_FLASHCARDS */
       { id: 'ada_f1', recto: 'Qu\'est-ce que la délégation de contrôle AD ?', verso: 'Donner des droits d\'administration partiels sur une OU à un utilisateur/groupe (sans en faire admin du domaine)' },
       { id: 'ada_f2', recto: 'Qu\'est-ce qu\'un site AD ?', verso: 'Représentation logique d\'une topologie physique (sous-réseau IP) pour contrôler le trafic de réplication' },
       { id: 'ada_f3', recto: 'Intervalle de réplication intra-site AD', verso: '15 secondes (immédiat sur notification). Inter-site : défini par le lien de site (180 min par défaut).' },
@@ -3507,6 +3999,37 @@ const MODULES = [
       { id: 'ada_q18', difficulty: 'normal', question: 'Quel attribut AD stocke le nom principal de l\'utilisateur (user@domain.fr) ?', options: [{ text: 'sAMAccountName', correct: false }, { text: 'userPrincipalName (UPN)', correct: true }, { text: 'distinguishedName', correct: false }, { text: 'cn (Common Name)', correct: false }], explication: 'UPN = format email-like pour l\'authentification moderne. sAMAccountName = nom court legacy (domaine\\utilisateur).' },
       { id: 'ada_q19', difficulty: 'normal', question: 'Quelle partition AD est répliquée sur tous les DC de TOUTE la forêt ?', options: [{ text: 'Partition de domaine', correct: false }, { text: 'Partition de schéma et de configuration', correct: true }, { text: 'Partition d\'application DNS', correct: false }, { text: 'Partition SYSVOL', correct: false }], explication: 'Schéma + Configuration → tous les DC de la forêt. Domaine → DC du même domaine seulement.' },
       { id: 'ada_q20', difficulty: 'normal', question: 'Quel outil graphique permet de visualiser et modifier le schéma Active Directory ?', options: [{ text: 'ADUC (dsa.msc)', correct: false }, { text: 'Active Directory Schema snap-in (schmmgmt.msc)', correct: true }, { text: 'ADSI Edit (adsiedit.msc)', correct: false }, { text: 'LDP.exe', correct: false }], explication: 'schmmgmt.msc (à enregistrer : regsvr32 schmmgmt.dll) permet d\'ajouter des attributs et classes au schéma AD.' },
+      {"id":"ad_ccp2_q1","difficulty":"normal","question":"Qu'est-ce que l'<strong>Active Directory</strong> (AD) ?","options":[{"text":"Un annuaire de fichiers","correct":false},{"text":"Un service d'annuaire centralisé pour gérer utilisateurs, ordinateurs, ressources","correct":true},{"text":"Un système d'exploitation","correct":false},{"text":"Un antivirus","correct":false}],"explication":"Active Directory (AD DS - Active Directory Domain Services) :<br>• <strong>Annuaire centralisé</strong> : Base de données de tous les objets (users, computers, groups, OU)<br>• <strong>Authentification/Autorisation</strong> : Single Sign-On (SSO)<br>• <strong>Gestion centralisée</strong> : GPO, droits, politiques de sécurité<br>• <strong>Standard</strong> : Protocole LDAP (Lightweight Directory Access Protocol)"},
+      {"id":"ad_ccp2_q2","difficulty":"normal","question":"Quelle est la structure hiérarchique de base d'Active Directory ?","options":[{"text":"Domaine → Arbre → Forêt → OU","correct":false},{"text":"Forêt → Arbre → Domaine → OU (Unités d'Organisation)","correct":true},{"text":"OU → Domaine → Forêt","correct":false},{"text":"Workgroup → Domaine → Forest","correct":false}],"explication":"Structure hiérarchique :<br><code style=\"display:block;white-space:pre-wrap\">Forêt (Forest) : entreprise.com\n    ↓\nArbre 1 : entreprise.com\n    ↓\nDomaine : paris.entreprise.com\n    ↓\nOU : Utilisateurs\n    ↓ OU : Comptabilité\n    ↓ OU : IT\n    ↓ OU : RH</code><br><strong>Définitions</strong> :<br>• <strong>Forêt</strong> : Limite de sécurité, contient 1 ou plusieurs arbres, schéma commun<br>• <strong>Arbre</strong> : Hiérarchie de domaines avec namespace DNS continu<br>• <strong>Domaine</strong> : Limite de réplication, politique de sécurité commune<br>• <strong>OU</strong> : Conteneur logique pour appliquer GPO et déléguer administration"},
+      {"id":"ad_ccp2_q3","difficulty":"normal","question":"Un <strong>domaine Active Directory</strong> est identifié par :","options":[{"text":"Une adresse IP","correct":false},{"text":"Un nom DNS (ex: entreprise.local)","correct":true},{"text":"Un nom NetBIOS uniquement","correct":false},{"text":"Un GUID","correct":false}],"explication":"Exemples :<br>• <code>entreprise.local</code> (domaine privé)<br>• <code>ad.entreprise.com</code> (sous-domaine public)<br>• <code>corp.intranet.fr</code><br>Format : <strong>FQDN</strong> (Fully Qualified Domain Name)"},
+      {"id":"ad_ccp2_q4","difficulty":"normal","question":"Combien de <strong>contrôleurs de domaine</strong> (DC) minimum sont recommandés pour la redondance ?","options":[{"text":"1","correct":false},{"text":"2","correct":true},{"text":"5","correct":false},{"text":"10","correct":false}],"explication":"Bonnes pratiques :<br>• <strong>Minimum production : 2 DC</strong><br>• Redondance (si 1 tombe, l'autre prend le relais)<br>• Répartition de charge<br>• <strong>Recommandé : 2 DC + 1 RODC (Read-Only DC) en site distant</strong><br>Avantages multi-DC :<br>• Haute disponibilité<br>• Réplication automatique<br>• Répartition géographique"},
+      {"id":"ad_ccp2_q5","difficulty":"normal","question":"Qu'est-ce qu'une <strong>OU</strong> (Organizational Unit) ?","options":[{"text":"Un utilisateur","correct":false},{"text":"Un conteneur logique pour organiser objets AD et appliquer GPO","correct":true},{"text":"Un serveur","correct":false},{"text":"Un type de groupe","correct":false}],"explication":"OU (Organizational Unit) :<br>• <strong>Organisation</strong> : Structure logique (par service, site, fonction)<br>• <strong>Application GPO</strong> : Chaque OU peut avoir ses propres GPO<br>• <strong>Délégation</strong> : Confier l'administration d'une OU à un utilisateur<br>Exemple structure :<br><code style=\"display:block;white-space:pre-wrap\">Domaine : entreprise.local\n├─ OU: Paris\n│  ├─ OU: Utilisateurs_Paris\n│  ├─ OU: Ordinateurs_Paris\n│  └─ OU: Serveurs_Paris\n├─ OU: Lyon\n│  ├─ OU: Utilisateurs_Lyon\n│  └─ OU: Ordinateurs_Lyon\n└─ OU: Groupes</code>"},
+      {"id":"ad_ccp2_q6","difficulty":"normal","question":"Quelle est la différence entre un <strong>groupe global</strong> et un <strong>groupe local de domaine</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"Global = membres du même domaine, utilisable partout / Local = membres de n'importe où, utilisable localement","correct":true},{"text":"Global = pour les fichiers, Local = pour les imprimantes","correct":false},{"text":"Global = Windows, Local = Linux","correct":false}],"explication":"Types de groupes AD :<br>Type — Membres — Utilisable où — Usage typique<br><strong>Global</strong> — Même domaine — Partout dans la forêt — Regrouper utilisateurs par fonction<br><strong>Universel</strong> — Toute la forêt — Partout — Groupes inter-domaines<br><strong>Local de domaine</strong> (Domain Local) — N'importe où — Domaine local uniquement — Donner permissions sur ressources<br><strong>Règle AGDLP</strong> (recommandée) :<br>• <strong>A</strong>ccounts (comptes) → <strong>G</strong>lobal groups → <strong>D</strong>omain <strong>L</strong>ocal groups → <strong>P</strong>ermissions<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">Users: Alice, Bob, Charlie\n    ↓ membres de\nGlobal Group: GG_Comptabilite\n    ↓ membre de\nDomain Local Group: DL_Partage_Compta_RW\n    ↓ a les permissions\nPartage: \\\\serveur\\Compta (Read/Write)</code>"},
+      {"id":"ad_ccp2_q7","difficulty":"normal","question":"Quelle commande PowerShell permet de créer un utilisateur AD ?","options":[{"text":"<code>Create-ADUser</code>","correct":false},{"text":"<code>New-ADUser</code>","correct":true},{"text":"<code>Add-ADUser</code>","correct":false},{"text":"<code>Make-ADUser</code>","correct":false}],"explication":"PowerShell Active Directory :<br><code style=\"display:block;white-space:pre-wrap\"># Créer un utilisateur\nNew-ADUser -Name \"Jean Dupont\" `\n           -GivenName \"Jean\" `\n           -Surname \"Dupont\" `\n           -SamAccountName \"jdupont\" `\n           -UserPrincipalName \"jdupont@entreprise.local\" `\n           -Path \"OU=Utilisateurs,DC=entreprise,DC=local\" `\n           -AccountPassword (ConvertTo-SecureString \"P@ssw0rd123!\" -AsPlainText -Force) `\n           -Enabled $true\n\n# Ajouter à un groupe\nAdd-ADGroupMember -Identity \"GG_Comptabilite\" -Members \"jdupont\"\n\n# Lister les utilisateurs d'une OU\nGet-ADUser -Filter * -SearchBase \"OU=Utilisateurs,DC=entreprise,DC=local\"</code>"},
+      {"id":"ad_ccp2_q8","difficulty":"normal","question":"Un utilisateur a oublié son mot de passe. Que faire ?","options":[{"text":"Supprimer et recréer le compte","correct":false},{"text":"Réinitialiser le mot de passe (Reset Password)","correct":true},{"text":"Réinstaller Active Directory","correct":false},{"text":"Attendre 24h (délai légal)","correct":false}],"explication":"Procédures :<br><strong>Via GUI (Active Directory Users and Computers)</strong> :<br>1. Ouvrir \"Utilisateurs et ordinateurs Active Directory\"<br>2. Clic droit sur l'utilisateur → \"Réinitialiser le mot de passe\"<br>3. Cocher \"L'utilisateur doit changer le mot de passe à la prochaine ouverture de session\"<br><strong>Via PowerShell</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Set-ADAccountPassword -Identity jdupont `\n    -Reset `\n    -NewPassword (ConvertTo-SecureString \"NouveauP@ss123!\" -AsPlainText -Force)\n\nSet-ADUser -Identity jdupont -ChangePasswordAtLogon $true</code>"},
+      {"id":"ad_ccp2_q9","difficulty":"normal","question":"Que signifie <strong>UPN</strong> (User Principal Name) ?","options":[{"text":"Le nom de l'ordinateur","correct":false},{"text":"Le nom de connexion au format email (user@domaine.local)","correct":true},{"text":"Le mot de passe","correct":false},{"text":"L'adresse IP","correct":false}],"explication":"<strong>UPN</strong> (User Principal Name) :<br>• Format : <code>utilisateur@domaine.local</code><br>• Utilisé pour la connexion (plus simple que DOMAINE\\utilisateur)<br>• Exemple : <code>jdupont@entreprise.local</code><br><strong>Vs SamAccountName</strong> :<br>• SamAccountName : <code>jdupont</code> (nom court, rétro-compatibilité)<br>• UPN : <code>jdupont@entreprise.local</code> (moderne, recommandé)"},
+      {"id":"ad_ccp2_q10","difficulty":"normal","question":"Où sont stockées les informations Active Directory ?","options":[{"text":"Dans le registre Windows","correct":false},{"text":"Dans la base de données <strong>NTDS.dit</strong> (C:\\Windows\\NTDS\\)","correct":true},{"text":"Dans un fichier Excel","correct":false},{"text":"Sur le cloud Azure uniquement","correct":false}],"explication":"Emplacements clés :<br>• <strong>Base de données</strong> : <code>C:\\Windows\\NTDS\\ntds.dit</code> (tous les objets AD)<br>• <strong>Logs</strong> : <code>C:\\Windows\\NTDS\\*.log</code> (transactions)<br>• <strong>SYSVOL</strong> : <code>C:\\Windows\\SYSVOL\\</code> (GPO, scripts de connexion, réplication)<br><strong>Sauvegarde AD</strong> :<br>• Windows Server Backup (System State)<br>• Sauvegarde <code>C:\\Windows\\NTDS\\</code> (arrêt service AD requis)"},
+      {"id":"ad_ccp2_q11","difficulty":"normal","question":"Qu'est-ce que la <strong>réplication Active Directory</strong> ?","options":[{"text":"La copie de fichiers","correct":false},{"text":"La synchronisation des modifications entre contrôleurs de domaine","correct":true},{"text":"La sauvegarde automatique","correct":false},{"text":"Un virus","correct":false}],"explication":"Réplication AD :<br>• <strong>Automatique</strong> : Modifications répliquées entre tous les DC<br>• <strong>Multi-maître</strong> : Modifications possibles sur n'importe quel DC<br>• <strong>Convergence</strong> : Tous les DC finissent par avoir les mêmes données<br><strong>Types</strong> :<br>• <strong>Intra-site</strong> : Rapide (quelques minutes), compression désactivée<br>• <strong>Inter-site</strong> : Planifiée, compression activée<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Forcer réplication\nrepadmin /replsummary\nrepadmin /syncall\n\n# Vérifier réplication\ndcdiag /test:replications</code>"},
+      {"id":"ad_ccp2_q12","difficulty":"normal","question":"Quel protocole est utilisé pour l'authentification dans Active Directory ?","options":[{"text":"HTTP","correct":false},{"text":"FTP","correct":false},{"text":"<strong>Kerberos</strong> (port 88)","correct":true},{"text":"SMTP","correct":false}],"explication":"Protocoles AD :<br>Protocole — Port — Rôle<br><strong>Kerberos</strong> — 88 TCP/UDP — Authentification (moderne)<br><strong>LDAP</strong> — 389 TCP — Requêtes annuaire<br><strong>LDAPS</strong> — 636 TCP — LDAP sécurisé (SSL)<br><strong>Global Catalog</strong> — 3268 TCP — Catalogue global<br><strong>SMB</strong> — 445 TCP — Partages, SYSVOL<br><strong>DNS</strong> — 53 TCP/UDP — Résolution noms<br><strong>NTLM</strong> — - — Authentification legacy (fallback)<br><strong>Kerberos</strong> :<br>• Standard depuis Windows 2000<br>• Authentification par tickets<br>• Plus sécurisé que NTLM"},
+      {"id":"ad_ccp2_q13","difficulty":"normal","question":"Qu'est-ce qu'une <strong>GPO</strong> (Group Policy Object) ?","options":[{"text":"Un utilisateur","correct":false},{"text":"Un ensemble de paramètres de configuration appliqués à des utilisateurs/ordinateurs","correct":true},{"text":"Un serveur","correct":false},{"text":"Un antivirus","correct":false}],"explication":"GPO permet de configurer :<br><strong>Configuration ordinateur</strong> :<br>• Politiques de sécurité (mots de passe, pare-feu)<br>• Installation logiciels<br>• Scripts de démarrage<br>• Paramètres réseau<br><strong>Configuration utilisateur</strong> :<br>• Fonds d'écran<br>• Mappage lecteurs réseau<br>• Restrictions (Panneau de configuration, CMD)<br>• Scripts d'ouverture de session"},
+      {"id":"ad_ccp2_q14","difficulty":"normal","question":"Quel est l'ordre d'application des GPO (du moins prioritaire au plus prioritaire) ?","options":[{"text":"Site → Domaine → OU","correct":false},{"text":"OU → Domaine → Site","correct":false},{"text":"Local → Site → Domaine → OU (<strong>LSDOU</strong>)","correct":true},{"text":"Aléatoire","correct":false}],"explication":"Ordre d'application (acronyme <strong>LSDOU</strong>) :<br>1. <strong>L</strong>ocal (GPO locale de la machine)<br>2. <strong>S</strong>ite (GPO liée au site AD)<br>3. <strong>D</strong>omain (GPO liée au domaine)<br>4. <strong>O</strong>U (GPO liée à l'OU) ← <strong>Plus prioritaire</strong><br><strong>Règle</strong> : La dernière appliquée gagne (OU &gt; Domaine &gt; Site &gt; Local)"},
+      {"id":"ad_ccp2_q15","difficulty":"normal","question":"Une GPO au niveau <strong>OU</strong> entre en conflit avec une GPO au niveau <strong>Domaine</strong>. Laquelle s'applique ?","options":[{"text":"Domaine (prioritaire)","correct":false},{"text":"OU (prioritaire, plus proche de l'objet)","correct":true},{"text":"Aucune","correct":false},{"text":"Les deux en même temps","correct":false}],"explication":"Exemple conflit :<br>• GPO Domaine : Fond d'écran = Bleu<br>• GPO OU Comptabilité : Fond d'écran = Rouge<br>• <strong>Résultat</strong> : Les users de l'OU Comptabilité ont fond d'écran <strong>Rouge</strong> (OU gagne)<br><strong>Exception</strong> : Si GPO Domaine a option <strong>\"Enforced\"</strong> → Domaine gagne même face à OU"},
+      {"id":"ad_ccp2_q16","difficulty":"normal","question":"Quelle commande force la mise à jour immédiate des GPO sur un poste client ?","options":[{"text":"<code>ipconfig /renew</code>","correct":false},{"text":"<code>gpupdate /force</code>","correct":true},{"text":"<code>net use</code>","correct":false},{"text":"<code>shutdown /r</code>","correct":false}],"explication":"Commandes GPO :<br><code style=\"display:block;white-space:pre-wrap\"># Forcer mise à jour GPO immédiate\ngpupdate /force\n\n# Mise à jour seulement user\ngpupdate /target:user\n\n# Mise à jour seulement ordinateur\ngpupdate /target:computer\n\n# Voir les GPO appliquées\ngpresult /r\n\n# Rapport HTML détaillé\ngpresult /h rapport.html</code><br><strong>Timing normal</strong> :<br>• GPO ordinateur : Au démarrage + toutes les 90-120 min<br>• GPO utilisateur : À la connexion + toutes les 90-120 min"},
+      {"id":"ad_ccp2_q17","difficulty":"normal","question":"Où configure-t-on une GPO pour mapper un lecteur réseau ?","options":[{"text":"Configuration ordinateur → Préférences → Paramètres Windows → Mappage de lecteur","correct":false},{"text":"Configuration utilisateur → Préférences → Paramètres Windows → Mappage de lecteur","correct":true},{"text":"Dans le fichier hosts","correct":false},{"text":"Via le registre manuellement sur chaque poste","correct":false}],"explication":"Navigation GPO :<br><code style=\"display:block;white-space:pre-wrap\">Configuration utilisateur\n└─ Préférences\n   └─ Paramètres Windows\n      └─ Mappages de lecteurs</code><br><strong>Configuration</strong> :<br>• Action : Créer<br>• Lettre : Z:<br>• Emplacement : <code>\\\\serveur\\partage$</code><br>• Se connecter en tant que : (laisser vide = user actuel)<br>• Étiquette : \"Partage Comptabilité\"<br><strong>Ciblage</strong> : Possibilité de filtrer par groupe de sécurité"},
+      {"id":"ad_ccp2_q18","difficulty":"normal","question":"Que signifie <strong>\"Enforced\"</strong> (Appliqué) sur une GPO ?","options":[{"text":"La GPO est désactivée","correct":false},{"text":"La GPO ne peut PAS être bloquée par les OU enfants (priorité absolue)","correct":true},{"text":"La GPO s'applique plus lentement","correct":false},{"text":"La GPO nécessite un redémarrage","correct":false}],"explication":"Options GPO :<br><strong>Enforced (Appliqué)</strong> :<br>• Force l'application, même si OU enfant a \"Block Inheritance\"<br>• Utilisé pour politiques de sécurité critiques<br>• Icône cadenas dans GPMC<br><strong>Block Inheritance (Bloquer l'héritage)</strong> :<br>• Empêche les GPO parents de s'appliquer<br>• Mais <strong>Enforced</strong> passe quand même !<br><strong>Disabled (Désactivé)</strong> :<br>• Totalement inactif<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Domaine : GPO_Securite (Enforced) → Fond écran bleu\n    ↓\nOU IT : Block Inheritance + GPO_IT → Fond écran rouge\n    ↓\nRésultat : Fond écran BLEU (Enforced gagne)</code>"},
+      {"id":"ad_ccp2_q19","difficulty":"normal","question":"Quel est le rôle du service <strong>DNS</strong> dans Active Directory ?","options":[{"text":"Gérer les imprimantes","correct":false},{"text":"Résoudre noms de domaine (FQDN) en adresses IP + Localiser les contrôleurs de domaine (enregistrements SRV)","correct":true},{"text":"Distribuer les adresses IP","correct":false},{"text":"Chiffrer les communications","correct":false}],"explication":"DNS dans AD :<br>1. <strong>Résolution de noms</strong> : <code>serveur1.entreprise.local</code> → <code>192.168.1.10</code><br>2. <strong>Localisation DC</strong> : Enregistrements SRV indiquent où sont les contrôleurs<br>3. <strong>Localisation services</strong> : LDAP, Kerberos, etc.<br><strong>Sans DNS fonctionnel = AD ne fonctionne pas !</strong>"},
+      {"id":"ad_ccp2_q20","difficulty":"normal","question":"Qu'est-ce qu'une <strong>zone de recherche directe</strong> (Forward Lookup Zone) ?","options":[{"text":"Résolution Nom → IP (ex: serveur1.entreprise.local → 192.168.1.10)","correct":true},{"text":"Résolution IP → Nom","correct":false},{"text":"Un pare-feu","correct":false},{"text":"Un serveur web","correct":false}],"explication":"Zone de recherche directe (Forward) :<br>• Type : Principale / Secondaire / Intégrée AD<br>• Contient : Enregistrements A, AAAA, CNAME, MX, SRV<br>Exemple zone <code>entreprise.local</code> :<br><code style=\"display:block;white-space:pre-wrap\">serveur1    A       192.168.1.10\nserveur2    A       192.168.1.11\ndc01        A       192.168.1.5\nwww         CNAME   serveur1\nmail        A       192.168.1.20\n@           MX 10   mail</code>"},
+      {"id":"ad_ccp2_q21","difficulty":"normal","question":"Qu'est-ce qu'une <strong>zone de recherche inversée</strong> (Reverse Lookup Zone) ?","options":[{"text":"Résolution Nom → IP","correct":false},{"text":"Résolution IP → Nom (ex: 192.168.1.10 → serveur1.entreprise.local)","correct":true},{"text":"Une sauvegarde DNS","correct":false},{"text":"Un enregistrement MX","correct":false}],"explication":"Zone de recherche inversée (Reverse) :<br>• Format : <code>1.168.192.in-addr.arpa</code> (pour 192.168.1.0/24)<br>• Contient : Enregistrements PTR<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">10.1.168.192.in-addr.arpa  PTR  serveur1.entreprise.local\n11.1.168.192.in-addr.arpa  PTR  serveur2.entreprise.local</code><br>Usage :<br>• Logs (IP → nom lisible)<br>• Sécurité (vérification reverse DNS)<br>• Diagnostics"},
+      {"id":"ad_ccp2_q22","difficulty":"normal","question":"Quel type d'enregistrement DNS pointe un nom vers une adresse IP ?","options":[{"text":"MX (Mail Exchange)","correct":false},{"text":"CNAME (Canonical Name / Alias)","correct":false},{"text":"<strong>A (pour IPv4)</strong> ou AAAA (pour IPv6)","correct":true},{"text":"SRV (Service)","correct":false}],"explication":"Types d'enregistrements DNS :<br>Type — Rôle — Exemple<br><strong>A</strong> — Nom → IPv4 — <code>serveur1 A 192.168.1.10</code><br><strong>AAAA</strong> — Nom → IPv6 — <code>serveur1 AAAA 2001:db8::1</code><br><strong>CNAME</strong> — Alias — <code>www CNAME serveur1</code><br><strong>MX</strong> — Serveur mail — <code>@ MX 10 mail.entreprise.local</code><br><strong>PTR</strong> — IP → Nom (reverse) — <code>10 PTR serveur1.entreprise.local</code><br><strong>SRV</strong> — Localisation service — <code>_ldap._tcp SRV 0 100 389 dc01</code><br><strong>NS</strong> — Serveur DNS autoritaire — <code>@ NS dns1.entreprise.local</code><br><strong>SOA</strong> — Start of Authority — Infos zone (serial, refresh, etc.)"},
+      {"id":"ad_ccp2_q23","difficulty":"normal","question":"Qu'est-ce qu'un enregistrement <strong>CNAME</strong> ?","options":[{"text":"Un alias (nom alternatif pointant vers un autre nom)","correct":true},{"text":"Une adresse IP","correct":false},{"text":"Un serveur mail","correct":false},{"text":"Un contrôleur de domaine","correct":false}],"explication":"CNAME (Canonical Name) :<br>• Pointe un nom vers un <strong>autre nom</strong> (pas une IP)<br>• Utile pour plusieurs noms vers même serveur<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">serveur1    A       192.168.1.10\nwww         CNAME   serveur1\nintranet    CNAME   serveur1</code><br>Résolution :<br><code style=\"display:block;white-space:pre-wrap\">www.entreprise.local\n    ↓ CNAME\nserveur1.entreprise.local\n    ↓ A\n192.168.1.10</code><br><strong>Limitation</strong> : Ne peut pas être utilisé pour l'enregistrement racine (@)"},
+      {"id":"ad_ccp2_q24","difficulty":"normal","question":"Les contrôleurs de domaine Active Directory sont localisés via des enregistrements :","options":[{"text":"A","correct":false},{"text":"MX","correct":false},{"text":"SRV","correct":true},{"text":"CNAME","correct":false}],"explication":"Enregistrements SRV AD :<br><code style=\"display:block;white-space:pre-wrap\">_ldap._tcp.dc._msdcs.entreprise.local  SRV  0 100 389 dc01.entreprise.local\n_kerberos._tcp.entreprise.local        SRV  0 100 88  dc01.entreprise.local\n_gc._tcp.entreprise.local              SRV  0 100 3268 dc01.entreprise.local</code><br>Format SRV :<br><code style=\"display:block;white-space:pre-wrap\">_service._protocole.domaine  SRV  priorité poids port cible</code><br><strong>Usage</strong> : Les clients trouvent automatiquement les DC via ces enregistrements<br><strong>Commande test</strong> :<br><code style=\"display:block;white-space:pre-wrap\">nslookup -type=srv _ldap._tcp.dc._msdcs.entreprise.local</code>"},
+      {"id":"ad_ccp2_q25","difficulty":"normal","question":"Quel est le rôle du service <strong>DHCP</strong> ?","options":[{"text":"Résoudre les noms DNS","correct":false},{"text":"Distribuer automatiquement les adresses IP aux clients","correct":true},{"text":"Gérer les utilisateurs","correct":false},{"text":"Sauvegarder les données","correct":false}],"explication":"DHCP (Dynamic Host Configuration Protocol) :<br>• <strong>Automatisation</strong> : Plus besoin de configurer IP manuellement<br>• <strong>Gestion centralisée</strong> : Toutes les configs depuis le serveur<br>• <strong>Évite conflits IP</strong> : Le serveur gère les attributions"},
+      {"id":"ad_ccp2_q26","difficulty":"normal","question":"Qu'est-ce qu'une <strong>étendue DHCP</strong> (scope) ?","options":[{"text":"Un utilisateur","correct":false},{"text":"Une plage d'adresses IP disponibles pour attribution (ex: 192.168.1.100 - 192.168.1.200)","correct":true},{"text":"Un câble réseau","correct":false},{"text":"Une GPO","correct":false}],"explication":"Scope (Étendue) DHCP :<br>• <strong>Réseau</strong> : 192.168.1.0/24<br>• <strong>Plage de début</strong> : 192.168.1.100<br>• <strong>Plage de fin</strong> : 192.168.1.200<br>• <strong>Masque</strong> : 255.255.255.0<br>• <strong>Passerelle</strong> : 192.168.1.1<br>• <strong>DNS</strong> : 192.168.1.5, 8.8.8.8<br>• <strong>Durée bail</strong> : 8 jours"},
+      {"id":"ad_ccp2_q27","difficulty":"normal","question":"Qu'est-ce qu'une <strong>réservation DHCP</strong> ?","options":[{"text":"Désactiver le DHCP","correct":false},{"text":"Attribuer toujours la même IP à une machine spécifique (via adresse MAC)","correct":true},{"text":"Bloquer une adresse IP","correct":false},{"text":"Un bail DHCP de 1 an","correct":false}],"explication":"Réservation DHCP :<br>• <strong>Principe</strong> : Lier une adresse MAC à une IP spécifique<br>• <strong>Usage</strong> : Serveurs, imprimantes, caméras IP (besoin IP fixe mais gérée par DHCP)<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">Nom : Imprimante_Compta\nAdresse IP : 192.168.1.150\nAdresse MAC : 00-1A-2B-3C-4D-5E</code><br><strong>Avantages vs IP statique manuelle</strong> :<br>• Gestion centralisée<br>• Options DHCP automatiques (DNS, passerelle)<br>• Changement facile"},
+      {"id":"ad_ccp2_q28","difficulty":"normal","question":"Qu'est-ce qu'une <strong>exclusion DHCP</strong> ?","options":[{"text":"Une adresse ou plage d'adresses exclue de la distribution automatique","correct":true},{"text":"Un utilisateur banni","correct":false},{"text":"Un serveur arrêté","correct":false},{"text":"Une GPO","correct":false}],"explication":"Exclusion DHCP :<br>• <strong>Scope</strong> : 192.168.1.100 - 192.168.1.200<br>• <strong>Exclusion</strong> : 192.168.1.150 - 192.168.1.160<br>• <strong>Résultat</strong> : DHCP distribue 100-149 et 161-200 uniquement<br><strong>Usage</strong> :<br>• Réserver plage pour IP statiques manuelles<br>• Éviter conflits avec serveurs configurés manuellement"},
+      {"id":"ad_ccp2_q29","difficulty":"normal","question":"Quelle est la durée par défaut d'un <strong>bail DHCP</strong> (lease) ?","options":[{"text":"1 heure","correct":false},{"text":"8 jours (standard Windows)","correct":true},{"text":"1 an","correct":false},{"text":"Permanent","correct":false}],"explication":"Durée de bail (Lease Duration) :<br>• <strong>Par défaut</strong> : 8 jours<br>• <strong>Renouvellement</strong> : Automatique à 50% du bail (4 jours)<br>• <strong>Rébindage</strong> : À 87.5% si renouvellement échoue<br><strong>Ajuster selon contexte</strong> :<br>• <strong>Réseau stable</strong> (bureaux) : 8 jours OK<br>• <strong>Réseau visiteurs</strong> (WiFi public) : 1-4 heures<br>• <strong>Réseau datacenter</strong> : 1 jour"},
+      {"id":"ad_ccp2_q30","difficulty":"normal","question":"Outre l'adresse IP, quelles informations peut distribuer un serveur DHCP ?","options":[{"text":"Uniquement l'IP","correct":false},{"text":"IP + Masque + Passerelle + DNS + Nom de domaine + Serveur WINS + etc.","correct":true},{"text":"Uniquement le masque","correct":false},{"text":"Rien du tout","correct":false}],"explication":"Options DHCP standards :<br>Code — Option — Exemple<br>1 — Masque de sous-réseau — 255.255.255.0<br>3 — Passerelle par défaut — 192.168.1.1<br>6 — Serveurs DNS — 192.168.1.5, 8.8.8.8<br>15 — Nom de domaine — entreprise.local<br>42 — Serveurs NTP — 192.168.1.5<br>44 — Serveurs WINS — 192.168.1.5<br>51 — Durée du bail — 691200 sec (8 jours)<br>66 — Serveur TFTP — 192.168.1.50 (PXE boot)<br><strong>Options personnalisées</strong> possibles (déploiement, VoIP, etc.)<br>## 📊 BARÈME ET ÉVALUATION<br><strong>Nombre de bonnes réponses</strong> : _____ / 30<br>Score — Niveau — Commentaire<br>27-30 — ⭐⭐⭐ Expert — Parfait ! Maîtrise AD/GPO/DNS/DHCP<br>23-26 — ⭐⭐ Très bien — Bonnes connaissances, révise détails<br>18-22 — ⭐ Bien — Relis cours Windows Server<br>13-17 — 🟡 Moyen — Révision approfondie nécessaire<br>0-12 — 🔴 Insuffisant — Revoir intégralement le module<br>## 🎯 POINTS CLÉS À RETENIR"},
+      /* ADAVANCE_QCM */
     ],
   },
   {
@@ -6583,6 +7106,481 @@ role where I can grow my infrastructure and security skills.</pre>
           }
         ]
       },
+      {
+        "id": "ccp2-windows-ad-fiche",
+        "titre": "CCP2 — Windows Server / Active Directory / PowerShell (Fiche de révision)",
+        "sections": [
+          {
+            "type": "p",
+            "content": "<strong>Certification TSSR</strong> - CCP2 : Exploiter des serveurs Windows et un domaine ActiveDirectory"
+          },
+          {
+            "type": "h2",
+            "content": "1. ACTIVE DIRECTORY (AD)"
+          },
+          {
+            "type": "h3",
+            "content": "Structure hiérarchique"
+          },
+          {
+            "type": "code",
+            "content": "FORÊT (Forest)\n  └── DOMAINE (Domain)\n        └── UNITÉS ORGANISATIONNELLES (OU)\n              └── OBJETS (Users, Computers, Groups)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Forêt</strong> : Limite sécurité, schéma AD commun, relations d'approbation   <strong>Domaine</strong> : Limite administrative, réplication, politiques   <strong>OU</strong> : Conteneurs personnalisables, application GPO   <strong>Objets</strong> : Utilisateurs, ordinateurs, groupes"
+          },
+          {
+            "type": "h3",
+            "content": "Contrôleur de domaine (DC)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Rôles FSMO</strong> (5 rôles) :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Forêt</strong> (2) : Maître de schéma, Maître d'attribution de noms de domaine",
+              "<strong>Domaine</strong> (3) : Émulateur PDC, Maître RID, Maître d'infrastructure"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Commandes</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# Installer AD DS\nInstall-WindowsFeature AD-Domain-Services -IncludeManagementTools\n\n# Promouvoir serveur en DC\nInstall-ADDSForest -DomainName \"entreprise.local\"\n\n# Vérifier rôles FSMO\nGet-ADDomain | Select-Object PDCEmulator, RIDMaster, InfrastructureMaster"
+          },
+          {
+            "type": "h2",
+            "content": "2. GESTION UTILISATEURS ET GROUPES"
+          },
+          {
+            "type": "h3",
+            "content": "Créer utilisateur"
+          },
+          {
+            "type": "p",
+            "content": "<strong>PowerShell</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "New-ADUser -Name \"Jean Dupont\" `\n  -GivenName \"Jean\" `\n  -Surname \"Dupont\" `\n  -SamAccountName \"jdupont\" `\n  -UserPrincipalName \"jdupont@entreprise.local\" `\n  -Path \"OU=Utilisateurs,DC=entreprise,DC=local\" `\n  -AccountPassword (ConvertTo-SecureString \"P@ssw0rd123!\" -AsPlainText -Force) `\n  -Enabled $true"
+          },
+          {
+            "type": "h3",
+            "content": "Créer groupe"
+          },
+          {
+            "type": "code",
+            "content": "New-ADGroup -Name \"GRP_RH\" `\n  -GroupScope Global `\n  -GroupCategory Security `\n  -Path \"OU=Groupes,DC=entreprise,DC=local\"\n\n# Ajouter membre\nAdd-ADGroupMember -Identity \"GRP_RH\" -Members \"jdupont\""
+          },
+          {
+            "type": "h3",
+            "content": "Recherches utiles"
+          },
+          {
+            "type": "code",
+            "content": "# Utilisateurs désactivés\nGet-ADUser -Filter {Enabled -eq $false}\n\n# Utilisateurs OU spécifique\nGet-ADUser -SearchBase \"OU=RH,DC=entreprise,DC=local\" -Filter *\n\n# Dernière connexion >90 jours\n$date = (Get-Date).AddDays(-90)\nGet-ADUser -Filter {LastLogonDate -lt $date} -Properties LastLogonDate"
+          },
+          {
+            "type": "h2",
+            "content": "3. STRATÉGIES DE GROUPE (GPO)"
+          },
+          {
+            "type": "h3",
+            "content": "Chemins GPO essentiels"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Configuration ordinateur</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Computer Configuration\n  └── Policies\n        ├── Software Settings\n        ├── Windows Settings\n        │     ├── Security Settings (mots de passe, audit, pare-feu)\n        │     └── Scripts (démarrage/arrêt)\n        └── Administrative Templates\n              ├── System (USB, BitLocker, Windows Update)\n              └── Network (Wi-Fi, VPN)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Configuration utilisateur</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "User Configuration\n  └── Policies\n        ├── Software Settings\n        ├── Windows Settings\n        │     ├── Folder Redirection\n        │     └── Scripts (ouverture/fermeture session)\n        └── Administrative Templates\n              ├── Desktop (fond d'écran, widgets)\n              └── Start Menu (épingler applications)"
+          },
+          {
+            "type": "h3",
+            "content": "GPO courantes"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Bloquer clés USB</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Computer Config → Admin Templates → System → Removable Storage Access\n→ All Removable Storage: Deny all access = Enabled"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Mappage lecteurs réseau</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "User Config → Preferences → Windows Settings → Drive Maps\n→ New → Mapped Drive\n   Action: Create\n   Location: \\\\SRV-FILE01\\Partages\n   Drive Letter: P:"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Stratégie mots de passe</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Computer Config → Policies → Windows Settings → Security Settings → Account Policies → Password Policy\n→ Minimum password length: 12 characters\n→ Password must meet complexity requirements: Enabled\n→ Maximum password age: 90 days"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes GPO"
+          },
+          {
+            "type": "code",
+            "content": "# Créer GPO\nNew-GPO -Name \"GPO-Securite-RH\"\n\n# Lier GPO à OU\nNew-GPLink -Name \"GPO-Securite-RH\" -Target \"OU=RH,DC=entreprise,DC=local\"\n\n# Forcer application\ngpupdate /force\n\n# Rapport GPO utilisateur\ngpresult /r\ngpresult /h rapport.html"
+          },
+          {
+            "type": "h2",
+            "content": "4. DNS WINDOWS SERVER"
+          },
+          {
+            "type": "h3",
+            "content": "Types d'enregistrements"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "TYPE",
+              "DESCRIPTION",
+              "EXEMPLE"
+            ],
+            "rows": [
+              [
+                "<strong>A</strong>",
+                "IPv4 vers nom",
+                "intranet.entreprise.local → 192.168.10.30"
+              ],
+              [
+                "<strong>AAAA</strong>",
+                "IPv6 vers nom",
+                "serveur → 2001:db8::1"
+              ],
+              [
+                "<strong>CNAME</strong>",
+                "Alias",
+                "www → intranet"
+              ],
+              [
+                "<strong>MX</strong>",
+                "Serveur mail",
+                "mail.entreprise.local priorité 10"
+              ],
+              [
+                "<strong>PTR</strong>",
+                "Reverse (IP→nom)",
+                "192.168.10.30 → SRV-DC01"
+              ],
+              [
+                "<strong>SRV</strong>",
+                "Service AD",
+                "_ldap._tcp.entreprise.local"
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Commandes DNS"
+          },
+          {
+            "type": "code",
+            "content": "# Créer zone principale\nAdd-DnsServerPrimaryZone -Name \"entreprise.local\" -ZoneFile \"entreprise.local.dns\"\n\n# Ajouter enregistrement A\nAdd-DnsServerResourceRecordA -Name \"intranet\" `\n  -ZoneName \"entreprise.local\" `\n  -IPv4Address \"192.168.10.30\"\n\n# Ajouter CNAME\nAdd-DnsServerResourceRecordCName -Name \"www\" `\n  -ZoneName \"entreprise.local\" `\n  -HostNameAlias \"intranet.entreprise.local\"\n\n# Tests\nnslookup intranet.entreprise.local\nResolve-DnsName intranet.entreprise.local"
+          },
+          {
+            "type": "h2",
+            "content": "5. PERMISSIONS NTFS vs PARTAGE"
+          },
+          {
+            "type": "h3",
+            "content": "NTFS (local + réseau)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Permissions</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Lecture</strong> : Voir fichiers/dossiers",
+              "<strong>Écriture</strong> : Créer fichiers",
+              "<strong>Modification</strong> : Lire + Écrire + Supprimer",
+              "<strong>Contrôle total</strong> : Toutes permissions + modifier ACL"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Commandes</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# Voir permissions\nGet-Acl \"C:\\Partages\\RH\"\n\n# Ajouter permission\n$acl = Get-Acl \"C:\\Partages\\RH\"\n$rule = New-Object System.Security.AccessControl.FileSystemAccessRule(\n    \"ENTREPRISE\\GRP_RH\", \"Modify\", \"ContainerInherit,ObjectInherit\", \"None\", \"Allow\"\n)\n$acl.SetAccessRule($rule)\nSet-Acl \"C:\\Partages\\RH\" $acl"
+          },
+          {
+            "type": "h3",
+            "content": "Partage SMB (réseau uniquement)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Permissions</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Lecture</strong> : Lire fichiers",
+              "<strong>Modification</strong> : Lire + Écrire",
+              "<strong>Contrôle total</strong> : Toutes permissions"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>Commandes</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# Créer partage\nNew-SmbShare -Name \"RH_Partage\" -Path \"C:\\Partages\\RH\" -FullAccess \"Tout le monde\"\n\n# Modifier permissions partage\nGrant-SmbShareAccess -Name \"RH_Partage\" -AccountName \"ENTREPRISE\\GRP_RH\" -AccessRight Full"
+          },
+          {
+            "type": "h3",
+            "content": "Règle cumulative"
+          },
+          {
+            "type": "p",
+            "content": "<strong>NTFS Lecture + SMB Contrôle total = Lecture finale</strong> (plus restrictive gagne)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Bonne pratique</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Partage SMB : \"Tout le monde\" = Contrôle total",
+              "Gérer finesse via NTFS uniquement"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "6. POWERSHELL AVANCÉ"
+          },
+          {
+            "type": "h3",
+            "content": "Variables et types"
+          },
+          {
+            "type": "code",
+            "content": "$nom = \"Dupont\"                    # String\n$age = 35                          # Int\n$actif = $true                     # Boolean\n$liste = @(\"PC01\", \"PC02\")         # Array\n$hash = @{Nom=\"Dupont\"; Age=35}    # Hashtable"
+          },
+          {
+            "type": "h3",
+            "content": "Boucles"
+          },
+          {
+            "type": "code",
+            "content": "# ForEach\n$pcs = Get-ADComputer -Filter *\nforeach ($pc in $pcs) {\n    Write-Host $pc.Name\n}\n\n# ForEach-Object (pipeline)\nGet-ADUser -Filter * | ForEach-Object { $_.SamAccountName }\n\n# While\n$i = 0\nwhile ($i -lt 10) {\n    Write-Host $i\n    $i++\n}"
+          },
+          {
+            "type": "h3",
+            "content": "Conditions"
+          },
+          {
+            "type": "code",
+            "content": "if ($age -ge 18) {\n    Write-Host \"Majeur\"\n} elseif ($age -ge 16) {\n    Write-Host \"Mineur avec permis\"\n} else {\n    Write-Host \"Mineur\"\n}"
+          },
+          {
+            "type": "h3",
+            "content": "Fonctions"
+          },
+          {
+            "type": "code",
+            "content": "function Get-DiskSpace {\n    param(\n        [string]$ComputerName = \"localhost\"\n    )\n    \n    Get-WmiObject Win32_LogicalDisk -ComputerName $ComputerName | \n        Where-Object {$_.DriveType -eq 3} | \n        Select-Object DeviceID, \n            @{Name=\"SizeGB\";Expression={[math]::Round($_.Size/1GB,2)}},\n            @{Name=\"FreeGB\";Expression={[math]::Round($_.FreeSpace/1GB,2)}}\n}\n\n# Utilisation\nGet-DiskSpace -ComputerName \"SRV-FILE01\""
+          },
+          {
+            "type": "h3",
+            "content": "Modules AD"
+          },
+          {
+            "type": "code",
+            "content": "# Importer module\nImport-Module ActiveDirectory\n\n# Commandes essentielles\nGet-ADUser -Identity \"jdupont\"\nGet-ADComputer -Filter {OperatingSystem -like \"*Server*\"}\nGet-ADGroup -Identity \"GRP_RH\"\nGet-ADGroupMember -Identity \"Domain Admins\""
+          },
+          {
+            "type": "h2",
+            "content": "7. SERVICES WINDOWS"
+          },
+          {
+            "type": "h3",
+            "content": "Gestion services"
+          },
+          {
+            "type": "code",
+            "content": "# Lister services\nGet-Service | Where-Object {$_.Status -eq \"Running\"}\n\n# Démarrer/Arrêter\nStart-Service -Name \"Spooler\"\nStop-Service -Name \"Spooler\"\nRestart-Service -Name \"Spooler\"\n\n# Configurer démarrage automatique\nSet-Service -Name \"Spooler\" -StartupType Automatic"
+          },
+          {
+            "type": "h3",
+            "content": "Services critiques AD"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>DNS Client</strong> : Résolution noms",
+              "<strong>Netlogon</strong> : Authentification domaine",
+              "<strong>Active Directory Domain Services</strong> : Contrôleur domaine",
+              "<strong>DFS Replication</strong> : Réplication fichiers",
+              "<strong>Windows Time</strong> : Synchronisation horloge (crucial AD)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "8. WINDOWS UPDATE / WSUS"
+          },
+          {
+            "type": "h3",
+            "content": "WSUS (Windows Server Update Services)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Rôle</strong> : Serveur central distribution mises à jour Windows"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Avantages</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Contrôle déploiement mises à jour",
+              "Économie bande passante (1 téléchargement)",
+              "Tests avant production"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>GPO WSUS</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Computer Config → Admin Templates → Windows Components → Windows Update\n→ Configure Automatic Updates: Enabled\n→ Specify intranet Microsoft update service location:\n   http://srv-wsus.entreprise.local:8530"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes"
+          },
+          {
+            "type": "code",
+            "content": "# Forcer recherche mises à jour\nStart-WUScan\n\n# Installer mises à jour\nInstall-WindowsUpdate -AcceptAll -AutoReboot\n\n# Historique\nGet-WindowsUpdateLog"
+          },
+          {
+            "type": "h2",
+            "content": "9. SAUVEGARDE WINDOWS SERVER"
+          },
+          {
+            "type": "h3",
+            "content": "Windows Server Backup"
+          },
+          {
+            "type": "code",
+            "content": "# Installer fonctionnalité\nInstall-WindowsFeature Windows-Server-Backup\n\n# Sauv egarde complète vers disque externe\nwbadmin start backup -backupTarget:E: -include:C: -allCritical -quiet\n\n# Sauvegarde état système (AD, registre, boot)\nwbadmin start systemstatebackup -backupTarget:E: -quiet\n\n# Restauration fichiers\nwbadmin start recovery -version:12/11/2025-10:00 -itemType:File -items:C:\\Data"
+          },
+          {
+            "type": "h2",
+            "content": "10. SCRIPTS POWERSHELL UTILES"
+          },
+          {
+            "type": "h3",
+            "content": "Script 1 : Création utilisateurs en masse (CSV)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>users.csv</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Prenom,Nom,Login,OU\nJean,Dupont,jdupont,\"OU=RH,DC=entreprise,DC=local\"\nMarie,Martin,mmartin,\"OU=Comptabilite,DC=entreprise,DC=local\""
+          },
+          {
+            "type": "p",
+            "content": "<strong>Script</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Import-Csv \"users.csv\" | ForEach-Object {\n    $password = ConvertTo-SecureString \"P@ssw0rd123!\" -AsPlainText -Force\n    \n    New-ADUser -Name \"$($_.Prenom) $($_.Nom)\" `\n        -GivenName $_.Prenom `\n        -Surname $_.Nom `\n        -SamAccountName $_.Login `\n        -UserPrincipalName \"$($_.Login)@entreprise.local\" `\n        -Path $_.OU `\n        -AccountPassword $password `\n        -Enabled $true\n    \n    Write-Host \"Utilisateur $($_.Login) cree\" -ForegroundColor Green\n}"
+          },
+          {
+            "type": "h3",
+            "content": "Script 2 : Rapport espace disque serveurs"
+          },
+          {
+            "type": "code",
+            "content": "$serveurs = @(\"SRV-DC01\", \"SRV-FILE01\", \"SRV-WEB01\")\n$rapport = @()\n\nforeach ($srv in $serveurs) {\n    $disques = Get-WmiObject Win32_LogicalDisk -ComputerName $srv -Filter \"DriveType=3\"\n    \n    foreach ($disque in $disques) {\n        $rapport += [PSCustomObject]@{\n            Serveur = $srv\n            Lecteur = $disque.DeviceID\n            TailleGo = [math]::Round($disque.Size/1GB, 2)\n            LibreGo = [math]::Round($disque.FreeSpace/1GB, 2)\n            PourcentLibre = [math]::Round(($disque.FreeSpace/$disque.Size)*100, 2)\n        }\n    }\n}\n\n$rapport | Export-Csv \"rapport_disques.csv\" -NoTypeInformation\n$rapport | Where-Object {$_.PourcentLibre -lt 20} | Format-Table -AutoSize"
+          },
+          {
+            "type": "h3",
+            "content": "Script 3 : Désactiver comptes inactifs >90 jours"
+          },
+          {
+            "type": "code",
+            "content": "$date = (Get-Date).AddDays(-90)\n\nGet-ADUser -Filter {Enabled -eq $true} -Properties LastLogonDate | \n    Where-Object {$_.LastLogonDate -lt $date} | \n    ForEach-Object {\n        Disable-ADAccount -Identity $_.SamAccountName\n        Write-Host \"Compte $($_.SamAccountName) desactive (inactif depuis $($_.LastLogonDate))\" -ForegroundColor Yellow\n    }"
+          },
+          {
+            "type": "h2",
+            "content": "COMMANDES ESSENTIELLES À RETENIR"
+          },
+          {
+            "type": "h3",
+            "content": "Active Directory"
+          },
+          {
+            "type": "code",
+            "content": "Get-ADUser, New-ADUser, Set-ADUser, Remove-ADUser\nGet-ADGroup, New-ADGroup, Add-ADGroupMember\nGet-ADComputer"
+          },
+          {
+            "type": "h3",
+            "content": "GPO"
+          },
+          {
+            "type": "code",
+            "content": "New-GPO, New-GPLink\ngpupdate /force\ngpresult /r"
+          },
+          {
+            "type": "h3",
+            "content": "DNS"
+          },
+          {
+            "type": "code",
+            "content": "Add-DnsServerResourceRecordA\nAdd-DnsServerResourceRecordCName\nnslookup, Resolve-DnsName"
+          },
+          {
+            "type": "h3",
+            "content": "Permissions"
+          },
+          {
+            "type": "code",
+            "content": "Get-Acl, Set-Acl\nNew-SmbShare, Grant-SmbShareAccess"
+          },
+          {
+            "type": "h3",
+            "content": "Services"
+          },
+          {
+            "type": "code",
+            "content": "Get-Service, Start-Service, Stop-Service, Restart-Service"
+          }
+        ]
+      },
       /* EXAMEN_COURS */
     ],
     flashcards: [
@@ -6596,6 +7594,21 @@ role where I can grow my infrastructure and security skills.</pre>
       {"id":"exam_ccp1_f8","recto":"Q8 — VPN utilisateur nomade : Configurer VPN Windows 10 vers vpn.entreprise.local.","verso":"<strong>Manuel</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Paramètres → Réseau et Internet → VPN → Ajouter une connexion VPN\n   Fournisseur VPN: Windows (intégré)\n   Nom connexion: VPN Entreprise\n   Nom/adresse serveur: vpn.entreprise.local\n   Type VPN: IKEv2 ou L2TP/IPsec\n   Type infos connexion: Nom d'utilisateur et mot de passe</code><br><strong>PowerShell</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Add-VpnConnection -Name \"VPN Entreprise\" `\n  -ServerAddress \"vpn.entreprise.local\" `\n  -TunnelType L2tp `\n  -EncryptionLevel Required `\n  -AuthenticationMethod MSChapv2 `\n  -RememberCredential</code><br><strong>Test</strong> : <code>Test-NetConnection vpn.entreprise.local -Port 1723</code>"},
       {"id":"exam_ccp1_f9","recto":"Q9 — Mise à jour Windows bloquée : Windows Update erreur 0x80070005. Dépannage ?","verso":"<strong>Causes</strong> (3 pts) :<br>• Permissions insuffisantes<br>• Service Windows Update arrêté<br>• Cache corrompu<br><strong>Solutions</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Redémarrer services\nStop-Service wuauserv, bits, cryptsvc\nRemove-Item C:\\Windows\\SoftwareDistribution\\Download\\* -Recurse -Force\nStart-Service wuauserv, bits, cryptsvc\n\n# Vider cache\nDism /Online /Cleanup-Image /RestoreHealth\nsfc /scannow\n\n# Outil Microsoft\n# Télécharger Windows Update Troubleshooter</code><br><strong>Vérif finale</strong> : <code>Get-WindowsUpdateLog</code>"},
       {"id":"exam_ccp1_f10","recto":"Q10 — Profil utilisateur corrompu : Utilisateur message \"Service de profil utilisateur a échoué\". Solution ?","verso":"<strong>Cause</strong> (2 pts) : Profil Windows corrompu (registre verrouillé)<br><strong>Solution</strong> (6 pts) :<br><code style=\"display:block;white-space:pre-wrap\">1. Connexion compte admin local\n2. Regedit → HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\n3. Chercher SID utilisateur (S-1-5-21-xxx)\n4. Si existe SID.bak → Renommer :\n   - SID → SID.old\n   - SID.bak → SID\n5. Redémarrer PC\n6. Connexion utilisateur (profil reconstruit)</code><br><strong>Prévention</strong> :<br>• Redirection dossiers (Documents, Bureau) via GPO<br>• Profils itinérants (roaming profiles)<br>• Sauvegardes régulières"},
+      {"id":"exam_ccp2_f1","recto":"Q1 — Architecture Active Directory : Expliquez la différence entre une <strong>forêt</strong>, un <strong>domaine</strong> et une <strong>unité organisationnelle (OU)</strong> dans Active Directory. Donnez un cas d'usage concret pour chacun.","verso":"<strong>Forêt</strong> (2 pts) :<br>• Limite sécurité maximale<br>• Schéma AD commun (définitions objets)<br>• Relations d'approbation entre domaines<br>• <strong>Cas d'usage</strong> : Entreprise multi-sociétés (Holding avec 3 filiales → 1 forêt, 3 domaines)<br><strong>Domaine</strong> (3 pts) :<br>• Limite administrative et de réplication<br>• Base de données AD unique<br>• Politiques de sécurité (GPO) communes<br>• <strong>Cas d'usage</strong> : Société avec siège Paris + agence Lyon → 1 domaine <code>entreprise.local</code>, réplication automatique<br><strong>Unité Organisationnelle (OU)</strong> (3 pts) :<br>• Conteneur personnalisable d'objets<br>• Permet délégation administration<br>• Application sélective de GPO<br>• <strong>Cas d'usage</strong> : OU \"RH\", \"Comptabilite\", \"IT\" → GPO mappage lecteurs différents par service<br><strong>Exemple concret</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Forêt : groupe-multinationale.com\n  └── Domaine : france.groupe-multinationale.com\n        ├── OU : Paris\n        │     ├── OU : RH\n        │     └── OU : IT\n        └── OU : Lyon</code><br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp2_f2","recto":"Q2 — Rôles FSMO : Citez les 5 rôles FSMO et expliquez les conséquences de l'indisponibilité du rôle <strong>Émulateur PDC</strong>.","verso":"<strong>Les 5 rôles FSMO</strong> (3 pts) :<br>1. <strong>Maître de schéma</strong> (forêt) - Modifications schéma AD<br>2. <strong>Maître d'attribution de noms</strong> (forêt) - Ajout/suppression domaines<br>3. <strong>Émulateur PDC</strong> (domaine) - Sync horaire, verrou comptes, réplication prioritaire<br>4. <strong>Maître RID</strong> (domaine) - Distribution pools identifiants uniques<br>5. <strong>Maître d'infrastructure</strong> (domaine) - Références objets inter-domaines<br><strong>Conséquences indisponibilité Émulateur PDC</strong> (3 pts) :<br>• ❌ Authentification échoue après 3 tentatives incorrectes (pas de verrouillage)<br>• ❌ Modifications mots de passe non répliquées immédiatement (délai 15min)<br>• ❌ Désynchronisation horaire Kerberos → échecs authentification (tolérance 5min)<br>• ❌ Anciennes GPO appliquées (pas de nouvelles)<br><strong>Commande vérification</strong> :<br><code style=\"display:block;white-space:pre-wrap\">netdom query fsmo\nGet-ADDomain | Select-Object PDCEmulator, RIDMaster, InfrastructureMaster</code><br><strong>Points</strong> : 6/6"},
+      {"id":"exam_ccp2_f3","recto":"Q3 — Stratégie de groupe - Dépannage : Un utilisateur du service RH ne voit pas le lecteur réseau <code>P:</code> mappé vers <code>\\\\SRV-FILE01\\RH_Partage</code> alors que la GPO est correctement liée à l'OU \"RH\". Listez 5 causes possibles et la commande de diagnostic à exécuter.","verso":"<strong>5 causes possibles</strong> (5 pts) :<br>1. GPO pas appliquée (délai réplication, cache local)<br>2. Ordre GPO (une autre GPO bloque avec \"Appliqué\" désactivé)<br>3. Filtrage sécurité (utilisateur pas dans groupe autorisé)<br>4. Blocage héritage GPO niveau OU supérieur<br>5. Partage réseau inaccessible (permissions SMB/NTFS, service arrêté)<br><strong>Commande diagnostic</strong> (5 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Vérifier GPO appliquées\ngpresult /r /scope:user\n# ou rapport HTML détaillé\ngpresult /h C:\\rapport_gpo.html /user ENTREPRISE\\jdupont\n\n# Forcer application immédiate\ngpupdate /force\n\n# Tester accès partage\nTest-Path \"\\\\SRV-FILE01\\RH_Partage\"\nGet-SmbShare -Name \"RH_Partage\" -CimSession SRV-FILE01</code><br><strong>Démarche dépannage</strong> :<br>1. <code>gpresult /r</code> → Vérifier si GPO listée<br>2. Si non listée → <code>gpupdate /force</code><br>3. Si listée mais lecteur absent → Vérifier permissions utilisateur sur partage<br>4. Tester manuellement <code>net use P: \\\\SRV-FILE01\\RH_Partage</code><br><strong>Points</strong> : 10/10"},
+      {"id":"exam_ccp2_f4","recto":"Q4 — Permissions NTFS vs SMB : Un dossier <code>C:\\Partages\\Comptabilite</code> a les permissions suivantes : - <strong>NTFS</strong> : Groupe \"GRP_Compta\" = Modification - <strong>Partage SMB \"Compta_Partage\"</strong> : Groupe \"GRP_Compta\" = Lecture seule","verso":"Quelles permissions effectives aura un membre de \"GRP_Compta\" accédant via <code>\\\\SRV01\\Compta_Partage</code> ? Justifiez.<br><strong>Permissions effectives</strong> (3 pts) :<br>✅ <strong>LECTURE SEULE</strong><br><strong>Justification</strong> (5 pts) :<br>• Règle cumulative : <strong>La plus restrictive gagne</strong><br>• Accès local (direct sur serveur) : NTFS seul → <strong>Modification</strong><br>• Accès réseau (via <code>\\\\</code>) : Intersection NTFS ∩ SMB → <strong>min(Modification, Lecture) = Lecture</strong><br><strong>Tableau récapitulatif</strong> :<br>Accès — NTFS — SMB — Effectif<br>Local — Modification — N/A — <strong>Modification</strong><br>Réseau — Modification — Lecture — <strong>Lecture</strong><br><strong>Bonne pratique</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Partage SMB permissif (Contrôle total à tous)\nNew-SmbShare -Name \"Compta_Partage\" -Path \"C:\\Partages\\Comptabilite\" -FullAccess \"Tout le monde\"\n\n# Sécurité fine via NTFS uniquement\n$acl = Get-Acl \"C:\\Partages\\Comptabilite\"\n$rule = New-Object System.Security.AccessControl.FileSystemAccessRule(\"GRP_Compta\", \"Modify\", \"ContainerInherit,ObjectInherit\", \"None\", \"Allow\")\n$acl.SetAccessRule($rule)\nSet-Acl \"C:\\Partages\\Comptabilite\" $acl</code><br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp2_f5","recto":"Q5 — PowerShell - Script création utilisateurs : Écrivez un script PowerShell qui crée 3 utilisateurs à partir d'un fichier CSV avec colonnes <code>Prenom,Nom,Service</code>. Le login doit être <code>prenom.nom</code>, le mot de passe temporaire <code>Welcome2025!</code>, placés dans l'OU correspondant au service (<code>OU=RH,DC=entreprise,DC=local</code>).","verso":"<strong>Fichier CSV</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Prenom,Nom,Service\nJean,Dupont,RH\nMarie,Martin,Comptabilite\nPierre,Durand,IT</code><br><strong>Script PowerShell</strong> (10 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Importer module AD\nImport-Module ActiveDirectory\n\n# Importer CSV\n$utilisateurs = Import-Csv -Path \"C:\\Scripts\\utilisateurs.csv\"\n\n# Mot de passe temporaire\n$password = ConvertTo-SecureString \"Welcome2025!\" -AsPlainText -Force\n\n# Parcourir utilisateurs\nforeach ($user in $utilisateurs) {\n    # Construction login\n    $login = \"$($user.Prenom).$($user.Nom)\".ToLower()\n    \n    # Construction chemin OU\n    $ou = \"OU=$($user.Service),DC=entreprise,DC=local\"\n    \n    # Vérifier si OU existe\n    try {\n        Get-ADOrganizationalUnit -Identity $ou -ErrorAction Stop\n        \n        # Créer utilisateur\n        New-ADUser -Name \"$($user.Prenom) $($user.Nom)\" `\n            -GivenName $user.Prenom `\n            -Surname $user.Nom `\n            -SamAccountName $login `\n            -UserPrincipalName \"$login@entreprise.local\" `\n            -Path $ou `\n            -AccountPassword $password `\n            -Enabled $true `\n            -ChangePasswordAtLogon $true\n        \n        Write-Host \"[OK] Utilisateur $login cree dans $ou\" -ForegroundColor Green\n        \n    } catch {\n        Write-Host \"[ERREUR] OU $ou introuvable pour $login\" -ForegroundColor Red\n    }\n}</code><br><strong>Points clés notation</strong> :<br>• Import-Module + Import-Csv (2 pts)<br>• Boucle foreach (2 pts)<br>• Construction login avec <code>.ToLower()</code> (2 pts)<br>• Paramètres New-ADUser corrects (3 pts)<br>• Gestion erreur Try/Catch (1 pt)<br><strong>Points</strong> : 12/12"},
+      {"id":"exam_ccp2_f6","recto":"Q6 — DNS Windows Server : Expliquez la différence entre un enregistrement <strong>A</strong>, <strong>CNAME</strong> et <strong>PTR</strong>. Donnez la commande PowerShell pour créer chacun.","verso":"<strong>Enregistrement A</strong> (2 pts) :<br>• Associe <strong>nom d'hôte → adresse IPv4</strong><br>• Exemple : <code>intranet.entreprise.local</code> → <code>192.168.10.50</code><br><strong>Commande</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Add-DnsServerResourceRecordA -Name \"intranet\" `\n  -ZoneName \"entreprise.local\" `\n  -IPv4Address \"192.168.10.50\"</code><br><strong>Enregistrement CNAME (Canonical Name)</strong> (2 pts) :<br>• <strong>Alias</strong> pointant vers un autre nom DNS<br>• Exemple : <code>www</code> → <code>intranet.entreprise.local</code><br>• Utile : Plusieurs noms pour même serveur<br><strong>Commande</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Add-DnsServerResourceRecordCName -Name \"www\" `\n  -ZoneName \"entreprise.local\" `\n  -HostNameAlias \"intranet.entreprise.local\"</code><br><strong>Enregistrement PTR (Pointer)</strong> (2 pts) :<br>• <strong>Résolution inverse</strong> : adresse IP → nom d'hôte<br>• Zone reverse : <code>10.168.192.in-addr.arpa</code><br>• Utilisé par : vérifications email (anti-spam)<br><strong>Commande</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Add-DnsServerResourceRecordPtr -Name \"50\" `\n  -ZoneName \"10.168.192.in-addr.arpa\" `\n  -PtrDomainName \"intranet.entreprise.local\"</code><br><strong>Test</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">nslookup intranet.entreprise.local          # Test A\nnslookup www.entreprise.local               # Test CNAME\nnslookup 192.168.10.50                      # Test PTR</code><br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp2_f7","recto":"Q7 — GPO - Bloquer clés USB : Un responsable sécurité demande de bloquer l'utilisation des clés USB sur les postes du service Comptabilité, tout en autorisant les souris/claviers USB. Décrivez la configuration GPO et le chemin complet.","verso":"<strong>Chemin GPO</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Computer Configuration\n  └── Policies\n        └── Administrative Templates\n              └── System\n                    └── Removable Storage Access</code><br><strong>Configuration</strong> (3 pts) :<br>1. <strong>Activer</strong> : <code>All Removable Storage classes: Deny all access</code><br>OU (plus sélectif) :<br>• <code>Removable Disks: Deny read access</code> = <strong>Enabled</strong><br>• <code>Removable Disks: Deny write access</code> = <strong>Enabled</strong><br>• <code>Removable Disks: Deny execute access</code> = <strong>Enabled</strong><br>2. <strong>Exception souris/claviers</strong> :<br>Ne PAS activer <code>CD and DVD: Deny...</code> ni restreindre périphériques HID (Human Interface Devices)<br><strong>Application</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Créer GPO\nNew-GPO -Name \"GPO-Blocage-USB-Comptabilite\"\n\n# Lier à OU\nNew-GPLink -Name \"GPO-Blocage-USB-Comptabilite\" `\n  -Target \"OU=Comptabilite,DC=entreprise,DC=local\" `\n  -LinkEnabled Yes\n\n# Forcer application\nInvoke-GPUpdate -Computer \"PC-COMPTA-01\" -Force</code><br><strong>Test</strong> :<br>Brancher clé USB → Message \"Accès refusé par stratégie de groupe\"<br><strong>Points</strong> : 6/6"},
+      {"id":"exam_ccp2_f8","recto":"Q8 — WSUS - Gestion mises à jour : Expliquez le rôle de WSUS et comment configurer les postes clients pour utiliser le serveur WSUS <code>srv-wsus.entreprise.local</code> via GPO.","verso":"<strong>Rôle WSUS</strong> (3 pts) :<br>• <strong>Windows Server Update Services</strong> : Serveur local de distribution mises à jour<br>• Avantages :<br>• ✅ Contrôle déploiement (tester avant production)<br>• ✅ Économie bande passante (1 seul téléchargement depuis Microsoft)<br>• ✅ Planification maintenance<br><strong>Configuration GPO</strong> (4 pts) :<br><strong>Chemin</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Computer Configuration → Policies → Administrative Templates\n  → Windows Components → Windows Update</code><br><strong>Paramètres à configurer</strong> :<br>1. <strong>Configure Automatic Updates</strong> :<br>• Enabled<br>• Option : <code>4 - Auto download and schedule the install</code><br>• Scheduled install day : <code>0 - Every day</code> ou jour spécifique<br>• Scheduled install time : <code>03:00</code> (nuit)<br>2. <strong>Specify intranet Microsoft update service location</strong> :<br>• Enabled<br>• Set the intranet update service : <code>http://srv-wsus.entreprise.local:8530</code><br>• Set the intranet statistics server : <code>http://srv-wsus.entreprise.local:8530</code><br>3. <strong>Allow Automatic Updates immediate installation</strong> :<br>• Enabled (installe mises à jour mineures sans reboot)<br><strong>Commandes test client</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Afficher config\ngpresult /r | Select-String \"Update\"\n\n# Forcer détection\nwuauclt /detectnow\n# Ou Windows 10/11\nUsoClient StartScan\n\n# Vérifier connexion WSUS\nGet-ItemProperty -Path \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\"</code><br><strong>Points</strong> : 7/7"},
+      {"id":"exam_ccp2_f9","recto":"Q9 — Sauvegarde Active Directory : Quelle est la différence entre une sauvegarde complète du serveur et une sauvegarde de l'état système ? Donnez les commandes pour effectuer chacune.","verso":"<strong>Sauvegarde complète (Full Backup)</strong> (3 pts) :<br>• Contenu : Tous les fichiers, applications, OS, données<br>• Taille : Volumineuse (plusieurs dizaines/centaines GB)<br>• Temps restore : Long<br>• Cas d'usage : Disaster recovery (serveur entier détruit)<br><strong>Sauvegarde état système (System State)</strong> (3 pts) :<br>• Contenu spécifique Windows :<br>• Base AD (NTDS.dit)<br>• Registre système<br>• Fichiers démarrage (Boot files)<br>• SYSVOL (GPO, scripts)<br>• Certificats (si serveur CA)<br>• Taille : Quelques GB<br>• Temps restore : Rapide<br>• Cas d'usage : Corruption AD, récupération GPO<br><strong>Commandes</strong> (2 pts) :<br><strong>Installation fonctionnalité</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Install-WindowsFeature Windows-Server-Backup -IncludeManagementTools</code><br><strong>Sauvegarde complète</strong> :<br><code style=\"display:block;white-space:pre-wrap\">wbadmin start backup -backupTarget:E: -include:C:,D: -allCritical -quiet</code><br><strong>Sauvegarde état système</strong> :<br><code style=\"display:block;white-space:pre-wrap\">wbadmin start systemstatebackup -backupTarget:E: -quiet</code><br><strong>Restauration état système</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Redémarrer en mode restauration AD (DSRM)\nwbadmin start systemstaterecovery -version:12/11/2025-10:00</code><br><strong>Bonne pratique</strong> : Sauvegarde état système quotidienne + complète hebdomadaire<br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp2_f10","recto":"Q10 — Délégation d'administration OU : Le service RH doit pouvoir réinitialiser les mots de passe des utilisateurs de l'OU \"RH\" sans être administrateurs du domaine. Expliquez comment déléguer cette permission.","verso":"<strong>Méthode GUI</strong> (3 pts) :<br>1. Ouvrir <strong>Active Directory Users and Computers</strong><br>2. Clic droit sur OU \"RH\" → <strong>Delegate Control</strong><br>3. Ajouter groupe <strong>GRP_RH_Support</strong><br>4. Tâches à déléguer :<br>• ☑ Reset user passwords and force password change at next logon<br>5. Terminer<br><strong>Méthode PowerShell</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Importer module\nImport-Module ActiveDirectory\n\n# Créer groupe délégation\nNew-ADGroup -Name \"GRP_RH_Support\" -GroupScope Global -Path \"OU=Groupes,DC=entreprise,DC=local\"\n\n# Déléguer permission\n$ou = \"OU=RH,DC=entreprise,DC=local\"\n$group = \"ENTREPRISE\\GRP_RH_Support\"\n\n# Récupérer ACL OU\n$acl = Get-Acl \"AD:\\$ou\"\n\n# Créer règles permissions\n$identity = [System.Security.Principal.NTAccount]$group\n\n# Permission : Reset password\n$guidPwdReset = [GUID]\"00299570-246d-11d0-a768-00aa006e0529\"\n$ruleReset = New-Object System.DirectoryServices.ActiveDirectoryAccessRule(\n    $identity,\n    [System.DirectoryServices.ActiveDirectoryRights]::ExtendedRight,\n    [System.Security.AccessControl.AccessControlType]::Allow,\n    $guidPwdReset,\n    [System.DirectoryServices.ActiveDirectorySecurityInheritance]::Descendents\n)\n$acl.AddAccessRule($ruleReset)\n\n# Appliquer ACL\nSet-Acl \"AD:\\$ou\" $acl\n\nWrite-Host \"Delegation reussie pour $group sur $ou\"</code><br><strong>Test</strong> :<br>Membre de GRP_RH_Support peut :<br>• ✅ Réinitialiser mots de passe OU RH<br>• ❌ Modifier autres propriétés utilisateurs (sauf si délégué)<br><strong>Points</strong> : 7/7"},
+      {"id":"exam_ccp2_f11","recto":"Q11 — Stratégie de mots de passe fine (FGPP) : Les utilisateurs standard doivent avoir des mots de passe de 12 caractères minimum, mais les administrateurs doivent utiliser 16 caractères. Comment implémenter cela avec les stratégies de mots de passe fines (FGPP) ?","verso":"<strong>Contexte</strong> (2 pts) :<br>• Avant Windows Server 2008 : 1 seule stratégie mot de passe par domaine<br>• FGPP (Fine-Grained Password Policy) : Stratégies différentes par groupe/utilisateur<br>• Stockées dans : <code>CN=Password Settings Container,CN=System,DC=entreprise,DC=local</code><br><strong>Configuration</strong> (6 pts) :<br><strong>Stratégie 1 - Utilisateurs standard</strong> :<br><code style=\"display:block;white-space:pre-wrap\">New-ADFineGrainedPasswordPolicy -Name \"PSO-Standard\" `\n  -Precedence 200 `\n  -MinPasswordLength 12 `\n  -PasswordHistoryCount 24 `\n  -MaxPasswordAge 90.00:00:00 `\n  -MinPasswordAge 1.00:00:00 `\n  -ComplexityEnabled $true `\n  -ReversibleEncryptionEnabled $false `\n  -LockoutDuration 00:30:00 `\n  -LockoutObservationWindow 00:30:00 `\n  -LockoutThreshold 5\n\n# Appliquer au groupe utilisateurs standard\nAdd-ADFineGrainedPasswordPolicySubject -Identity \"PSO-Standard\" -Subjects \"GRP_Utilisateurs\"</code><br><strong>Stratégie 2 - Administrateurs</strong> :<br><code style=\"display:block;white-space:pre-wrap\">New-ADFineGrainedPasswordPolicy -Name \"PSO-Admins\" `\n  -Precedence 100 `\n  -MinPasswordLength 16 `\n  -PasswordHistoryCount 48 `\n  -MaxPasswordAge 60.00:00:00 `\n  -MinPasswordAge 1.00:00:00 `\n  -ComplexityEnabled $true `\n  -ReversibleEncryptionEnabled $false `\n  -LockoutDuration 01:00:00 `\n  -LockoutObservationWindow 00:15:00 `\n  -LockoutThreshold 3\n\n# Appliquer aux groupes admins\nAdd-ADFineGrainedPasswordPolicySubject -Identity \"PSO-Admins\" -Subjects \"Domain Admins\",\"GRP_IT_Admins\"</code><br><strong>Points clés</strong> :<br>• <code>Precedence</code> plus FAIBLE = priorité plus HAUTE (100 &gt; 200)<br>• Admins : 16 car, historique 48, verrouillage 3 tentatives<br>• Standard : 12 car, historique 24, verrouillage 5 tentatives<br><strong>Vérification</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Get-ADFineGrainedPasswordPolicy -Filter *\nGet-ADUserResultantPasswordPolicy -Identity \"jdupont\"</code><br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp2_f12","recto":"Q12 — DFS - Espace de noms : Qu'est-ce que DFS (Distributed File System) et quel avantage apporte-t-il pour le partage de fichiers en entreprise ?","verso":"<strong>Définition DFS</strong> (2 pts) :<br>• <strong>DFS Namespaces</strong> : Virtualisation chemins UNC<br>• <strong>DFS Replication</strong> : Synchronisation multi-sites<br><strong>Avantages</strong> (4 pts) :<br><strong>Sans DFS</strong> (problème) :<br><code style=\"display:block;white-space:pre-wrap\">Utilisateur Paris : \\\\SRV-PARIS\\Partages\\Commun\nUtilisateur Lyon : \\\\SRV-LYON\\Partages\\Commun</code><br>→ Chemins différents, confusion, scripts à adapter<br><strong>Avec DFS</strong> (solution) :<br><code style=\"display:block;white-space:pre-wrap\">Tous les utilisateurs : \\\\entreprise.local\\DFS\\Commun</code><br>→ Redirection automatique vers serveur le plus proche<br><strong>Exemple configuration</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Créer espace de noms\nNew-DfsnRoot -Path \"\\\\entreprise.local\\DFS\" -TargetPath \"\\\\SRV-DC01\\DFS\" -Type DomainV2\n\n# Ajouter dossier virtuel\nNew-DfsnFolder -Path \"\\\\entreprise.local\\DFS\\Commun\" -TargetPath \"\\\\SRV-PARIS\\Partages\\Commun\"\n\n# Ajouter cible Lyon (réplication)\nNew-DfsnFolderTarget -Path \"\\\\entreprise.local\\DFS\\Commun\" -TargetPath \"\\\\SRV-LYON\\Partages\\Commun\"</code><br><strong>Avantages clés</strong> :<br>• ✅ Tolérance panne (si SRV-PARIS down → bascule SRV-LYON)<br>• ✅ Optimisation géographique (routage automatique site le plus proche)<br>• ✅ Simplification administration (1 chemin unique)<br><strong>Points</strong> : 6/6"},
+      {"id":"exam_ccp2_f13","recto":"Q13 — BitLocker - Chiffrement disque : Un laptop contient des données sensibles. Comment activer BitLocker via PowerShell et sauvegarder la clé de récupération dans Active Directory ?","verso":"<strong>Prérequis</strong> (2 pts) :<br>• TPM (Trusted Platform Module) version 1.2+ sur PC<br>• Windows Professionnel/Entreprise (pas Home)<br>• GPO \"Store BitLocker recovery in AD\" activée<br><strong>Activation BitLocker</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Vérifier TPM\nGet-Tpm\n\n# Activer BitLocker sur C:\nEnable-BitLocker -MountPoint \"C:\" `\n  -EncryptionMethod XtsAes256 `\n  -UsedSpaceOnly `\n  -TpmProtector\n\n# Ajouter mot de passe récupération\nAdd-BitLockerKeyProtector -MountPoint \"C:\" -RecoveryPasswordProtector</code><br><strong>Sauvegarde clé dans AD</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Récupérer ID clé\n$keyID = (Get-BitLockerVolume -MountPoint \"C:\").KeyProtector | Where-Object {$_.KeyProtectorType -eq \"RecoveryPassword\"} | Select-Object -ExpandProperty KeyProtectorId\n\n# Sauvegarder dans AD\nBackup-BitLockerKeyProtector -MountPoint \"C:\" -KeyProtectorId $keyID\n\n# Vérifier sauvegarde\nGet-ADComputer -Identity \"LAPTOP-01\" -Properties \"msTPM-OwnerInformation\"</code><br><strong>GPO automatisation</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Computer Config → Policies → Admin Templates → Windows Components → BitLocker Drive Encryption → Operating System Drives\n→ Choose how BitLocker-protected OS drives can be recovered\n  ☑ Save BitLocker recovery information to AD DS\n  ☑ Do not enable BitLocker until recovery information is stored</code><br><strong>Récupération</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Afficher clé récupération\nmanage-bde -protectors -get C:</code><br><strong>Points</strong> : 7/7"},
+      {"id":"exam_ccp2_f14","recto":"Q14 — Audit Active Directory : Le DSI demande un rapport mensuel des modifications de groupes d'administration (ajout/suppression membres). Comment configurer l'audit et extraire ces informations ?","verso":"<strong>Configuration audit</strong> (4 pts) :<br><strong>1. Activer audit via GPO</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Computer Config → Policies → Windows Settings → Security Settings → Advanced Audit Policy\n  → DS Access\n    ☑ Audit Directory Service Changes : Success</code><br><strong>2. Activer audit sur objet AD</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Audit groupe \"Domain Admins\"\n$group = Get-ADGroup \"Domain Admins\"\n$acl = Get-Acl \"AD:\\$($group.DistinguishedName)\" -Audit\n\n# Règle audit : Toute modification\n$rule = New-Object System.DirectoryServices.ActiveDirectoryAuditRule(\n    [System.Security.Principal.SecurityIdentifier]\"S-1-1-0\",  # Everyone\n    [System.DirectoryServices.ActiveDirectoryRights]::WriteProperty,\n    [System.Security.AccessControl.AuditFlags]::Success\n)\n\n$acl.AddAuditRule($rule)\nSet-Acl \"AD:\\$($group.DistinguishedName)\" $acl -AuditRules $rule</code><br><strong>Extraction événements</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Événements modifications groupes AD (Event ID 4728/4729/4732/4733)\nGet-WinEvent -FilterHashtable @{\n    LogName='Security'\n    ID=4728,4729,4732,4733\n    StartTime=(Get-Date).AddDays(-30)\n} | ForEach-Object {\n    [PSCustomObject]@{\n        Date = $_.TimeCreated\n        Utilisateur = $_.Properties[6].Value\n        Groupe = $_.Properties[2].Value\n        Membre = $_.Properties[0].Value\n        Action = switch ($_.Id) {\n            4728 {\"Ajout membre groupe global\"}\n            4729 {\"Suppression membre groupe global\"}\n            4732 {\"Ajout membre groupe local\"}\n            4733 {\"Suppression membre groupe local\"}\n        }\n    }\n} | Export-Csv \"Rapport-Audit-Groupes.csv\" -NoTypeInformation\n\nWrite-Host \"Rapport genere : Rapport-Audit-Groupes.csv\"</code><br><strong>Event IDs importants</strong> :<br>• <strong>4728</strong> : Membre ajouté groupe sécurité global<br>• <strong>4729</strong> : Membre supprimé groupe sécurité global<br>• <strong>4732</strong> : Membre ajouté groupe local<br>• <strong>4733</strong> : Membre supprimé groupe local<br>• <strong>4720</strong> : Compte utilisateur créé<br>• <strong>4726</strong> : Compte utilisateur supprimé<br><strong>Points</strong> : 8/8"},
+      {"id":"exam_ccp2_f15","recto":"Q15 — PowerShell - Recherche comptes inactifs : Créez un script PowerShell qui génère un rapport CSV des comptes utilisateurs inactifs (&gt;180 jours sans connexion), incluant les colonnes : Nom, Login, OU, DernièreConnexion, Désactivé. Le script doit proposer de désactiver automatiquement ces comptes.","verso":"<strong>Script complet</strong> (10 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Paramètres\n$joursInactivite = 180\n$dateLimite = (Get-Date).AddDays(-$joursInactivite)\n$rapportCsv = \"C:\\Scripts\\Comptes-Inactifs-$(Get-Date -Format 'yyyyMMdd').csv\"\n\n# Import module AD\nImport-Module ActiveDirectory\n\nWrite-Host \"Recherche comptes inactifs &gt; $joursInactivite jours...\" -ForegroundColor Cyan\n\n# Récupérer utilisateurs inactifs\n$utilisateursInactifs = Get-ADUser -Filter {Enabled -eq $true} `\n    -Properties LastLogonDate, DistinguishedName | \n    Where-Object {\n        ($_.LastLogonDate -lt $dateLimite) -or ($_.LastLogonDate -eq $null)\n    } | \n    Select-Object @{Name=\"Nom\";Expression={$_.Name}},\n                  @{Name=\"Login\";Expression={$_.SamAccountName}},\n                  @{Name=\"OU\";Expression={($_.DistinguishedName -split ',',2)[1]}},\n                  @{Name=\"DerniereConnexion\";Expression={\n                      if ($_.LastLogonDate) {$_.LastLogonDate} else {\"Jamais\"}\n                  }},\n                  @{Name=\"Desactive\";Expression={\"Non\"}}\n\n# Afficher résumé\nWrite-Host \"`n$($utilisateursInactifs.Count) comptes inactifs trouves :\" -ForegroundColor Yellow\n$utilisateursInactifs | Format-Table -AutoSize\n\n# Exporter CSV\n$utilisateursInactifs | Export-Csv -Path $rapportCsv -NoTypeInformation -Encoding UTF8\nWrite-Host \"`nRapport CSV : $rapportCsv\" -ForegroundColor Green\n\n# Proposition désactivation\n$desactiver = Read-Host \"`nDesactiver automatiquement ces comptes ? (O/N)\"\n\nif ($desactiver -eq \"O\") {\n    foreach ($user in $utilisateursInactifs) {\n        try {\n            Disable-ADAccount -Identity $user.Login\n            \n            # Ajouter commentaire\n            Set-ADUser -Identity $user.Login `\n                -Description \"Desactive automatiquement le $(Get-Date -Format 'dd/MM/yyyy') - Inactivite &gt; $joursInactivite jours\"\n            \n            Write-Host \"[OK] $($user.Login) desactive\" -ForegroundColor Green\n            \n        } catch {\n            Write-Host \"[ERREUR] Impossible de desactiver $($user.Login) : $_\" -ForegroundColor Red\n        }\n    }\n    \n    Write-Host \"`n$($utilisateursInactifs.Count) comptes desactives\" -ForegroundColor Cyan\n    \n} else {\n    Write-Host \"`nDesactivation annulee. Rapport disponible dans $rapportCsv\" -ForegroundColor Yellow\n}</code><br><strong>Points notation</strong> :<br>• Import module + paramètres (1 pt)<br>• Get-ADUser avec filtre Enabled (2 pts)<br>• Where-Object LastLogonDate &lt; dateLimite (2 pts)<br>• Select-Object avec colonnes personnalisées (2 pts)<br>• Export-Csv (1 pt)<br>• Boucle désactivation avec Try/Catch (2 pts)<br><strong>Points</strong> : 10/10"},
       /* EXAMEN_FLASHCARDS */
     ],
     qcm: [
@@ -6639,6 +7652,36 @@ role where I can grow my infrastructure and security skills.</pre>
       {"id":"exam_ccp1_q38","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Self-Service Portal</strong> ?","options":[{"text":"Un portail où les utilisateurs peuvent créer des tickets, consulter la KB, suivre leurs demandes","correct":true},{"text":"Un service de restauration","correct":false},{"text":"Un outil de piratage","correct":false},{"text":"Un type de firewall","correct":false}],"explication":"Fonctions :<br>• Créer ticket<br>• Suivre statut tickets<br>• Consulter KB<br>• Demandes de service (nouveau PC, logiciel)<br>• FAQ<br>Bénéfices :<br>• Autonomie utilisateurs<br>• Réduction charge support N1"},
       {"id":"exam_ccp1_q39","difficulty":"normal","question":"Pour mesurer la performance du support, quel indicateur mesure le <strong>temps moyen de résolution</strong> ?","options":[{"text":"MTTR (Mean Time To Resolve)","correct":true},{"text":"MTBF (Mean Time Between Failures)","correct":false},{"text":"RTO (Recovery Time Objective)","correct":false},{"text":"SLA (Service Level Agreement)","correct":false}],"explication":"Indicateurs clés :<br>• <strong>MTTR</strong> : Temps moyen de résolution<br>• <strong>MTBF</strong> : Temps moyen entre pannes (fiabilité)<br>• <strong>FRT</strong> : First Response Time (temps première réponse)<br>• <strong>FCR</strong> : First Call Resolution (résolution au premier contact)"},
       {"id":"exam_ccp1_q40","difficulty":"normal","question":"Dans un contexte ITIL, qu'est-ce que la <strong>CMDB</strong> (Configuration Management Database) ?","options":[{"text":"Une base de données des tickets","correct":false},{"text":"Une base de données des éléments de configuration (CI) et leurs relations","correct":true},{"text":"Un outil de monitoring réseau","correct":false},{"text":"Un système de sauvegarde","correct":false}],"explication":"CMDB contient :<br>• Serveurs<br>• Postes de travail<br>• Applications<br>• Licences<br>• Relations/dépendances<br>Exemple relation :<br><code style=\"display:block;white-space:pre-wrap\">Application Web\n    ↓ dépend de\nServeur Web Apache\n    ↓ hébergé sur\nVM Linux\n    ↓ exécutée sur\nServeur physique ESXi</code><br>Bénéfices :<br>• Analyse d'impact (avant changement)<br>• Cartographie SI<br>• Gestion incidents (identifier dépendances)<br>## 📊 BARÈME ET ÉVALUATION<br><strong>Nombre de bonnes réponses</strong> : _____ / 40<br>Score — Niveau — Commentaire<br>36-40 — ⭐⭐⭐ Expert — Excellent ! Maîtrise ITIL et support<br>30-35 — ⭐⭐ Très bien — Bonnes bases, révise détails<br>24-29 — ⭐ Bien — Relis FICHE Support &amp; ITIL<br>18-23 — 🟡 Moyen — Révision approfondie nécessaire<br>0-17 — 🔴 Insuffisant — Revoir tous les cours ITIL et GLPI<br>## 🎯 POINTS CLÉS À RETENIR"},
+      {"id":"exam_ccp2_q1","difficulty":"normal","question":"Qu'est-ce que l'<strong>Active Directory</strong> (AD) ?","options":[{"text":"Un annuaire de fichiers","correct":false},{"text":"Un service d'annuaire centralisé pour gérer utilisateurs, ordinateurs, ressources","correct":true},{"text":"Un système d'exploitation","correct":false},{"text":"Un antivirus","correct":false}],"explication":"Active Directory (AD DS - Active Directory Domain Services) :<br>• <strong>Annuaire centralisé</strong> : Base de données de tous les objets (users, computers, groups, OU)<br>• <strong>Authentification/Autorisation</strong> : Single Sign-On (SSO)<br>• <strong>Gestion centralisée</strong> : GPO, droits, politiques de sécurité<br>• <strong>Standard</strong> : Protocole LDAP (Lightweight Directory Access Protocol)"},
+      {"id":"exam_ccp2_q2","difficulty":"normal","question":"Quelle est la structure hiérarchique de base d'Active Directory ?","options":[{"text":"Domaine → Arbre → Forêt → OU","correct":false},{"text":"Forêt → Arbre → Domaine → OU (Unités d'Organisation)","correct":true},{"text":"OU → Domaine → Forêt","correct":false},{"text":"Workgroup → Domaine → Forest","correct":false}],"explication":"Structure hiérarchique :<br><code style=\"display:block;white-space:pre-wrap\">Forêt (Forest) : entreprise.com\n    ↓\nArbre 1 : entreprise.com\n    ↓\nDomaine : paris.entreprise.com\n    ↓\nOU : Utilisateurs\n    ↓ OU : Comptabilité\n    ↓ OU : IT\n    ↓ OU : RH</code><br><strong>Définitions</strong> :<br>• <strong>Forêt</strong> : Limite de sécurité, contient 1 ou plusieurs arbres, schéma commun<br>• <strong>Arbre</strong> : Hiérarchie de domaines avec namespace DNS continu<br>• <strong>Domaine</strong> : Limite de réplication, politique de sécurité commune<br>• <strong>OU</strong> : Conteneur logique pour appliquer GPO et déléguer administration"},
+      {"id":"exam_ccp2_q3","difficulty":"normal","question":"Un <strong>domaine Active Directory</strong> est identifié par :","options":[{"text":"Une adresse IP","correct":false},{"text":"Un nom DNS (ex: entreprise.local)","correct":true},{"text":"Un nom NetBIOS uniquement","correct":false},{"text":"Un GUID","correct":false}],"explication":"Exemples :<br>• <code>entreprise.local</code> (domaine privé)<br>• <code>ad.entreprise.com</code> (sous-domaine public)<br>• <code>corp.intranet.fr</code><br>Format : <strong>FQDN</strong> (Fully Qualified Domain Name)"},
+      {"id":"exam_ccp2_q4","difficulty":"normal","question":"Combien de <strong>contrôleurs de domaine</strong> (DC) minimum sont recommandés pour la redondance ?","options":[{"text":"1","correct":false},{"text":"2","correct":true},{"text":"5","correct":false},{"text":"10","correct":false}],"explication":"Bonnes pratiques :<br>• <strong>Minimum production : 2 DC</strong><br>• Redondance (si 1 tombe, l'autre prend le relais)<br>• Répartition de charge<br>• <strong>Recommandé : 2 DC + 1 RODC (Read-Only DC) en site distant</strong><br>Avantages multi-DC :<br>• Haute disponibilité<br>• Réplication automatique<br>• Répartition géographique"},
+      {"id":"exam_ccp2_q5","difficulty":"normal","question":"Qu'est-ce qu'une <strong>OU</strong> (Organizational Unit) ?","options":[{"text":"Un utilisateur","correct":false},{"text":"Un conteneur logique pour organiser objets AD et appliquer GPO","correct":true},{"text":"Un serveur","correct":false},{"text":"Un type de groupe","correct":false}],"explication":"OU (Organizational Unit) :<br>• <strong>Organisation</strong> : Structure logique (par service, site, fonction)<br>• <strong>Application GPO</strong> : Chaque OU peut avoir ses propres GPO<br>• <strong>Délégation</strong> : Confier l'administration d'une OU à un utilisateur<br>Exemple structure :<br><code style=\"display:block;white-space:pre-wrap\">Domaine : entreprise.local\n├─ OU: Paris\n│  ├─ OU: Utilisateurs_Paris\n│  ├─ OU: Ordinateurs_Paris\n│  └─ OU: Serveurs_Paris\n├─ OU: Lyon\n│  ├─ OU: Utilisateurs_Lyon\n│  └─ OU: Ordinateurs_Lyon\n└─ OU: Groupes</code>"},
+      {"id":"exam_ccp2_q6","difficulty":"normal","question":"Quelle est la différence entre un <strong>groupe global</strong> et un <strong>groupe local de domaine</strong> ?","options":[{"text":"Aucune différence","correct":false},{"text":"Global = membres du même domaine, utilisable partout / Local = membres de n'importe où, utilisable localement","correct":true},{"text":"Global = pour les fichiers, Local = pour les imprimantes","correct":false},{"text":"Global = Windows, Local = Linux","correct":false}],"explication":"Types de groupes AD :<br>Type — Membres — Utilisable où — Usage typique<br><strong>Global</strong> — Même domaine — Partout dans la forêt — Regrouper utilisateurs par fonction<br><strong>Universel</strong> — Toute la forêt — Partout — Groupes inter-domaines<br><strong>Local de domaine</strong> (Domain Local) — N'importe où — Domaine local uniquement — Donner permissions sur ressources<br><strong>Règle AGDLP</strong> (recommandée) :<br>• <strong>A</strong>ccounts (comptes) → <strong>G</strong>lobal groups → <strong>D</strong>omain <strong>L</strong>ocal groups → <strong>P</strong>ermissions<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">Users: Alice, Bob, Charlie\n    ↓ membres de\nGlobal Group: GG_Comptabilite\n    ↓ membre de\nDomain Local Group: DL_Partage_Compta_RW\n    ↓ a les permissions\nPartage: \\\\serveur\\Compta (Read/Write)</code>"},
+      {"id":"exam_ccp2_q7","difficulty":"normal","question":"Quelle commande PowerShell permet de créer un utilisateur AD ?","options":[{"text":"<code>Create-ADUser</code>","correct":false},{"text":"<code>New-ADUser</code>","correct":true},{"text":"<code>Add-ADUser</code>","correct":false},{"text":"<code>Make-ADUser</code>","correct":false}],"explication":"PowerShell Active Directory :<br><code style=\"display:block;white-space:pre-wrap\"># Créer un utilisateur\nNew-ADUser -Name \"Jean Dupont\" `\n           -GivenName \"Jean\" `\n           -Surname \"Dupont\" `\n           -SamAccountName \"jdupont\" `\n           -UserPrincipalName \"jdupont@entreprise.local\" `\n           -Path \"OU=Utilisateurs,DC=entreprise,DC=local\" `\n           -AccountPassword (ConvertTo-SecureString \"P@ssw0rd123!\" -AsPlainText -Force) `\n           -Enabled $true\n\n# Ajouter à un groupe\nAdd-ADGroupMember -Identity \"GG_Comptabilite\" -Members \"jdupont\"\n\n# Lister les utilisateurs d'une OU\nGet-ADUser -Filter * -SearchBase \"OU=Utilisateurs,DC=entreprise,DC=local\"</code>"},
+      {"id":"exam_ccp2_q8","difficulty":"normal","question":"Un utilisateur a oublié son mot de passe. Que faire ?","options":[{"text":"Supprimer et recréer le compte","correct":false},{"text":"Réinitialiser le mot de passe (Reset Password)","correct":true},{"text":"Réinstaller Active Directory","correct":false},{"text":"Attendre 24h (délai légal)","correct":false}],"explication":"Procédures :<br><strong>Via GUI (Active Directory Users and Computers)</strong> :<br>1. Ouvrir \"Utilisateurs et ordinateurs Active Directory\"<br>2. Clic droit sur l'utilisateur → \"Réinitialiser le mot de passe\"<br>3. Cocher \"L'utilisateur doit changer le mot de passe à la prochaine ouverture de session\"<br><strong>Via PowerShell</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Set-ADAccountPassword -Identity jdupont `\n    -Reset `\n    -NewPassword (ConvertTo-SecureString \"NouveauP@ss123!\" -AsPlainText -Force)\n\nSet-ADUser -Identity jdupont -ChangePasswordAtLogon $true</code>"},
+      {"id":"exam_ccp2_q9","difficulty":"normal","question":"Que signifie <strong>UPN</strong> (User Principal Name) ?","options":[{"text":"Le nom de l'ordinateur","correct":false},{"text":"Le nom de connexion au format email (user@domaine.local)","correct":true},{"text":"Le mot de passe","correct":false},{"text":"L'adresse IP","correct":false}],"explication":"<strong>UPN</strong> (User Principal Name) :<br>• Format : <code>utilisateur@domaine.local</code><br>• Utilisé pour la connexion (plus simple que DOMAINE\\utilisateur)<br>• Exemple : <code>jdupont@entreprise.local</code><br><strong>Vs SamAccountName</strong> :<br>• SamAccountName : <code>jdupont</code> (nom court, rétro-compatibilité)<br>• UPN : <code>jdupont@entreprise.local</code> (moderne, recommandé)"},
+      {"id":"exam_ccp2_q10","difficulty":"normal","question":"Où sont stockées les informations Active Directory ?","options":[{"text":"Dans le registre Windows","correct":false},{"text":"Dans la base de données <strong>NTDS.dit</strong> (C:\\Windows\\NTDS\\)","correct":true},{"text":"Dans un fichier Excel","correct":false},{"text":"Sur le cloud Azure uniquement","correct":false}],"explication":"Emplacements clés :<br>• <strong>Base de données</strong> : <code>C:\\Windows\\NTDS\\ntds.dit</code> (tous les objets AD)<br>• <strong>Logs</strong> : <code>C:\\Windows\\NTDS\\*.log</code> (transactions)<br>• <strong>SYSVOL</strong> : <code>C:\\Windows\\SYSVOL\\</code> (GPO, scripts de connexion, réplication)<br><strong>Sauvegarde AD</strong> :<br>• Windows Server Backup (System State)<br>• Sauvegarde <code>C:\\Windows\\NTDS\\</code> (arrêt service AD requis)"},
+      {"id":"exam_ccp2_q11","difficulty":"normal","question":"Qu'est-ce que la <strong>réplication Active Directory</strong> ?","options":[{"text":"La copie de fichiers","correct":false},{"text":"La synchronisation des modifications entre contrôleurs de domaine","correct":true},{"text":"La sauvegarde automatique","correct":false},{"text":"Un virus","correct":false}],"explication":"Réplication AD :<br>• <strong>Automatique</strong> : Modifications répliquées entre tous les DC<br>• <strong>Multi-maître</strong> : Modifications possibles sur n'importe quel DC<br>• <strong>Convergence</strong> : Tous les DC finissent par avoir les mêmes données<br><strong>Types</strong> :<br>• <strong>Intra-site</strong> : Rapide (quelques minutes), compression désactivée<br>• <strong>Inter-site</strong> : Planifiée, compression activée<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Forcer réplication\nrepadmin /replsummary\nrepadmin /syncall\n\n# Vérifier réplication\ndcdiag /test:replications</code>"},
+      {"id":"exam_ccp2_q12","difficulty":"normal","question":"Quel protocole est utilisé pour l'authentification dans Active Directory ?","options":[{"text":"HTTP","correct":false},{"text":"FTP","correct":false},{"text":"<strong>Kerberos</strong> (port 88)","correct":true},{"text":"SMTP","correct":false}],"explication":"Protocoles AD :<br>Protocole — Port — Rôle<br><strong>Kerberos</strong> — 88 TCP/UDP — Authentification (moderne)<br><strong>LDAP</strong> — 389 TCP — Requêtes annuaire<br><strong>LDAPS</strong> — 636 TCP — LDAP sécurisé (SSL)<br><strong>Global Catalog</strong> — 3268 TCP — Catalogue global<br><strong>SMB</strong> — 445 TCP — Partages, SYSVOL<br><strong>DNS</strong> — 53 TCP/UDP — Résolution noms<br><strong>NTLM</strong> — - — Authentification legacy (fallback)<br><strong>Kerberos</strong> :<br>• Standard depuis Windows 2000<br>• Authentification par tickets<br>• Plus sécurisé que NTLM"},
+      {"id":"exam_ccp2_q13","difficulty":"normal","question":"Qu'est-ce qu'une <strong>GPO</strong> (Group Policy Object) ?","options":[{"text":"Un utilisateur","correct":false},{"text":"Un ensemble de paramètres de configuration appliqués à des utilisateurs/ordinateurs","correct":true},{"text":"Un serveur","correct":false},{"text":"Un antivirus","correct":false}],"explication":"GPO permet de configurer :<br><strong>Configuration ordinateur</strong> :<br>• Politiques de sécurité (mots de passe, pare-feu)<br>• Installation logiciels<br>• Scripts de démarrage<br>• Paramètres réseau<br><strong>Configuration utilisateur</strong> :<br>• Fonds d'écran<br>• Mappage lecteurs réseau<br>• Restrictions (Panneau de configuration, CMD)<br>• Scripts d'ouverture de session"},
+      {"id":"exam_ccp2_q14","difficulty":"normal","question":"Quel est l'ordre d'application des GPO (du moins prioritaire au plus prioritaire) ?","options":[{"text":"Site → Domaine → OU","correct":false},{"text":"OU → Domaine → Site","correct":false},{"text":"Local → Site → Domaine → OU (<strong>LSDOU</strong>)","correct":true},{"text":"Aléatoire","correct":false}],"explication":"Ordre d'application (acronyme <strong>LSDOU</strong>) :<br>1. <strong>L</strong>ocal (GPO locale de la machine)<br>2. <strong>S</strong>ite (GPO liée au site AD)<br>3. <strong>D</strong>omain (GPO liée au domaine)<br>4. <strong>O</strong>U (GPO liée à l'OU) ← <strong>Plus prioritaire</strong><br><strong>Règle</strong> : La dernière appliquée gagne (OU &gt; Domaine &gt; Site &gt; Local)"},
+      {"id":"exam_ccp2_q15","difficulty":"normal","question":"Une GPO au niveau <strong>OU</strong> entre en conflit avec une GPO au niveau <strong>Domaine</strong>. Laquelle s'applique ?","options":[{"text":"Domaine (prioritaire)","correct":false},{"text":"OU (prioritaire, plus proche de l'objet)","correct":true},{"text":"Aucune","correct":false},{"text":"Les deux en même temps","correct":false}],"explication":"Exemple conflit :<br>• GPO Domaine : Fond d'écran = Bleu<br>• GPO OU Comptabilité : Fond d'écran = Rouge<br>• <strong>Résultat</strong> : Les users de l'OU Comptabilité ont fond d'écran <strong>Rouge</strong> (OU gagne)<br><strong>Exception</strong> : Si GPO Domaine a option <strong>\"Enforced\"</strong> → Domaine gagne même face à OU"},
+      {"id":"exam_ccp2_q16","difficulty":"normal","question":"Quelle commande force la mise à jour immédiate des GPO sur un poste client ?","options":[{"text":"<code>ipconfig /renew</code>","correct":false},{"text":"<code>gpupdate /force</code>","correct":true},{"text":"<code>net use</code>","correct":false},{"text":"<code>shutdown /r</code>","correct":false}],"explication":"Commandes GPO :<br><code style=\"display:block;white-space:pre-wrap\"># Forcer mise à jour GPO immédiate\ngpupdate /force\n\n# Mise à jour seulement user\ngpupdate /target:user\n\n# Mise à jour seulement ordinateur\ngpupdate /target:computer\n\n# Voir les GPO appliquées\ngpresult /r\n\n# Rapport HTML détaillé\ngpresult /h rapport.html</code><br><strong>Timing normal</strong> :<br>• GPO ordinateur : Au démarrage + toutes les 90-120 min<br>• GPO utilisateur : À la connexion + toutes les 90-120 min"},
+      {"id":"exam_ccp2_q17","difficulty":"normal","question":"Où configure-t-on une GPO pour mapper un lecteur réseau ?","options":[{"text":"Configuration ordinateur → Préférences → Paramètres Windows → Mappage de lecteur","correct":false},{"text":"Configuration utilisateur → Préférences → Paramètres Windows → Mappage de lecteur","correct":true},{"text":"Dans le fichier hosts","correct":false},{"text":"Via le registre manuellement sur chaque poste","correct":false}],"explication":"Navigation GPO :<br><code style=\"display:block;white-space:pre-wrap\">Configuration utilisateur\n└─ Préférences\n   └─ Paramètres Windows\n      └─ Mappages de lecteurs</code><br><strong>Configuration</strong> :<br>• Action : Créer<br>• Lettre : Z:<br>• Emplacement : <code>\\\\serveur\\partage$</code><br>• Se connecter en tant que : (laisser vide = user actuel)<br>• Étiquette : \"Partage Comptabilité\"<br><strong>Ciblage</strong> : Possibilité de filtrer par groupe de sécurité"},
+      {"id":"exam_ccp2_q18","difficulty":"normal","question":"Que signifie <strong>\"Enforced\"</strong> (Appliqué) sur une GPO ?","options":[{"text":"La GPO est désactivée","correct":false},{"text":"La GPO ne peut PAS être bloquée par les OU enfants (priorité absolue)","correct":true},{"text":"La GPO s'applique plus lentement","correct":false},{"text":"La GPO nécessite un redémarrage","correct":false}],"explication":"Options GPO :<br><strong>Enforced (Appliqué)</strong> :<br>• Force l'application, même si OU enfant a \"Block Inheritance\"<br>• Utilisé pour politiques de sécurité critiques<br>• Icône cadenas dans GPMC<br><strong>Block Inheritance (Bloquer l'héritage)</strong> :<br>• Empêche les GPO parents de s'appliquer<br>• Mais <strong>Enforced</strong> passe quand même !<br><strong>Disabled (Désactivé)</strong> :<br>• Totalement inactif<br><strong>Exemple</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Domaine : GPO_Securite (Enforced) → Fond écran bleu\n    ↓\nOU IT : Block Inheritance + GPO_IT → Fond écran rouge\n    ↓\nRésultat : Fond écran BLEU (Enforced gagne)</code>"},
+      {"id":"exam_ccp2_q19","difficulty":"normal","question":"Quel est le rôle du service <strong>DNS</strong> dans Active Directory ?","options":[{"text":"Gérer les imprimantes","correct":false},{"text":"Résoudre noms de domaine (FQDN) en adresses IP + Localiser les contrôleurs de domaine (enregistrements SRV)","correct":true},{"text":"Distribuer les adresses IP","correct":false},{"text":"Chiffrer les communications","correct":false}],"explication":"DNS dans AD :<br>1. <strong>Résolution de noms</strong> : <code>serveur1.entreprise.local</code> → <code>192.168.1.10</code><br>2. <strong>Localisation DC</strong> : Enregistrements SRV indiquent où sont les contrôleurs<br>3. <strong>Localisation services</strong> : LDAP, Kerberos, etc.<br><strong>Sans DNS fonctionnel = AD ne fonctionne pas !</strong>"},
+      {"id":"exam_ccp2_q20","difficulty":"normal","question":"Qu'est-ce qu'une <strong>zone de recherche directe</strong> (Forward Lookup Zone) ?","options":[{"text":"Résolution Nom → IP (ex: serveur1.entreprise.local → 192.168.1.10)","correct":true},{"text":"Résolution IP → Nom","correct":false},{"text":"Un pare-feu","correct":false},{"text":"Un serveur web","correct":false}],"explication":"Zone de recherche directe (Forward) :<br>• Type : Principale / Secondaire / Intégrée AD<br>• Contient : Enregistrements A, AAAA, CNAME, MX, SRV<br>Exemple zone <code>entreprise.local</code> :<br><code style=\"display:block;white-space:pre-wrap\">serveur1    A       192.168.1.10\nserveur2    A       192.168.1.11\ndc01        A       192.168.1.5\nwww         CNAME   serveur1\nmail        A       192.168.1.20\n@           MX 10   mail</code>"},
+      {"id":"exam_ccp2_q21","difficulty":"normal","question":"Qu'est-ce qu'une <strong>zone de recherche inversée</strong> (Reverse Lookup Zone) ?","options":[{"text":"Résolution Nom → IP","correct":false},{"text":"Résolution IP → Nom (ex: 192.168.1.10 → serveur1.entreprise.local)","correct":true},{"text":"Une sauvegarde DNS","correct":false},{"text":"Un enregistrement MX","correct":false}],"explication":"Zone de recherche inversée (Reverse) :<br>• Format : <code>1.168.192.in-addr.arpa</code> (pour 192.168.1.0/24)<br>• Contient : Enregistrements PTR<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">10.1.168.192.in-addr.arpa  PTR  serveur1.entreprise.local\n11.1.168.192.in-addr.arpa  PTR  serveur2.entreprise.local</code><br>Usage :<br>• Logs (IP → nom lisible)<br>• Sécurité (vérification reverse DNS)<br>• Diagnostics"},
+      {"id":"exam_ccp2_q22","difficulty":"normal","question":"Quel type d'enregistrement DNS pointe un nom vers une adresse IP ?","options":[{"text":"MX (Mail Exchange)","correct":false},{"text":"CNAME (Canonical Name / Alias)","correct":false},{"text":"<strong>A (pour IPv4)</strong> ou AAAA (pour IPv6)","correct":true},{"text":"SRV (Service)","correct":false}],"explication":"Types d'enregistrements DNS :<br>Type — Rôle — Exemple<br><strong>A</strong> — Nom → IPv4 — <code>serveur1 A 192.168.1.10</code><br><strong>AAAA</strong> — Nom → IPv6 — <code>serveur1 AAAA 2001:db8::1</code><br><strong>CNAME</strong> — Alias — <code>www CNAME serveur1</code><br><strong>MX</strong> — Serveur mail — <code>@ MX 10 mail.entreprise.local</code><br><strong>PTR</strong> — IP → Nom (reverse) — <code>10 PTR serveur1.entreprise.local</code><br><strong>SRV</strong> — Localisation service — <code>_ldap._tcp SRV 0 100 389 dc01</code><br><strong>NS</strong> — Serveur DNS autoritaire — <code>@ NS dns1.entreprise.local</code><br><strong>SOA</strong> — Start of Authority — Infos zone (serial, refresh, etc.)"},
+      {"id":"exam_ccp2_q23","difficulty":"normal","question":"Qu'est-ce qu'un enregistrement <strong>CNAME</strong> ?","options":[{"text":"Un alias (nom alternatif pointant vers un autre nom)","correct":true},{"text":"Une adresse IP","correct":false},{"text":"Un serveur mail","correct":false},{"text":"Un contrôleur de domaine","correct":false}],"explication":"CNAME (Canonical Name) :<br>• Pointe un nom vers un <strong>autre nom</strong> (pas une IP)<br>• Utile pour plusieurs noms vers même serveur<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">serveur1    A       192.168.1.10\nwww         CNAME   serveur1\nintranet    CNAME   serveur1</code><br>Résolution :<br><code style=\"display:block;white-space:pre-wrap\">www.entreprise.local\n    ↓ CNAME\nserveur1.entreprise.local\n    ↓ A\n192.168.1.10</code><br><strong>Limitation</strong> : Ne peut pas être utilisé pour l'enregistrement racine (@)"},
+      {"id":"exam_ccp2_q24","difficulty":"normal","question":"Les contrôleurs de domaine Active Directory sont localisés via des enregistrements :","options":[{"text":"A","correct":false},{"text":"MX","correct":false},{"text":"SRV","correct":true},{"text":"CNAME","correct":false}],"explication":"Enregistrements SRV AD :<br><code style=\"display:block;white-space:pre-wrap\">_ldap._tcp.dc._msdcs.entreprise.local  SRV  0 100 389 dc01.entreprise.local\n_kerberos._tcp.entreprise.local        SRV  0 100 88  dc01.entreprise.local\n_gc._tcp.entreprise.local              SRV  0 100 3268 dc01.entreprise.local</code><br>Format SRV :<br><code style=\"display:block;white-space:pre-wrap\">_service._protocole.domaine  SRV  priorité poids port cible</code><br><strong>Usage</strong> : Les clients trouvent automatiquement les DC via ces enregistrements<br><strong>Commande test</strong> :<br><code style=\"display:block;white-space:pre-wrap\">nslookup -type=srv _ldap._tcp.dc._msdcs.entreprise.local</code>"},
+      {"id":"exam_ccp2_q25","difficulty":"normal","question":"Quel est le rôle du service <strong>DHCP</strong> ?","options":[{"text":"Résoudre les noms DNS","correct":false},{"text":"Distribuer automatiquement les adresses IP aux clients","correct":true},{"text":"Gérer les utilisateurs","correct":false},{"text":"Sauvegarder les données","correct":false}],"explication":"DHCP (Dynamic Host Configuration Protocol) :<br>• <strong>Automatisation</strong> : Plus besoin de configurer IP manuellement<br>• <strong>Gestion centralisée</strong> : Toutes les configs depuis le serveur<br>• <strong>Évite conflits IP</strong> : Le serveur gère les attributions"},
+      {"id":"exam_ccp2_q26","difficulty":"normal","question":"Qu'est-ce qu'une <strong>étendue DHCP</strong> (scope) ?","options":[{"text":"Un utilisateur","correct":false},{"text":"Une plage d'adresses IP disponibles pour attribution (ex: 192.168.1.100 - 192.168.1.200)","correct":true},{"text":"Un câble réseau","correct":false},{"text":"Une GPO","correct":false}],"explication":"Scope (Étendue) DHCP :<br>• <strong>Réseau</strong> : 192.168.1.0/24<br>• <strong>Plage de début</strong> : 192.168.1.100<br>• <strong>Plage de fin</strong> : 192.168.1.200<br>• <strong>Masque</strong> : 255.255.255.0<br>• <strong>Passerelle</strong> : 192.168.1.1<br>• <strong>DNS</strong> : 192.168.1.5, 8.8.8.8<br>• <strong>Durée bail</strong> : 8 jours"},
+      {"id":"exam_ccp2_q27","difficulty":"normal","question":"Qu'est-ce qu'une <strong>réservation DHCP</strong> ?","options":[{"text":"Désactiver le DHCP","correct":false},{"text":"Attribuer toujours la même IP à une machine spécifique (via adresse MAC)","correct":true},{"text":"Bloquer une adresse IP","correct":false},{"text":"Un bail DHCP de 1 an","correct":false}],"explication":"Réservation DHCP :<br>• <strong>Principe</strong> : Lier une adresse MAC à une IP spécifique<br>• <strong>Usage</strong> : Serveurs, imprimantes, caméras IP (besoin IP fixe mais gérée par DHCP)<br>Exemple :<br><code style=\"display:block;white-space:pre-wrap\">Nom : Imprimante_Compta\nAdresse IP : 192.168.1.150\nAdresse MAC : 00-1A-2B-3C-4D-5E</code><br><strong>Avantages vs IP statique manuelle</strong> :<br>• Gestion centralisée<br>• Options DHCP automatiques (DNS, passerelle)<br>• Changement facile"},
+      {"id":"exam_ccp2_q28","difficulty":"normal","question":"Qu'est-ce qu'une <strong>exclusion DHCP</strong> ?","options":[{"text":"Une adresse ou plage d'adresses exclue de la distribution automatique","correct":true},{"text":"Un utilisateur banni","correct":false},{"text":"Un serveur arrêté","correct":false},{"text":"Une GPO","correct":false}],"explication":"Exclusion DHCP :<br>• <strong>Scope</strong> : 192.168.1.100 - 192.168.1.200<br>• <strong>Exclusion</strong> : 192.168.1.150 - 192.168.1.160<br>• <strong>Résultat</strong> : DHCP distribue 100-149 et 161-200 uniquement<br><strong>Usage</strong> :<br>• Réserver plage pour IP statiques manuelles<br>• Éviter conflits avec serveurs configurés manuellement"},
+      {"id":"exam_ccp2_q29","difficulty":"normal","question":"Quelle est la durée par défaut d'un <strong>bail DHCP</strong> (lease) ?","options":[{"text":"1 heure","correct":false},{"text":"8 jours (standard Windows)","correct":true},{"text":"1 an","correct":false},{"text":"Permanent","correct":false}],"explication":"Durée de bail (Lease Duration) :<br>• <strong>Par défaut</strong> : 8 jours<br>• <strong>Renouvellement</strong> : Automatique à 50% du bail (4 jours)<br>• <strong>Rébindage</strong> : À 87.5% si renouvellement échoue<br><strong>Ajuster selon contexte</strong> :<br>• <strong>Réseau stable</strong> (bureaux) : 8 jours OK<br>• <strong>Réseau visiteurs</strong> (WiFi public) : 1-4 heures<br>• <strong>Réseau datacenter</strong> : 1 jour"},
+      {"id":"exam_ccp2_q30","difficulty":"normal","question":"Outre l'adresse IP, quelles informations peut distribuer un serveur DHCP ?","options":[{"text":"Uniquement l'IP","correct":false},{"text":"IP + Masque + Passerelle + DNS + Nom de domaine + Serveur WINS + etc.","correct":true},{"text":"Uniquement le masque","correct":false},{"text":"Rien du tout","correct":false}],"explication":"Options DHCP standards :<br>Code — Option — Exemple<br>1 — Masque de sous-réseau — 255.255.255.0<br>3 — Passerelle par défaut — 192.168.1.1<br>6 — Serveurs DNS — 192.168.1.5, 8.8.8.8<br>15 — Nom de domaine — entreprise.local<br>42 — Serveurs NTP — 192.168.1.5<br>44 — Serveurs WINS — 192.168.1.5<br>51 — Durée du bail — 691200 sec (8 jours)<br>66 — Serveur TFTP — 192.168.1.50 (PXE boot)<br><strong>Options personnalisées</strong> possibles (déploiement, VoIP, etc.)<br>## 📊 BARÈME ET ÉVALUATION<br><strong>Nombre de bonnes réponses</strong> : _____ / 30<br>Score — Niveau — Commentaire<br>27-30 — ⭐⭐⭐ Expert — Parfait ! Maîtrise AD/GPO/DNS/DHCP<br>23-26 — ⭐⭐ Très bien — Bonnes connaissances, révise détails<br>18-22 — ⭐ Bien — Relis cours Windows Server<br>13-17 — 🟡 Moyen — Révision approfondie nécessaire<br>0-12 — 🔴 Insuffisant — Revoir intégralement le module<br>## 🎯 POINTS CLÉS À RETENIR"},
       /* EXAMEN_QCM */
     ],
   },

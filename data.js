@@ -3733,8 +3733,517 @@ const MODULES = [
           ]},
         ],
       },
+      {
+        "id": "support-depannage-poste-ccp1",
+        "titre": "Dépannage poste utilisateur — RDP, Outlook, imprimantes, VPN, profils (CCP1)",
+        "sections": [
+          {
+            "type": "p",
+            "content": "<strong>Certification TSSR</strong> - CCP1 : Assister utilisateurs centre de services"
+          },
+          {
+            "type": "h2",
+            "content": "1. MÉTHODOLOGIE TICKETS"
+          },
+          {
+            "type": "h3",
+            "content": "Cycle de vie ticket"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Ouverture</strong> : Identification utilisateur, description problème",
+              "<strong>Qualification</strong> : Catégorie (matériel/logiciel/réseau), criticité",
+              "<strong>Priorisation</strong> : P1 (bloquant) → P4 (confort)",
+              "<strong>Diagnostic</strong> : Analyse, reproduction, logs",
+              "<strong>Résolution</strong> : Application solution, test",
+              "<strong>Clôture</strong> : Validation utilisateur, documentation"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Niveaux priorité"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>P1 (Critique)</strong> : Production bloquée, &gt;50 users (4h max)",
+              "<strong>P2 (Urgent)</strong> : Fonctionnalité majeure KO (8h max)",
+              "<strong>P3 (Normal)</strong> : Gêne partielle (24h max)",
+              "<strong>P4 (Mineur)</strong> : Demande amélioration (72h)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "2. COMMUNICATION EFFICACE"
+          },
+          {
+            "type": "h3",
+            "content": "Règles d'or"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Langage simple (pas jargon technique)",
+              "✅ Écoute active (reformuler problème)",
+              "✅ Empathie (\"Je comprends votre situation\")",
+              "✅ Questions fermées (oui/non pour diagnostic)",
+              "❌ Éviter \"c'est évident\", \"normalement ça marche\""
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Exemple transformation"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Mauvais</strong> : \"Votre résolveur DNS ne répond pas, vérifiez la config DHCP\"   <strong>Bon</strong> : \"Je vais vérifier votre connexion réseau. Pouvez-vous essayer d'ouvrir Google ?\""
+          },
+          {
+            "type": "h2",
+            "content": "3. DÉPANNAGE RÉSEAU"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes essentielles"
+          },
+          {
+            "type": "code",
+            "content": "# Test connectivité\nping 8.8.8.8                          # Internet Google DNS\nping google.com                       # Résolution DNS\nTest-NetConnection google.com -Port 443\n\n# Configuration IP\nipconfig /all                         # Config complète\nipconfig /release                     # Libérer IP DHCP\nipconfig /renew                       # Renouveler IP\nipconfig /flushdns                    # Vider cache DNS\n\n# Traçage route\ntracert google.com                    # Chemin paquets\npathping google.com                   # Trace + stats pertes"
+          },
+          {
+            "type": "h3",
+            "content": "Diagnostic connexion"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Câble physique</strong> : Voyant carte réseau allumé ?",
+              "<strong>IP valide</strong> : <code>ipconfig</code> → Si 169.254.x.x = APIPA (DHCP KO)",
+              "<strong>Passerelle</strong> : <code>ping &lt;gateway&gt;</code> → Routeur accessible ?",
+              "<strong>DNS</strong> : <code>nslookup google.com</code> → Résolution OK ?",
+              "<strong>Internet</strong> : <code>ping 8.8.8.8</code> → Connexion externe OK ?"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "4. ACTIVE DIRECTORY - GESTION COMPTES"
+          },
+          {
+            "type": "h3",
+            "content": "Réinitialisation mot de passe"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Sécurité</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Vérifier identité (badge, validation manager)",
+              "Pas de réinit par téléphone sans double authentification",
+              "Email sécurisé séparé pour communiquer nouveau MDP"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>PowerShell</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# Réinitialiser MDP\nSet-ADAccountPassword -Identity jdupont -Reset `\n  -NewPassword (ConvertTo-SecureString \"TempPass2025!\" -AsPlainText -Force)\n\n# Forcer changement prochaine connexion\nSet-ADUser -Identity jdupont -ChangePasswordAtLogon $true\n\n# Déverrouiller compte\nUnlock-ADAccount -Identity jdupont"
+          },
+          {
+            "type": "h3",
+            "content": "Déblocage compte"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Causes</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "3-5 tentatives MDP incorrectes (GPO)",
+              "Expiration MDP",
+              "Compte désactivé admin"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "5. ACCÈS DISTANT (RDP)"
+          },
+          {
+            "type": "h3",
+            "content": "Configuration RDP"
+          },
+          {
+            "type": "code",
+            "content": "# Activer RDP\nSet-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' `\n  -Name \"fDenyTSConnections\" -Value 0\n\n# Pare-feu\nEnable-NetFirewallRule -DisplayGroup \"Remote Desktop\"\n\n# Ajouter utilisateur\nAdd-LocalGroupMember -Group \"Remote Desktop Users\" -Member \"DOMAIN\\jdupont\""
+          },
+          {
+            "type": "h3",
+            "content": "Dépannage connexion RDP"
+          },
+          {
+            "type": "ol",
+            "items": [
+              "<strong>Port 3389</strong> : <code>Test-NetConnection PC-01 -Port 3389</code>",
+              "<strong>Service</strong> : <code>Get-Service TermService</code> (doit être \"Running\")",
+              "<strong>Pare-feu</strong> : Règle \"Remote Desktop\" activée",
+              "<strong>Groupe</strong> : Utilisateur membre \"Remote Desktop Users\"",
+              "<strong>Licence</strong> : Serveur RDS licences valides"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "6. OUTLOOK - PROBLÈMES COURANTS"
+          },
+          {
+            "type": "h3",
+            "content": "Outlook lent/erreurs"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Diagnostics</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# Taille OST/PST\nGet-ChildItem \"$env:LOCALAPPDATA\\Microsoft\\Outlook\\*.ost\" | Select Name, Length\n\n# Mode sans échec (désactive add-ins)\noutlook.exe /safe\n\n# Réparer profil\noutlook.exe /resetnavpane"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solutions</strong> :"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>OST &gt;10GB</strong> : Archiver anciens emails",
+              "<strong>Add-ins</strong> : Désactiver modules tiers (File → Options → Add-ins)",
+              "<strong>Profil corrompu</strong> : Créer nouveau profil (Control Panel → Mail)",
+              "<strong>Index</strong> : Reconstruire Windows Search"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Recréer OST"
+          },
+          {
+            "type": "code",
+            "content": "1. Fermer Outlook\n2. Renommer C:\\Users\\<user>\\AppData\\Local\\Microsoft\\Outlook\\*.ost\n3. Redémarrer Outlook (OST recréé automatiquement)"
+          },
+          {
+            "type": "h2",
+            "content": "7. IMPRIMANTES RÉSEAU"
+          },
+          {
+            "type": "h3",
+            "content": "Déploiement GPO"
+          },
+          {
+            "type": "code",
+            "content": "User Config → Preferences → Control Panel Settings → Printers\n→ New → Shared Printer\n   Action: Update\n   Share path: \\\\SRV-PRINT01\\HP-RH-01\n   Default: Yes"
+          },
+          {
+            "type": "h3",
+            "content": "Dépannage impression"
+          },
+          {
+            "type": "code",
+            "content": "# Lister imprimantes\nGet-Printer\n\n# Ajouter imprimante\nAdd-Printer -ConnectionName \"\\\\SRV-PRINT01\\HP-RH-01\"\n\n# Redémarrer spooler\nRestart-Service Spooler\n\n# Vider file d'attente\nStop-Service Spooler\nRemove-Item C:\\Windows\\System32\\spool\\PRINTERS\\* -Force\nStart-Service Spooler"
+          },
+          {
+            "type": "h2",
+            "content": "8. MAPPAGE LECTEURS RÉSEAU"
+          },
+          {
+            "type": "h3",
+            "content": "GPO Drive Mapping"
+          },
+          {
+            "type": "code",
+            "content": "User Config → Preferences → Windows Settings → Drive Maps\n→ New Mapped Drive\n   Location: \\\\SRV-FILE01\\Partages\n   Drive Letter: P:\n   Reconnect: ☑\n   Label: Partages Communs"
+          },
+          {
+            "type": "h3",
+            "content": "Commandes manuelles"
+          },
+          {
+            "type": "code",
+            "content": "# Mapper\nnet use P: \\\\SRV-FILE01\\Partages /persistent:yes\n\n# Lister\nnet use\n\n# Supprimer\nnet use P: /delete"
+          },
+          {
+            "type": "p",
+            "content": "<strong>PowerShell</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "New-PSDrive -Name \"P\" -PSProvider FileSystem `\n  -Root \"\\\\SRV-FILE01\\Partages\" -Persist"
+          },
+          {
+            "type": "h2",
+            "content": "9. VPN UTILISATEUR NOMADE"
+          },
+          {
+            "type": "h3",
+            "content": "Configuration Windows"
+          },
+          {
+            "type": "code",
+            "content": "Paramètres → Réseau → VPN → Ajouter connexion VPN\n  Fournisseur: Windows (intégré)\n  Nom: VPN Entreprise\n  Serveur: vpn.entreprise.local\n  Type VPN: IKEv2 (recommandé) ou L2TP/IPsec\n  Type connexion: Nom d'utilisateur et mot de passe"
+          },
+          {
+            "type": "p",
+            "content": "<strong>PowerShell</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "Add-VpnConnection -Name \"VPN Entreprise\" `\n  -ServerAddress \"vpn.entreprise.local\" `\n  -TunnelType L2tp `\n  -EncryptionLevel Required `\n  -AuthenticationMethod MSChapv2 `\n  -RememberCredential"
+          },
+          {
+            "type": "h3",
+            "content": "Dépannage VPN"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Erreur 806</strong> : Pare-feu bloque (port 1723 L2TP)",
+              "<strong>Erreur 809</strong> : NAT-T bloqué (UDP 4500)",
+              "<strong>Erreur 619</strong> : Credentials incorrects"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "10. PROFILS UTILISATEURS"
+          },
+          {
+            "type": "h3",
+            "content": "Profil corrompu"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Message</strong> : \"Service de profil utilisateur a échoué l'ouverture de session\""
+          },
+          {
+            "type": "p",
+            "content": "<strong>Solution registre</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "1. Connexion admin local\n2. regedit → HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\n3. Chercher SID utilisateur (S-1-5-21-xxx)\n4. Si .bak existe :\n   - Renommer SID → SID.old\n   - Renommer SID.bak → SID\n5. Redémarrer, connexion utilisateur"
+          },
+          {
+            "type": "h3",
+            "content": "Redirection dossiers (GPO)"
+          },
+          {
+            "type": "code",
+            "content": "User Config → Policies → Windows Settings → Folder Redirection\n  Documents → \\\\SRV-FILE01\\Users$\\%USERNAME%\\Documents\n  Desktop → \\\\SRV-FILE01\\Users$\\%USERNAME%\\Desktop"
+          },
+          {
+            "type": "h2",
+            "content": "11. WINDOWS UPDATE"
+          },
+          {
+            "type": "h3",
+            "content": "Erreurs courantes"
+          },
+          {
+            "type": "p",
+            "content": "<strong>0x80070005</strong> (accès refusé) :"
+          },
+          {
+            "type": "code",
+            "content": "Stop-Service wuauserv, bits, cryptsvc\nRemove-Item C:\\Windows\\SoftwareDistribution\\Download\\* -Recurse -Force\nStart-Service wuauserv, bits, cryptsvc"
+          },
+          {
+            "type": "p",
+            "content": "<strong>0x80240034</strong> (échec téléchargement) :"
+          },
+          {
+            "type": "code",
+            "content": "Dism /Online /Cleanup-Image /RestoreHealth\nsfc /scannow"
+          },
+          {
+            "type": "h3",
+            "content": "Forcer mises à jour"
+          },
+          {
+            "type": "code",
+            "content": "# Module PSWindowsUpdate\nInstall-Module PSWindowsUpdate -Force\nGet-WindowsUpdate\nInstall-WindowsUpdate -AcceptAll -AutoReboot"
+          },
+          {
+            "type": "h2",
+            "content": "12. GPO DÉPANNAGE"
+          },
+          {
+            "type": "h3",
+            "content": "Vérifier application GPO"
+          },
+          {
+            "type": "code",
+            "content": "# Résumé GPO utilisateur\ngpresult /r /scope:user\n\n# Rapport HTML complet\ngpresult /h C:\\gporeport.html /user DOMAIN\\jdupont\n\n# Forcer application\ngpupdate /force\n\n# Logs GPO\neventvwr.msc → Applications and Services → Microsoft → Windows → GroupPolicy"
+          },
+          {
+            "type": "h3",
+            "content": "Problèmes fréquents"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Ordre GPO (priorité OU &gt; Domaine)",
+              "Filtrage sécurité (utilisateur pas dans groupe autorisé)",
+              "Blocage héritage activé",
+              "Cache GPO obsolète (<code>gpupdate /force</code>)"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "13. OUTILS DIAGNOSTICS"
+          },
+          {
+            "type": "h3",
+            "content": "Event Viewer"
+          },
+          {
+            "type": "code",
+            "content": "eventvwr.msc\n  Windows Logs → Application (erreurs logiciels)\n  Windows Logs → System (matériel, services)\n  Windows Logs → Security (authentification)"
+          },
+          {
+            "type": "p",
+            "content": "<strong>PowerShell</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "# 50 dernières erreurs système\nGet-EventLog -LogName System -EntryType Error -Newest 50\n\n# Erreurs Application dernières 24h\nGet-EventLog -LogName Application -After (Get-Date).AddDays(-1) -EntryType Error"
+          },
+          {
+            "type": "h3",
+            "content": "Outils réseau"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>ping</strong> : Connectivité basique",
+              "<strong>tracert</strong> : Chemin routage",
+              "<strong>nslookup</strong> : Résolution DNS",
+              "<strong>netstat</strong> : Connexions actives",
+              "<strong>Test-NetConnection</strong> : Port TCP spécifique"
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "14. TICKETS TYPES"
+          },
+          {
+            "type": "table",
+            "headers": [
+              "Type",
+              "Priorité",
+              "Délai",
+              "Actions"
+            ],
+            "rows": [
+              [
+                "MDP oublié",
+                "P2",
+                "1h",
+                "Vérif identité, réinit AD"
+              ],
+              [
+                "Imprimante KO",
+                "P3",
+                "4h",
+                "Spooler, pilotes, réseau"
+              ],
+              [
+                "Pas d'accès réseau",
+                "P1",
+                "30min",
+                "IP, DNS, câble"
+              ],
+              [
+                "Email ne part pas",
+                "P2",
+                "2h",
+                "Outlook config, Exchange"
+              ],
+              [
+                "Application plante",
+                "P2-P3",
+                "4h",
+                "Logs, réinstall, MAJ"
+              ]
+            ]
+          },
+          {
+            "type": "h2",
+            "content": "15. BONNES PRATIQUES"
+          },
+          {
+            "type": "h3",
+            "content": "Documentation"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "✅ Détailler actions réalisées",
+              "✅ Noter solutions pour KB (base connaissances)",
+              "✅ Temps passé précis"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "Escalade"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "<strong>Niveau 1</strong> : Support basique, réinitialisation",
+              "<strong>Niveau 2</strong> : Expertise technique, scripts",
+              "<strong>Niveau 3</strong> : Architecte, problèmes complexes"
+            ]
+          },
+          {
+            "type": "h3",
+            "content": "SLA (Service Level Agreement)"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Respecter délais contractuels",
+              "Communiquer si dépassement prévu",
+              "Prioriser selon impact business"
+            ]
+          },
+          {
+            "type": "p",
+            "content": "<strong>COMMANDES MÉMO</strong> :"
+          },
+          {
+            "type": "code",
+            "content": "gpupdate /force              # Forcer GPO\nipconfig /renew              # Renouveler IP\nTest-NetConnection -Port 80  # Test port\nRestart-Service <nom>        # Redémarrer service\nSet-ADAccountPassword        # Reset MDP AD\nGet-EventLog -Newest 50      # Logs système"
+          },
+          {
+            "type": "p",
+            "content": "<strong>Date révision</strong> : 12 novembre 2025"
+          }
+        ]
+      },
+      /* SUPPORT_COURS */
     ],
     flashcards: [
+      {"id":"sup_ccp1_f1","recto":"Q1 — Méthodologie traitement ticket : Listez les 6 étapes traitement ticket incident.","verso":"1. <strong>Qualification</strong> : Identifier utilisateur, problème, criticité<br>2. <strong>Catégorisation</strong> : Type incident (matériel/logiciel/réseau)<br>3. <strong>Priorisation</strong> : Urgent/Important selon impact<br>4. <strong>Diagnostic</strong> : Reproduire, analyser logs<br>5. <strong>Résolution</strong> : Appliquer solution, tester<br>6. <strong>Clôture</strong> : Valider avec utilisateur, documenter<br><strong>Criticité</strong> : P1 (bloquant) → P4 (mineur)"},
+      {"id":"sup_ccp1_f2","recto":"Q2 — Communication utilisateur : Utilisateur non-technique signale \"internet ne marche pas\". Comment répondre ?","verso":"❌ <strong>Mauvais</strong> : \"Ton DNS is down\"<br>✅ <strong>Bon</strong> : \"Je comprends, je vais vérifier votre connexion. Pouvez-vous ouvrir un site web pour tester ?\"<br><strong>Principes</strong> :<br>• Langage simple (pas jargon)<br>• Empathie (\"Je comprends\")<br>• Questions fermées (oui/non)<br>• Reformuler problème"},
+      {"id":"sup_ccp1_f3","recto":"Q3 — Remote Desktop dépannage : RDP vers PC-USER01 échoue. Listez 5 vérifications.","verso":"1. <strong>Ping</strong> : <code>ping PC-USER01</code> (connectivité réseau)<br>2. <strong>Port RDP</strong> : <code>Test-NetConnection PC-USER01 -Port 3389</code><br>3. <strong>Service</strong> : <code>Get-Service TermService</code> actif ?<br>4. <strong>Pare-feu</strong> : Règle RDP autorisée<br>5. <strong>Compte</strong> : Membre \"Remote Desktop Users\"<br><strong>Commandes</strong> :<br><code style=\"display:block;white-space:pre-wrap\"># Activer RDP\nSet-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -Name \"fDenyTSConnections\" -Value 0\nEnable-NetFirewallRule -DisplayGroup \"Remote Desktop\"</code>"},
+      {"id":"sup_ccp1_f4","recto":"Q4 — Gestion mot de passe : Utilisateur oublié mot de passe AD. Procédure réinitialisation sécurisée ?","verso":"<strong>Vérifications</strong> (3 pts) :<br>1. Vérifier identité (badge, manager)<br>2. Ticket validé responsable<br>3. Pas de réinitialisation par téléphone sans double vérif<br><strong>Réinitialisation</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># AD Users and Computers → Reset Password\n# Ou PowerShell :\nSet-ADAccountPassword -Identity jdupont -Reset -NewPassword (ConvertTo-SecureString \"TempPass2025!\" -AsPlainText -Force)\nSet-ADUser -Identity jdupont -ChangePasswordAtLogon $true\nUnlock-ADAccount -Identity jdupont</code><br><strong>Communication</strong> : Email sécurisé séparé (pas SMS)"},
+      {"id":"sup_ccp1_f5","recto":"Q5 — Outlook problème profil : Outlook démarre lentement, erreurs aléatoires. Dépannage ?","verso":"<strong>Diagnostics</strong> (4 pts) :<br>1. Taille PST/OST : <code>&gt;10GB = problème</code><br>2. Add-ins : Démarrer mode sans échec <code>outlook.exe /safe</code><br>3. Profil corrompu : Créer nouveau profil<br>4. Indexation : Reconstruire index Windows Search<br><strong>Solutions</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Réparer profil Outlook\noutlook.exe /resetnavpane\n\n# Reconstruire OST\n# 1. Fermer Outlook\n# 2. Renommer C:\\Users\\&lt;user&gt;\\AppData\\Local\\Microsoft\\Outlook\\*.ost\n# 3. Redémarrer Outlook (recrée OST)</code><br><strong>Mode sans échec</strong> : <code>Win+R</code> → <code>outlook.exe /safe</code>"},
+      {"id":"sup_ccp1_f6","recto":"Q6 — Imprimante réseau : Déployer imprimante \\\\SRV-PRINT01\\HP-RH-01 via GPO.","verso":"<strong>GPO</strong> (5 pts) :<br><code style=\"display:block;white-space:pre-wrap\">User Config → Preferences → Control Panel Settings → Printers\n→ New → Shared Printer\n   Action: Update\n   Share path: \\\\SRV-PRINT01\\HP-RH-01\n   ☑ Set this printer as default</code><br><strong>Vérif client</strong> (2 pts) :<br><code style=\"display:block;white-space:pre-wrap\">gpupdate /force\nGet-Printer | Where-Object {$_.Name -like \"*HP-RH*\"}</code><br><strong>Alternative PowerShell</strong> :<br><code style=\"display:block;white-space:pre-wrap\">Add-Printer -ConnectionName \"\\\\SRV-PRINT01\\HP-RH-01\"</code>"},
+      {"id":"sup_ccp1_f7","recto":"Q7 — Mappage lecteur réseau : Mapper P: vers \\\\SRV-FILE01\\Partages persistant après reboot.","verso":"<strong>Méthode 1 - GPO</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\">User Config → Preferences → Windows Settings → Drive Maps\n→ New Mapped Drive\n   Action: Create\n   Location: \\\\SRV-FILE01\\Partages\n   Drive Letter: P:\n   Reconnect: ☑</code><br><strong>Méthode 2 - Manuel</strong> (3 pts) :<br><code style=\"display:block;white-space:pre-wrap\">net use P: \\\\SRV-FILE01\\Partages /persistent:yes</code><br><strong>PowerShell</strong> :<br><code style=\"display:block;white-space:pre-wrap\">New-PSDrive -Name \"P\" -PSProvider FileSystem -Root \"\\\\SRV-FILE01\\Partages\" -Persist</code>"},
+      {"id":"sup_ccp1_f8","recto":"Q8 — VPN utilisateur nomade : Configurer VPN Windows 10 vers vpn.entreprise.local.","verso":"<strong>Manuel</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Paramètres → Réseau et Internet → VPN → Ajouter une connexion VPN\n   Fournisseur VPN: Windows (intégré)\n   Nom connexion: VPN Entreprise\n   Nom/adresse serveur: vpn.entreprise.local\n   Type VPN: IKEv2 ou L2TP/IPsec\n   Type infos connexion: Nom d'utilisateur et mot de passe</code><br><strong>PowerShell</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\">Add-VpnConnection -Name \"VPN Entreprise\" `\n  -ServerAddress \"vpn.entreprise.local\" `\n  -TunnelType L2tp `\n  -EncryptionLevel Required `\n  -AuthenticationMethod MSChapv2 `\n  -RememberCredential</code><br><strong>Test</strong> : <code>Test-NetConnection vpn.entreprise.local -Port 1723</code>"},
+      {"id":"sup_ccp1_f9","recto":"Q9 — Mise à jour Windows bloquée : Windows Update erreur 0x80070005. Dépannage ?","verso":"<strong>Causes</strong> (3 pts) :<br>• Permissions insuffisantes<br>• Service Windows Update arrêté<br>• Cache corrompu<br><strong>Solutions</strong> (4 pts) :<br><code style=\"display:block;white-space:pre-wrap\"># Redémarrer services\nStop-Service wuauserv, bits, cryptsvc\nRemove-Item C:\\Windows\\SoftwareDistribution\\Download\\* -Recurse -Force\nStart-Service wuauserv, bits, cryptsvc\n\n# Vider cache\nDism /Online /Cleanup-Image /RestoreHealth\nsfc /scannow\n\n# Outil Microsoft\n# Télécharger Windows Update Troubleshooter</code><br><strong>Vérif finale</strong> : <code>Get-WindowsUpdateLog</code>"},
+      {"id":"sup_ccp1_f10","recto":"Q10 — Profil utilisateur corrompu : Utilisateur message \"Service de profil utilisateur a échoué\". Solution ?","verso":"<strong>Cause</strong> (2 pts) : Profil Windows corrompu (registre verrouillé)<br><strong>Solution</strong> (6 pts) :<br><code style=\"display:block;white-space:pre-wrap\">1. Connexion compte admin local\n2. Regedit → HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\n3. Chercher SID utilisateur (S-1-5-21-xxx)\n4. Si existe SID.bak → Renommer :\n   - SID → SID.old\n   - SID.bak → SID\n5. Redémarrer PC\n6. Connexion utilisateur (profil reconstruit)</code><br><strong>Prévention</strong> :<br>• Redirection dossiers (Documents, Bureau) via GPO<br>• Profils itinérants (roaming profiles)<br>• Sauvegardes régulières"},
+      /* SUPPORT_FLASHCARDS */
       { id: 'sup_f1', recto: '6 statuts ticket GLPI ?', verso: 'Nouveau, Assigne, En cours, En attente, Resolu, Ferme' },
       { id: 'sup_f2', recto: 'Matrice Urgence/Impact ITIL', verso: 'P1=Critique+Haute, P2=Signif+Haute, P3=Faible+Haute, P4=Faible+Basse' },
       { id: 'sup_f3', recto: 'SLA 99.9% temps arret/an ?', verso: '99.9%=8h45, 99.99%=52min, 99.999%=5min' },
@@ -3777,6 +4286,47 @@ const MODULES = [
       { id: 'sup_q18', difficulty: 'normal', question: 'Document projet IT decrivant besoins client ?', options: [{ text: 'Schema architecture', correct: false }, { text: 'CDC (Cahier des Charges)', correct: true }, { text: 'Plan de tests', correct: false }, { text: 'Runbook', correct: false }], explication: 'CDC = expression des besoins client' },
       { id: 'sup_q19', difficulty: 'normal', question: 'Methode agile en iterations courtes ?', options: [{ text: 'ITIL', correct: false }, { text: 'Scrum', correct: true }, { text: 'COBIT', correct: false }, { text: 'Prince2', correct: false }], explication: 'Scrum: sprints 2-4 semaines, Daily Standup, Review' },
       { id: 'sup_q20', difficulty: 'normal', question: 'Niveau schema equipements physiques ?', options: [{ text: 'L3 Reseau', correct: false }, { text: 'L1 Physique', correct: true }, { text: 'L2 Liaison', correct: false }, { text: 'L0 Batiment', correct: false }], explication: 'L1: baies, cables, switchs physiques, ports' },
+      {"id":"sup_ccp1_q1","difficulty":"normal","question":"Quel est le rôle principal d'un technicien support <strong>N1</strong> ?","options":[{"text":"Résoudre les incidents complexes nécessitant une expertise approfondie","correct":false},{"text":"Qualifier, enregistrer et résoudre les incidents simples","correct":true},{"text":"Développer des correctifs pour les bugs applicatifs","correct":false},{"text":"Gérer les projets de déploiement informatique","correct":false}],"explication":"• <strong>N1</strong> (First Level Support) : Contact initial, qualification, résolution incidents simples (30-70% résolution)<br>• <strong>N2</strong> : Expertise technique, incidents complexes<br>• <strong>N3</strong> : Experts, développeurs, éditeurs"},
+      {"id":"sup_ccp1_q2","difficulty":"normal","question":"Un utilisateur signale qu'il ne peut pas accéder à son dossier réseau. Quelle est la <strong>première action</strong> à effectuer ?","options":[{"text":"Réinstaller Windows sur le poste","correct":false},{"text":"Vérifier les droits NTFS et l'appartenance aux groupes","correct":true},{"text":"Remplacer le câble réseau","correct":false},{"text":"Formater le serveur de fichiers","correct":false}],"explication":"Méthodologie support :<br>1. Qualifier le problème (questions)<br>2. Reproduire si possible<br>3. Vérifications de base (droits, connexion réseau, état service)<br>4. Solution<br>5. Documentation"},
+      {"id":"sup_ccp1_q3","difficulty":"normal","question":"Dans GLPI, quel est le statut d'un ticket qui vient d'être créé par un utilisateur ?","options":[{"text":"En cours (attribué)","correct":false},{"text":"Nouveau","correct":true},{"text":"En attente","correct":false},{"text":"Planifié","correct":false}],"explication":"Cycle de vie ticket GLPI :<br>• <strong>Nouveau</strong> → En cours (attribué) → En attente → Résolu → Clos"},
+      {"id":"sup_ccp1_q4","difficulty":"normal","question":"Quelle est la différence entre <strong>urgence</strong> et <strong>impact</strong> d'un incident ?","options":[{"text":"L'urgence = nombre d'utilisateurs, l'impact = délai de résolution","correct":false},{"text":"L'urgence = délai de traitement souhaité, l'impact = étendue des conséquences","correct":true},{"text":"Ce sont deux termes synonymes","correct":false},{"text":"L'urgence concerne les tickets VIP uniquement","correct":false}],"explication":"• <strong>Urgence</strong> : Combien de temps peut-on attendre ? (faible/moyenne/haute)<br>• <strong>Impact</strong> : Combien d'utilisateurs/services affectés ? (1 user / service / entreprise)"},
+      {"id":"sup_ccp1_q5","difficulty":"normal","question":"Comment calcule-t-on la <strong>priorité</strong> d'un ticket dans la plupart des outils de ticketing ?","options":[{"text":"Priorité = Urgence + Impact","correct":false},{"text":"Priorité = Urgence × Impact (matrice)","correct":true},{"text":"Priorité = Nombre d'utilisateurs affectés","correct":false},{"text":"Priorité = Ancienneté du ticket","correct":false}],"explication":"Matrice de priorité :<br>Impact faible — Impact moyen — Impact élevé<br><strong>Urgence faible</strong> — P4 (basse) — P3 (moyenne) — P2 (haute)<br><strong>Urgence moyenne</strong> — P3 (moyenne) — P2 (haute) — P1 (critique)<br><strong>Urgence haute</strong> — P2 (haute) — P1 (critique) — P1 (critique)"},
+      {"id":"sup_ccp1_q6","difficulty":"normal","question":"Un utilisateur dit : \"Mon ordinateur est lent\". Quelle technique de questionnement utiliser ?","options":[{"text":"Questions fermées uniquement (oui/non)","correct":false},{"text":"Questions ouvertes (QQOQCCP : Qui, Quoi, Où, Quand, Comment, Combien, Pourquoi)","correct":true},{"text":"Ne pas poser de questions, agir immédiatement","correct":false},{"text":"Demander à l'utilisateur de trouver la solution lui-même","correct":false}],"explication":"• <strong>Qui</strong> : Qui est affecté ?<br>• <strong>Quoi</strong> : Quel est le problème exact ?<br>• <strong>Où</strong> : Sur quel poste/service ?<br>• <strong>Quand</strong> : Depuis quand ? À quel moment ?<br>• <strong>Comment</strong> : Comment se manifeste le problème ?<br>• <strong>Combien</strong> : Combien de fois ? Combien d'utilisateurs ?<br>• <strong>Pourquoi</strong> : Contexte, changement récent ?"},
+      {"id":"sup_ccp1_q7","difficulty":"normal","question":"Que signifie <strong>escalade verticale</strong> (escalade hiérarchique) ?","options":[{"text":"Passer le ticket à un collègue du même niveau","correct":false},{"text":"Passer le ticket à un niveau supérieur (N1 → N2 → N3)","correct":true},{"text":"Fermer le ticket sans résolution","correct":false},{"text":"Diminuer la priorité du ticket","correct":false}],"explication":"• <strong>Verticale</strong> : Escalade hiérarchique (niveau expertise)<br>• <strong>Horizontale</strong> : Passer à un collègue même niveau (charge, spécialité)"},
+      {"id":"sup_ccp1_q8","difficulty":"normal","question":"Dans une base de connaissances (knowledge base), que doit contenir un article de résolution ?","options":[{"text":"Uniquement le symptôme","correct":false},{"text":"Symptôme + Cause + Solution + Mots-clés","correct":true},{"text":"Seulement la solution","correct":false},{"text":"Les informations confidentielles","correct":false}],"explication":"Structure KB :<br><code style=\"display:block;white-space:pre-wrap\">Titre : Impossible d'accéder au dossier partagé\nSymptôme : Message \"Accès refusé\" à \\\\serveur\\partage\nCause : Utilisateur pas dans le groupe AD_Partage\nSolution : Ajouter l'utilisateur au groupe AD_Partage\nMots-clés : partage, accès refusé, réseau, permissions</code>"},
+      {"id":"sup_ccp1_q9","difficulty":"normal","question":"Un utilisateur est mécontent et agressif au téléphone. Quelle est la <strong>meilleure attitude</strong> ?","options":[{"text":"Raccrocher immédiatement","correct":false},{"text":"Rester calme, écouter activement, reformuler, empathie","correct":true},{"text":"Être agressif en retour","correct":false},{"text":"Transférer systématiquement au manager","correct":false}],"explication":"Techniques :<br>• Écoute active<br>• Empathie : \"Je comprends votre frustration\"<br>• Reformulation : \"Si je comprends bien...\"<br>• Rester professionnel<br>• Proposer des solutions"},
+      {"id":"sup_ccp1_q10","difficulty":"normal","question":"Que signifie <strong>SLA</strong> (Service Level Agreement) ?","options":[{"text":"Accord de niveau de service (contrat avec engagement de délais)","correct":true},{"text":"Standard Linux Administration","correct":false},{"text":"Software License Agreement","correct":false},{"text":"Support Level Allocation","correct":false}],"explication":"SLA définit :<br>• Délais de prise en compte<br>• Délais de résolution (par priorité)<br>• Disponibilité services<br>• Pénalités si non-respect<br>Exemple :<br>• P1 (critique) : Prise en compte 15 min, résolution 4h<br>• P2 (haute) : Prise en compte 1h, résolution 8h<br>• P3 (moyenne) : Prise en compte 4h, résolution 24h"},
+      {"id":"sup_ccp1_q11","difficulty":"normal","question":"Un SLA indique \"P1 : résolution en 4 heures\". C'est un délai de :","options":[{"text":"Résolution garantie (le problème DOIT être résolu en 4h)","correct":false},{"text":"Prise en compte (accusé réception en 4h)","correct":false},{"text":"Objectif de résolution (cible, pas garantie absolue)","correct":true},{"text":"Attente maximale avant fermeture automatique","correct":false}],"explication":"SLA = engagement de <strong>moyens</strong>, pas de résultat absolu<br>• Objectif : 95% des tickets P1 résolus en 4h<br>• Si cause externe (éditeur) → peut dépasser"},
+      {"id":"sup_ccp1_q12","difficulty":"normal","question":"Quelle est la différence entre <strong>SLA</strong> et <strong>OLA</strong> ?","options":[{"text":"SLA = externe (client), OLA = interne (entre équipes IT)","correct":true},{"text":"SLA et OLA sont identiques","correct":false},{"text":"SLA = gratuit, OLA = payant","correct":false},{"text":"OLA n'existe pas en support","correct":false}],"explication":"• <strong>SLA</strong> : Contrat avec le CLIENT (entreprise)<br>• <strong>OLA</strong> : Accord entre équipes IT internes (support ↔ réseau ↔ système)"},
+      {"id":"sup_ccp1_q13","difficulty":"normal","question":"Un ticket est en statut <strong>\"En attente\"</strong>. Cela signifie généralement :","options":[{"text":"Le ticket est résolu","correct":false},{"text":"On attend une action de l'utilisateur ou d'un tiers","correct":true},{"text":"Le ticket est annulé","correct":false},{"text":"Le technicien a abandonné","correct":false}],"explication":"Causes fréquentes :<br>• Attente retour utilisateur<br>• Attente pièce/matériel<br>• Attente éditeur/prestataire<br>• Attente validation"},
+      {"id":"sup_ccp1_q14","difficulty":"normal","question":"Quel indicateur mesure la <strong>satisfaction utilisateur</strong> ?","options":[{"text":"MTBF (Mean Time Between Failures)","correct":false},{"text":"MTTR (Mean Time To Repair)","correct":false},{"text":"CSAT (Customer Satisfaction Score) ou NPS","correct":true},{"text":"RPO (Recovery Point Objective)","correct":false}],"explication":"• <strong>CSAT</strong> : \"Êtes-vous satisfait ?\" (1-5 étoiles)<br>• <strong>NPS</strong> (Net Promoter Score) : \"Recommanderiez-vous ?\" (0-10)<br>• Envoyé après fermeture ticket"},
+      {"id":"sup_ccp1_q15","difficulty":"normal","question":"Pourquoi catégoriser les tickets (matériel, logiciel, réseau, etc.) ?","options":[{"text":"Pour faire joli dans l'outil","correct":false},{"text":"Pour générer des statistiques, identifier les tendances, optimiser les ressources","correct":true},{"text":"C'est obligatoire légalement","correct":false},{"text":"Pour compliquer le travail","correct":false}],"explication":"Bénéfices :<br>• Identifier problèmes récurrents<br>• Allouer ressources (beaucoup tickets réseau → renforcer équipe)<br>• Amélioration continue<br>• Reporting management"},
+      {"id":"sup_ccp1_q16","difficulty":"normal","question":"Que signifie <strong>ITIL</strong> ?","options":[{"text":"Information Technology Infrastructure Library","correct":true},{"text":"International Technical IT License","correct":false},{"text":"Integrated Tools for IT Learning","correct":false},{"text":"Internet Technology Implementation Level","correct":false}],"explication":"• Créé par le gouvernement britannique (années 1980)<br>• Framework de bonnes pratiques IT<br>• Standard mondial"},
+      {"id":"sup_ccp1_q17","difficulty":"normal","question":"Dans ITIL, quelle est la différence entre un <strong>incident</strong> et un <strong>problème</strong> ?","options":[{"text":"Incident = panne réelle, Problème = panne potentielle","correct":false},{"text":"Incident = interruption/dégradation service, Problème = cause inconnue d'incidents","correct":true},{"text":"Ce sont deux mots pour la même chose","correct":false},{"text":"Problème = plusieurs incidents simultanés","correct":false}],"explication":"Critère — Incident — Problème<br><strong>Définition</strong> — Interruption/dégradation service — Cause inconnue d'incidents (récurrents)<br><strong>Objectif</strong> — Restaurer le service VITE — Identifier cause racine<br><strong>Durée</strong> — Court terme — Moyen/long terme<br><strong>Solution</strong> — Workaround acceptable — Résolution définitive"},
+      {"id":"sup_ccp1_q18","difficulty":"normal","question":"Un utilisateur ne peut pas imprimer. C'est un :","options":[{"text":"Incident","correct":true},{"text":"Problème","correct":false},{"text":"Changement","correct":false},{"text":"Événement","correct":false}],"explication":"Car : interruption du service d'impression pour 1 utilisateur"},
+      {"id":"sup_ccp1_q19","difficulty":"normal","question":"5 utilisateurs du même service ne peuvent pas imprimer sur la même imprimante. On découvre que le driver est corrompu. La cause racine (driver corrompu) est :","options":[{"text":"Un incident","correct":false},{"text":"Un problème","correct":true},{"text":"Une demande de service","correct":false},{"text":"Un changement","correct":false}],"explication":"• 5 incidents similaires → Investigation<br>• Cause identifiée (driver corrompu) = <strong>Problème</strong><br>• Correction définitive (réinstaller bon driver) = Résolution du problème"},
+      {"id":"sup_ccp1_q20","difficulty":"normal","question":"Quelle est la priorité absolue de la <strong>gestion des incidents</strong> ?","options":[{"text":"Trouver la cause racine","correct":false},{"text":"Restaurer le service le plus rapidement possible (contournement acceptable)","correct":true},{"text":"Punir le responsable","correct":false},{"text":"Documenter parfaitement","correct":false}],"explication":"Gestion incidents :<br>1. Restaurer le service (même temporairement)<br>2. Contournement acceptable<br>3. Documentation<br>4. Si récurrent → Créer un \"Problème\""},
+      {"id":"sup_ccp1_q21","difficulty":"normal","question":"Quelle est la priorité de la <strong>gestion des problèmes</strong> ?","options":[{"text":"Restaurer le service rapidement","correct":false},{"text":"Identifier et éliminer la cause racine pour éviter la récurrence","correct":true},{"text":"Fermer le plus de tickets possible","correct":false},{"text":"Créer des workarounds","correct":false}],"explication":"Gestion problèmes :<br>• Analyse approfondie (5 Pourquoi, Ishikawa)<br>• Trouver cause racine<br>• Corriger définitivement<br>• Éviter récurrence"},
+      {"id":"sup_ccp1_q22","difficulty":"normal","question":"Qu'est-ce qu'un <strong>workaround</strong> (solution de contournement) ?","options":[{"text":"La cause racine d'un incident","correct":false},{"text":"Une solution temporaire qui permet de restaurer le service sans corriger la cause","correct":true},{"text":"Un changement planifié","correct":false},{"text":"Un incident grave","correct":false}],"explication":"Exemples :<br>• Serveur mail lent → Redémarrer (workaround) vs Ajouter RAM (résolution)<br>• Imprimante HS → Utiliser autre imprimante (workaround)"},
+      {"id":"sup_ccp1_q23","difficulty":"normal","question":"Qu'est-ce qu'un <strong>changement</strong> (change) dans ITIL ?","options":[{"text":"Toute modification de l'infrastructure IT susceptible d'impacter les services","correct":true},{"text":"Un incident résolu","correct":false},{"text":"Un problème identifié","correct":false},{"text":"Une demande utilisateur","correct":false}],"explication":"Exemples :<br>• Installation serveur<br>• Mise à jour logiciel<br>• Changement configuration réseau<br>• Ajout utilisateur (si processus formalisé)"},
+      {"id":"sup_ccp1_q24","difficulty":"normal","question":"Quel est le rôle du <strong>CAB</strong> (Change Advisory Board) ?","options":[{"text":"Résoudre les incidents","correct":false},{"text":"Évaluer, approuver ou rejeter les changements","correct":true},{"text":"Créer les tickets","correct":false},{"text":"Former les utilisateurs","correct":false}],"explication":"CAB (Change Advisory Board) :<br>• Réunion régulière<br>• Membres : Responsables IT, métiers concernés<br>• Évalue risques/impacts<br>• Approuve/reporte/rejette"},
+      {"id":"sup_ccp1_q25","difficulty":"normal","question":"Quels sont les 3 types de changements ITIL ?","options":[{"text":"Standard, Normal (planifié), Urgent (emergency)","correct":true},{"text":"Petit, Moyen, Grand","correct":false},{"text":"Matériel, Logiciel, Réseau","correct":false},{"text":"Approuvé, Refusé, En attente","correct":false}],"explication":"• <strong>Standard</strong> : Pré-approuvé, faible risque (ajout compte user) → Pas de CAB<br>• <strong>Normal</strong> : Planifié, évaluation CAB (maj serveur)<br>• <strong>Urgent</strong> : Emergency, pour résoudre incident critique (pas le temps d'attendre CAB)"},
+      {"id":"sup_ccp1_q26","difficulty":"normal","question":"ITIL 4 remplace les 5 phases du cycle de vie (v3) par :","options":[{"text":"7 phases de développement","correct":false},{"text":"La chaîne de valeur des services (Service Value Chain - SVC)","correct":true},{"text":"10 processus obligatoires","correct":false},{"text":"3 niveaux de support","correct":false}],"explication":"ITIL v3 : 5 phases (Stratégie → Conception → Transition → Exploitation → Amélioration)<br>ITIL 4 : Service Value System (SVS) avec chaîne de valeur"},
+      {"id":"sup_ccp1_q27","difficulty":"normal","question":"ITIL 4 introduit les <strong>34 pratiques de gestion</strong>. Lesquelles remplacent \"Gestion des incidents\" et \"Gestion des problèmes\" d'ITIL v3 ?","options":[{"text":"Elles n'existent plus","correct":false},{"text":"Incident Management et Problem Management (mêmes noms, évoluées)","correct":true},{"text":"Service Desk Management","correct":false},{"text":"Continuous Improvement","correct":false}],"explication":"ITIL 4 : 34 pratiques (dont ces 2)<br>Évolutions : Plus Agile, intégration DevOps, focus valeur client"},
+      {"id":"sup_ccp1_q28","difficulty":"normal","question":"Dans ITIL 4, que signifie <strong>SVS</strong> (Service Value System) ?","options":[{"text":"Le système complet de création de valeur (inclut SVC, pratiques, principes directeurs)","correct":true},{"text":"Un outil de ticketing","correct":false},{"text":"Un type de sauvegarde","correct":false},{"text":"Un indicateur de performance","correct":false}],"explication":"SVS contient :<br>• Principes directeurs (7)<br>• Gouvernance<br>• Chaîne de valeur (6 activités)<br>• Pratiques (34)<br>• Amélioration continue"},
+      {"id":"sup_ccp1_q29","difficulty":"normal","question":"Combien y a-t-il de <strong>principes directeurs</strong> (guiding principles) dans ITIL 4 ?","options":[{"text":"4","correct":false},{"text":"7","correct":true},{"text":"10","correct":false},{"text":"12","correct":false}],"explication":"1. Focus sur la valeur<br>2. Commencer là où vous êtes<br>3. Progresser itérativement avec feedback<br>4. Collaborer et promouvoir la visibilité<br>5. Penser et travailler de manière holistique<br>6. Rester simple et pratique<br>7. Optimiser et automatiser"},
+      {"id":"sup_ccp1_q30","difficulty":"normal","question":"Quel principe ITIL 4 signifie \"Commencer là où vous êtes\" ?","options":[{"text":"Ne jamais changer","correct":false},{"text":"Analyser l'existant avant de tout reconstruire, réutiliser ce qui fonctionne","correct":true},{"text":"Toujours repartir de zéro","correct":false},{"text":"Rester sur les anciennes versions","correct":false}],"explication":"Évite de :<br>• Tout reconstruire de zéro<br>• Ignorer l'existant<br>Encourage :<br>• Audit de l'existant<br>• Réutilisation (assets, processus qui marchent)<br>• Amélioration incrémentale"},
+      {"id":"sup_ccp1_q31","difficulty":"normal","question":"Le principe \"<strong>Focus sur la valeur</strong>\" signifie :","options":[{"text":"Maximiser les profits","correct":false},{"text":"Toutes les activités doivent contribuer à créer de la valeur pour le client","correct":true},{"text":"Réduire les coûts uniquement","correct":false},{"text":"Facturer plus cher","correct":false}],"explication":"Toute activité IT doit :<br>• Répondre à un besoin métier<br>• Créer de la valeur mesurable<br>• Être justifiée (ROI)"},
+      {"id":"sup_ccp1_q32","difficulty":"normal","question":"Dans la <strong>chaîne de valeur des services</strong> (SVC) ITIL 4, quelles sont les 6 activités ?","options":[{"text":"Planifier, Construire, Exécuter, Tester, Déployer, Fermer","correct":false},{"text":"Plan, Improve, Engage, Design &amp; Transition, Obtain/Build, Deliver &amp; Support","correct":true},{"text":"Incident, Problème, Changement, Release, Configuration, Capacité","correct":false},{"text":"Support N1, N2, N3, Manager, Directeur, Client","correct":false}],"explication":"Chaîne de valeur SVC (6 activités) :<br>1. <strong>Plan</strong> : Planification stratégique<br>2. <strong>Improve</strong> : Amélioration continue<br>3. <strong>Engage</strong> : Engagement parties prenantes<br>4. <strong>Design &amp; Transition</strong> : Conception et transition<br>5. <strong>Obtain/Build</strong> : Obtenir/Construire<br>6. <strong>Deliver &amp; Support</strong> : Livrer et supporter"},
+      {"id":"sup_ccp1_q33","difficulty":"normal","question":"ITIL 4 met l'accent sur l'approche <strong>Agile</strong> et <strong>DevOps</strong>. Que signifie DevOps ?","options":[{"text":"Développement sans opérations","correct":false},{"text":"Collaboration Dev (développement) + Ops (opérations) pour livrer plus vite","correct":true},{"text":"Un outil de ticketing","correct":false},{"text":"Un certificat ITIL","correct":false}],"explication":"DevOps :<br>• Casser les silos Dev/Ops<br>• Automatisation (CI/CD)<br>• Livraison continue<br>• Feedback rapide<br>ITIL 4 intègre ces concepts"},
+      {"id":"sup_ccp1_q34","difficulty":"normal","question":"Quelle pratique ITIL 4 gère la <strong>base de connaissances</strong> ?","options":[{"text":"Knowledge Management","correct":true},{"text":"Information Security Management","correct":false},{"text":"Service Desk","correct":false},{"text":"Incident Management","correct":false}],"explication":"Pratique gérant :<br>• Base de connaissances<br>• Articles de résolution<br>• Documentation<br>• Partage d'expertise"},
+      {"id":"sup_ccp1_q35","difficulty":"normal","question":"Dans ITIL 4, qu'est-ce que le <strong>continual improvement</strong> (amélioration continue) ?","options":[{"text":"Un projet ponctuel","correct":false},{"text":"Une pratique permanente d'optimisation itérative (Kaizen)","correct":true},{"text":"Un rôle spécifique","correct":false},{"text":"Un logiciel","correct":false}],"explication":"Amélioration continue (Kaizen) :<br>• Cycle PDCA (Plan-Do-Check-Act)<br>• Itérations courtes<br>• Mesure KPIs<br>• Ajustements réguliers"},
+      {"id":"sup_ccp1_q36","difficulty":"normal","question":"Quel outil open-source est couramment utilisé pour la gestion de tickets IT ?","options":[{"text":"GLPI","correct":true},{"text":"Microsoft Word","correct":false},{"text":"Adobe Photoshop","correct":false},{"text":"VLC Media Player","correct":false}],"explication":"Outils ticketing courants :<br>• <strong>GLPI</strong> (open-source, français)<br>• ServiceNow (propriétaire, leader)<br>• Jira Service Management<br>• FreshService<br>• Zendesk"},
+      {"id":"sup_ccp1_q37","difficulty":"normal","question":"Dans GLPI, que permet la fonction <strong>\"Ticket parent/enfant\"</strong> ?","options":[{"text":"Gérer les relations familiales des utilisateurs","correct":false},{"text":"Lier des tickets (incident global → sous-incidents)","correct":true},{"text":"Bloquer la création de tickets","correct":false},{"text":"Supprimer automatiquement les tickets","correct":false}],"explication":"Exemple :<br>• Ticket parent : \"Serveur web indisponible\"<br>• Ticket enfant 1 : User A ne peut pas accéder<br>• Ticket enfant 2 : User B ne peut pas accéder<br>• Ticket enfant 3 : User C ne peut pas accéder<br>Fermer parent → Ferme automatiquement enfants"},
+      {"id":"sup_ccp1_q38","difficulty":"normal","question":"Qu'est-ce qu'un <strong>Self-Service Portal</strong> ?","options":[{"text":"Un portail où les utilisateurs peuvent créer des tickets, consulter la KB, suivre leurs demandes","correct":true},{"text":"Un service de restauration","correct":false},{"text":"Un outil de piratage","correct":false},{"text":"Un type de firewall","correct":false}],"explication":"Fonctions :<br>• Créer ticket<br>• Suivre statut tickets<br>• Consulter KB<br>• Demandes de service (nouveau PC, logiciel)<br>• FAQ<br>Bénéfices :<br>• Autonomie utilisateurs<br>• Réduction charge support N1"},
+      {"id":"sup_ccp1_q39","difficulty":"normal","question":"Pour mesurer la performance du support, quel indicateur mesure le <strong>temps moyen de résolution</strong> ?","options":[{"text":"MTTR (Mean Time To Resolve)","correct":true},{"text":"MTBF (Mean Time Between Failures)","correct":false},{"text":"RTO (Recovery Time Objective)","correct":false},{"text":"SLA (Service Level Agreement)","correct":false}],"explication":"Indicateurs clés :<br>• <strong>MTTR</strong> : Temps moyen de résolution<br>• <strong>MTBF</strong> : Temps moyen entre pannes (fiabilité)<br>• <strong>FRT</strong> : First Response Time (temps première réponse)<br>• <strong>FCR</strong> : First Call Resolution (résolution au premier contact)"},
+      {"id":"sup_ccp1_q40","difficulty":"normal","question":"Dans un contexte ITIL, qu'est-ce que la <strong>CMDB</strong> (Configuration Management Database) ?","options":[{"text":"Une base de données des tickets","correct":false},{"text":"Une base de données des éléments de configuration (CI) et leurs relations","correct":true},{"text":"Un outil de monitoring réseau","correct":false},{"text":"Un système de sauvegarde","correct":false}],"explication":"CMDB contient :<br>• Serveurs<br>• Postes de travail<br>• Applications<br>• Licences<br>• Relations/dépendances<br>Exemple relation :<br><code style=\"display:block;white-space:pre-wrap\">Application Web\n    ↓ dépend de\nServeur Web Apache\n    ↓ hébergé sur\nVM Linux\n    ↓ exécutée sur\nServeur physique ESXi</code><br>Bénéfices :<br>• Analyse d'impact (avant changement)<br>• Cartographie SI<br>• Gestion incidents (identifier dépendances)<br>## 📊 BARÈME ET ÉVALUATION<br><strong>Nombre de bonnes réponses</strong> : _____ / 40<br>Score — Niveau — Commentaire<br>36-40 — ⭐⭐⭐ Expert — Excellent ! Maîtrise ITIL et support<br>30-35 — ⭐⭐ Très bien — Bonnes bases, révise détails<br>24-29 — ⭐ Bien — Relis FICHE Support &amp; ITIL<br>18-23 — 🟡 Moyen — Révision approfondie nécessaire<br>0-17 — 🔴 Insuffisant — Revoir tous les cours ITIL et GLPI<br>## 🎯 POINTS CLÉS À RETENIR"},
+      /* SUPPORT_QCM */
     ],
   }
 

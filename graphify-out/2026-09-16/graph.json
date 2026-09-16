@@ -28,16 +28,28 @@
       "source_location": "L909"
     },
     {
-      "id": "app_getmodstats",
-      "label": "getModStats()",
+      "id": "app_getfavorites",
+      "label": "getFavorites()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "renderNav",
       "file_type": "code",
-      "norm_label": "getmodstats()",
+      "norm_label": "getfavorites()",
       "source_file": "app.js",
-      "source_location": "L56"
+      "source_location": "L977"
+    },
+    {
+      "id": "app_gohome",
+      "label": "goHome()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "renderNav",
+      "file_type": "code",
+      "norm_label": "gohome()",
+      "source_file": "app.js",
+      "source_location": "L416"
     },
     {
       "id": "app_highlightmatch",
@@ -148,6 +160,18 @@
       "source_location": "L676"
     },
     {
+      "id": "app_rendercli",
+      "label": "renderCLI()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "renderNav",
+      "file_type": "code",
+      "norm_label": "rendercli()",
+      "source_file": "app.js",
+      "source_location": "L2959"
+    },
+    {
       "id": "app_rendergameshell",
       "label": "renderGameshell()",
       "_callable": true,
@@ -158,6 +182,18 @@
       "norm_label": "rendergameshell()",
       "source_file": "app.js",
       "source_location": "L668"
+    },
+    {
+      "id": "app_renderhome",
+      "label": "renderHome()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "renderNav",
+      "file_type": "code",
+      "norm_label": "renderhome()",
+      "source_file": "app.js",
+      "source_location": "L420"
     },
     {
       "id": "app_rendernav",
@@ -208,18 +244,6 @@
       "source_location": "L647"
     },
     {
-      "id": "app_setmodstats",
-      "label": "setModStats()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "renderNav",
-      "file_type": "code",
-      "norm_label": "setmodstats()",
-      "source_file": "app.js",
-      "source_location": "L57"
-    },
-    {
       "id": "app_showdiagram",
       "label": "showDiagram()",
       "_callable": true,
@@ -268,6 +292,18 @@
       "source_location": "L399"
     },
     {
+      "id": "app_togglefavorite",
+      "label": "toggleFavorite()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "renderNav",
+      "file_type": "code",
+      "norm_label": "togglefavorite()",
+      "source_file": "app.js",
+      "source_location": "L981"
+    },
+    {
       "id": "app_cliisfile",
       "label": "cliIsFile()",
       "_callable": true,
@@ -302,6 +338,18 @@
       "norm_label": "exportprogression()",
       "source_file": "app.js",
       "source_location": "L1059"
+    },
+    {
+      "id": "app_getmodstats",
+      "label": "getModStats()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app.js",
+      "file_type": "code",
+      "norm_label": "getmodstats()",
+      "source_file": "app.js",
+      "source_location": "L56"
     },
     {
       "id": "app_importprogression",
@@ -352,40 +400,28 @@
       "source_location": "L2244"
     },
     {
+      "id": "app_setmodstats",
+      "label": "setModStats()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "app.js",
+      "file_type": "code",
+      "norm_label": "setmodstats()",
+      "source_file": "app.js",
+      "source_location": "L57"
+    },
+    {
       "id": "app_getexamhistory",
       "label": "getExamHistory()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": "renderHome",
+      "community_name": "getExamHistory",
       "file_type": "code",
       "norm_label": "getexamhistory()",
       "source_file": "app.js",
       "source_location": "L2256"
-    },
-    {
-      "id": "app_getfavorites",
-      "label": "getFavorites()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "renderHome",
-      "file_type": "code",
-      "norm_label": "getfavorites()",
-      "source_file": "app.js",
-      "source_location": "L977"
-    },
-    {
-      "id": "app_gohome",
-      "label": "goHome()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "renderHome",
-      "file_type": "code",
-      "norm_label": "gohome()",
-      "source_file": "app.js",
-      "source_location": "L416"
     },
     {
       "id": "app_openexamendetail",
@@ -393,7 +429,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": "renderHome",
+      "community_name": "getExamHistory",
       "file_type": "code",
       "norm_label": "openexamendetail()",
       "source_file": "app.js",
@@ -405,23 +441,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": "renderHome",
+      "community_name": "getExamHistory",
       "file_type": "code",
       "norm_label": "openexamhistory()",
       "source_file": "app.js",
       "source_location": "L2266"
-    },
-    {
-      "id": "app_renderhome",
-      "label": "renderHome()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "renderHome",
-      "file_type": "code",
-      "norm_label": "renderhome()",
-      "source_file": "app.js",
-      "source_location": "L420"
     },
     {
       "id": "app_saveexamenattempt",
@@ -429,143 +453,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 10,
-      "community_name": "renderHome",
+      "community_name": "getExamHistory",
       "file_type": "code",
       "norm_label": "saveexamenattempt()",
       "source_file": "app.js",
       "source_location": "L2260"
-    },
-    {
-      "id": "app_togglefavorite",
-      "label": "toggleFavorite()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "renderHome",
-      "file_type": "code",
-      "norm_label": "togglefavorite()",
-      "source_file": "app.js",
-      "source_location": "L981"
-    },
-    {
-      "id": "app_addlb",
-      "label": "addLB()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "getLB",
-      "file_type": "code",
-      "norm_label": "addlb()",
-      "source_file": "app.js",
-      "source_location": "L32"
-    },
-    {
-      "id": "app_getlb",
-      "label": "getLB()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "getLB",
-      "file_type": "code",
-      "norm_label": "getlb()",
-      "source_file": "app.js",
-      "source_location": "L31"
-    },
-    {
-      "id": "app_openleaderboard",
-      "label": "openLeaderboard()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "getLB",
-      "file_type": "code",
-      "norm_label": "openleaderboard()",
-      "source_file": "app.js",
-      "source_location": "L2414"
-    },
-    {
-      "id": "app_renderdashboard",
-      "label": "renderDashboard()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "getLB",
-      "file_type": "code",
-      "norm_label": "renderdashboard()",
-      "source_file": "app.js",
-      "source_location": "L993"
-    },
-    {
-      "id": "app_renderleaderboard",
-      "label": "renderLeaderboard()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "getLB",
-      "file_type": "code",
-      "norm_label": "renderleaderboard()",
-      "source_file": "app.js",
-      "source_location": "L38"
-    },
-    {
-      "id": "app_getqcmweak",
-      "label": "getQCMWeak()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "renderQCM",
-      "file_type": "code",
-      "norm_label": "getqcmweak()",
-      "source_file": "app.js",
-      "source_location": "L61"
-    },
-    {
-      "id": "app_qcmnext",
-      "label": "qcmNext()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "renderQCM",
-      "file_type": "code",
-      "norm_label": "qcmnext()",
-      "source_file": "app.js",
-      "source_location": "L2750"
-    },
-    {
-      "id": "app_qcmselect",
-      "label": "qcmSelect()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "renderQCM",
-      "file_type": "code",
-      "norm_label": "qcmselect()",
-      "source_file": "app.js",
-      "source_location": "L2717"
-    },
-    {
-      "id": "app_renderqcm",
-      "label": "renderQCM()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "renderQCM",
-      "file_type": "code",
-      "norm_label": "renderqcm()",
-      "source_file": "app.js",
-      "source_location": "L2624"
-    },
-    {
-      "id": "app_renderqcmquestion",
-      "label": "renderQCMQuestion()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "renderQCM",
-      "file_type": "code",
-      "norm_label": "renderqcmquestion()",
-      "source_file": "app.js",
-      "source_location": "L2670"
     },
     {
       "id": "app_cliclear",
@@ -784,18 +676,6 @@
       "source_location": "L3816"
     },
     {
-      "id": "app_makeclistate",
-      "label": "makeCLIState()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "escHtml",
-      "file_type": "code",
-      "norm_label": "makeclistate()",
-      "source_file": "app.js",
-      "source_location": "L2798"
-    },
-    {
       "id": "app_normpath",
       "label": "normPath()",
       "_callable": true,
@@ -806,18 +686,6 @@
       "norm_label": "normpath()",
       "source_file": "app.js",
       "source_location": "L3204"
-    },
-    {
-      "id": "app_rendercli",
-      "label": "renderCLI()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "escHtml",
-      "file_type": "code",
-      "norm_label": "rendercli()",
-      "source_file": "app.js",
-      "source_location": "L2959"
     },
     {
       "id": "app_renderscenariopanel",
@@ -844,6 +712,18 @@
       "source_location": "L3861"
     },
     {
+      "id": "app_addlb",
+      "label": "addLB()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderExamenQuestion",
+      "file_type": "code",
+      "norm_label": "addlb()",
+      "source_file": "app.js",
+      "source_location": "L32"
+    },
+    {
       "id": "app_examennext",
       "label": "examenNext()",
       "_callable": true,
@@ -868,6 +748,18 @@
       "source_location": "L2389"
     },
     {
+      "id": "app_getlb",
+      "label": "getLB()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderExamenQuestion",
+      "file_type": "code",
+      "norm_label": "getlb()",
+      "source_file": "app.js",
+      "source_location": "L31"
+    },
+    {
       "id": "app_opencustomexam",
       "label": "openCustomExam()",
       "_callable": true,
@@ -878,6 +770,30 @@
       "norm_label": "opencustomexam()",
       "source_file": "app.js",
       "source_location": "L2167"
+    },
+    {
+      "id": "app_openleaderboard",
+      "label": "openLeaderboard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderExamenQuestion",
+      "file_type": "code",
+      "norm_label": "openleaderboard()",
+      "source_file": "app.js",
+      "source_location": "L2414"
+    },
+    {
+      "id": "app_renderdashboard",
+      "label": "renderDashboard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderExamenQuestion",
+      "file_type": "code",
+      "norm_label": "renderdashboard()",
+      "source_file": "app.js",
+      "source_location": "L993"
     },
     {
       "id": "app_renderexamenquestion",
@@ -902,6 +818,18 @@
       "norm_label": "renderexamenresults()",
       "source_file": "app.js",
       "source_location": "L2476"
+    },
+    {
+      "id": "app_renderleaderboard",
+      "label": "renderLeaderboard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderExamenQuestion",
+      "file_type": "code",
+      "norm_label": "renderleaderboard()",
+      "source_file": "app.js",
+      "source_location": "L38"
     },
     {
       "id": "app_shuffle",
@@ -1012,6 +940,42 @@
       "source_location": "L225"
     },
     {
+      "id": "app_getqcmweak",
+      "label": "getQCMWeak()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "renderQCMResults",
+      "file_type": "code",
+      "norm_label": "getqcmweak()",
+      "source_file": "app.js",
+      "source_location": "L61"
+    },
+    {
+      "id": "app_qcmnext",
+      "label": "qcmNext()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "renderQCMResults",
+      "file_type": "code",
+      "norm_label": "qcmnext()",
+      "source_file": "app.js",
+      "source_location": "L2750"
+    },
+    {
+      "id": "app_qcmselect",
+      "label": "qcmSelect()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "renderQCMResults",
+      "file_type": "code",
+      "norm_label": "qcmselect()",
+      "source_file": "app.js",
+      "source_location": "L2717"
+    },
+    {
       "id": "app_qcmskip",
       "label": "qcmSkip()",
       "_callable": true,
@@ -1046,6 +1010,30 @@
       "norm_label": "renderflashcardview()",
       "source_file": "app.js",
       "source_location": "L2551"
+    },
+    {
+      "id": "app_renderqcm",
+      "label": "renderQCM()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "renderQCMResults",
+      "file_type": "code",
+      "norm_label": "renderqcm()",
+      "source_file": "app.js",
+      "source_location": "L2624"
+    },
+    {
+      "id": "app_renderqcmquestion",
+      "label": "renderQCMQuestion()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "renderQCMResults",
+      "file_type": "code",
+      "norm_label": "renderqcmquestion()",
+      "source_file": "app.js",
+      "source_location": "L2670"
     },
     {
       "id": "app_renderqcmresults",
@@ -1456,6 +1444,18 @@
       "source_location": "L3939"
     },
     {
+      "id": "app_makeclistate",
+      "label": "makeCLIState()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cliExecCisco",
+      "file_type": "code",
+      "norm_label": "makeclistate()",
+      "source_file": "app.js",
+      "source_location": "L2798"
+    },
+    {
       "id": "app_masktocidr",
       "label": "_maskToCidr()",
       "_callable": true,
@@ -1773,150 +1773,6 @@
       "norm_label": "assets",
       "source_file": "sw.js",
       "source_location": "L3"
-    },
-    {
-      "id": "session_log",
-      "label": "session-log.md",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "session-log.md",
-      "source_file": "session-log.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "session_log_archive",
-      "label": "Archive",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "archive",
-      "source_file": "session-log.md",
-      "source_location": "L53"
-    },
-    {
-      "id": "session_log_contexte_express",
-      "label": "Contexte express :",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "contexte express :",
-      "source_file": "session-log.md",
-      "source_location": "L27"
-    },
-    {
-      "id": "session_log_contexte_express_48",
-      "label": "Contexte express :",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "contexte express :",
-      "source_file": "session-log.md",
-      "source_location": "L48"
-    },
-    {
-      "id": "session_log_fait",
-      "label": "Fait :",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "fait :",
-      "source_file": "session-log.md",
-      "source_location": "L3"
-    },
-    {
-      "id": "session_log_fait_34",
-      "label": "Fait :",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "fait :",
-      "source_file": "session-log.md",
-      "source_location": "L34"
-    },
-    {
-      "id": "session_log_r\u00e9cap_2026_07_22_session_32",
-      "label": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\ud83d\udccb recap \u2014 2026-07-22 (session 32)",
-      "source_file": "session-log.md",
-      "source_location": "L32"
-    },
-    {
-      "id": "session_log_r\u00e9cap_2026_09_16_session_33",
-      "label": "\ud83d\udccb R\u00e9cap \u2014 2026-09-16 (session 33)",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\ud83d\udccb recap \u2014 2026-09-16 (session 33)",
-      "source_file": "session-log.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "session_log_\u00e0_reprendre",
-      "label": "\u00c0 reprendre :",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "a reprendre :",
-      "source_file": "session-log.md",
-      "source_location": "L19"
-    },
-    {
-      "id": "session_log_\u00e0_reprendre_41",
-      "label": "\u00c0 reprendre :",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "a reprendre :",
-      "source_file": "session-log.md",
-      "source_location": "L41"
-    },
-    {
-      "id": "session_log_\u00e9tat",
-      "label": "\u00c9tat :",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "etat :",
-      "source_file": "session-log.md",
-      "source_location": "L16"
-    },
-    {
-      "id": "session_log_\u00e9tat_38",
-      "label": "\u00c9tat :",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "\ud83d\udccb R\u00e9cap \u2014 2026-07-22 (session 32)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "etat :",
-      "source_file": "session-log.md",
-      "source_location": "L38"
     }
   ],
   "links": [
@@ -6171,127 +6027,6 @@
       "weight": 1.0
     },
     {
-      "source": "session_log",
-      "target": "session_log_r\u00e9cap_2026_09_16_session_33",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L1",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log",
-      "target": "session_log_r\u00e9cap_2026_07_22_session_32",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L32",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log",
-      "target": "session_log_archive",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L53",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log_r\u00e9cap_2026_07_22_session_32",
-      "target": "session_log_fait_34",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L34",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log_r\u00e9cap_2026_07_22_session_32",
-      "target": "session_log_\u00e9tat_38",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L38",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log_r\u00e9cap_2026_07_22_session_32",
-      "target": "session_log_\u00e0_reprendre_41",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L41",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log_r\u00e9cap_2026_07_22_session_32",
-      "target": "session_log_contexte_express_48",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L48",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log_r\u00e9cap_2026_09_16_session_33",
-      "target": "session_log_\u00e9tat",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L16",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log_r\u00e9cap_2026_09_16_session_33",
-      "target": "session_log_\u00e0_reprendre",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L19",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log_r\u00e9cap_2026_09_16_session_33",
-      "target": "session_log_contexte_express",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L27",
-      "weight": 1.0
-    },
-    {
-      "source": "session_log_r\u00e9cap_2026_09_16_session_33",
-      "target": "session_log_fait",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "session-log.md",
-      "source_location": "L3",
-      "weight": 1.0
-    },
-    {
       "source": "sw",
       "target": "sw_assets",
       "relation": "contains",
@@ -6352,5 +6087,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "1dff68872ade338bbe887b3fe57ce0532640375b"
+  "built_at_commit": "da8b946445f181e3a037b3c5de10436217d3d8ef"
 }

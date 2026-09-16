@@ -9,10 +9,7 @@
   "7": "cliExecCisco",
   "8": "extractFileContent",
   "9": "openRevisionDuJour",
-  "10": "renderHome",
+  "10": "getExamHistory",
   "11": "data.js",
-  "12": "sw.js",
-  "13": "📋 Récap — 2026-07-22 (session 32)",
-  "14": "getLB",
-  "15": "renderQCM"
+  "12": "sw.js"
 }

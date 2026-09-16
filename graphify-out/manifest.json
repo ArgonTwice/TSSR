@@ -1,0 +1,182 @@
+{
+  ".claude/settings.local.json": {
+    "mtime": 1784719686.2130363,
+    "seen": 1789534214.3560932,
+    "ast_hash": "d172468a02fac33b4c5823e6f108be53",
+    "semantic_hash": ""
+  },
+  "app.js": {
+    "mtime": 1789533633.5466115,
+    "seen": 1789534214.3561094,
+    "ast_hash": "50eb6c45aaf26e0c507860d7eaba2a4c",
+    "semantic_hash": ""
+  },
+  "autopush.ps1": {
+    "mtime": 1780846205.1885092,
+    "seen": 1789534214.3561158,
+    "ast_hash": "a8171dbe0d1f72488ffdaaf74f7ecb5b",
+    "semantic_hash": ""
+  },
+  "data.js": {
+    "mtime": 1789533873.6103618,
+    "seen": 1789534214.3561199,
+    "ast_hash": "1d249d707dc8e5ff7ad5816a6bcba550",
+    "semantic_hash": ""
+  },
+  "diagrams.js": {
+    "mtime": 1783443197.34876,
+    "seen": 1789534214.3561232,
+    "ast_hash": "56f8ef1519f4308b4a7738b85364c120",
+    "semantic_hash": ""
+  },
+  "fin-session.ps1": {
+    "mtime": 1780846205.1895115,
+    "seen": 1789534214.356126,
+    "ast_hash": "8f61f593c5cfe377d49ef307d6d537b6",
+    "semantic_hash": ""
+  },
+  "firebase-config.js": {
+    "mtime": 1781694860.6714816,
+    "seen": 1789534214.3561287,
+    "ast_hash": "6c1d409087b649c224f0f20340b6ef92",
+    "semantic_hash": ""
+  },
+  "firebase-notes.js": {
+    "mtime": 1782889979.8519828,
+    "seen": 1789534214.356131,
+    "ast_hash": "a699bc880166e1030f8cc40ad9a0cc3c",
+    "semantic_hash": ""
+  },
+  "firebase.js": {
+    "mtime": 1781682906.9527605,
+    "seen": 1789534214.3561337,
+    "ast_hash": "688619a4fd1e63fc98d33870b6fb92d3",
+    "semantic_hash": ""
+  },
+  "inject_cours.ps1": {
+    "mtime": 1780846610.9163005,
+    "seen": 1789534214.356136,
+    "ast_hash": "362bedaa0d014fdaf51d39f87e6e9383",
+    "semantic_hash": ""
+  },
+  "manifest.json": {
+    "mtime": 1780556884.5319345,
+    "seen": 1789534214.3561385,
+    "ast_hash": "15f512c2dce383f6a932757becbe195b",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1781684278.4817283,
+    "seen": 1789534214.3561413,
+    "ast_hash": "793c9272dff7d8d5cd220fdcf78c86d5",
+    "semantic_hash": ""
+  },
+  "recap.ps1": {
+    "mtime": 1780846205.1895115,
+    "seen": 1789534214.3561437,
+    "ast_hash": "c500475ff9edeb4750a01053c643591e",
+    "semantic_hash": ""
+  },
+  "scenarios.js": {
+    "mtime": 1781111225.5614145,
+    "seen": 1789534214.3561456,
+    "ast_hash": "52aacad57b41abede0790c2cfd07b3fd",
+    "semantic_hash": ""
+  },
+  "server.js": {
+    "mtime": 1781695769.4464579,
+    "seen": 1789534214.3561478,
+    "ast_hash": "c0338c544c4f63c1f0c4db2e9afb8c90",
+    "semantic_hash": ""
+  },
+  "sw.js": {
+    "mtime": 1789534106.8458107,
+    "seen": 1789534214.3561494,
+    "ast_hash": "462343eb647b2abad1f8fd38607b7827",
+    "semantic_hash": ""
+  },
+  "vim.js": {
+    "mtime": 1780907418.3611002,
+    "seen": 1789534214.3561518,
+    "ast_hash": "2cfc0f634b6f86d110a5225145159059",
+    "semantic_hash": ""
+  },
+  "404.html": {
+    "mtime": 1789534103.1288812,
+    "seen": 1789534214.3561535,
+    "ast_hash": "bd0947ecd910c5be53d29e5d36f5f6cf",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1780846205.1885092,
+    "seen": 1789534214.3561554,
+    "ast_hash": "52ec45911e84c11c1d067f56afec4bb3",
+    "semantic_hash": ""
+  },
+  "bashlab.html": {
+    "mtime": 1783448943.6831443,
+    "seen": 1789534214.3561575,
+    "ast_hash": "2543f57b21165f9a4f795857246455cc",
+    "semantic_hash": ""
+  },
+  "deploy.yml": {
+    "mtime": 1780556884.5249386,
+    "seen": 1789534214.3561594,
+    "ast_hash": "c28ef3bc30dfde87ee4b76fabee2a407",
+    "semantic_hash": ""
+  },
+  "gameshell.html": {
+    "mtime": 1783423501.7868617,
+    "seen": 1789534214.3561614,
+    "ast_hash": "5aa34a5bea36123601d5a7a0b2c792b7",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1789534100.093367,
+    "seen": 1789534214.3561645,
+    "ast_hash": "f1539011f2f8e1887d1ee2233005dde5",
+    "semantic_hash": ""
+  },
+  "modules/numerisation/cours_optimise_claude.html": {
+    "mtime": 1780860539.788293,
+    "seen": 1789534214.3561661,
+    "ast_hash": "60e37c0b99ecadaa6afbb7183398d748",
+    "semantic_hash": ""
+  },
+  "modules/numerisation/outils.html": {
+    "mtime": 1781161598.9032123,
+    "seen": 1789534214.356168,
+    "ast_hash": "7872cebcf7adb400058130183472b661",
+    "semantic_hash": ""
+  },
+  "modules/reseaux/cours_reseaux.html": {
+    "mtime": 1780908513.1688366,
+    "seen": 1789534214.35617,
+    "ast_hash": "25ee80b3540d8790cf5e5d806f25b269",
+    "semantic_hash": ""
+  },
+  "modules/windows/cours_windows_objectifs.html": {
+    "mtime": 1780907426.606706,
+    "seen": 1789534214.356172,
+    "ast_hash": "99f62ce380ddca69be1e39bf05dab4b9",
+    "semantic_hash": ""
+  },
+  "netrunner.html": {
+    "mtime": 1783423818.221358,
+    "seen": 1789534214.356174,
+    "ast_hash": "da09ff031b16690fb025c51768a1c40f",
+    "semantic_hash": ""
+  },
+  "session-log.md": {
+    "mtime": 1784720087.160714,
+    "seen": 1789534214.3561761,
+    "ast_hash": "fd4e19fff567e9dab42a7ff603ebf080",
+    "semantic_hash": ""
+  },
+  "favicon.svg": {
+    "mtime": 1781637370.3512666,
+    "seen": 1789534214.3561788,
+    "ast_hash": "9413b70601f3bae660215f3f832386ad",
+    "semantic_hash": ""
+  }
+}

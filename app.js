@@ -195,6 +195,12 @@ function shuffle(arr) {
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function highlightMatch(text, q) {
+  if (!q) return escHtml(text);
+  const idx = text.toLowerCase().indexOf(q);
+  if (idx === -1) return escHtml(text);
+  return escHtml(text.slice(0, idx)) + '<mark class="nav-search-hl">' + escHtml(text.slice(idx, idx + q.length)) + '</mark>' + escHtml(text.slice(idx + q.length));
+}
 function sanitizeText(str) {
   if (!str) return '';
   return str
@@ -259,7 +265,7 @@ function renderNav() {
     { label: 'Systèmes Windows',    modules: ['windows', 'windows-server', 'ad-avance', 'messagerie'] },
     { label: 'Systèmes Linux',      modules: ['linux', 'linux-server'] },
     { label: 'Développement & BDD', modules: ['scripting-avance', 'git'] },
-    { label: 'Fondamentaux',        modules: ['numerisation', 'securite', 'anglais-technique'] },
+    { label: 'Fondamentaux',        modules: ['numerisation', 'securite', 'vpn-pfsense', 'anglais-technique'] },
     { label: 'Infrastructure',      modules: ['stockage', 'virtualisation', 'supervision', 'cloud', 'telephonie-voip', 'iot'] },
     { label: 'Support & Projet',    modules: ['support', 'support-avance', 'documentation'] },
     { label: 'Examen',              modules: ['examen'] },
@@ -310,7 +316,12 @@ function renderNav() {
     const modulesGroupe = groupe.modules
       .map(id => MODULES.find(m => m && m.id === id))
       .filter(Boolean)
-      .filter(m => !sq || m.label.toLowerCase().includes(sq) || m.id.toLowerCase().includes(sq));
+      .filter(m => {
+        if (!sq) return true;
+        const nameMatch = m.label.toLowerCase().includes(sq) || m.id.toLowerCase().includes(sq);
+        const coursMatch = (m.cours || []).some(c => c.titre && c.titre.toLowerCase().includes(sq));
+        return nameMatch || coursMatch;
+      });
     if (!modulesGroupe.length) return;
 
     const label = document.createElement('p');
@@ -320,7 +331,9 @@ function renderNav() {
 
     modulesGroupe.forEach(m => {
       const isActive    = state.currentModule?.id === m.id;
-      const isOpen      = state.openAccordion === m.id;
+      const nameMatch   = !sq || m.label.toLowerCase().includes(sq) || m.id.toLowerCase().includes(sq);
+      const coursMatches = nameMatch ? m.cours : m.cours.filter(c => c.titre && c.titre.toLowerCase().includes(sq));
+      const isOpen      = state.openAccordion === m.id || (sq && !nameMatch && coursMatches.length > 0);
       const hasAccordion = m.cours.length > 1;
 
       const btn = document.createElement('button');
@@ -334,7 +347,7 @@ function renderNav() {
       _iconEl.style.cssText = `background:${m.color}22;color:${m.color}`;
       _iconEl.textContent = (m.icon && [...m.icon].length <= 2) ? m.icon : m.label.slice(0, 2).toUpperCase();
       const _labelEl = document.createElement('span');
-      _labelEl.textContent = m.label;
+      _labelEl.innerHTML = highlightMatch(m.label, sq);
       btn.appendChild(_iconEl);
       btn.appendChild(_labelEl);
 
@@ -360,14 +373,15 @@ function renderNav() {
         const panel = document.createElement('div');
         panel.className = 'nav-accordion' + (isOpen ? ' open' : '');
         panel.id = 'nav-acc-' + m.id;
-        m.cours.forEach(c => {
+        coursMatches.forEach(c => {
           const isCoursActive = isActive && state.currentCours === c.id;
           const cBtn = document.createElement('button');
           cBtn.className = 'nav-cours-item' + (isCoursActive ? ' active' : '');
           const _titreClean = sanitizeText(c.titre);
-          cBtn.textContent = _titreClean.length > 48
+          const _titreShown = _titreClean.length > 48
             ? _titreClean.slice(0, 45).trimEnd() + '...'
             : _titreClean;
+          cBtn.innerHTML = highlightMatch(_titreShown, sq);
           cBtn.title = _titreClean;
           cBtn.setAttribute('aria-label', _titreClean);
           cBtn.addEventListener('click', () => {

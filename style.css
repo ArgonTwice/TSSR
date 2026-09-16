@@ -234,6 +234,12 @@ body {
 }
 .nav-accordion.open { max-height: 600px; }
 
+.nav-search-hl {
+  background: rgba(0, 255, 136, 0.25);
+  color: var(--accent, #00ff88);
+  border-radius: 3px;
+  padding: 0 1px;
+}
 .nav-cours-item {
   display: block;
   width: 100%;
